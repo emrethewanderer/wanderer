@@ -1,0 +1,11 @@
+{
+  "_aciklama": "Eksen denetçisinin taban çizgisi — 30 Ağustos 2026'da migrations/000_wanderer_schema.sql'in seed içeriğinden ölçüldü. Kapı MUTLAK bir kalite yargısı değil, REGRESYON kapısıdır: bugünkü ayrışmanın altına düşmeyi yakalar. Model Stüdyosu'ndan içerik güncellenip repoya işlendiğinde `node scripts/eksen-denetci.mjs --taban-yaz` ile yenilenir. Kapı yalnız system_prompt üzerindedir; knowledge ölçüsü raporda görünür ama kapı değildir (Eser iki kitabın iş ekseninden damıtıldığı için Öz'le meşru biçimde örtüşür).",
+  "_olcum_tarihi": "2026-08-30",
+  "sp_jaccard": { "oz-bag": 10.2, "oz-eser": 9.8, "bag-eser": 10.2 },
+  "sp_tekillik": { "oz": 72.3, "bag": 75.5, "eser": 73.0 },
+  "_rapor_knowledge_dahil": {
+    "_not": "kapı DEĞİL — yalnız görünürlük. Eser'in düşük tekilliği bilinen ve kabul edilen bir olgudur.",
+    "jaccard": { "oz-bag": 13.4, "oz-eser": 28.9, "bag-eser": 16.3 },
+    "tekillik": { "oz": 51.6, "bag": 65.1, "eser": 36.8 }
+  }
+}

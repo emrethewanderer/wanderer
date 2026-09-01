@@ -1,0 +1,6 @@
+{
+  "_aciklama": "İhtimalsel dil denetçisinin taban çizgisi (K7) — dosya başına bugünkü ihlal sayısı. Kapı bu sayının ARTMASINI yasaklar; azalması serbesttir ve her faz kendi dosyalarının tabanını --taban-yaz ile düşürür. Tümü 0 olduğunda kapı kendiliğinden sert 0-tolerans kapısına döner (K7).",
+  "js/parts/15b-i18n-dict-core.js": 0,
+  "js/parts/15e-i18n-dict-en.js": 0,
+  "js/parts/12b2-deste-icerik.js": 0
+}

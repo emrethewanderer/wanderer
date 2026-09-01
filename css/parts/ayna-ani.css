@@ -1,0 +1,124 @@
+/* ═══════════════════════════════════════════════════════════════
+   AYNA ANI (09h) — İÇ DÜNYA odası + tören
+   Ayna Protokolü'nün (09g) ürettiği hipotezi görsel bir yüzleşme
+   anına taşır. oruntu.css (09d) kalıbıyla aynı katman: modal,
+   z-index 750, tören portalı DEĞİL (--z-ceremony kullanılmaz).
+   Altın = doğrulanan (mühür) · nötr = reddedilen (ayna kırılır).
+═══════════════════════════════════════════════════════════════ */
+
+/* Oda köşesindeki taze-nokta — .ws-om-pulse (oruntu.css) ile aynı dil */
+.ws-st-room .ws-ay-pulse { position: absolute; top: 12px; right: 12px; }
+.ws-ay-pulse {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0; opacity: 0; transition: opacity 0.4s;
+}
+.ws-ay-pulse.active { opacity: 1; animation: wsAyPulse 2.8s ease-in-out infinite; }
+@keyframes wsAyPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ws-ay-pulse.active { animation: none; opacity: 0.85; }
+}
+
+/* ── Panel (oruntu.css .om-modal ile bire bir kalıp) ── */
+.ay-modal {
+  max-width: 460px; max-height: 88vh; padding: 0; text-align: left;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.ay-head { padding: 24px 22px 4px; flex-shrink: 0; }
+.ay-kicker {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 10px;
+}
+.ay-title { font-family: var(--serif-display); font-size: 24px; color: var(--text); line-height: 1.25; }
+.ay-epigraf {
+  font-family: var(--serif); font-style: italic; font-size: 13px;
+  color: var(--text-mid); margin-top: 8px; line-height: 1.5;
+}
+/* Alt kenar erir: gövde "devamı var" der, .ay-foot'un mührüne değmez —
+   maske yalnız kaydırılan gövdeye asılı (base.css --mask-fade-b). */
+.ay-scroll { flex: 1; overflow-y: auto; padding: 16px 22px 6px; min-height: 120px; -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: var(--mask-fade-b); mask-image: var(--mask-fade-b); }
+.ay-foot {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px 22px calc(var(--safe-b, 0px) + 16px);
+  border-top: 1px solid var(--border-active); flex-shrink: 0;
+}
+
+/* ── Hipotez kartı — merkezi iddia, sohbette değil burada tam görünür ── */
+.ay-hipotez {
+  font-family: var(--serif-display); font-size: 19px; font-style: italic;
+  color: var(--text); line-height: 1.4; text-align: center;
+  padding: 8px 4px 18px;
+}
+.ay-kanit-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.ay-kanit-item {
+  font-family: var(--serif); font-size: 13px; color: var(--text-mid); line-height: 1.5;
+  border-left: 2px solid var(--gold-hairline); padding-left: 10px;
+  opacity: 0; animation: ayKanitIn 0.5s var(--ease-out, cubic-bezier(0.16,1,0.3,1)) forwards;
+  animation-delay: calc(var(--gi, 0) * 120ms + 150ms);
+}
+@keyframes ayKanitIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .ay-kanit-item { animation: none; opacity: 1; }
+}
+
+/* ── Üçlü seçim ── */
+.ay-choice-confirm, .ay-choice-reject, .ay-choice-unsure {
+  min-height: 46px; width: 100%; border-radius: var(--radius-lg);
+  font-family: var(--cinzel); font-size: 10.5px; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+.ay-choice-confirm {
+  background: var(--gold); border: none; color: var(--gold-ink);
+}
+.ay-choice-confirm:hover { filter: brightness(1.06); }
+.ay-choice-reject {
+  background: transparent; border: 1px solid var(--border-active); color: var(--text-mid);
+}
+.ay-choice-reject:hover { border-color: var(--text-dim); color: var(--text); }
+.ay-choice-unsure {
+  background: none; border: none; color: var(--text-dim);
+  font-family: var(--serif); font-style: italic; text-transform: none;
+  letter-spacing: 0; font-size: 12.5px; min-height: 36px;
+}
+.ay-choice-unsure:hover { color: var(--text-mid); }
+.ay-choice-confirm:focus-visible, .ay-choice-reject:focus-visible, .ay-choice-unsure:focus-visible {
+  outline: 2px solid var(--gold); outline-offset: 2px;
+}
+
+/* ── Mühür / ayna kırılma sonucu ── */
+.ay-result { text-align: center; padding: 20px 8px 8px; }
+.ay-result-ring { display: flex; justify-content: center; margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(245,166,35,0.35)); }
+.ay-result-text {
+  font-family: var(--serif-display); font-size: 16px; font-style: italic;
+  color: var(--text); line-height: 1.5;
+}
+.ay-result--reject .ay-result-text { color: var(--text-mid); }
+.ay-result--reject .ay-result-ring { filter: none; opacity: 0.5; }
+
+.ay-empty {
+  text-align: center; padding: 36px 12px; color: var(--text-dim);
+  font-size: 13px; line-height: 1.6;
+}
+
+/* ── Ücretsiz teaser (om-teaser kalıbı) ── */
+.ay-teaser { text-align: center; padding: 28px 12px 8px; }
+.ay-teaser-icon { font-size: 32px; margin-bottom: 14px; opacity: 0.7; }
+.ay-teaser-text {
+  font-family: var(--serif); font-size: 14px; color: var(--text-mid);
+  line-height: 1.55; margin-bottom: 22px;
+}
+.ay-teaser-cta {
+  min-height: 44px; padding: 0 22px;
+  background: var(--gold); border: none; border-radius: var(--radius-lg);
+  color: var(--gold-ink); font-family: var(--cinzel); font-size: 10.5px;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+}
+.ay-teaser-cta:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+@media (max-width: 380px) {
+  .ay-modal { max-width: 100%; }
+  .ay-title { font-size: 21px; }
+}

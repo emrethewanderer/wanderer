@@ -1,0 +1,232 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ÜÇ MÜHÜR — detay sahnesi (10u usOpenDetail)
+   ───────────────────────────────────────────────────────────────────
+   FELSEFE / VİZYON (Emre):
+     Üç seri (GELDİN · GÖRDÜN · YAPTIN) aynı gökyüzünün altında durur.
+     Eski sahne kendi dünyasını kuruyordu — Roma sütunları, mor bahçe,
+     mermer — ve uygulamanın geri kalanıyla akraba değildi. Burada
+     zemin Yol'un zeminidir: saatle yaşayan gök, aynı yıldızlar, aynı
+     gren. Seriyi ayıran şey dekor değil ışıktır: altın=olduğun,
+     lapis=hayal, bronz=verdiğin söz.
+   MEKANİK / MİMARİ:
+     Kart yüzleri buraya AİT DEĞİLDİR — tek motor 12c (`ikvCardFace` /
+     `ikvCardBack`). Bu dosya yalnız sahneyi, yerleşimi ve seri
+     aksanını taşır; kartın kendi dili 12c'de kalır.
+   Kalıcılık: yok (salt görsel)
+   Konvansiyon: sınıf öneki `us-` (modül 10u); `--sky-scene`/`--sky-stars`/
+     `--grain-img` base.css tokenları; ULTRA UYANIŞ töreni ayrı dosyada
+     (`ultra-seri.css`, `.us-awaken*`).
+═══════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. SAHNE ─── */
+/* z-index 9660: yol-portal (9655) üstü, gl-portal (9700) altı — Yol'dan
+   açılan detay Yol'un üstüne biner, Armağan zinciri ikisinin de üstünde. */
+.us-portal { position: fixed; inset: 0; z-index: var(--z-toren-muhur); }
+
+.us-scene {
+  position: absolute; inset: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  color: var(--text, #EAE2D6);
+  /* Gök base.css'in --sky-scene token'ından gelir — saat evresi <html>'deki
+     tw-* sınıfıyla token'ı değiştirir, sahne kendiliğinden döner (yol.css
+     ve gordun.css ile TEK kaynak). */
+  background: var(--sky-scene);
+  animation: usSceneIn .42s var(--ease-out, ease);
+}
+@keyframes usSceneIn { from { opacity: 0; } to { opacity: 1; } }
+.us-scene--out { animation: usSceneOut .28s ease forwards; }
+@keyframes usSceneOut { to { opacity: 0; } }
+
+/* Yıldızlar base.css --sky-stars token'ıdır: sahneler arası geçişte
+   yıldız yer değiştirmesin diye tek kaynaktan gelir.
+   pointer-events AÇIK bırakılır bilinçle: gövdenin dışına dokunmak sahneyi
+   kapatır (10u dinleyicisi) — grain üstte ama geçirgen, tıklama buraya iner. */
+.us-scene-sky { position: fixed; inset: 0; z-index: 0; background: var(--sky-stars); }
+.us-scene-grain { position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background-image: var(--grain-img); opacity: .25; }
+
+/* Seri aksanı — üç renk anayasası: altın=olduğun · lapis=hayal · bronz=söz */
+.us-scene--seri  { --us-accent: var(--gold, #F5A623); --us-accent-soft: rgba(245,166,35,.28); }
+.us-scene--hayal { --us-accent: var(--lapis-bright, #5A8AD8); --us-accent-soft: rgba(90,138,216,.28); }
+.us-scene--soz   { --us-accent: #C9A24B; --us-accent-soft: rgba(201,162,75,.28); }
+
+/* Kapatma — 44px dokunma hedefi (Apple HIG); görsel daire 38px kalır,
+   kutu 44'e çıkar ki parmak kenardan kaçmasın. */
+.us-scene-close {
+  position: fixed; top: max(12px, var(--safe-t, 12px)); right: 12px; z-index: 10;
+  width: 44px; height: 44px; display: grid; place-items: center;
+  border-radius: 50%; cursor: pointer;
+  background: rgba(15, 12, 8, .55); border: 1px solid rgba(234, 226, 214, .18);
+  color: var(--text-mid, #95897A); font-size: 15px;
+  backdrop-filter: blur(4px);
+}
+.us-scene-close:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+.us-scene-body {
+  position: relative; z-index: 3;
+  max-width: 480px; margin: 0 auto;
+  padding: calc(64px + var(--safe-t, 0px)) 20px calc(40px + var(--safe-b, 0px));
+  text-align: center;
+}
+
+/* ─── 2. HERO — serinin bugünkü yüzü ─── */
+/* Kart 12c'den gelir (.ikv-card / .ikv-back). Burada yalnız ölçü ve
+   yerleşim var: yüzün kendi dili motorda kalsın diye. */
+/* Kicker (seri adı) kartın DIŞINDA ayrı bir satır DEĞİL, 12c kartının kendi
+   üst satırıdır (ikv-kicker) — aynı kelimeyi iki kez basmamak için. */
+.us-hero { margin-bottom: 18px; }
+.us-hero-card {
+  width: 150px; margin: 0 auto;
+  animation: usHeroRise .6s var(--ease-out, ease);
+}
+@keyframes usHeroRise { from { opacity: 0; transform: translateY(20px) scale(.94); } to { opacity: 1; transform: none; } }
+
+/* Gün sayısı kartın DIŞINDA durur: kart imgedir, sayı ölçümdür — ikisi
+   aynı yüzeyde karışmasın (§6.10 gerçeklik: ölçülen şey ölçülen gibi
+   görünür). */
+.us-hero-count { margin-top: 12px; display: flex; align-items: baseline; justify-content: center; gap: 7px; }
+.us-hero-n { font-size: 40px; font-weight: 700; line-height: 1; color: var(--us-accent, var(--gold, #F5A623)); }
+.us-hero-day { font-size: 10px; letter-spacing: 3px; color: var(--text-mid, #95897A); }
+.us-hero-scene-line {
+  font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 12px; line-height: 1.55;
+  color: var(--text-mid, #95897A);
+  margin: 12px auto 0; max-width: 320px;
+}
+
+/* ─── 3. "YOLUN NERESİNDESİN" — buradasın → sonraki istasyon ─── */
+.us-yolpos {
+  max-width: 360px; margin: 4px auto 16px; padding: 12px 14px;
+  border-radius: 14px; background: rgba(10, 8, 6, .34);
+  border: 1px solid rgba(234, 226, 214, .10);
+}
+.us-yolpos-lbl { font-size: 8.5px; letter-spacing: 3px; color: var(--text-dim, #585349); margin-bottom: 11px; }
+.us-yolpos-row { display: flex; align-items: center; gap: 10px; }
+.us-yolpos-now { flex: none; display: flex; flex-direction: column; align-items: center; }
+.us-yolpos-now-n { font-size: 24px; font-weight: 700; line-height: 1; color: var(--text, #EAE2D6); }
+.us-yolpos-now-t { font-size: 7.5px; letter-spacing: 1px; color: var(--text-dim, #585349); margin-top: 3px; }
+.us-yolpos-line { flex: 1; height: 3px; border-radius: 3px; background: rgba(234, 226, 214, .12); overflow: hidden; }
+/* Tek yüzde çubuğu — eskiden aynı sayı iki kez çizilirdi (.us-prog
+   emekli, 2026-08-17): ilerleme bir kez söylenir. */
+.us-yolpos-fill { display: block; height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, rgba(245,166,35,.75), var(--us-accent, var(--gold, #F5A623))); }
+.us-yolpos-next { flex: none; display: flex; flex-direction: column; align-items: center; }
+.us-yolpos-thumb { width: 38px; height: 48px; border-radius: 6px; overflow: hidden;
+  border: 1px solid rgba(234, 226, 214, .16); opacity: .9; }
+.us-yolpos-thumb svg { width: 100%; height: 100%; display: block; }
+.us-yolpos-next-n { font-size: 11px; font-weight: 700; margin-top: 4px; color: var(--text, #EAE2D6); }
+.us-yolpos-next-t { font-size: 7.5px; letter-spacing: .6px; color: var(--text-dim, #585349); }
+.us-yolpos-note { font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 10.5px; line-height: 1.45; color: var(--text-mid, #95897A); margin-top: 11px; }
+.us-yolpos-note b { font-style: normal; color: var(--text, #EAE2D6); }
+.us-yolpos--end .us-yolpos-end { font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 12px; color: var(--text-mid, #95897A); }
+
+/* ─── 4. HAFTA ŞERİDİ ─── */
+.us-week { display: flex; justify-content: center; gap: 8px; margin: 10px 0 14px; }
+.us-week-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.us-week-dot { width: 9px; height: 9px; border-radius: 50%;
+  background: rgba(234, 226, 214, .14); border: 1px solid rgba(234, 226, 214, .18); }
+.us-week-cell--on .us-week-dot { background: var(--us-accent, var(--gold, #F5A623));
+  border-color: var(--us-accent, var(--gold, #F5A623)); box-shadow: 0 0 8px var(--us-accent-soft, rgba(245,166,35,.28)); }
+.us-week-cell--today .us-week-dot { outline: 2px solid rgba(255, 255, 255, .35); outline-offset: 1px; }
+.us-week-lbl { font-size: 8px; letter-spacing: 1px; color: var(--text-dim, #585349); }
+
+/* ─── 5. BUGÜN EYLEM BLOĞU ─── */
+.us-today { font-size: 11px; letter-spacing: .5px; padding: 10px 12px;
+  border-radius: 10px; margin: 4px auto 12px; max-width: 340px; }
+.us-today--done { background: rgba(120, 180, 90, .12); border: 1px solid rgba(120, 180, 90, .28); color: var(--green-ok, #bfe0a8); }
+/* CTA — .sm-cta altın standardı (seri-muhru.css:253): dövülmüş mühür */
+.us-today-btn {
+  display: block; width: min(340px, 100%); margin: 6px auto 14px;
+  min-height: 50px; padding: 14px 16px; border: 0; cursor: pointer;
+  border-radius: var(--radius-full, 9999px);
+  background: linear-gradient(180deg, var(--gold-bright, #F7C744), var(--gold, #F5A623) 58%, #C07F1C);
+  color: var(--gold-ink, #1A1206);
+  font-family: var(--cinzel, 'Cinzel', serif); font-size: 12px; letter-spacing: 2.5px; font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), inset 0 -1px 0 rgba(0,0,0,.22),
+    0 4px 16px rgba(245,166,35,.30), 0 1px 3px rgba(0,0,0,.4);
+  transition: transform var(--anim-normal, .25s) var(--ease-out, ease), filter var(--anim-normal, .25s);
+}
+.us-today-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.us-today-btn:active { transform: scale(.98); }
+.us-today-btn:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 3px; }
+
+/* SÖZ — Günün Mührü (Verdiğin Söz) kartı host'u (#gl-verdigin-soz) */
+.us-soz-today { max-width: 360px; margin: 6px auto 14px; }
+.us-soz-today .gl-vs-card { margin: 0; }
+
+/* HAYAL — bugünkü bakış cümlesi (.us-today--done içine girer) */
+.us-hayal-line { margin-top: 6px; font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 12.5px; line-height: 1.5; color: var(--text, #EAE2D6); opacity: .92; }
+
+/* HAYAL — iki derin kapı (OKU / HAYAL SEANSI) */
+.us-gates { display: flex; flex-direction: column; gap: 8px; max-width: 340px; margin: 6px auto 14px; }
+.us-gate {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 16px; border-radius: 11px; cursor: pointer; text-align: center;
+  font-family: var(--cinzel, 'Cinzel', serif); font-size: 11px; letter-spacing: 1.5px;
+  background: rgba(90, 138, 216, .08); border: 1px solid rgba(90, 138, 216, .30);
+  color: var(--text, #EAE2D6);
+}
+.us-gate:hover { border-color: rgba(90, 138, 216, .55); background: rgba(90, 138, 216, .14); }
+.us-gate:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+/* ─── 6. GÖRDÜKLERİN DEFTERİ (hayal) ─── */
+.us-defter { max-width: 360px; margin: 4px auto 16px; padding: 12px 14px; border-radius: 14px;
+  background: rgba(10, 8, 6, .30); border: 1px solid rgba(234, 226, 214, .10); text-align: left; }
+.us-defter-lbl { font-family: var(--cinzel, 'Cinzel', serif); font-size: 9px; letter-spacing: 2.5px;
+  color: var(--text-dim, #585349); margin-bottom: 10px; text-align: center; }
+.us-defter-row { display: flex; align-items: center; gap: 8px; padding: 7px 0;
+  border-top: 1px solid rgba(234, 226, 214, .07); }
+.us-defter-row:first-of-type { border-top: 0; }
+.us-defter-date { flex: 0 0 auto; font-size: 9px; letter-spacing: .5px; color: var(--text-dim, #585349); }
+.us-defter-line { flex: 1; font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 13px; line-height: 1.45; color: var(--text, #EAE2D6); }
+/* Silme — görsel daire 26px, dokunma kutusu 44px (::after ile genişletilir).
+   GOTCHA: `min-height: 0` ŞART — global buton kuralı 44px dayatıyor ve satır
+   59px'e şişiyordu (ölçüldü 2026-08-17). Hedef ::after'da yaşar, satırda değil. */
+.us-defter-del { position: relative; flex: 0 0 auto; width: 26px; height: 26px; min-height: 0;
+  border-radius: 50%; border: 0; cursor: pointer; background: transparent;
+  color: var(--text-dim, #585349); font-size: 11px; }
+.us-defter-del::after { content: ''; position: absolute; top: 50%; left: 50%;
+  width: 44px; height: 44px; transform: translate(-50%, -50%); }
+.us-defter-del:hover { color: var(--red, #C0392B); }
+.us-defter-del:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.us-defter--empty { text-align: center; font-style: italic; color: var(--text-dim, #585349); font-size: 12px; }
+
+/* ─── 7. HEDEF ─── */
+.us-goalbar { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  max-width: 340px; margin: 8px auto 18px; padding: 8px 12px; border-radius: 10px;
+  background: rgba(10, 8, 6, .30); border: 1px solid rgba(234, 226, 214, .10); }
+.us-goalbar-lbl { font-size: 9px; letter-spacing: 2px; color: var(--text-mid, #95897A); text-align: left; }
+.us-goalbar-opts { display: flex; gap: 6px; }
+/* Görsel genişlik 34px, dokunma kutusu 44px (::after yatayı tamamlar; dikeyi
+   global buton kuralı zaten 44'e çıkarır ve burada satırı şişirmez —
+   çubuğun yüksekliğini belirleyen zaten bu düğmelerdir). */
+.us-goal-opt { position: relative; width: 34px; height: 28px; border-radius: 7px;
+  background: rgba(234, 226, 214, .06); border: 1px solid rgba(234, 226, 214, .18);
+  color: var(--text, #EAE2D6); font-size: 10px; cursor: pointer;
+  font-family: var(--cinzel, 'Cinzel', serif); }
+.us-goal-opt::after { content: ''; position: absolute; top: 50%; left: 50%;
+  width: 44px; height: 44px; transform: translate(-50%, -50%); }
+.us-goal-opt--on { background: var(--gold, #F5A623); color: var(--gold-ink, #1A1206);
+  border-color: transparent; font-weight: 700; }
+.us-goal-opt:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+/* ─── 8. KİLOMETRE TAŞI GALERİSİ ─── */
+/* Üç sütun: 12c kartı 96px altında container-query eşiğini kaybeder —
+   dört sütunda 480px'lik gövdede kart 78px'e düşüyordu. */
+.us-gallery-stat { font-size: 10px; letter-spacing: 1px; color: var(--text-mid, #95897A); margin: 4px 0 12px; }
+.us-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 360px) { .us-gallery { grid-template-columns: repeat(2, 1fr); } }
+.us-mcard { position: relative; }
+.us-mcard-when { font-size: 7.5px; letter-spacing: .5px; color: var(--text-dim, #585349); margin-top: 4px; }
+/* Kilitli kart sırtını taşır (12c ikvCardBack) — sisli ve sessiz; altındaki
+   satır neyin beklendiğini söyler (emoji kilit YOK). */
+.us-mcard-need { font-size: 8px; letter-spacing: .5px; color: var(--text-dim, #585349); margin-top: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .us-scene, .us-hero-card { animation: none !important; }
+}

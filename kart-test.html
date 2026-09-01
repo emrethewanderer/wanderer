@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!-- GEÇİCİ TEST SAYFASI — 12c kart görsel dili galeri önizlemesi (build'e girmez) -->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kart Dili Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Barlow:wght@300;400;500&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0F0C08;--text:#EAE2D6;--text-dim:#585349;--text-mid:#95897A;--gold:#F5A623;--gold-bright:#F7C744;
+    --lapis:#2D5FA8;--lapis-bright:#5A8AD8;--serif:'EB Garamond',Georgia,serif;--cinzel:'Cinzel',serif;--border:#281F16;}
+  body{margin:0;background:linear-gradient(180deg,#12100C,#0B0908);color:var(--text);font-family:Barlow,sans-serif;padding:24px;}
+  h2{font-family:var(--cinzel);font-size:13px;letter-spacing:4px;color:var(--gold);margin:34px 0 14px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  /* flex:none — shrink olursa kart 150px yerine 43px'e sıkışır ve
+     container-query ile ölçeklenen tipografi ölçülemez hâle gelir. */
+  .cell{display:flex;flex-direction:column;gap:6px;align-items:center;flex:none;}
+  .cap{font-family:var(--serif);font-style:italic;font-size:11px;color:var(--text-mid);max-width:180px;text-align:center;}
+  .w300{width:300px}.w200{width:200px}.w150{width:150px}.w96{width:96px}
+</style>
+<!-- 12b zinciri bare dep'lere dokunur (supabase/marked/dompurify/chart.js);
+     tarayıcı bunları çözemez → galeri boş kalır. kisilerim-test.html'in
+     kanıtlanmış data-URL stub kalıbı (yalnız bu test sayfası için). -->
+<script type="importmap">
+{
+  "imports": {
+    "@supabase/supabase-js": "data:text/javascript,const h={get:(t,p)=>{if(p==='then')return(res)=>res({data:null,error:null});return(...a)=>new Proxy(function(){},h)},apply:(t,th,a)=>new Proxy(function(){},h)};export const createClient=()=>new Proxy(function(){},h);",
+    "marked": "data:text/javascript,export const marked=Object.assign((s)=>String(s),{setOptions(){},parse:(s)=>String(s),use(){}});",
+    "dompurify": "data:text/javascript,const d={sanitize:(x)=>x,addHook(){},removeHook(){}};export default d;",
+    "chart.js": "data:text/javascript,export class Chart{static register(){}constructor(){}update(){}destroy(){}};const o={};export const LineController=o,BarController=o,DoughnutController=o,LineElement=o,BarElement=o,ArcElement=o,PointElement=o,LinearScale=o,CategoryScale=o,Tooltip=o,Legend=o,Filler=o,Title=o;"
+  }
+}
+</script>
+</head>
+<body>
+<div id="out">yükleniyor…</div>
+<script type="module">
+import { ikvCardFace, ikvCardBack, ikvScene, ikvMilestoneScene, ikvComposeBackdrop } from './js/parts/12c-kart-gorsel.js';
+import { getFullDeck, RARITIES, CATEGORIES, deckReady } from './js/parts/12b-kart-destesi.js';
+
+// Deste içeriği sidecar'da; dev'de ESM fallback ASYNC gelir — beklenmezse
+// galeri boş kartlarla çizilir (numara/nadirlik/kök alanları olmadan).
+await deckReady();
+const deck = getFullDeck();
+const out = document.getElementById('out');
+const byCat = {};
+for (const c of deck) { (byCat[c.category] = byCat[c.category] || []).push(c); }
+// Nadirlik merdiveni saf altın/lapis dilinde gösterilsin — gölge lehçesi
+// kendi bölümünde. (12c CAT_FRAME'in aynası; yalnız bu galeri için.)
+const CAT_FRAME_DEMO = ['golge', 'perde', 'tuzak'];
+
+/* ── KART ÜRETİM MOTORU (12d reçete → 12c kompozitör) önizlemesi ── */
+let html = '<h2>KART ÜRETİM MOTORU — reçeteli benzersiz sahneler</h2>';
+{
+  // Aynı kategoriden 5 kart yan yana: reçete varsa hepsi FARKLI görünmeli
+  const cards = (byCat.gercek || deck).slice(0, 5);
+  html += '<div class="row" style="margin-bottom:18px;">';
+  for (const c of cards) {
+    html += `<div class="cell w150">${ikvCardFace(c, { palette:'gold', kicker:'OLDUĞUN KİŞİ' })}<div class="cap">${c.id}${c.sahne ? '' : ' · (reçetesiz)'}</div></div>`;
+  }
+  html += '</div>';
+  // El yapımı örnek reçeteler — motif envanteri turu
+  const DEMO = [
+    { n:'köprü + doğan güneş', s:{ cerceve:'acik', yildiz:4, gok:'dogan', uzak:['deniz'], orta:['kopru'], fig:{x:52,y:96,s:0.62}, nesne:[{m:'kumru',x:150,y:96}] } },
+    { n:'kubbe + hilal + elmas', s:{ cerceve:'kemer', yildiz:9, gok:'hilal', uzak:['kubbe'], fig:{x:56,y:104,s:0.62}, nesne:[{m:'elmas',x:142,y:200}] } },
+    { n:'çatal yol + pusula', s:{ cerceve:'dik', yildiz:6, uzak:['dag'], orta:['catal'], fig:{x:44,y:100,s:0.6}, nesne:[{m:'pusula',x:148,y:190}] } },
+    { n:'kule + yağmur + kırık zincir', s:{ cerceve:'dik', yildiz:3, gok:'yagmur', orta:[{m:'kule',x:40,s:0.9}], fig:{x:74,y:102,s:0.64}, nesne:[{m:'kirikzincir',x:142,y:206}] } },
+    { n:'ayna + ikiz + kum saati', s:{ cerceve:'daire', yildiz:5, fig:{x:52,y:88,s:0.62,mod:'ikiz'}, nesne:[{m:'kumsaati',x:146,y:196}], yol:'spiral' } },
+    { n:'fener + merdiven + kitap', s:{ cerceve:'kemer', yildiz:7, orta:['merdiven',{m:'fener',x:52}], fig:{x:48,y:106,s:0.58}, nesne:[{m:'kitap',x:66,y:214}] } },
+    { n:'deniz + terazi + taşlar', s:{ cerceve:'pencere', yildiz:4, gok:'bulut', uzak:['deniz'], fig:{x:56,y:116,s:0.6}, nesne:[{m:'terazi',x:150,y:200}], yol:'taslar' } },
+    { n:'ağaç + güneş + kâse', s:{ cerceve:'acik', yildiz:2, gok:'gunes', uzak:['tepe'], orta:[{m:'agac',x:146,s:0.92}], fig:{x:40,y:102,s:0.62}, nesne:[{m:'kase',x:64,y:210}] } },
+  ];
+  html += '<div class="row">';
+  for (const d of DEMO) {
+    const c = { id:'demo-'+d.n, name:'DEMO', glyph:'wanderer', virtue:'sebat' };
+    html += `<div class="cell w150">${ikvCardFace(c, { palette:'gold', name:'', sub:'', sahne:undefined, scene: ikvScene(c, { palette:'gold', sahne:d.s }) })}<div class="cap">${d.n}</div></div>`;
+  }
+  html += '</div>';
+  // Backdrop önizlemesi — detay ekranının tam-boy sahnesi
+  const bd = deck.find(x => x.sahne) || deck[0];
+  html += `<h2>DETAY BACKDROP — kartın dünyası ekrana taşar</h2>
+    <div class="row">
+      <div style="width:300px;height:520px;position:relative;border:1px solid var(--border);overflow:hidden;">
+        <div style="position:absolute;inset:0;">${ikvComposeBackdrop(bd, { palette:'gold' })}</div>
+        <div style="position:absolute;bottom:14px;left:14px;right:14px;font-family:var(--serif);font-style:italic;font-size:12px;color:var(--text-mid);">${bd.name} — altın</div>
+      </div>
+      <div style="width:300px;height:520px;position:relative;border:1px solid var(--border);overflow:hidden;">
+        <div style="position:absolute;inset:0;">${ikvComposeBackdrop(bd, { palette:'lapis' })}</div>
+        <div style="position:absolute;bottom:14px;left:14px;right:14px;font-family:var(--serif);font-style:italic;font-size:12px;color:var(--text-mid);">${bd.name} — lapis</div>
+      </div>
+    </div>`;
+}
+
+/* ── FAZ 1: DOKUNUŞ MERDİVENİ (K2) + ÇERÇEVE LEHÇESİ (K1) ── */
+html += '<h2>DOKUNUŞ MERDİVENİ — nadirlik yüzeyde hissedilir</h2><div class="row">';
+for (const rid of ['yaygin', 'nadir', 'nadide', 'efsane']) {
+  const c = deck.find(x => x.rarity === rid && !CAT_FRAME_DEMO.includes(x.category));
+  if (!c) continue;
+  const R = RARITIES[rid];
+  html += `<div class="cell w200">${ikvCardFace(c, { palette:'gold', kicker:'OLDUĞUN KİŞİ', rarLabel:R.label, rarColor:R.color })}
+    <div class="cap">${R.label} — ${rid === 'yaygin' ? 'mat' : rid === 'nadir' ? 'folyo bandı' : rid === 'nadide' ? 'sahne taşar (full-art)' : 'tam sahne + tezhipli ad'}</div></div>`;
+}
+html += '</div>';
+
+html += '<h2>ÇERÇEVE LEHÇESİ — kartın türü ilk bakışta okunur</h2><div class="row">';
+{
+  const kimlik = deck.find(x => x.category === 'temel' && x.rarity === 'nadide');
+  const golge = deck.find(x => x.category === 'golge');
+  const tuzak = deck.find(x => x.category === 'tuzak');
+  const trio = [
+    [kimlik, 'gold', 'ALTIN — kazanılmış kimlik'],
+    [golge, 'gold', 'GÖLGE lehçesi — tanıdığın yüz (sahipli)'],
+    [tuzak, 'lapis', 'GÖLGE lehçesi — lapis kutupta (sahipsiz)'],
+  ];
+  for (const [c, pal, cap] of trio) {
+    if (!c) continue;
+    html += `<div class="cell w200">${ikvCardFace(c, { palette:pal, kicker: pal === 'gold' ? 'OLDUĞUN KİŞİ' : 'HENÜZ DEĞİL', star: pal === 'lapis' })}<div class="cap">${cap}</div></div>`;
+  }
+}
+html += '</div>';
+
+/* ── FAZ 2: EVRİM ÇİZGİSİ + MERTEBE (K3) ── */
+html += '<h2>EVRİM ÇİZGİSİ — aynı tohum, daha derin toprak</h2><div class="row">';
+{
+  const hat = ['temel-ozsevgi-filiz', 'temel-ozsevgi-kok', 'temel-ozsevgi-tac'];
+  const kad = { filiz: 'FİLİZ', kok: 'KÖK', tac: 'TAÇ' };
+  hat.forEach((id, i) => {
+    const c = deck.find(x => x.id === id);
+    if (!c) return;
+    const onceki = i > 0 ? deck.find(x => x.id === hat[i - 1]) : null;
+    const evrimden = onceki ? `⟵ ${(onceki.sub || '').toLocaleUpperCase('tr')} · ${kad[hat[i - 1].split('-').pop()]}` : '';
+    html += `<div class="cell w200">${ikvCardFace(c, { palette:'gold', kicker:'OLDUĞUN KİŞİ', mertebe: i + 2, evrimden })}
+      <div class="cap">${kad[id.split('-').pop()]} · mertebe ${'✦'.repeat(i + 2)}${evrimden ? ' · kökenli' : ' · hattın başı'}</div></div>`;
+  });
+}
+html += '</div>';
+
+html += '<h2>MERTEBE — kök derinliği (1 yıldız basılmaz: kazanım anı)</h2><div class="row">';
+{
+  const c = deck.find(x => x.category === 'manifesto') || deck[0];
+  for (const m of [1, 2, 3, 4, 5]) {
+    html += `<div class="cell w150">${ikvCardFace(c, { palette:'gold', kicker:'OLDUĞUN KİŞİ', mertebe: m })}<div class="cap">mertebe ${m}</div></div>`;
+  }
+}
+html += '</div>';
+
+html += '<h2>KART SIRTI</h2><div class="row">';
+for (const w of ['w300','w200','w96']) html += `<div class="cell ${w}">${ikvCardBack()}</div>`;
+html += '</div>';
+
+// Her kategoriden bir kart — iki palet yan yana
+html += '<h2>KATEGORİ SAHNELERİ · altın (şimdi) + lapis (hedef)</h2>';
+for (const [cat, cards] of Object.entries(byCat)) {
+  const c = cards[Math.floor(cards.length/2)];
+  const R = RARITIES[c.rarity] || {};
+  const CAT = CATEGORIES[cat] || {};
+  html += `<div class="row" style="margin-bottom:18px;">
+    <div class="cell w200">${ikvCardFace(c, { palette:'gold', kicker:'OLDUĞUN KİŞİ', badge:'✦ MÜHÜR', rarLabel:R.label, rarColor:R.color })}<div class="cap">${cat} · ${c.name}</div></div>
+    <div class="cell w200">${ikvCardFace(c, { palette:'lapis', kicker:'OLMAK İSTEDİĞİN KİŞİ', badge:'◇ HEDEF', rarLabel:R.label, rarColor:R.color })}<div class="cap">lapis gece</div></div>
+    <div class="cell w150">${ikvCardFace(c, { palette:'lapis', fog:true, mini:true, name:'? ? ?', kicker:CAT.label?CAT.label.toUpperCase():'' })}<div class="cap">sis (kilitli mini)</div></div>
+    <div class="cell w96">${ikvCardFace(c, { palette:'gold', mini:true })}<div class="cap">mini 96px</div></div>
+  </div>`;
+}
+
+// Temel kademeleri (filiz/kök/taç)
+html += '<h2>TEMEL KADEMELERİ — filiz → kök → taç</h2><div class="row">';
+for (const id of ['temel-ozsevgi-filiz','temel-ozsevgi-kok','temel-ozsevgi-tac']) {
+  const c = deck.find(d => d.id === id);
+  if (c) html += `<div class="cell w200">${ikvCardFace(c, { palette:'gold', kicker:'TEMELLER', badge:'✦ MÜHÜR' })}<div class="cap">${c.name}</div></div>`;
+}
+html += '</div>';
+
+// Kilometre taşı kartları (10t) — kazanılmış (altın) + gelecek (lapis)
+const SM = [
+  { d:7, name:'İlk Hafta', sub:'İlk Halka' }, { d:15, name:'İki Hafta', sub:'Kök Salan' },
+  { d:30, name:'Bir Ay', sub:'Karaktere Dönüş' }, { d:60, name:'İki Ay', sub:'Taşıyan' },
+  { d:120, name:'Dört Ay', sub:'Yaşam Biçimi' }, { d:180, name:'Yarım Yıl', sub:'Dönüşen' },
+  { d:240, name:'Sekiz Ay', sub:'Dayanan' }, { d:365, name:'Bir Yıl', sub:'Bir Dönüşüm' },
+];
+html += '<h2>KİLOMETRE TAŞI KARTLARI (10t)</h2><div class="row">';
+for (const c of SM.slice(0,4)) {
+  html += `<div class="cell w150">${ikvCardFace({id:'sm-'+c.d, name:c.name}, { palette:'gold', kicker:'SERİ MÜHRÜ', badge:'✦ '+c.d+' GÜN', sub:c.sub, scene: ikvMilestoneScene(c.d) })}<div class="cap">${c.d} gün</div></div>`;
+}
+html += '</div><div class="row" style="margin-top:14px;">';
+for (const c of SM.slice(4)) {
+  html += `<div class="cell w150">${ikvCardFace({id:'sm-'+c.d, name:c.name}, { palette:'lapis', badge:'◇ '+c.d+' GÜN', sub:c.d+' gün uzakta', scene: ikvMilestoneScene(c.d, {palette:'lapis'}) })}<div class="cap">${c.d} gün · gelecek</div></div>`;
+}
+html += '</div>';
+
+out.innerHTML = html;
+</script>
+</body>
+</html>

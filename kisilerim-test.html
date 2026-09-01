@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!-- GEÇİCİ TEST SAYFASI — 10q Kişilerim/Kişiler salon dili önizlemesi (build'e girmez)
+     Bare npm importları import-map ile stub'lanır; gerçek modüller kaynaktan yüklenir. -->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kişilerim Salon Testi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Barlow:wght@300;400;500&family=Cinzel:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/parts/base.css">
+<!-- Tören stilleri: 10q kendi bloğunu JS'ten enjekte eder (kkEnsureStyles) ama
+     10q4'ün perdeleri dosya-tabanlıdır. Bunlar olmadan harness töreni ÇIPLAK
+     gösterir ve görsel doğrulama yanıltır. -->
+<link rel="stylesheet" href="./css/parts/olus.css">
+<link rel="stylesheet" href="./css/parts/onboarding-ritual.css">
+<style>
+  body{margin:0;background:var(--bg,#0F0C08);color:var(--text,#EAE2D6);font-family:var(--sans,Barlow,sans-serif);padding:24px 0 120px;}
+  .view{display:block!important;position:relative!important;inset:auto!important;opacity:1!important;transform:none!important;}
+  h2.probe{font-family:var(--cinzel);font-size:13px;letter-spacing:4px;color:var(--gold);margin:38px auto 14px;max-width:720px;padding:0 14px;}
+  .probe-btns{display:flex;gap:10px;margin:20px auto;max-width:720px;padding:0 14px;flex-wrap:wrap;}
+  .probe-btns button{padding:10px 16px;background:#222;border:1px solid #555;color:#ddd;cursor:pointer;border-radius:8px;}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "@supabase/supabase-js": "data:text/javascript,const h={get:(t,p)=>{if(p==='then')return(res)=>res({data:null,error:null});if(p==='getSession')return()=>Promise.resolve({data:{session:{access_token:'harness'}}});return new Proxy(function(){},h)},apply:(t,th,a)=>new Proxy(function(){},h)};export const createClient=()=>new Proxy(function(){},h);",
+    "marked": "data:text/javascript,export const marked=Object.assign((s)=>String(s),{setOptions(){},parse:(s)=>String(s),use(){}});",
+    "dompurify": "data:text/javascript,const d={sanitize:(x)=>x,addHook(){},removeHook(){}};export default d;",
+    "chart.js": "data:text/javascript,export class Chart{static register(){}constructor(){}update(){}destroy(){}};const o={};export const LineController=o,BarController=o,DoughnutController=o,LineElement=o,BarElement=o,ArcElement=o,PointElement=o,LinearScale=o,CategoryScale=o,Tooltip=o,Legend=o,Filler=o,Title=o;"
+  }
+}
+</script>
+</head>
+<body>
+<h2 class="probe">KİŞİLERİM — altın salon</h2>
+<div class="view active" id="kisilerim-view"><div id="kisilerim-body"></div></div>
+
+<h2 class="probe">KİŞİLER — lapis eşik</h2>
+<div class="view active" id="arketipler-view"><div id="arketipler-body"></div></div>
+
+<h2 class="probe">BUGÜN — iki deste (10q2)</h2>
+<div id="kk-bugun"><div id="kk-bugun-body"></div></div>
+
+<div class="probe-btns">
+  <button id="btn-det-owned">Detay · sahipli</button>
+  <button id="btn-det-locked">Detay · kilitli</button>
+  <button id="btn-pack">Paket töreni</button>
+  <button id="btn-evo">Evrim töreni</button>
+  <button id="btn-synth">Sentez töreni</button>
+  <button id="btn-davet">Oluş · davet töreni</button>
+  <button id="btn-sinama">Oluş · sınama</button>
+  <button id="btn-hukum">Oluş · sınama · hüküm (sahte LLM)</button>
+  <button id="btn-fan">Hazine · yelpaze (beklenti ışığı)</button>
+  <button id="btn-kapi">Oluş · üç kapı</button>
+  <button id="btn-sirtlar">Sırtlar · beşini kazan</button>
+</div>
+
+<!-- showToast'ın hedefi: mikrokopinin gerçekten göründüğü doğrulanabilsin
+     (uygulama kabuğunda var, harness'ta yoktu ve toast sessizce düşüyordu). -->
+<div id="toast" class="toast"></div>
+
+<h2 class="probe">SIRTLAR — beş varyant yan yana</h2>
+<div id="sirt-galeri" style="display:flex;gap:14px;flex-wrap:wrap;max-width:720px;margin:0 auto;padding:0 14px;"></div>
+
+<script type="module">
+import { S } from './js/state.js';
+import { getFullDeck, deckReady } from './js/parts/12b-kart-destesi.js';
+import { loadKisilerimView, loadKisilerView, kkOpenDetail, kkOpenPack, kkEvolveCeremony,
+         kkSynthCeremony, kkSentezMalzeme, kkEsikAc, kkHedefMuhurle, kkGetHedefler,
+         kkEsikNisanHTML, kkEsikDurum, kkMuhurle, kkOneriRafi,
+         kkComputeSignals, kkMatchCard } from './js/parts/10q-w2-kisi-karti.js';
+import './js/parts/10q4-olus-muhru.js';   // davet + sınama törenleri (window.olus*)
+import { hzOpenPack } from './js/parts/12f-hazine-paketleri.js';   // yelpaze + beklenti ışığı
+import './js/parts/13e-his-motoru.js';   // ocak → Fenerin Uğultusu köprüsü (window.fx*)
+
+// main.js yüklenmediği için window köprüleri burada kurulur — 10q2 ve 10q4
+// birbirlerini window üzerinden bulur (TDZ-güvenli erişim deseni).
+Object.assign(window, { kkGetHedefler, kkEsikNisanHTML, kkEsikDurum, kkMuhurle, kkOneriRafi,
+                        kkOpenDetail, loadKisilerimView });
+
+S.currentUser = { id: 'test-user', name: 'Emre' };
+if (!S._kisiKarti) S._kisiKarti = { profile: {}, collection: {}, history: [], seenIntro: true, closest: null, lastTick: 0 };
+S._kisiKarti.seenIntro = true;
+
+// Deste içeriği sidecar'da (dev'de ESM fallback ASYNC) — beklenmezse koleksiyon
+// boş seed'lenir ve harness kartsız açılır.
+await deckReady();
+const deck = getFullDeck();
+// Destenin YARISI sahipli: kalan yarı olmadan kilitli detay, eşik havuzu ve
+// lapis deste boş kalır (12'lik kesitte 14 kart HEPSİNİ sahipli yapıyordu).
+deck.slice(0, 6).forEach((c, i) => {
+  S._kisiKarti.collection[c.id] = {
+    earnedAt: new Date().toISOString(), rarity: c.rarity,
+    dims: { dusunceler: 58 + i * 2, inanclar: 52 + i, hisler: 71, davranislar: 47 + i },
+    score: 78 + i,
+    mertebe: 1 + (i % 5),   // K3 — kart yüzünde kök derinliği yıldızları
+  };
+});
+// Evrim töreninin ön koşulu: alt kademe sahipli olmalı.
+S._kisiKarti.collection['temel-ozsevgi-filiz'] = {
+  earnedAt: new Date().toISOString(), rarity: 'yaygin', score: 82, mertebe: 3,
+  dims: { dusunceler: 64, inanclar: 58, hisler: 72, davranislar: 55 },
+};
+S._kisiKarti.profile = { dusunceler: 72, inanclar: 64, hisler: 81, davranislar: 58 };
+
+// ── Oluş Mührü — eşik havuzu: reçetesi tutmuş ama BEYAN EDİLMEMİŞ kartlar.
+// Üçü rafa düşer; sonuncusu aynı zamanda hedefli, çünkü raf hedeflileri öne
+// alır (K4) — sıralamanın gerçekten hedefe göre döndüğü gözle görülsün.
+const esikAdaylar = deck.filter(c => !S._kisiKarti.collection[c.id]).slice(0, 3);
+esikAdaylar.forEach((c, i) => kkEsikAc(c.id, {
+  skor: 88 - i * 7,
+  dims: { dusunceler: 80 - i * 3, inanclar: 74, hisler: 86 - i * 2, davranislar: 69 },
+  kaynak: 'recete',
+}));
+// Hedefli ama eşikte OLMAYAN bir kart: lapis destede nişansız yüz de görünsün.
+// Sıra önemli — kkGetHedefler en yeniyi öne alır, nişanlı kart ÖN yüz olsun diye
+// eşikli hedef sona bırakılır (nişan yalnız okunan kartta çizilir, taç gibi).
+const sadeHedef = deck.filter(c => !S._kisiKarti.collection[c.id] && !S._kisiKarti.esik?.[c.id])[0];
+if (sadeHedef) kkHedefMuhurle(sadeHedef.id);
+if (esikAdaylar[2]) kkHedefMuhurle(esikAdaylar[2].id);
+
+loadKisilerimView();
+loadKisilerView();
+
+document.getElementById('btn-det-owned').onclick = () => kkOpenDetail(deck[0].id);
+// Kilitli detay SAHİPSİZ bir karttan seçilir — sabit indeks (eski deck[40])
+// 112 kartlık destenin kalıntısıydı; 12'lik kesitte undefined döndürüyordu.
+const kilitliOrnek = deck.find(c => !S._kisiKarti.collection[c.id]) || deck[deck.length - 1];
+document.getElementById('btn-det-locked').onclick = () => kkOpenDetail(kilitliOrnek.id);
+document.getElementById('btn-pack').onclick = () => kkOpenPack(deck[2].id);
+document.getElementById('btn-evo').onclick = () => kkEvolveCeremony('temel-ozsevgi-kok');
+// Sentez: bileşik kartın iki erdem malzemesini koleksiyona koy, sonra töreni aç.
+document.getElementById('btn-synth').onclick = () => {
+  const bilesik = deck.find(c => c.category === 'bilesik');
+  const mal = kkSentezMalzeme(bilesik.id);
+  for (const v of [mal.v1, mal.v2]) {
+    const m = deck.find(c => c.virtue === v && c.category !== 'bilesik');
+    if (m) S._kisiKarti.collection[m.id] = { earnedAt: new Date().toISOString(), rarity: m.rarity, score: 80, mertebe: 2 };
+  }
+  kkSynthCeremony(bilesik.id);
+};
+// Oluş törenleri — ritim kapılarını atlayıp doğrudan perde açılır (harness).
+document.getElementById('btn-davet').onclick = () => {
+  try { window.olusDavetAc?.(esikAdaylar[0]?.id); } catch (e) { console.warn('davet:', e && e.message); }
+};
+document.getElementById('btn-sinama').onclick = () => {
+  try { window.olusSinamaAc?.(esikAdaylar[1]?.id); } catch (e) { console.warn('sinama:', e && e.message); }
+};
+
+/* SINAMA · HÜKÜM — dört boyutun okuma sahnesi.
+   Sınamanın sonucu ancak LLM turundan sonra görülebilir; harness'ta oturum da
+   ağ da yoktur, o yüzden kapı SAHTE bir yanıtla sürülür: `fetch` ve oturum
+   burada stub'lanır, gerisi (prompt kurulumu, JSON parse, kanıt kapısı,
+   sahne) GERÇEK koddur. Kanıt kapısını görmek için model dört boyutta da
+   "yaşandı" der ama yalnız üçünü gösterebilir — dördüncüsü düşmeli. */
+document.getElementById('btn-hukum').onclick = () => {
+  S.currentUser = { id: 'harness-uid' };
+  const yanit = (icerik) => Promise.resolve({
+    ok: true, status: 200,
+    json: () => Promise.resolve({ choices: [{ message: { content: icerik } }] }),
+  });
+  window.fetch = (url, opt) => {
+    const govde = (() => { try { return JSON.parse(opt && opt.body || '{}'); } catch (_) { return {}; } })();
+    const metin = String(govde.messages?.[0]?.content || '');
+    // Soru turu mu karar turu mu — kullanıcı prompt'unun kendi başlığından okunur
+    if (/NUMARALI CÜMLELERİ|NUMBERED SENTENCES/.test(metin)) {
+      // Model dördünde de iddia ediyor; kanıtı yalnız üçünde gösterebiliyor.
+      return yanit(JSON.stringify({
+        boyutlar: {
+          dusunceler:  { yasandi: true, kanit_ref: 'S1', kanit: null },
+          inanclar:    { yasandi: true, kanit_ref: 'S2', kanit: null },
+          hisler:      { yasandi: true, kanit_ref: 'S3', kanit: null },
+          davranislar: { yasandi: true, kanit_ref: null, kanit: null },
+        },
+        eksik: 'davranislar',
+        soz: 'Aynada kusurunu aramadığın o sabah, bu kişinin ilk günüydü.',
+      }));
+    }
+    return yanit(JSON.stringify({ sorular: [
+      { boyut: 'dusunceler',  soru: 'Bu kişi gibi düşündüğün son anı anlat — ne oldu?' },
+      { boyut: 'inanclar',    soru: 'Bu inancın en son ne zaman sınandı, ne yaptın?' },
+      { boyut: 'hisler',      soru: 'Bunu en son nerede hissettin?' },
+      { boyut: 'davranislar', soru: 'Son günlerde bunu nerede yaptın?' },
+    ] }));
+  };
+  try { window.olusSinamaAc?.(esikAdaylar[1]?.id); } catch (e) { console.warn('hüküm:', e && e.message); }
+};
+// Hazine yelpazesi — beklenti ışığının tek görsel kapısı. Dört nadirliği YAN
+// YANA basar ki merdiven (sessiz → nefes → ışık → taşma) tek bakışta ölçülsün.
+// Kartlar sahte: hazine sidecar'ı harness'ta yüklenmeyebilir, ışığın kaynağı
+// zaten kartın `rarity`'si ve 12b renk tablosudur.
+document.getElementById('btn-fan').onclick = () => {
+  const results = ['yaygin', 'nadir', 'nadide', 'efsane'].map((rarity, i) => ({
+    card: { id: `hz-test-${rarity}`, name: `Beklenti ${rarity}`, sub: 'Işık merdiveni', rarity, set: 'manifesto' },
+    isNew: i !== 3, holoUpgrade: i === 3, refund: 0,
+  }));
+  hzOpenPack({ id: 'manifesto', ad: 'Manifesto' }, results, {});
+};
+
+// Üç Kapı — LLM'siz sahne: kanıt cümlesi sayısal yedeğe düşer (gerçek akışta
+// olusKapiKanit doldurur). Nadirlik ışığının merdiveni görünsün diye adaylar
+// destedeki farklı nadirliklerden seçilir.
+document.getElementById('btn-kapi').onclick = () => {
+  const havuz = ['nadir', 'nadide', 'efsane']
+    .map(r => deck.find(c => c.rarity === r && !S._kisiKarti.collection[c.id]))
+    .filter(Boolean);
+  const secim = (havuz.length >= 2 ? havuz : esikAdaylar).slice(0, 3);
+  window.olusKapilarAc?.(secim.map(c => ({ card: c, m: null, kanit: null, detay: null })));
+};
+
+// Sırt galerisi — beş varyantı yan yana bas (mürekkep, doku, halka farkları
+// tek bakışta ölçülsün). Nişan kazıması da eklenir: sırttan bağımsız katman
+// olduğu KANITLANSIN (her varyantın üstünde durmalı).
+const nisanSvg = '<path d="M50 12 L61 40 L90 44 L68 63 L75 90 L50 76 L25 90 L32 63 L10 44 L39 40 Z" fill="currentColor" opacity=".9"/>';
+document.getElementById('sirt-galeri').innerHTML = Object.keys(window.IKV_SIRTLAR || { fener: 1 })
+  .map(id => `<div style="width:120px;">
+      ${window.ikvCardBack({ back: id, etch: nisanSvg })}
+      <div style="font:9px/1.6 var(--cinzel,serif);letter-spacing:2px;color:#95897A;text-align:center;margin-top:6px;">${id.toUpperCase()}</div>
+    </div>`).join('');
+
+// Beş sırtı da kazandır → Kişilerim'deki Sırtlar rafı görünür olsun.
+document.getElementById('btn-sirtlar').onclick = () => {
+  Object.keys(window.IKV_SIRTLAR).forEach(id => window.kkSirtKazan?.(id));
+  loadKisilerimView();
+};
+
+// Canlı kart doğrulaması: kökü elle doldurup mertebe yolunu sınamak için.
+window._harnessSetMertebe = (id, n) => {
+  const rec = S._kisiKarti.collection[id];
+  if (rec) rec.mertebe = n;
+  return !!rec;
+};
+/* Canlı ölçüm (K6) doğrulaması. Sinyaller S'in slice'larından okunur, ama
+   modül scope'u preview konsoluna kapalıdır — dışarıdan bakan biri kancanın
+   gerçekten ÖLÇTÜĞÜNÜ mü yoksa aynı değeri yeniden mi yazdığını ayırt
+   edemiyordu. Köprü o kör noktayı kapatır: sinyali besler, kartın YENİ
+   hazırlığını döndürür; çağıran sonra `_kkDetayCanli()` ile yüzeyin o sayıya
+   geldiğini görür. Ürün kodu bu adı tanımaz — yalnız bu sayfa açar. */
+window._harnessSinyal = (patch = {}, cardId) => {
+  Object.assign(S, patch);
+  const card = deck.find(c => c.id === cardId);
+  return card ? kkMatchCard(card, kkComputeSignals()).hazirlik : null;
+};
+window._harnessEsik = esikAdaylar.map(c => c.id);
+window._harnessDeck = deck;      // canlı doğrulamada kart aramak için
+window._harnessReady = true;
+</script>
+</body>
+</html>

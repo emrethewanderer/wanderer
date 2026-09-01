@@ -1,0 +1,716 @@
+/* ═══════════════════════════════════════
+   EMRE THE WANDERER — V4 CONFRONTATION SYSTEM
+   Design: brutal minimal · serif weight · obsidian
+═══════════════════════════════════════ */
+:root {
+  /* ── Renkler ──
+     Yüzey skalası: saf siyah değil, ısıtılmış obsidyen — kahve/amber alt
+     tonlu, bir kademe yumuşak (Claude koyu modunun sıcak füme dokusu). */
+  --bg: #0F0C08;
+  --bg-warm: #191310;      /* bg-raised'in biraz daha sıcak üstü — composer gradient başlangıcı */
+  --bg-raised: #16110C;
+  --surface: #1D1712;
+  --border: #281F16;
+  --border-active: #34281B;
+  --text: #EAE2D6;      /* sıcak fildişi — şafak ışığı tonu (eski #E0E0E0 nötr griydi) */
+  --text-dim: #585349;  /* hafif sıcak dim */
+  --text-mid: #95897A;  /* sıcak orta ton */
+  --gold: #F5A623;
+  --gold-dim: rgba(245,166,35,0.12);   /* faint zemin/hover dolgu */
+  --gold-glow: rgba(245,166,35,0.4);   /* ışıma/çizgi */
+  --gold-edge: rgba(245,166,35,0.55);  /* mühür altını kenar — .wns-portrait oval çerçeve dili */
+  --gold-hairline: rgba(245,166,35,0.28); /* uçlarda eriyen kıl altın çizgi */
+  --gold-ink: #1A1206;                 /* altın yüzey ÜZERİNDEKİ koyu mürekkep (CTA metni) */
+  --red: #C0392B;
+  --veil: rgba(8, 6, 4, 0.74);         /* modal/alt-sayfa peçesi — ısıtılmış siyah scrim */
+
+  /* ── Lapis Lazuli — üçüncü ana renk ──
+     Altının sıcak/eylem kutbunu dengeleyen serin kutup: hayal, vizyon,
+     içsel derinlik. Altın + lapis, tezhip/antik estetiğin klasik eşleşmesidir
+     (obsidyen taban üzerinde okunabilirlik için parlak varyant kullanılır). */
+  --lapis: #2D5FA8;            /* derin ultramarin — dolgu / kenar */
+  --lapis-bright: #5A8AD8;     /* koyu zemin üstü metin / ikon vurgusu */
+  --lapis-deep: #182E5C;       /* gölge tonu */
+  --lapis-dim: rgba(45,95,168,0.12);
+  --lapis-glow: rgba(90,138,216,0.40);
+  --lapis-edge: rgba(90,138,216,0.55);    /* nefes çizgisi lapis kenarı — --gold-edge ikizi */
+  --lapis-hairline: rgba(90,138,216,0.28);/* uçlarda eriyen kıl lapis çizgi — --gold-hairline ikizi */
+
+  /* ── Bronz — SÖZ / yemin kutbu (Üç Mühür'ün üçüncü vuruşu) ──
+     Altın "şimdi/eylem", lapis "gelecek/hayal", bronz "verdiğin söz". Yol arc'ı
+     (yol.css) ve günlük ritüel söz öğeleri bu rengi paylaşır. Mühür DAİMA altın
+     kalır (§1) — bronz yalnızca söz İÇERİĞİNİN aksanıdır, mührün değil. */
+  --bronze: #C9A24B;
+  --bronze-dim: rgba(201,162,75,0.12);
+  --bronze-glow: rgba(201,162,75,0.45);
+
+  /* ── Sessiz Altın — editoryal/belge yüzeyleri (rapor estetiği) ──
+     Mühür/CTA/kart motoru (12c-kart-gorsel.js PALETTES)/glow YALNIZCA --gold
+     ailesini kullanır (mühür daima altındır ve daima parlaktır) — BU TOKEN
+     ONLARA DOKUNMAZ. Kullanım alanı dar: eyebrow metni, kıl çizgi, tablo
+     başlığı, ince metin vurgusu — yalnız document.css (doc-*) ve ondan göç
+     eden bilgi yüzeylerinde (Ayarlar, Hukuki, GDPR, Admin, RAPORLAR, Ayna,
+     Hafıza).
+     ⚠ --bronze (#C9A24B) ile görsel olarak yakındır — kasıtsız değil,
+     "sessiz sıcak altın" ailesinin doğal komşuluğu. Bronz = SÖZ/yemin
+     ekseni (Üç Mühür, yol.css); bu token = EDİTORYAL SESSİZLİK ekseni.
+     İkisi asla aynı yüzeyde yan yana görünmez. */
+  --gold-quiet: #C9A66B;
+  --gold-quiet-dim: rgba(201,166,107,0.10);
+  --gold-quiet-hairline: rgba(201,166,107,0.30);
+
+  /* ── Yeşil — yalnızca "tamamlandı/uygulandı" rozetleri (belge yüzeyleri) ──
+     Yeni bir yeşil aile icat edilmedi: --mode-celebrate-color (rgb(91,185,123))
+     ve gunluk.css'teki #5fbf7a zaten aynı komşulukta; bu token resmileştirir. */
+  --green-ok: #5BB97B;
+  --green-ok-dim: rgba(91,185,123,0.12);
+  --green-ok-edge: rgba(91,185,123,0.5);
+
+  /* ── Şafak / Gün Doğumu — kalıcı ambient mood ──
+     Obsidian taban korunur; üstüne düşük opaklıkta dawn ışığı işlenir.
+     Gökyüzü okuması yukarıdan aşağı: indigo (şafak öncesi) → gül (ilk ışık)
+     → kehribar/şeftali (yükselen güneşin sıcaklığı). */
+  --dawn-indigo: rgba(86, 74, 140, 0.07);
+  --dawn-rose:   rgba(202, 102, 96, 0.09);
+  --dawn-amber:  rgba(245, 166, 35, 0.11);
+  --dawn-peach:  rgba(255, 178, 120, 0.08);
+
+  /* ── Sahne göğü — tam ekran sahnelerin TEK zemini ──
+     Okuması yukarıdan aşağı: lapis gece (gelecek/hayal) → obsidyen →
+     altın ufuk ısısı (şimdi/eylem). Kaynak: Üç Mühür'ün Yol ekranı.
+     Tüketiciler: .yolp-scene (Yol) · .gor-scene (Gördün) · #auth-screen (giriş
+     eşiği) · #wn-splash (açılış perdesi) · .esik-onb (Bugünün Eşiği).
+     Saat evresine göre kayan değerleri aşağıdaki ZAMAN DOKUSU bloğundadır —
+     yeni bir sahne açarken degradeyi kopyalama, bu token'ı iç. */
+  --sky-scene:
+    radial-gradient(120% 50% at 50% -6%, rgba(24, 46, 92, .50), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 166, 35, .14), transparent 58%),
+    linear-gradient(180deg, #0B0F1A 0%, #0F0C08 55%, #14100A 100%);
+
+  /* ── Sahnenin yıldızları — göğün ikinci katmanı ──
+     Dört yıldız Yol'da ayrı bir div'di (.yolp-sky), auth.css'te elle
+     ikizlenmişti; perde ve Bugünün Eşiği üçüncü-dördüncü kopyayı doğuracaktı.
+     Tek kaynak olmasının sebebi estetik değil süreklilik: aynı yıldız aynı
+     yerde durmazsa perde inerken gök zıplar. Saat evresine göre DEĞİŞMEZ —
+     yıldızlar sabittir, altlarındaki gök döner.
+     Kullanımı daima --sky-scene'in ÜSTÜNDE: `var(--sky-stars), var(--sky-scene)`. */
+  --sky-stars:
+    radial-gradient(2px 2px at 18% 8%,      rgba(190, 210, 255, .8), transparent 60%),
+    radial-gradient(1.6px 1.6px at 64% 5%,  rgba(190, 210, 255, .6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 82% 12%, rgba(190, 210, 255, .5), transparent 60%),
+    radial-gradient(1.8px 1.8px at 38% 14%, rgba(190, 210, 255, .45), transparent 60%);
+
+  /* ── Kâğıt greni — paylaşılan statik SVG noise (session-hero-grain ikizi) ── */
+  --grain-img: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n' x='0' y='0'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 0.88  0 0 0 0 0.85  0 0 0 0 0.80  0 0 0 0.85 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+
+  /* ── Safe Area ── */
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+
+  /* ── Klavye yüksekliği ── 00d-native-shell.js açılan yumuşak klavyenin
+     yüksekliğini (VisualViewport / Capacitor Keyboard) buraya yazar; #app-screen
+     bu kadar daralır → composer klavyenin üstüne çıkar. Klavye yokken 0. */
+  --kb-height: 0px;
+
+  /* ── Tipografi ──
+     Çift katman: --serif-display büyük selamlama/başlıklar için (Fraunces —
+     optik boyutlu, mürekkepli display serif), --serif gövde/akış metni için.
+     Cinzel marka majüskülü olarak kalır. */
+  --serif: 'EB Garamond', Georgia, serif;
+  --serif-display: 'Fraunces', 'EB Garamond', Georgia, serif;
+  --sans: 'Barlow', sans-serif;
+  --cinzel: 'Cinzel', serif;
+  --fell: 'IM Fell English', serif;
+  --gold-bright: #F7C744;
+
+  /* ── Z-Index Katman Sistemi ──
+     Tüm z-index değerleri buradan yönetilir.
+     Inline z-index kullanma — bu değişkenleri kullan.
+     Sıralama: düşük → yüksek, her katman üsttekini örter. */
+  --z-chat-bg: 0;
+  --z-base: 1;
+  --z-ambient: 2;
+  --z-chat-area: 3;
+  --z-input-area: 3;
+  --z-top-nav: 10;
+  --z-topbar: 40;
+
+  /* Sahne içi katmanlar — bir tam ekran sahnenin KENDİ iç sırası
+     (sentez sahneleri: perde → panel → üst şerit → doruk). */
+  --z-sahne-perde: 40;
+  --z-sahne-serit: 45;
+  --z-sahne-panel: 50;
+  --z-sahne-ust: 60;
+  --z-sahne-doruk: 80;
+
+  --z-sheet: 300;       /* alttan gelen yaprak (chat) */
+  --z-fab: 480;         /* yüzen eylem düğmesi — flip FAB, studio kısayolu */
+  --z-global-menu: 500;
+  --z-drawer-backdrop: 510;
+  --z-drawer: 520;
+  --z-profile-panel: 520;
+  --z-overlay: 600;
+  --z-mode-picker: 650;
+  --z-modal: 700;
+  --z-premium-spotlight: 720;
+
+  /* ── Overlay yığını — modalın ÜSTÜNE açılanlar ──
+     Bir modalın üstünde ikinci, onun üstünde üçüncü bir katman açılabilir:
+     İç Meclis'in suret → derinlik → divan → kanıt zinciri, Işık
+     Nişanları'nın nişan → yazıt zinciri. Bu değerler 2026-08-28'de JS
+     içinde çıplak bulundu (`overlay.style.zIndex = '775'`) ve
+     DEĞİŞTİRİLMEDEN adlandırıldı. Basamaklar 5'er artar ki araya sonradan
+     bir katman girebilsin.
+     ⚠ JS'ten verilirken `el.style.zIndex = 'var(…)'` ÇALIŞMAZ — zIndex
+     property'si hesaplanmış sayı bekler. Doğrusu:
+     `el.style.setProperty('z-index', 'var(--z-meclis-panel)')`. */
+  --z-portal-alt: 748;       /* modalın hemen altı — Dönüşüm Aynası sahnesi */
+  --z-overlay-ust: 750;      /* modal üstü ince overlay — 4 modülün ortak katmanı */
+  --z-isik-nisan: 760;       /* Işık Nişanları: nişan detayı */
+  --z-isik-yazit: 765;       /*                 yazıt, nişanın üstünde */
+  --z-meclis-panel: 770;     /* İç Meclis: suret detayı / elle sezis */
+  --z-meclis-derinlik: 775;
+  --z-meclis-dialog: 780;
+  --z-meclis-kanit: 785;     /* kanıt, diyaloğun da üstünde durur */
+
+  --z-flash: 800;
+  --z-input-card: 900;
+  --z-meclis-suret: 900;     /* suret kartı — input-card ile aynı düzlem */
+  --z-isik-sahne: 920;       /* ışık töreni tam ekran sahnesi */
+  --z-meclis-toren: 1000;    /* İç Meclis töreni — yığının da sahnenin de üstü */
+  --z-dinlenme: 900;    /* Dinlenme sahnesi — input-card ile aynı düzlem */
+  --z-dinlenme-panel: 940;
+  --z-dinlenme-ust: 950;
+  --z-okuyucu: 2400;    /* Manifesto okuyucu — tam sayfa, tören altı */
+  --z-daldirma: 7000;   /* daldırma modu (chat tam ekran okuma) */
+  --z-cazibe-portal: 9400;    /* Cazibe Motoru portalı */
+  --z-cazibe-kivilcim: 9500;  /* ve kıvılcım şeridi, portalın üstünde */
+
+  /* ── Tören basamakları ──
+     --z-ceremony (9650) tören katmanının TABANIDIR; üstündeki basamaklar
+     törenlerin birbirine göre sırasıdır ve bu sıra CANLI bir bağımlılıktır:
+     "Gördün" penceresi Yol portalının üstünde açılmak zorundadır (9658 > 9655),
+     yoksa pencere zeminin altında kalır. Bu sayılar 2026-08-28'de çıplak
+     hâlde bulundu ve DEĞİŞTİRİLMEDEN adlandırıldı — bir katman merdiveninde
+     tehlikeli olan sayının kendisi değil, adının olmamasıdır. */
+  --z-ceremony: 9650;   /* sahnelenmiş eşik/tören portalları (seri mührü, günlük, yol) — input-card üstü, toast altı */
+  --z-toren-yol: 9655;
+  --z-toren-gordun: 9658;
+  --z-toren-muhur: 9660;
+  --z-toren-modal: 9670;
+  --z-toren-portal: 9700;
+  --z-toren-detay: 9710;
+  --z-perde-ust: 9998;  /* toast'ın bir altı — hayal sahnesi perdesi */
+  --z-toast: 9999;
+  --z-cinematic: 9999;  /* tam ekran perdeler (wrapped, feature-gate, onboarding ritüeli) */
+
+  /* ── Sinematiğin üstü ──
+     Buradan yukarısı "perdeyi de örten" katmandır: kapı videosu, tam ekran
+     paneller, kota duvarı. Sıralama anlamlıdır — kota duvarı en üsttedir
+     çünkü o bir SINIRDIR, üstüne bir şey açılmaz. */
+  --z-kapi: 10000;         /* feature-gate kapısı + hayal tam ekran */
+  --z-panel-tam: 10500;    /* hafıza / ödev / mektup panelleri */
+  --z-panel-ust: 10600;    /* kitaplık — panellerin üstünde */
+  --z-kabuk-perde: 11000;  /* dil modeli kabuğu perdesi */
+  --z-kabuk-modal: 12000;
+  --z-kota-duvari: 12500;  /* en üst: sınırın kendisi */
+  --z-kbd: 12500;          /* klavye kısayolları — duvarla aynı düzlem, ikisi
+                              hiçbir zaman aynı anda açık olmaz */
+
+  /* ── Breakpoints (referans — CSS'de min/max-width ile kullanılır) ──
+     mobile: 0 – 640px
+     tablet: 641px – 1024px
+     desktop: 1025px+
+  */
+
+  /* ── Animasyon Süreleri ── */
+  --anim-fast: 0.15s;
+  --anim-normal: 0.3s;
+  --anim-slow: 0.45s;
+  --anim-xslow: 0.8s;
+  /* Ev eğrisi: güçlü yavaşlamalı yay — tüm giriş/geçiş hareketlerinin
+     standart dili. --ease-smooth artık buna işaret eder (eski material
+     eğrisi yerine); --ease-spring taşmalı zıplama isteyen oyunsu anlar için. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: var(--ease-out);
+
+  /* ── Mod Renkleri ── */
+  --mode-soft-color: rgba(245,166,35,0.42);
+  --mode-direct-color: rgba(192,57,43,0.60);
+  --mode-reflective-color: rgba(90,138,216,0.60);
+  --mode-celebrate-color: rgba(91,185,123,0.60);
+  --mode-pattern-color: rgba(168,85,247,0.55);
+  --mode-depth-color: rgba(245,166,35,0.55);
+
+  /* ── Gölgeler ── */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+
+  /* ── Border Radius — kart dili: 18–20px (cömert, ferah köşeler) ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── İkon-buton ölçeği — tek dil ──
+     Bir ikon-buton iki ayrı şeydir: GÖRÜLEN glif ve UZANILAN hedef.
+     Repoda ikisi tek kutuya sıkışmıştı; ya glif küçülüyordu (mesaj şeridi
+     18px'te kalmıştı), ya aşağıdaki global 44px kuralı kutuyu şişirip
+     tasarımı bozuyordu. Glif buradan iner, hedef ::after kaplamasıyla
+     --ikon-hedef'e tamamlanır (bkz. .fb-btn, chat.css).
+     Mühür butonları (.send-btn 36, .nb-seal-btn 44) bilinçli olarak bu
+     ölçeğin dışındadır — mühür basmak yardımcı eylem değil, törenin
+     kendisidir. */
+  --ikon-kutu:     32px;  /* standart: topbar, composer yardımcıları */
+  --ikon-kutu-sik: 28px;  /* yoğun şerit: mesaj eylemleri */
+  --ikon-glif:     18px;
+  --ikon-glif-sik: 16px;
+  --ikon-hedef:    44px;  /* dokunma hedefi — GÖRSELDEN AYRI */
+  --ikon-radius:    8px;
+
+  /* ── Dikey ritim merdiveni ──
+     Repoda 152 token vardı ama boşluğun token'ı yoktu: her ekran kendi
+     dolgusunu kendi uyduruyordu, 22.664 satır boyunca. Sayfanın sakinliği
+     renkten değil, TEKRARLAYAN boşluktan gelir — aynı ölçü ikinci kez
+     görüldüğünde göz ritmi tanır ve yüzey "tasarlanmış" okunur.
+     Merdiven 4'ün katlarıdır; ara değer icat etme, bir üst basamağa çık. */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 40px;
+  --sp-7: 64px;
+  --sp-section: 96px;   /* bölüm nefesi — tam ekran sahnelerin üst/alt payı */
+
+  /* ── Display sıkılaşması ──
+     Fraunces optik boyutlu bir display serifidir: 32px üstünde nötr harf
+     aralığıyla dizildiğinde "büyütülmüş gövde metni" gibi okunur, başlık
+     gibi değil. Oran verilir (em), mutlak px DEĞİL — aralık puntoyla
+     büyümeli. Yalnız --serif-display yüzeylerde kullanılır; EB Garamond
+     gövde metni ve Cinzel kicker'lar kendi geniş aralıklarını korur. */
+  --ls-display: -0.015em;
+
+  /* Eriyen kenarın erime mesafesi — bkz. --mask-fade-* motoru aşağıda. */
+  --fade-edge: 28px;
+}
+
+/* ═══════════════════════════════════════
+   ZAMAN DOKUSU (13f) — saate duyarlı ambient ısı
+   Obsidyen taban sabit; yalnız --dawn-* şafak ışığı evreye göre kayar.
+   Sınıf <html>'e JS ile takılır: tw-morning / tw-day / tw-evening / tw-night
+═══════════════════════════════════════ */
+html.tw-morning {
+  /* sabah: serin ilk ışık — gül + indigo öne, kehribar kısık */
+  --dawn-indigo: rgba(86, 74, 140, 0.10);
+  --dawn-rose:   rgba(202, 102, 96, 0.12);
+  --dawn-amber:  rgba(245, 166, 35, 0.07);
+  --dawn-peach:  rgba(255, 178, 120, 0.06);
+  /* gök çekilir, ufuk şeftaliye döner */
+  --sky-scene:
+    radial-gradient(120% 50% at 50% -6%, rgba(70, 90, 150, .42), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 178, 120, .14), transparent 58%),
+    linear-gradient(180deg, #0E1320 0%, #100D09 55%, #16110A 100%);
+}
+html.tw-day {
+  /* gündüz: dengeli, hafif aydınlık */
+  --dawn-indigo: rgba(86, 74, 140, 0.05);
+  --dawn-rose:   rgba(202, 102, 96, 0.07);
+  --dawn-amber:  rgba(245, 166, 35, 0.12);
+  --dawn-peach:  rgba(255, 178, 120, 0.09);
+  --sky-scene:
+    radial-gradient(120% 50% at 50% -6%, rgba(40, 70, 120, .38), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 166, 35, .13), transparent 58%),
+    linear-gradient(180deg, #0C1018 0%, #0F0C08 55%, #141009 100%);
+}
+html.tw-evening {
+  /* akşam: kehribar ufuk ısınır — ocağın başı */
+  --dawn-indigo: rgba(86, 74, 140, 0.06);
+  --dawn-rose:   rgba(214, 96, 82, 0.11);
+  --dawn-amber:  rgba(245, 140, 35, 0.16);
+  --dawn-peach:  rgba(255, 160, 96, 0.13);
+  --sky-scene:
+    radial-gradient(120% 50% at 50% -6%, rgba(60, 50, 110, .44), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 150, 60, .18), transparent 58%),
+    linear-gradient(180deg, #100B16 0%, #120D09 55%, #1A1209 100%);
+}
+html.tw-night {
+  /* gece: indigo derinleşir, közler kısılır */
+  --dawn-indigo: rgba(74, 68, 150, 0.13);
+  --dawn-rose:   rgba(160, 84, 110, 0.07);
+  --dawn-amber:  rgba(220, 140, 40, 0.07);
+  --dawn-peach:  rgba(230, 150, 90, 0.05);
+  --sky-scene:
+    radial-gradient(120% 50% at 50% -6%, rgba(24, 46, 92, .52), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 166, 35, .12), transparent 58%),
+    linear-gradient(180deg, #090C16 0%, #0C0A0A 55%, #120F0A 100%);
+}
+
+/* ── prefers-reduced-motion — tüm animasyonları devre dışı bırak ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Ekran Okuyucu (SR) İçin Gizli ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Kağıt greni · KAYDIRILAN yüzeylerde (.wn-grain) ──
+   Kaydırma kabına asılı mutlak süs, içeriğin değil GÖRÜNEN kutunun boyunu
+   ölçer ve kaydırma ile birlikte yukarı kayar: iki ekranlık bir modalde
+   ikinci ekran grensiz kalır, üçüncüde doku bütünüyle ekran dışındadır —
+   yüzey kaydırıldıkça düzleşir (tasarım §3: hiçbir yüzey düz değildir).
+   2026-08-23 ölçümü: 617px'lik kapta 166px grensiz; kaydırınca gren -114'e
+   çıkıyor. `position: fixed` çare DEĞİL — transform'lu atası olan fixed öğe
+   de scroll offsetini alır (aynı gün ölçüldü). Greni kabın background'una
+   almak da çare değil: taban gradientler opaktır, gren altta kalır ve
+   üstünde blend-mode kırılgandır ("Gezgine Mektup" dersi).
+   Çare tek: greni kabın DEĞİL, içindeki sarmalın üstüne asmak — sarmalın
+   yüksekliği içeriğin kendisidir. Doz yüzeyin kendi --grain-op'undan gelir;
+   yüzey sınıfı dozu söyler, kalıp yalnız katmanı kurar. */
+/* flow-root şart: kaydırma kabı kendi blok bağlamını kurar, sarmal kurmazsa
+   ilk/son çocuğun margin'i sarmalın DIŞINA taşar (yastığı 0 olan yüzeylerde
+   ölçüldü: mpc-sheet ve announce-sheet'te gren 12px eksik kalıyordu). */
+.wn-grain { position: relative; min-height: 100%; display: flow-root; }
+.wn-grain::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain-img);
+  background-size: var(--grain-size, auto);
+  opacity: var(--grain-op, .10);
+}
+/* Gren sarmalın ilk boyamasıdır; içerik onun üstünde durur. z-index'e gerek
+   yok: ikisi de z-index:auto, yani AYNI boyama katmanında ağaç sırasına göre
+   dizilirler — `::before` her zaman ilk çocuktur, gerçek çocuklar ondan sonra
+   gelir. `position: relative` burada katman değil, sıra sözleşmesidir. */
+.wn-grain > * { position: relative; }
+
+/* ── Eriyen kenar · KAYDIRILAN şeritlerde (--mask-fade-x / --mask-fade-b) ──
+   §3 der ki: "çizgiler kıl gibidir, kenarlara doğru erir." Bu kural repoda
+   yalnız ÇİZGİYE uygulanmıştı (border-image, 4 yer); İÇERİK hep kesik
+   kenarla bitiyordu — deste kadraja çarpıyor, kartın yarısı bıçakla kesilmiş
+   gibi duruyordu. Aynı cümlenin içerik hâli budur: şerit kadraja çarpmaz,
+   karanlığa girer. Kenarın ötesinde kart olduğunu göz maskeden anlar; bu
+   yüzden maske aynı zamanda "devamı var" demenin sessiz yoludur.
+
+   Maske KABA asılır, içeriğe değil: kap sabit durur, içerik altından akar —
+   böylece erime kenarda kalır, kartla birlikte kaymaz.
+   ⚠ Safari hâlâ -webkit- önekini ister; ikisi birlikte yazılır, biri
+   düşerse maske Safari'de sessizce yok olur (kırılmaz, sadece keskinleşir).
+   ⚠ Maske yeni bir GPU katmanı doğurur: 96px'lik ızgara hücrelerinde
+   kullanma (§6'nın "mini boyutta drop-shadow soy" kuralının kardeşi).
+   ⚠ Maskeli kapta `position: sticky` çocuk kırılır — maske kırpma bağlamı
+   kurar, sticky ondan kaçamaz.
+
+   Motor TOKEN'dır, sınıf değil: tüketici kendi kuralında `--mask-fade-x`'i
+   içer. (İlk yazımda bir de `.wn-fade-*` yardımcı sınıf seti vardı; aynı
+   turun öz-denetiminde hiçbirinin DOM tüketicisi olmadığı görüldü —
+   maskelenecek şeritlerin hepsi başka modülün selector'ında yaşıyor, yani
+   sınıf takılacak yer yok. İki ağız açık kalsaydı biri baştan ölü olurdu.)
+   Kalıbı kopyalayıp elle linear-gradient yazmak ikinci bir ağız açar. */
+:root {
+  --mask-fade-x: linear-gradient(90deg,
+    transparent 0, #000 var(--fade-edge),
+    #000 calc(100% - var(--fade-edge)), transparent 100%);
+  /* Yalnız alt kenar erir: gövde "devamı var" der ama başı kesilmez —
+     Ayna ve uzun defter yüzeylerinin kalıbı. */
+  --mask-fade-b: linear-gradient(180deg,
+    #000 calc(100% - var(--fade-edge)), transparent 100%);
+}
+
+/* ── Uyanan sahne · KAYDIRMAYA bağlı kademeli giriş (.wn-reveal) ──
+   §5'in "kademeli giriş" kuralı repoda yalnız ekran AÇILIŞINDA yaşıyordu
+   (`.casc`); kaydırırken hiçbir şey uyanmıyordu. Uzun bir yüzeyde aşağı
+   inmek o yerde YÜRÜMEKTİR — konuşulan metafor Yolculuk'tur (§0.1) ve her
+   bölüm yolun bir durağıdır. Motor: 00a-infrastructure `wnRevealInit`.
+
+   ⚠ GİZLEME `html.wn-reveal-on` KAPISINA ASILI. Başlangıç opaklığını bu
+   sınıf olmadan HİÇBİR kural vermez: JS düşerse, IntersectionObserver
+   yoksa ya da motor init edilmezse içerik görünür kalır. Bir giriş
+   animasyonunun bedeli, içeriğin kaybolma riski olamaz (§5.2 "asla
+   bloklama"). Aynı sebeple reduced-motion'da motor sınıfı hiç takmaz —
+   aşağıdaki blok ikinci emniyet kemeridir, tek dayanak değil.
+
+   Kademe `--reveal-i` ile verilir (kardeş sırası); mesafe `--reveal-y`.
+   Bir kez uyanan sönmez: `.wn-seen` kalıcıdır, gözlem düşer. */
+/* Gizlemede GEÇİŞ YOK — bilerek. Motor `.wn-reveal`i yalnız öğe ekran
+   DIŞINDAYKEN takar; oraya bir geçiş koymak görünmeyen bir animasyonu
+   canlandırmak olurdu. Geçiş yalnız uyanışta, yani gözün olduğu yerde. */
+html.wn-reveal-on .wn-reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-y, 16px));
+  will-change: opacity, transform;
+}
+html.wn-reveal-on .wn-reveal.wn-seen {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity .6s var(--ease-out) calc(var(--reveal-i, 0) * 60ms),
+    transform .6s var(--ease-out) calc(var(--reveal-i, 0) * 60ms);
+  will-change: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.wn-reveal-on .wn-reveal,
+  html.wn-reveal-on .wn-reveal.wn-seen {
+    opacity: 1; transform: none; transition: none;
+  }
+}
+
+/* ── Focus Visible — Klavye navigasyonu için ── */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  height: 100dvh; width: 100vw; max-width: 100vw;
+  font-family: var(--sans);
+  color: var(--text);
+  /* Tuval: düz obsidian değil, derin şafak göğü.
+     Üstte hafif plum/indigo (şafak öncesi) → sıcak siyah → altta ember ufuk ısısı.
+     Çok karanlık tutulur; premium obsidian taban korunur. */
+  background:
+    radial-gradient(ellipse 110% 65% at 50% 102%, #1A130C 0%, transparent 58%),
+    linear-gradient(178deg, #0E0C13 0%, var(--bg) 40%, #120D09 100%);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  overflow-x: hidden;
+  /* iOS rubber-band'ı engelle */
+  overscroll-behavior: none;
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: touch;
+  /* Metin seçimini kapat (uygulama hissi) */
+  -webkit-user-select: none;
+  user-select: none;
+  /* iOS text inflate engelle */
+  -webkit-text-size-adjust: 100%;
+  /* touch-action: pan-y ile sadece dikey kaydırmaya izin ver */
+  touch-action: pan-y;
+  position: relative;
+}
+
+/* Yazı alanlarında seçime izin ver */
+input, textarea { -webkit-user-select: text; user-select: text; }
+
+/* Mesaj metinleri seçilebilir olsun (alıntılama için) */
+.message .msg-content,
+.message .msg-content * {
+  -webkit-user-select: text; user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/* iOS'ta input zoom'u engelle (font-size >= 16px) */
+input, textarea, select {
+  font-size: 16px !important;
+}
+/* Ama görsel olarak küçük tutmak istediğimiz yerler için */
+.auth-input { font-size: 16px !important; }
+#chat-input { font-size: 16px !important; }
+
+/* Momentum scroll — tüm kaydırılabilir alanlar için */
+.chat-area,
+.history-list,
+.scroll-content,
+.dashboard-body,
+.summary-list {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Minimum dokunma hedefi: 44×44px (Apple HIG) */
+button, .nav-btn, .gm-link, .mood-btn, .fb-btn,
+.history-item, .kb-header, .admin-tab {
+  min-height: 44px;
+  touch-action: manipulation; /* Dokunma gecikmesini kaldır */
+}
+
+/* Klavye açıldığında viewport küçülme sorununu önle */
+#chat-view {
+  height: 100dvh;
+  position: relative;
+}
+
+/* Atmosferik yansıma — chat-area ve input-area aynı arka plana sahip olur.
+   position:absolute + z-index:0 → her iki alanın (z-index:3) altında ama body'nin üstünde görünür. */
+#chat-view::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-chat-bg);
+  background:
+    linear-gradient(150deg, rgba(245,166,35,0.10) 0%, transparent 55%),
+    linear-gradient(330deg, rgba(245,166,35,0.07) 0%, transparent 52%),
+    /* Gün doğumu — ekranın altından yükselen sıcak ufuk parıltısı (kalıcı) */
+    radial-gradient(ellipse 140% 42% at 50% 112%, var(--dawn-peach) 0%, transparent 60%),
+    radial-gradient(ellipse 120% 30% at 50% 116%, var(--dawn-amber) 0%, transparent 55%);
+}
+
+/* Kâğıt greni — sohbet ön yüzünün tamamına (llm-home + konuşma) çok düşük
+   opaklıkta statik SVG noise. session-hero-grain ile aynı doku; animasyonsuz,
+   browser bir kez rasterize eder. */
+#chat-view::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-chat-bg);
+  background-image: var(--grain-img);
+  background-size: 240px 240px;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+/* iOS safe area — padding artık pill'in margin'inde yönetiliyor */
+
+/* ═══════════════════════════════════════
+   ATMOSFERŞERİDİ — mood signal bar
+═══════════════════════════════════════ */
+#hero-container {
+  flex-shrink: 0;
+  overflow: hidden;
+  width: 100%;
+  max-height: 70dvh;
+  opacity: 1;
+  margin-top: calc(-57px - var(--safe-t));
+  transition: max-height 0.45s var(--ease-out), opacity 0.32s ease;
+}
+#hero-container.hero-collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+#atmosfer-seridi {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+#atmosfer-seridi::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.04) 50%, transparent 100%);
+  pointer-events: none;
+}
+#atmosfer-seridi::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.12) 30%, rgba(245,166,35,0.12) 70%, transparent 100%);
+  pointer-events: none;
+}
+.as-kelime {
+  font-family: var(--sans);
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: var(--text-dim);
+  position: absolute; white-space: nowrap;
+  user-select: none;
+}
+.as-kelime.as-out { animation: asFadeOut 0.6s ease forwards; }
+.as-kelime.as-in  { animation: asFadeIn 1.8s ease forwards; }
+.as-kelime[data-intensity="yüksek"] { color: var(--gold); letter-spacing: 5px; }
+.as-kelime[data-intensity="kritik"] { color: #C0392B; letter-spacing: 5px; animation: asFadeIn 1.8s ease forwards, asRedPulse 4s ease-in-out infinite 2s; }
+@keyframes asFadeIn  { 0% { opacity:0; transform:translateY(4px); } 30% { opacity:1; transform:translateY(0); } 100% { opacity:1; transform:translateY(0); } }
+@keyframes asFadeOut { 0% { opacity:1; transform:translateY(0); } 100% { opacity:0; transform:translateY(-4px); } }
+@keyframes asRedPulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+
+/* ─── TYPOGRAPHY BASE ─── */
+.serif { font-family: var(--serif); }
+button { font-family: var(--sans); }
+
+/* ─── SCROLLBARS ─── */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-active); }
+
+/* ─── METİN SEÇİMİ — lapis lazuli marka dokunuşu (tüm uygulamada) ─── */
+::selection { background: var(--lapis-glow); color: var(--text); }
+
+/* ═══════════════════════════════════════
+   TABLET BREAKPOINT (641px – 768px)
+   640px altı zaten mobil stillerini alıyor;
+   bu blok ara boyutları yakalar.
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Chat */
+  .chat-area { padding: 24px 20px 14px; gap: 36px; }
+  .message.emre .msg-content { font-size: 20px; }
+
+  /* Input */
+  .scroll-content { padding: 22px 18px; }
+
+  /* Dashboard */
+  .db-stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .db-stat { padding: 20px 12px 16px; }
+  .db-stat-num { font-size: 38px; }
+  .db-cover { padding: 36px 20px 36px; }
+  .db-cover-title { font-size: 38px; }
+  .db-section { padding: 24px 20px 0; }
+  .db-avoid-wrap { padding: 0 20px 24px; }
+  .db-milestones { padding: 0 20px 40px; }
+  .db-identity { padding: 28px 20px; }
+  .db-score-wrap { padding: 24px 20px; }
+
+  /* History */
+  .history-list { padding: 0 18px 40px; }
+
+  /* Journey */
+  .w3-chapter-header { padding: 22px 18px 0; }
+  .w3-chapter-description { padding-left: 18px; padding-right: 18px; }
+  .w3-chapter-days { padding-left: 18px; padding-right: 18px; }
+  .w3-chapter-footer { padding: 12px 18px 22px; }
+
+  /* Özet sayfası */
+}
+
+
+/* ═══ KANIT BEKLEYEN ALANLAR (00i) ═══
+   Kanıtı gelmemiş alan konuşmaz. `visibility` seçildi (display değil):
+   yer korunur, böylece kanıt gelince satır kaymaz — dürüstlük layout
+   sıçramasıyla ödenmez. Belirme temposu .casc ailesinden (llm-shell.css
+   §ANA EKRAN GİRİŞ KADEMELENMESİ); yeni bir görsel dil icat edilmedi. */
+[data-kb="1"] { visibility: hidden; }
+
+.kb-belirdi { animation: kb-belir .34s var(--ease-out, cubic-bezier(.22,1,.36,1)) both; }
+
+@keyframes kb-belir {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Hareket azaltmada söz yine gelir, yalnız belirmeden gelir. */
+@media (prefers-reduced-motion: reduce) {
+  .kb-belirdi { animation: none; }
+}

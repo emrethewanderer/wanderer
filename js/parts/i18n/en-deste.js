@@ -1,0 +1,438 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   KART DESTESİ · İNGİLİZCE OVERLAY (en-deste)
+   ───────────────────────────────────────────────────────────────────────────
+   FELSEFE / VİZYON (Emre):
+     Deste uygulamanın ANA mekaniğidir: on iki kart, kullanıcının kim olduğunu
+     anlatır. Arayüz İngilizceye çevrilip kartların portresi Türkçe kaldığı
+     sürece EN kullanıcı kendi kartını okuyamıyordu — "Mesele Sensin" başka
+     bir dilde yarım kalıyordu. Bu dosya o kırığı kapatır.
+     Karar 2026-08-19 (İç Çalışma 04 rev.2 · Y3): 12b'nin `lang === 'en'`
+     istisnası bilinçliydi ve tüm-diller v2 dalgasına bağlıydı; ama v2 DIŞ
+     diller içindir — EN uygulamanın ikinci resmî dilidir ve arayüzü zaten
+     tam native. Emre kararı: destenin tamamı şimdi yazılsın.
+
+   REGISTER (§6.3 · kitap-köklü, sekülerleştirilmemiş):
+     Çeviri DEĞİL transcreation. Üç kural TR kaynaktan aynen taşınır:
+       1. İçten ikinci tekil — "you", asla "one" ya da edilgen yapı.
+       2. İhtimalsel dil ([[ihtimalsel-dil-devrimi]]): yorum cümleleri
+          "may / can / often" taşır; kesin hüküm YOK. `olunca` alanı bir
+          VAAT değil bir ihtimaldir — "you may" kalıbı bunun taşıyıcısıdır.
+       3. Aforizma sadeliği: `lesson` tek nefeslik cümledir; süs eklenmez.
+     Kitap adları sözlükteki resmî karşılıklarıdır (15e/16e): Relationship
+     Philosophy · Mindset Revolution — uydurulmaz, [[ad-senkronu-kurali]].
+
+   DONUK SÖZLEŞME: overlay yalnız 12b DECK_OVERLAY_FIELDS alanlarına yazar.
+     id / category / rarity / recipe / virtue / glyph / sigil / roman ASLA
+     çevrilmez — mekanik dilden bağımsızdır (kapı: scripts/i18n-validate.mjs).
+   Konvansiyon: sidecar girişi js/ext/deste-en.js; build.sh ext-deste-en.js.
+═══════════════════════════════════════════════════════════════════════════ */
+
+export const DESTE_OVERLAY = {
+
+  /* ── ÇEKİRDEK (3) — 12a'nın yayınlanan üçlüsü ─────────────────────────── */
+
+  'niyetli': {
+    name: 'THE INTENTIONAL',
+    sub: 'Wanderer',
+    whisper: 'intention first, then motion',
+    lesson: 'You exist in your intention before you exist in your action.',
+    portre: 'The person who pauses before beginning and asks, "why am I doing this?" They exist in their intention before their motion; they are not swept along, because they choose their direction at the start.',
+    gercek: 'The person who, in the first half hour of the morning, reaches for a question instead of the phone: "who do I want to be today?"',
+    kok: 'Relationship Philosophy · intention — before the action',
+    olunca: 'Your unconscious drifting may lessen; each action often aligns with a direction; you can choose who you are before what you do.',
+    dusunceler: [
+      'Why am I making this move?',
+      'Who I am comes before what I do.',
+      'My first thought in the morning builds the day.',
+      'This action tells me where my intention is going.',
+      'Everything I do is building who I am.',
+    ],
+    inanclar: [
+      'Intention comes before action.',
+      'Unconscious motion is drift.',
+      'The person I am feeds everything I do.',
+      'When the intention is clear, the road opens on its own.',
+      'No one exists without setting an intention each morning.',
+    ],
+    hisler: [
+      'A calm resolve that rises from within.',
+      'A pace that is grounded, never hurried.',
+      'The slight brightening that comes when an intention is born.',
+      'The confidence of knowing beforehand what you will do.',
+      'The inner light that rises when you act in tune with your intention.',
+    ],
+    davranislar: [
+      'Pauses before starting a task and names the intention.',
+      'Does not open the phone in the first half hour of the morning.',
+      'Tests decisions with the phrase "for the sake of what".',
+      'Stops for thirty seconds at the head of every task.',
+      'Writes the day\'s intention in the journal.',
+    ],
+  },
+
+  'sabirli': {
+    name: 'THE PATIENT',
+    sub: 'Wanderer',
+    whisper: 'three breaths, then words',
+    lesson: 'To wait before erupting is a seal.',
+    portre: 'The person who can take three breaths before erupting. They know the first reaction is not the truest one; they carry their waiting as a strength.',
+    gercek: 'The person who writes the angry message but lets it sit, reads it again in the morning, and only then decides.',
+    kok: 'Relationship Philosophy · perseverance — patience',
+    olunca: 'Your reflexive reactions may lessen; you will more rarely taste the regret of a rushed decision; your patience can win you both time and strength.',
+    dusunceler: [
+      'If I speak now, I will regret it.',
+      'A hurried answer is a hurried decision.',
+      'My waiting is another name for my strength.',
+      'What happens if I do not speak right now?',
+      'Who taught me this hurry?',
+    ],
+    inanclar: [
+      'Time stands with the one who knows.',
+      'The first reaction is not the truest one.',
+      'Silence is also an answer.',
+      'Being able to wait is a test of self-trust.',
+      'The one who wins is not the first to move but the one who moves rightly.',
+    ],
+    hisler: [
+      'A tension softening in the chest.',
+      'A settling far from childhood\'s hurry.',
+      'The gravity that arrives at the end of three breaths.',
+      'A plain self-assurance that comes with patience.',
+      'The clean conscience of not having erupted.',
+    ],
+    davranislar: [
+      'Takes three breaths in an argument, then speaks.',
+      'Writes the message but does not send it immediately.',
+      'Waits their turn; does not seize the floor.',
+      'Goes to brew tea in the moment of reaction.',
+      'Does not write at midnight; reads it in the morning and decides.',
+    ],
+  },
+
+  'durust': {
+    name: 'THE HONEST',
+    sub: 'Wanderer',
+    whisper: 'tell yourself first',
+    lesson: 'What goes unsaid grows inside.',
+    portre: 'The person who is honest with themselves first. They do not swallow even the truth that does not suit them; they know what is hidden grows inside.',
+    gercek: 'The person who can say "I was wrong" when they were wrong, and chooses the plain truth over a polite lie.',
+    kok: 'Relationship Philosophy · Honesty — with yourself first',
+    olunca: 'The cycle of self-deception may break; your relationships are often built on what is true; your honesty may turn out to be courage in its plainest form.',
+    dusunceler: [
+      'Why do I hesitate to say this to myself?',
+      'What I do not say does not change what is true.',
+      'A lie begins inside first.',
+      'What I leave unsaid does not behave as if it were absent.',
+      'A polite lie carries a cost too.',
+    ],
+    inanclar: [
+      'One who is not honest with themselves can be honest with no one.',
+      'A hidden truth turns to mould inside.',
+      'Honesty is courage in its plainest form.',
+      'The truth, on its own, is a freedom.',
+      'To hide something is to carry it.',
+    ],
+    hisler: [
+      'A strange lightness that comes after the admission.',
+      'The heavy tremor before it is spoken.',
+      'The shame that descends on noticing your own false smile.',
+      'A strange rush of oxygen after confessing.',
+      'The tightening in the chest before it is said.',
+    ],
+    davranislar: [
+      'Writes the unsaid thing in the journal.',
+      'Chooses the plain truth over a polite lie.',
+      'Can say "I was wrong" when they were wrong.',
+      'Neither inflates nor shrinks their words.',
+      'Accepts praise when it is deserved.',
+    ],
+  },
+
+  /* ── TEMELLER · ÖZ SEVGİ (3) — filiz → kök → taç ──────────────────────── */
+
+  'temel-ozsevgi-filiz': {
+    name: 'THE ONE BEGINNING TO BE KIND TO THEMSELVES',
+    sub: 'Self-Love',
+    whisper: 'the seed is newly sown',
+    lesson: 'Love for yourself begins with one small kindness.',
+    portre: 'The person who spent years being good to everyone and forgot themselves when their turn came; who is only now learning to treat themselves like a friend as well.',
+    gercek: 'The person who can say "I will rest a little today" without guilt when they are tired, and grants themselves a small pause.',
+    kok: 'Relationship Philosophy · Foundations — Self-Love (sprout)',
+    olunca: 'You may stop putting yourself last; you can choose what is good for you; love often becomes something grown inside rather than awaited from outside.',
+    dusunceler: [
+      'I can treat myself like a friend too.',
+      'Choosing what is good for me is not selfishness.',
+      'To be tired is not to give up.',
+    ],
+    inanclar: [
+      'Love begins inside first.',
+      'One who does not fill themselves cannot pour.',
+      'I deserve to be treated well too.',
+    ],
+    hisler: [
+      'The first lightness of looking at yourself kindly.',
+      'A small tenderness taking the place of guilt.',
+      'A new warmth sprouting inside.',
+    ],
+    davranislar: [
+      'Sets aside a small kindness for themselves.',
+      'Stops without guilt when tired.',
+      'Softens their inner voice a little.',
+    ],
+  },
+
+  'temel-ozsevgi-kok': {
+    name: 'THE ONE WHO BEFRIENDS THEMSELVES',
+    sub: 'Self-Love',
+    whisper: 'a friend to yourself',
+    lesson: 'Your most faithful friend can be yourself.',
+    portre: 'The person who does not abandon themselves in a hard moment. Instead of beating themselves up over a mistake, they lend a shoulder; they have become a friend who stands beside themselves.',
+    gercek: 'The person who, after a bad day, can say "today was hard, I understand you" instead of scolding themselves.',
+    kok: 'Relationship Philosophy · Foundations — Self-Love (root)',
+    olunca: 'Because you can stand beside yourself, you are not easily broken; your need for outside approval may lessen; in relationships too you can love from a full place rather than a needy one.',
+    dusunceler: [
+      'I can stand beside myself.',
+      'A mistake is not an excuse to stop loving myself.',
+      'The friend I need most is me.',
+    ],
+    inanclar: [
+      'One who befriends themselves is not broken.',
+      'Compassion is owed to yourself as well.',
+      'Love is not earned; it is practised.',
+    ],
+    hisler: [
+      'The peace of lending yourself a shoulder.',
+      'An inner sea settling.',
+      'Knowing you are not alone — and that someone is you.',
+    ],
+    davranislar: [
+      'Understands rather than scolds themselves on a hard day.',
+      'Writes their own accomplishments in the journal.',
+      'Treats themselves the way they would treat a friend.',
+    ],
+  },
+
+  'temel-ozsevgi-tac': {
+    name: 'THE ONE WHO OVERFLOWS',
+    sub: 'Self-Love',
+    whisper: 'first full, then overflowing',
+    lesson: 'A vessel that fills also wets what surrounds it.',
+    portre: 'The person who has filled themselves and now overflows to those around them. The love they give is not a sacrifice but the natural flow of the surplus; they love without needing.',
+    gercek: 'The person whose own peace is intact, and who can therefore hold someone else\'s bad day without their own world coming undone.',
+    kok: 'Relationship Philosophy · Foundations — Self-Love (crown) · loving without needing',
+    olunca: 'You may be freed from carrying your love like a debt; giving often does not diminish you; those around you can be fed by your fullness while you overflow without running dry.',
+    dusunceler: [
+      'First I fill, then I overflow.',
+      'What I give is the flow of my surplus.',
+      'I can love without needing.',
+    ],
+    inanclar: [
+      'A full vessel wets what surrounds it.',
+      'Love does not run out; it multiplies.',
+      'One who is sufficient to themselves is no burden to another.',
+    ],
+    hisler: [
+      'A stillness that remains without proving anything.',
+      'The generous warmth that overflowing brings.',
+      'The calm strength of being full inside.',
+    ],
+    davranislar: [
+      'Does not exhaust themselves while giving.',
+      'Carries another\'s burden without disturbing their own peace.',
+      'Shares their love without keeping accounts.',
+    ],
+  },
+
+  /* ── TEMELLER · ÖZ SAYGI (3) — filiz → kök → taç ──────────────────────── */
+
+  'temel-ozsaygi-filiz': {
+    name: 'THE ONE WHO SETS A FIRST BOUNDARY',
+    sub: 'Self-Respect',
+    whisper: 'the first "no"',
+    lesson: 'Every respect begins with a first small "no".',
+    portre: 'The person who kept quiet all their life so others would not be hurt; who is only now trying to set their first small boundaries. Their voice trembles, but they are trying.',
+    gercek: 'The person who, faced with a request they cannot accept, says "I can\'t do this" for the first time instead of the habitual "sure".',
+    kok: 'Relationship Philosophy · Foundations — Self-Respect (sprout)',
+    olunca: 'Your habit of pleasing everyone may begin to crack; your small "no"s start to protect you; you may see that setting a boundary is not the same as not loving.',
+    dusunceler: [
+      'Saying "no" does not make me a bad person.',
+      'I do not have to say "sure" to what is not good for me.',
+      'A boundary is the first step.',
+    ],
+    inanclar: [
+      'Setting a boundary is not a failure to love.',
+      'The worth of every "yes" comes from a "no".',
+      'Respect begins with myself.',
+    ],
+    hisler: [
+      'The trembling but upright sound of a first "no".',
+      'The pride of holding your ground while afraid.',
+      'The relief of a small act of self-protection.',
+    ],
+    davranislar: [
+      'Pauses instead of saying "sure" out of habit.',
+      'Sets their first small boundary.',
+      'Gently declines what is not good for them.',
+    ],
+  },
+
+  'temel-ozsaygi-kok': {
+    name: 'THE ONE WHO CALMLY KEEPS THEIR BOUNDARY',
+    sub: 'Self-Respect',
+    whisper: 'calm but clear',
+    lesson: 'A boundary is the map of your self-respect.',
+    portre: 'The person who has learned to set a boundary and can now keep it calmly. They do not pile on explanations or carry guilt; they build a clear and gracious "no".',
+    gercek: 'The person who, when crossed, can say "this does not work for me" without raising their voice — and then stand behind it.',
+    kok: 'Relationship Philosophy · Foundations — Self-Respect (root)',
+    olunca: 'You may be taken advantage of less in your relationships; your "no"s often need no explanation; people can learn respect for you from where you stand.',
+    dusunceler: [
+      'My boundary is the map of my self-respect.',
+      'I do not have to list reasons for a "no".',
+      'Being clear is not being rude.',
+    ],
+    inanclar: [
+      'There is no relationship without boundaries.',
+      'A "no" without explanation is valid too.',
+      'Respect is taught through boundaries.',
+    ],
+    hisler: [
+      'A solid calm descending as you hold the line.',
+      'The quiet dignity of having been protected.',
+      'The lightness of carrying no guilt.',
+    ],
+    davranislar: [
+      'Can say "no" without explaining.',
+      'Reminds gently but clearly when crossed.',
+      'Stands behind their boundary.',
+    ],
+  },
+
+  'temel-ozsaygi-tac': {
+    name: 'THE ONE WHOSE RESPECT IS NOT DEBATED',
+    sub: 'Self-Respect',
+    whisper: 'your boundary is quiet now',
+    lesson: 'A true boundary is understood without being defended.',
+    portre: 'The person whose boundary has become part of their presence. No one lightly tries to overstep, because their "no" is not a quarrel but a calm certainty.',
+    gercek: 'The person whose circle senses what they will not permit before a word is said — and who is therefore rarely strained in their relationships.',
+    kok: 'Relationship Philosophy · Foundations — Self-Respect (crown)',
+    olunca: 'Defending a boundary may stop being tiring; respect often arrives unasked; your self-respect can quietly raise the way those around you treat you.',
+    dusunceler: [
+      'My boundary is no longer up for discussion.',
+      'Respect is understood through my presence.',
+      'One who knows their limits is at ease beside me.',
+    ],
+    inanclar: [
+      'A true boundary is understood without being defended.',
+      'Self-respect is taught outward.',
+      'The quiet clear is the strongest clear.',
+    ],
+    hisler: [
+      'An inner solidity that costs no effort.',
+      'The natural peace of being respected.',
+      'The stillness of holding ground without a quarrel.',
+    ],
+    davranislar: [
+      'Lives their boundary without explaining it.',
+      'Stops an attempt to cross it calmly but decisively.',
+      'Quietly withdraws from where they are not respected.',
+    ],
+  },
+
+  /* ── GÖLGE (2) — tuzak ve dönüşüm ─────────────────────────────────────── */
+
+  'tuzak-kusursuz': {
+    name: 'THE ONE WHO KNOWS "ENOUGH"',
+    sub: 'Trap',
+    whisper: 'enough, not perfect',
+    lesson: 'Perfectionism is the polite name for never finishing.',
+    portre: 'The person who does not wait for the work to be "perfect" and can deliver "good enough". They know perfectionism is often a mask for fear.',
+    gercek: 'The person who finally puts out the work they polished for months and never showed anyone, saying "enough — I am sharing it as it is".',
+    kok: 'Mindset Revolution · essay 139 · The Seven Traps — Perfectionism',
+    olunca: 'You can finish; your work rots less often in your head; you may treat yourself as you would a person, and see a mistake as a road rather than a ruin.',
+    dusunceler: [
+      '"Enough" is a decision too.',
+      'Perfectionism is the mask of not finishing.',
+      'A mistake is a road, not a ruin.',
+    ],
+    inanclar: [
+      'Completed is better than perfect.',
+      'Perfectionism hides fear.',
+      'I owe compassion to myself as well.',
+    ],
+    hisler: [
+      'The lightness that descends once it is delivered.',
+      'The tension dissolving as you say "enough".',
+      'The peace of being gracious to yourself.',
+    ],
+    davranislar: [
+      'Delivers the work at "good enough".',
+      'Stops the endless polishing and shares it.',
+      'Forgives their mistake and carries on.',
+    ],
+  },
+
+  'golge-onay': {
+    name: 'THE ONE WHO LOVES WITHOUT VANISHING',
+    sub: 'Transformation',
+    whisper: 'your own approval is enough',
+    lesson: 'A hunger for approval can turn into a deep sensitivity.',
+    portre: 'Once, this was a person hungry for everyone\'s approval. That fineness has now become an ability to understand others deeply — but they love without losing themselves any more.',
+    gercek: 'The person who used to sacrifice themselves to please everyone, and who can now be warm to people while keeping their own boundary.',
+    kok: 'Mindset Revolution · From Shadow to Light — the hunger for approval',
+    olunca: 'The rush to be liked may turn into a deep empathy; you understand people yet lose yourself in them less; your love can stop being a sacrifice.',
+    dusunceler: [
+      'I understand people, but I do not lose myself.',
+      'My own approval is enough.',
+      'My old hunger is now my tenderness.',
+    ],
+    inanclar: [
+      'A hunger for approval can become empathy.',
+      'To love is not to erase yourself.',
+      'My own approval is the firmest ground.',
+    ],
+    hisler: [
+      'The balance of loving without vanishing.',
+      'A stillness taking the place of the rush for approval.',
+      'The peace of being both warm and upright.',
+    ],
+    davranislar: [
+      'Keeps their boundary while being warm.',
+      'Does not sacrifice themselves for approval.',
+      'Turns their sensitivity into strength.',
+    ],
+  },
+
+  /* ── BİLEŞİK (1) — iki temelin kesişimi ───────────────────────────────── */
+
+  'bilesik-ozsaygi-ozsevgi': {
+    name: 'THE BOUNDED COMPASSIONATE',
+    sub: 'Composite',
+    whisper: 'says no, with love',
+    lesson: 'The most compassionate "no" is the clearest one.',
+    portre: 'The person who can both set a boundary and be compassionate. Their "no" is not an absence of love; it is an expression of the respect they hold for themselves and for the other.',
+    gercek: 'The person who does not harden their voice while setting a boundary with someone they love, and can say "I love you, but I can\'t do this".',
+    kok: 'Relationship Philosophy · Self-Respect + Self-Love',
+    olunca: 'Your compassion can hold without sliding into boundlessness and your boundary without sliding into hardness; you can say "no" with love and protect both yourself and the relationship.',
+    dusunceler: [
+      'The most compassionate "no" is the clearest one.',
+      'A boundary is part of love.',
+      'One can say "no" with love too.',
+    ],
+    inanclar: [
+      'A boundary and compassion do not contradict.',
+      'One who protects themselves loves better.',
+      'A clear "no" is a form of love.',
+    ],
+    hisler: [
+      'The balance of drawing a line with love.',
+      'The peace of being both soft and upright.',
+      'The warmth of compassion even while protecting.',
+    ],
+    davranislar: [
+      'Sets their boundary without hardening.',
+      'Can say "I love you, but".',
+      'Keeps both the compassion and the boundary.',
+    ],
+  },
+
+};

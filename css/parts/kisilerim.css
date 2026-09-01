@@ -1,0 +1,146 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KİŞİLERİM · Deste Yüzeyi (10q2)
+   ───────────────────────────────────────────────────────────────────
+   2026-08-18'e kadar bu dosya Bugün'ün iki deste BÖLÜMÜNÜ giydiriyordu.
+   O bölüm söküldü (kartlar iki ana kartın arkasına, tam ekran odaya
+   taşındı — 10f yığını + 13B). Geriye kalan tek tüketici Geçiş
+   masasıdır (10A `kkDeckHTML`): aşağıdaki kurallar o destenin
+   yelpazesini, oklarını ve boş hâlini giydirir.
+   Renk ekseni değişmedi: altın = olduğun kişiler, lapis = olmak
+   istediklerin; iki deste birbirine bakar (prensip 8).
+   ═══════════════════════════════════════════════════════════════════ */
+
+.kkb-deste { display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; }
+.kkb-tag {
+  font-family: var(--cinzel, serif); font-size: 7.5px; letter-spacing: 1.8px;
+  color: var(--gold, #F5A623); white-space: nowrap; text-align: center;
+}
+.kkb-deste--lapis .kkb-tag { color: var(--lapis-bright, #5A8AD8); }
+
+/* ── Yığın ("yelpaze") ──
+   En fazla 6 yüz fiziksel olarak çizilir; --d derinlik indisidir
+   (0 = ön). Arkadakiler kayar, döner, küçülür ve kararır. */
+.kkb-stack {
+  position: relative; width: 100%; max-width: 116px; aspect-ratio: 5 / 7;
+  perspective: 800px; cursor: grab; touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+.kkb-stack:active { cursor: grabbing; }
+.kkb-stack:focus-visible { outline: 1px solid var(--gold, #F5A623); outline-offset: 6px; border-radius: 12px; }
+
+/* --dir: yelpazenin yönü. İki deste DIŞA açılır (altın sola, lapis sağa) —
+   fanlar birbirine değmez, ön yüzler ise rotateY ile birbirine bakar. */
+.kkb-deste--altin { --dir: -1; }
+.kkb-deste--lapis { --dir:  1; }
+
+.kkb-card {
+  position: absolute; inset: 0;
+  z-index: calc(10 - var(--d));
+  transform:
+    translateX(calc(var(--d) * var(--dir) * 5px))
+    translateY(calc(var(--d) * -3px))
+    rotate(calc(var(--d) * var(--dir) * 1.5deg))
+    scale(calc(1 - var(--d) * .03));
+  filter: brightness(calc(1 - var(--d) * .09));
+  transition: transform .42s var(--ease-spring, cubic-bezier(.34, 1.56, .64, 1)),
+              filter .42s var(--ease-out, ease), opacity .42s var(--ease-out, ease);
+  pointer-events: none;
+}
+.kkb-card:not(.is-front) { opacity: .85; }
+.kkb-card.is-front { filter: none; opacity: 1; pointer-events: auto; cursor: pointer; }
+
+
+/* Eşik Ekranı'nın hafif 3B duruşu — iki deste birbirine bakar (prensip 8) */
+.kkb-deste--altin .kkb-card.is-front .ikv-card { transform: rotateY(8deg)  rotateZ(-.7deg); }
+.kkb-deste--lapis .kkb-card.is-front .ikv-card { transform: rotateY(-8deg) rotateZ(.7deg); }
+.kkb-card .ikv-card { transition: transform .5s var(--ease-out, ease); }
+.kkb-card.is-front:active .ikv-card { transform: none; }
+
+/* Şu anki kimlik — altın destenin ön kartındaki taç */
+.kkb-crown {
+  position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%);
+  z-index: 3; white-space: nowrap; padding: 2px 8px;
+  border-radius: var(--radius-full, 999px);
+  background: linear-gradient(180deg, rgba(245, 166, 35, .94), rgba(184, 128, 30, .94));
+  color: #18120B; font-family: var(--cinzel, serif); font-size: 6.5px;
+  letter-spacing: 1.2px; font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .32), 0 3px 9px rgba(245, 166, 35, .26);
+  pointer-events: none;
+}
+
+/* Eşik nişanı — lapis yüzün ÜSTÜNDE durur (taç aşağıda, eşik yukarıda: biri
+   olduğunu söyler, öteki kapının aralık olduğunu). Rozetin kendi görünümü
+   10q'nun `.kk-esik-nisan` stilinden gelir — burada yalnız konumlanır. */
+.kkb-esik {
+  position: absolute; left: 50%; top: -9px; transform: translateX(-50%);
+  z-index: 3; pointer-events: none;
+}
+.kkb-esik .kk-esik-nisan { margin: 0; background: rgba(15, 12, 8, .88); }
+
+/* Yığında çizilmeyen kalan kartların temsili */
+.kkb-rest {                                     /* rozet yelpazenin açıldığı yanda durur */
+  position: absolute; left: -8px; top: 8px; z-index: 12;
+  padding: 2px 6px; border-radius: var(--radius-full, 999px);
+  background: rgba(15, 12, 8, .82); border: 1px solid rgba(245, 166, 35, .34);
+  font-family: var(--cinzel, serif); font-size: 7.5px; letter-spacing: .5px;
+  color: var(--gold-bright, #F7C744); pointer-events: none;
+}
+.kkb-deste--lapis .kkb-rest {
+  left: auto; right: -8px;                      /* lapis dışa/sağa açılır, rozet de onunla */
+  border-color: rgba(90, 138, 216, .38); color: var(--lapis-bright, #5A8AD8);
+}
+
+/* ── Gezinme ── */
+.kkb-nav { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 2px; }
+.kkb-arrow {
+  position: relative;
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(148, 140, 128, .26); background: rgba(20, 16, 11, .5);
+  color: var(--text-mid, #95897A); font-size: 15px; line-height: 1;
+  transition: color .2s var(--ease-out, ease), border-color .2s var(--ease-out, ease);
+}
+/* Dokunma hedefi görselden AYRI: 28px mühür kutusu, 44px temas alanı (§9).
+   Kutuyu 44'e şişirmek desteyi bozardı — deste kabı dar (118px) ve iki ok
+   sayacın iki yanında durur. Kaplama 8px'lik boşluğa uzanır, sayacın üstüne
+   BİNMEZ; sayaç tıklanır bir şey değildir. ([[dokunma-hedefi-gorsel-bosluk]]) */
+.kkb-arrow::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: var(--ikon-hedef, 44px); height: var(--ikon-hedef, 44px);
+}
+.kkb-arrow:hover:not(:disabled) { color: var(--gold, #F5A623); border-color: rgba(245, 166, 35, .45); }
+.kkb-arrow:disabled { opacity: .3; cursor: default; }
+.kkb-count {
+  font-family: var(--cinzel, serif); font-size: 8.5px; letter-spacing: 1.4px;
+  color: var(--text-dim, #585349); min-width: 42px; text-align: center;
+}
+.kkb-count b { color: var(--text, #EAE2D6); font-weight: 600; }
+
+.kkb-all {
+  margin-top: 1px; padding: 4px 8px; border: 0; background: none; cursor: pointer;
+  font-family: var(--cinzel, serif); font-size: 7.5px; letter-spacing: 1.8px;
+  color: var(--text-dim, #585349);
+  transition: color .2s var(--ease-out, ease);
+}
+.kkb-all:hover { color: var(--gold, #F5A623); }
+
+/* ── Boş durum: koleksiyonun ortak sırtı + davet ── */
+.kkb-stack--bos { cursor: default; }
+.kkb-card--back { opacity: .5; pointer-events: none; }
+.kkb-empty-line {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 11px;
+  line-height: 1.5; color: var(--text-mid, #95897A); text-align: center; max-width: 22ch;
+}
+
+/* ── Dar ekran ── */
+@media (max-width: 340px) {
+  .kkb-stack { max-width: 150px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kkb-card, .kkb-card .ikv-card { transition: none; }
+}
+
+/* NOT: DÖNEM KARTI (K7) stilleri burada DURMAZ — gündem "Emre'nin Önerisi"ne
+   yedirildi; `.kk-emre-donem*` olarak 10q'nun kendi stil bloğunda yaşıyor. */

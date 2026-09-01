@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<!-- Security Headers -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://browser.sentry-cdn.com https://assets.calendly.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: blob: https://i.hizliresim.com https://ui-avatars.com https://*.supabase.co;
+  media-src 'self' blob: data: https:;
+  connect-src 'self' https://*.supabase.co https://ipapi.co https://open.er-api.com https://*.sentry.io https://*.ingest.sentry.io;
+  frame-src 'self' https://calendly.com https://*.calendly.com;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+<!-- PWA Core -->
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="./assets/manifest-BfnZB35L.json">
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wanderer">
+<link rel="apple-touch-icon" href="./assets/icon-192-DHMt-H04.png">
+
+<!-- SEO / Share -->
+<meta name="description" content="Kişilik dönüşümü koçluğu sistemi. Olduğun kişiyi değiştir, hayatını değiştir.">
+<meta name="format-detection" content="telephone=no">
+
+<title>Wanderer Studio · Yönetim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow:wght@300;400;500&family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&display=swap" rel="stylesheet">
+
+  <script src="./assets/_src-cJ7_ajeY.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════
+     SİNEMATİK GİRİŞ OVERLAY
+═══════════════════════════ -->
+<div id="cinematic-intro">
+
+  <div class="ci-wordmark">Emre the Wanderer</div>
+  <div class="ci-counter" id="ci-counter">1 / 3</div>
+
+  <!-- EKRAN 1 — Manifesto -->
+  <div class="ci-screen active" id="ci-screen-1">
+    <div class="ci-label" data-i18n="ci.label1">Kişilik Dönüşümü</div>
+    <h1 class="ci-headline" data-i18n-html="ci.headline1">Olduğun kişiyi<br>değiştirerek<br><em style="color:var(--gold);">hayatını değiştirebilirsin.</em></h1>
+    <p class="ci-sub" data-i18n="ci.sub1">Emre, sana kim olduğunu soran ve olmak istediğin kişiye giden yolu seninle bulan bir yoldaştır.</p>
+    <div class="ci-actions">
+      <button class="ci-btn-next" onclick="ciNext()" data-i18n="ci.next">Devam</button>
+      <button class="ci-btn-skip" onclick="ciSkip()" data-i18n="ci.skip">Zaten hesabım var</button>
+    </div>
+  </div>
+
+  <!-- EKRAN 2 — Yöntem -->
+  <div class="ci-screen" id="ci-screen-2">
+    <div class="ci-label" data-i18n="ci.label2">Nasıl Çalışır</div>
+    <h1 class="ci-headline" data-i18n-html="ci.headline2">Her gün<br>bir adım.<br><em style="color:var(--gold);">Yeni kişiye doğru.</em></h1>
+    <p class="ci-sub" data-i18n="ci.sub2">Konuşmalar birikerek şu an kim olduğunu ve olmak istediğin kişiyi ortaya çıkarır. Emre daha derinden görür.</p>
+    <div class="ci-actions">
+      <button class="ci-btn-next" onclick="ciNext()" data-i18n="ci.next">Devam</button>
+      <button class="ci-btn-skip" onclick="ciSkip()" data-i18n="ci.skip2">Atla</button>
+    </div>
+  </div>
+
+  <!-- EKRAN 3 — Davet -->
+  <div class="ci-screen" id="ci-screen-3">
+    <div class="ci-label" data-i18n="ci.label3">Hazır mısın?</div>
+    <h1 class="ci-headline" data-i18n-html="ci.headline3">Olmak istediğin<br>kişi<br><em style="color:var(--gold);">burada başlar.</em></h1>
+    <p class="ci-sub" data-i18n="ci.sub3">Hayat denklemi: Sen × Seçimlerin = Hayatın. Denklemi değiştirmek için buraya geldin.</p>
+    <div class="ci-actions">
+      <button class="ci-btn-next" onclick="ciFinish()" style="font-size:19px;" data-i18n="ci.start">Başla</button>
+      <button class="ci-btn-skip" onclick="ciSkip()" data-i18n="ci.login">Giriş yap</button>
+    </div>
+  </div>
+
+  <!-- İlerleme çizgileri -->
+  <div class="ci-progress">
+    <div class="ci-progress-line active" id="ci-pl-1"></div>
+    <div class="ci-progress-line" id="ci-pl-2"></div>
+    <div class="ci-progress-line" id="ci-pl-3"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════
+     AUTH SCREEN
+═══════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-wordmark">Emre the Wanderer</div>
+  <h1 class="auth-headline" data-i18n-html="auth.headline">Olmak istediğin<br>kişi kim?</h1>
+  <p class="auth-subline" data-i18n="auth.subline">Olduğun kişiyi değiştirerek hayatını değiştirebilirsin.</p>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" onclick="setAuthTab('login')" data-i18n="auth.tab.login">Giriş</button>
+    <button class="auth-tab" onclick="setAuthTab('register')" data-i18n="auth.tab.register">Kayıt</button>
+  </div>
+
+  <div id="login-form">
+    <div class="auth-fields">
+      <input type="email" class="auth-input" id="login-email" placeholder="E-posta" data-i18n-ph="auth.email" aria-label="E-posta adresi" autocomplete="email">
+      <input type="password" class="auth-input" id="login-password" placeholder="Şifre" data-i18n-ph="auth.password" aria-label="Şifre" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-primary" id="login-btn" onclick="doLogin()" data-i18n="auth.btn.login">İçeri Gir</button>
+    <div style="text-align:center;margin-top:16px;">
+      <button type="button" style="font-size:12px;color:var(--text-dim);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:var(--sans);padding:4px;" onclick="doForgotPassword()" data-i18n="auth.forgot">Şifremi unuttum</button>
+    </div>
+  </div>
+
+  <div id="register-form" style="display:none;">
+    <div class="auth-fields">
+      <input type="text" class="auth-input" id="reg-name" placeholder="Adın" data-i18n-ph="auth.name" aria-label="İsim" autocomplete="name">
+      <input type="email" class="auth-input" id="reg-email" placeholder="E-posta" data-i18n-ph="auth.email" aria-label="E-posta adresi" autocomplete="email">
+      <input type="password" class="auth-input" id="reg-password" placeholder="Şifre" data-i18n-ph="auth.password" aria-label="Şifre" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
+    </div>
+    <button class="btn-primary" id="register-btn" onclick="doRegister()" data-i18n="auth.btn.register">Yolculuğa Başla</button>
+  </div>
+
+  <div class="auth-err" id="auth-error"></div>
+</div>
+
+<!-- ═══════════════════════════
+     APP SCREEN
+═══════════════════════════ -->
+<div id="app-screen">
+
+  <!-- ═══ GÜNLÜK RİTÜEL · Elmas Halkası (kolon-hizalı, seri çemberinin ikizi, tüm ekranlarda) — 10s ═══ -->
+  <div id="gl-elmas-bar" aria-label="Toplam elmas">
+    <span class="gl-elmas-num" id="gl-elmas-count">0</span>
+    <span class="gl-elmas-ring" aria-hidden="true">
+      <svg viewBox="0 0 38 38" width="38" height="38">
+        <circle cx="19" cy="19" r="16" class="gl-elmas-track"/>
+        <circle cx="19" cy="19" r="16" class="gl-elmas-arc"/>
+      </svg>
+      <span class="gl-elmas-glyph">◆</span>
+    </span>
+  </div>
+
+  <!-- ═══ WANDERER STUDIO · TAM EKRAN ATÖLYE ═══
+       Eski sol drawer menünün yerini alan stüdyo deneyimi: hamburger →
+       tam ekran atölye. Kimlik kartları LLM kenar çubuğuna taşındı (ch-drawer);
+       burada odalar 4 kanatta gezilir: Atölye · Galeri · Yolculuk · Arşiv.
+       Açma/kapama: w2OpenDrawer/w2CloseDrawer (10). Stil: css/parts/studio.css -->
+  <div class="ws-studio" id="ws-studio" role="dialog" aria-modal="true" aria-label="Wanderer Studio">
+
+    <!-- Atmosfer: yavaş dönen kadran (usturlap) + yükselen yıldız tozu -->
+    <svg class="ws-st-ring" viewBox="0 0 400 400" aria-hidden="true">
+      <g class="ws-st-ring-dial">
+        <circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" stroke-width="0.8"/>
+        <circle cx="200" cy="200" r="158" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.65"/>
+        <circle cx="200" cy="200" r="120" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.4" stroke-dasharray="3 7"/>
+        <g stroke="currentColor" stroke-width="0.8">
+          <line x1="200" y1="10" x2="200" y2="28"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(30 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(60 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(90 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(120 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(150 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(180 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(210 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(240 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(270 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(300 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(330 200 200)"/>
+        </g>
+        <g fill="currentColor">
+          <path d="M200 36 L204 42 L200 48 L196 42 Z"/>
+          <path d="M200 352 L204 358 L200 364 L196 358 Z"/>
+          <path d="M36 200 L42 196 L48 200 L42 204 Z"/>
+          <path d="M352 200 L358 196 L364 200 L358 204 Z"/>
+        </g>
+      </g>
+    </svg>
+    <div class="ws-st-dust" aria-hidden="true">
+      <span style="--x:8%;  --d:17s; --s:2px;"></span>
+      <span style="--x:24%; --d:23s; --s:1.5px; --delay:4s;"></span>
+      <span style="--x:46%; --d:19s; --s:2.5px; --delay:9s;"></span>
+      <span style="--x:63%; --d:26s; --s:1.5px; --delay:2s;"></span>
+      <span style="--x:81%; --d:21s; --s:2px;  --delay:6s;"></span>
+      <span style="--x:93%; --d:24s; --s:1.5px; --delay:12s;"></span>
+    </div>
+
+    <!-- Başlık -->
+    <header class="ws-st-head">
+      <button class="ws-st-close" onclick="w2CloseDrawer()" aria-label="Kapat">✕</button>
+      <div class="ws-st-eyebrow">
+        <span class="ws-st-eyebrow-word">WANDERER</span>
+        <span class="ws-drawer-premium-badge" id="ws-drawer-premium-badge" style="display:none;">PREMIUM</span>
+      </div>
+      <div class="ws-st-title">Stüdyo</div>
+      <div class="ws-st-tagline">Hayatını oluşturduğun alan.</div>
+    </header>
+
+    <!-- Kanatlar -->
+    <div class="ws-st-body">
+
+      <!-- ── ATÖLYE · günün çalışması ── -->
+      <div class="ws-st-sec" style="--i:0;"><span class="ws-st-sec-label">ATÖLYE</span></div>
+      <div class="ws-st-grid">
+        <button class="ws-st-room" style="--i:0;" onclick="w2Nav(()=>showHayattakiSen())">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M50 50 L50 16 A34 34 0 0 1 79.4 67 Z" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.38"/>
+            <path d="M50 50 L79.4 67 A34 34 0 0 1 20.6 67 Z" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.38"/>
+            <path d="M50 50 L20.6 67 A34 34 0 0 1 50 16 Z" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.38"/>
+            <circle cx="50" cy="50" r="4" fill="currentColor"/>
+          </svg>
+          <div class="ws-st-room-label">HAYATTAKİ SEN</div>
+          <div class="ws-st-room-sub">haftalık ayna · harita</div>
+          <span class="ws-hs-pulse" id="ws-hs-pulse"></span>
+        </button>
+      </div>
+
+      <!-- ── GALERİ · kimlikler & kartlar ── -->
+      <div class="ws-st-sec" style="--i:4;"><span class="ws-st-sec-label">GALERİ</span></div>
+      <div class="ws-st-grid">
+        <button class="ws-st-room" data-nav="arketip" style="--i:4;" onclick="w2Nav(()=>switchView('arketip'))">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <ellipse cx="50" cy="50" rx="28" ry="36" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <ellipse cx="50" cy="50" rx="14" ry="20" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+            <path d="M40 20 L60 20" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          <div class="ws-st-room-label">OLMAK İSTEDİĞİN KİŞİ</div>
+          <div class="ws-st-room-sub">hedef kişi · kart</div>
+        </button>
+
+        <button class="ws-st-room" data-nav="arketipler" style="--i:5;" onclick="w2Nav(()=>switchView('arketipler'))">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <path d="M50 14 L62 38 L86 42 L68 60 L74 86 L50 72 L26 86 L32 60 L14 42 L38 38 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="50" cy="50" r="4" fill="currentColor"/>
+          </svg>
+          <div class="ws-st-room-label">KİŞİLER</div>
+          <div class="ws-st-room-sub">olunabilecek kişiler</div>
+        </button>
+
+        <button class="ws-st-room" data-nav="kisilerim" style="--i:6;" onclick="w2Nav(()=>switchView('kisilerim'))">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <rect x="30" y="24" width="44" height="58" rx="4" fill="none" stroke="currentColor" stroke-width="1.2" transform="rotate(8 52 53)"/>
+            <rect x="24" y="20" width="44" height="58" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="46" cy="42" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M34 64 Q46 54 58 64" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          <div class="ws-st-room-label">KİŞİLERİM</div>
+          <div class="ws-st-room-sub">topladığın kişiler</div>
+        </button>
+
+        <button class="ws-st-room" data-nav="hasimlar" style="--i:7;" onclick="w2Nav(()=>switchView('hasimlar'))">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <circle cx="50" cy="50" r="32" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M50 18 A32 32 0 0 0 50 82 Z" fill="currentColor" opacity="0.7"/>
+            <circle cx="50" cy="50" r="4" fill="none" stroke="currentColor" stroke-width="0.7"/>
+          </svg>
+          <div class="ws-st-room-label">İÇ MECLİS</div>
+          <div class="ws-st-room-sub">yüzlerin meclisi</div>
+        </button>
+
+        <button class="ws-st-room" data-nav="kk-mine" style="--i:7;" onclick="w2Nav(()=>switchView('kk-mine'))">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <rect x="22" y="28" width="34" height="48" rx="3" fill="none" stroke="currentColor" stroke-width="1.2" transform="rotate(-6 39 52)"/>
+            <rect x="44" y="24" width="34" height="48" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M50 40 L72 40 M50 50 L72 50 M50 60 L65 60" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="61" cy="32" r="2.4" fill="currentColor" opacity="0.8"/>
+          </svg>
+          <div class="ws-st-room-label">KENDİ KOLEKSİYONUM</div>
+          <div class="ws-st-room-sub">Benim Kartlarım · özel</div>
+        </button>
+
+        <button class="ws-st-room ws-st-room--wide" data-nav="sosyal" style="--i:7;" onclick="w2Nav(()=>switchView('sosyal'))">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="34" cy="42" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="66" cy="42" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="50" cy="66" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M34 51 L50 57 M66 51 L50 57" stroke="currentColor" stroke-width="0.8" opacity="0.55"/>
+          </svg>
+          <div class="ws-st-room-col">
+            <div class="ws-st-room-label">KİŞİLERİN KİŞİLERİ</div>
+            <div class="ws-st-room-sub">halka pazarı · paylaşılan kartlar</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- ── YOLCULUK · harita & mühür & film ── -->
+      <div class="ws-st-sec" style="--i:8;"><span class="ws-st-sec-label">YOLCULUK</span></div>
+      <div class="ws-st-grid">
+        <button class="ws-st-room" data-nav="muhrum" style="--i:9;" onclick="w2Nav(()=>switchView('muhrum'))">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <polygon points="50,18 80,68 20,68" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="50" cy="52" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="50" y1="52" x2="50" y2="68" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          <div class="ws-st-room-label">MÜHRÜM</div>
+          <div class="ws-st-room-sub">elmas · manifesto · 152</div>
+        </button>
+
+        <button class="ws-st-room ws-st-room--wide" style="--i:10;" onclick="w2Nav(()=>wrOpen())">
+          <svg class="ws-sigil" viewBox="0 0 100 100" style="overflow:visible;">
+            <rect x="18" y="26" width="64" height="48" rx="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M44 40 L62 50 L44 60 Z" fill="currentColor" opacity="0.85"/>
+            <circle cx="28" cy="20" r="2.5" fill="currentColor" opacity="0.6"/>
+            <circle cx="72" cy="20" r="2.5" fill="currentColor" opacity="0.6"/>
+          </svg>
+          <div class="ws-st-room-col">
+            <div class="ws-st-room-label">AYIN FİLMİ</div>
+            <div class="ws-st-room-sub">wrapped · yolculuğunun gösterimi</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- ── ARŞİV · defter & dinlenme & ayarlar ── -->
+      <div class="ws-st-sec" style="--i:11;"><span class="ws-st-sec-label">ARŞİV</span></div>
+      <div class="ws-st-grid">
+<button class="ws-st-room ws-st-room--wide" data-nav="dinlenme" style="--i:13;" onclick="w2Nav(()=>switchView('dinlenme'))">
+          <svg class="dn-flame dn-flame--mini" viewBox="0 0 120 140" width="26" height="30" aria-hidden="true">
+            <defs>
+              <radialGradient id="dn-flame-grad-sm" cx="50%" cy="70%">
+                <stop offset="0%" stop-color="#F7C744" stop-opacity="0.95"/>
+                <stop offset="40%" stop-color="#B8953C" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#B8953C" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="60" cy="98" rx="55" ry="14" fill="url(#dn-flame-grad-sm)"/>
+            <path class="dn-flame-outer" d="M60 20 C 45 50 35 70 40 90 Q 50 105 60 96 Q 70 105 80 90 C 85 70 75 50 60 20 Z" fill="url(#dn-flame-grad-sm)" opacity="0.85"/>
+            <path class="dn-flame-inner" d="M60 40 C 52 55 47 70 52 86 Q 58 96 60 90 Q 62 96 68 86 C 73 70 68 55 60 40 Z" fill="#F7C744" opacity="0.75"/>
+            <path d="M30 110 L90 110 M25 116 L95 116" stroke="#52504A" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+          <div class="ws-st-room-col">
+            <div class="ws-st-room-label">DİNLENME</div>
+            <div class="ws-st-room-sub">Yorulduğunda çekil — geçmiş başarılarını oku.</div>
+          </div>
+        </button>
+
+        <button class="ws-st-room ws-st-room--wide" id="w2-admin-section" style="--i:14;display:none;" onclick="w2Nav(()=>switchView('admin'))">
+          <svg class="ws-sigil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="overflow:visible;">
+            <rect x="3" y="2.5" width="18" height="2.5" rx="0.4"/>
+            <line x1="6" y1="5" x2="6" y2="19"/><line x1="18" y1="5" x2="18" y2="19"/>
+            <line x1="10" y1="5" x2="10" y2="19"/><line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="14" y1="5" x2="14" y2="19"/>
+            <rect x="3" y="19" width="18" height="2.5" rx="0.4"/>
+          </svg>
+          <div class="ws-st-room-col">
+            <div class="ws-st-room-label">ADMİN ↗</div>
+            <div class="ws-st-room-sub">yönetim paneli · ayrı sayfa</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Günün Düşüncesi — stüdyo duvar plaketi -->
+      <div class="ws-st-thought">
+        <span class="ws-st-thought-mark" aria-hidden="true">❝</span>
+        <div class="ws-st-thought-label">GÜNÜN DÜŞÜNCESİ · KİTAPTAN</div>
+        <div class="ws-st-thought-text" id="drawer-daily-thought">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Wanderer v2 · SAĞ PROFİL PANELİ ═══ -->
+  <div class="w2-drawer-backdrop" id="w2-profile-backdrop" onclick="w2CloseProfile()"></div>
+  <aside class="w2-profile-panel" id="w2-profile-panel" role="dialog" aria-label="Profil">
+    <button class="w2-profile-close" onclick="w2CloseProfile()" aria-label="Kapat">×</button>
+    <div class="w2-profile-avatar-wrap">
+      <div class="w2-profile-avatar">
+        <img id="w2-profile-avatar-img" src="" alt="Profil fotoğrafı">
+      </div>
+      <div class="w2-profile-name" id="w2-profile-name">—</div>
+      <div class="w2-profile-email" id="w2-profile-email">—</div>
+    </div>
+
+    <div class="w2-profile-stats">
+      <div class="w2-profile-stat">
+        <div class="w2-profile-stat-val" id="w2-profile-streak">0</div>
+        <div class="w2-profile-stat-lbl">Seri</div>
+      </div>
+      <div class="w2-profile-stat">
+        <div class="w2-profile-stat-val" id="w2-profile-days">0</div>
+        <div class="w2-profile-stat-lbl">Gün</div>
+      </div>
+      <div class="w2-profile-stat">
+        <div class="w2-profile-stat-val" id="w2-profile-level">1</div>
+        <div class="w2-profile-stat-lbl">Seviye</div>
+      </div>
+    </div>
+
+    <button class="w2-profile-action" onclick="w2CloseProfile();switchView('arketip')">Olmak İstediğin Kişi</button>
+    <button class="w2-profile-action" onclick="w2CloseProfile();switchView('bugun')">Bugün</button>
+    <button class="w2-profile-action" onclick="w2CloseProfile();switchView('settings')" data-i18n="settings.title">Ayarlar</button>
+    <button class="w2-profile-action danger" onclick="doLogout()" data-i18n="drawer.logout">Çıkış Yap</button>
+  </aside>
+
+  <!-- Global Menu (legacy — sentez drawer ile değiştirildi, fallback olarak korunuyor) -->
+  <div class="global-menu" id="global-menu" role="dialog" aria-label="Ana menü" style="display:none;">
+    <div class="gm-header">
+      <div class="gm-wordmark">WANDERER</div>
+      <button class="gm-close" onclick="toggleMenu()">×</button>
+    </div>
+    <nav class="gm-nav">
+      <div class="gm-cat-group">
+        <button class="gm-link" onclick="switchView('bugun')">Bugün</button>
+        <button class="gm-link" onclick="switchView('chat')">Sohbet</button>
+        <button class="gm-link" onclick="switchView('hasimlar')">İç Meclis</button>
+        <button class="gm-link" onclick="switchView('muhrum')">Mührüm</button>
+        <button class="gm-link" onclick="switchView('settings')">Ayarlar</button>
+        <button class="gm-link" onclick="switchView('sub')">Premium</button>
+        <button class="gm-link" id="menu-admin" style="display:none;" onclick="switchView('admin')">Yönetim ↗</button>
+      </div>
+    </nav>
+    <div class="gm-separator"></div>
+    <button class="gm-danger" onclick="doLogout()">Sistemden Çıkış Yap</button>
+  </div>
+
+  <!-- ── BUGÜN (wsv2-screens.jsx S2Bugun) ── -->
+  <div class="view" id="bugun-view">
+    <!-- Stüdyo ("Drawer", .ws-studio) atmosferi — butonsuz olarak buraya taşındı:
+         gradient (studio.css #bugun-view) + kâğıt greni + yavaş dönen usturlap
+         kadranı + tabandan yükselen yıldız tozu. Halka/toz markup'ı stüdyodakiyle
+         birebir; aktivasyon kuralları studio.css'te #bugun-view'a özgü. -->
+    <svg class="ws-st-ring" viewBox="0 0 400 400" aria-hidden="true">
+      <g class="ws-st-ring-dial">
+        <circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" stroke-width="0.8"/>
+        <circle cx="200" cy="200" r="158" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.65"/>
+        <circle cx="200" cy="200" r="120" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.4" stroke-dasharray="3 7"/>
+        <g stroke="currentColor" stroke-width="0.8">
+          <line x1="200" y1="10" x2="200" y2="28"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(30 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(60 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(90 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(120 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(150 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(180 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(210 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(240 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(270 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(300 200 200)"/>
+          <line x1="200" y1="10" x2="200" y2="28" transform="rotate(330 200 200)"/>
+        </g>
+        <g fill="currentColor">
+          <path d="M200 36 L204 42 L200 48 L196 42 Z"/>
+          <path d="M200 352 L204 358 L200 364 L196 358 Z"/>
+          <path d="M36 200 L42 196 L48 200 L42 204 Z"/>
+          <path d="M352 200 L358 196 L364 200 L358 204 Z"/>
+        </g>
+      </g>
+    </svg>
+    <div class="ws-st-dust" aria-hidden="true">
+      <span style="--x:8%;  --d:17s; --s:2px;"></span>
+      <span style="--x:24%; --d:23s; --s:1.5px; --delay:4s;"></span>
+      <span style="--x:46%; --d:19s; --s:2.5px; --delay:9s;"></span>
+      <span style="--x:63%; --d:26s; --s:1.5px; --delay:2s;"></span>
+      <span style="--x:81%; --d:21s; --s:2px;  --delay:6s;"></span>
+      <span style="--x:93%; --d:24s; --s:1.5px; --delay:12s;"></span>
+    </div>
+    <div class="ws-grain" aria-hidden="true"></div>
+
+    <!-- WanderTopBar — Drawer'ın büyük başlık dili (.ws-st-head): WANDERER eyebrow +
+         shimmer "Bugün" başlığı + tagline, atmosfer halkasının önünde ortalı. Menü
+         solda, seri çemberi sağda (Drawer'ın köşe ✕'i gibi). .ws-topbar sınıfı
+         KORUNUR (gün-kapandı barı 05-closure-parts onu hedefler); --hero modifier'ı
+         slim barı büyük başlığa dönüştürür (stil: studio.css). -->
+    <div class="ws-topbar ws-topbar--hero">
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <div class="ws-topbar-hero">
+        <div class="ws-st-eyebrow"><span class="ws-st-eyebrow-word">WANDERER</span></div>
+        <div class="ws-st-title">Bugün</div>
+        <div class="ws-st-tagline">· İçsel Durum ·</div>
+      </div>
+      <!-- NOT: Çevirme tuşu buradan kaldırıldı — gl-elmas-bar (right:58px)
+           ile çakışıyordu. Ön yüze dönüş artık yalnızca ✦ mini kart FAB'ında. -->
+      <div class="ws-topbar-vesper">
+        <div class="ws-vesper-ring" onclick="vesperTap()" aria-label="Vesper">
+          <svg viewBox="0 0 38 38" width="38" height="38">
+            <circle cx="19" cy="19" r="16" class="ws-vesper-track"/>
+            <circle cx="19" cy="19" r="16" class="ws-vesper-arc"
+                    id="bugun-vesper-arc"
+                    stroke-dasharray="100.53" stroke-dashoffset="100.53"
+                    transform="rotate(-90 19 19)"/>
+          </svg>
+          <div class="ws-vesper-num" id="bugun-streak">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="ws-body">
+      <!-- NOT: Selamlama (İyi geceler, Emre.) merkeze taşındı → .ws-greet-hero
+           (eski "BUGÜNÜ AÇ" CTA'nın yerinde). DÜN takvim yaprağı kaldırıldı;
+           takvim tasarımı + Gün Özeti erişimi artık "İçsel Hava" kartında. -->
+
+      <!-- YOL HERO · Üç Mühür (10f): altın "Olduğun Kişi" ↔ bugünün halkası
+           (3 vuruş: GELDİN/GÖRDÜN/YAPTIN) ↔ lapis "Olmak İstediğin Kişi"
+           + %yakınlık yolu (Eşik Ekranı'yla aynı skor). Eski Geçiş Şeridi
+           (bk-strip, 3B tarot) emekli; sol/sağ kart dokunuşları yine
+           benlik/arketip'e gider, halka Yol'u açar. İçerik: yolRenderHero. -->
+      <div id="yol-hero"></div>
+
+      <!-- NOT: "Kimlik Tarot Kartı" (ws-identity-split · #bugun-identity-card)
+           Bugün ekranından kaldırıldı — "Olmak İstediğin Kişi · Gün N" kimlik
+           paneli + sağ yarısındaki Kişilerim "EN YAKIN KİŞİ" nudge'ı dahil.
+           Kimlik erişimi Geçiş Şeridi (bk-strip) sağ kartı üzerinden sürüyor. -->
+
+      <!-- ═══════════════════════════════════════════════
+           SELAM + HIZLI MESAJ · "BUGÜNÜ AÇ" CTA'nın yerine.
+           Merkezî "İyi geceler, Emre." selamı; altındaki satıra mesaj
+           yazılınca doğrudan Sohbet'e geçilir ve mesaj gönderilir.
+      ═══════════════════════════════════════════════ -->
+      <!-- ═══════════════════════════════════════════════
+           ws-greet-hero — iki vuruşlu input (10A BENİM KARTIM):
+             • Aktif kart yoksa: yazılan metin "ihtiyaç tohumu" → Atölye
+               overlay'i (Wanderer ile birlikte 4 kategorili iki kutuplu
+               Benim Kartım yaratımı). BUGÜN kapısı bu input; SOHBET kapısı
+               coach mesajı altındaki "Hadi böyle bir kişi oluşturalım"
+               chip'i — ikisi aynı Atölye'ye akar, kaynak meta'da yaşar.
+             • Aktif kart varsa: chip ile seçili kategoriye ek modunda
+               (chip satırı akSyncGreeting tarafından input'un üstüne enjekte)
+           Submit handler: akGreetingSend (eski wsGreetingSend window'da
+           geriye-dönük takma ad olarak ayakta; aşağıdaki şerit kartı çizer).
+      ═══════════════════════════════════════════════ -->
+      <div class="ws-greet-hero">
+        <div class="ws-greet-hero-date" id="bugun-date"></div>
+        <div class="ws-greet-hero-sal" id="bugun-salutation">İyi geceler.</div>
+        <form class="ws-greet-input-wrap" onsubmit="return akGreetingSend(event)">
+          <input type="text" class="ws-greet-input" id="bugun-greet-input"
+                 placeholder="Bugün içinden ne geçiyor?" autocomplete="off" enterkeyhint="send" />
+          <button type="submit" class="ws-greet-send" aria-label="Gönder">→</button>
+        </form>
+      </div>
+
+      <!-- BENİM KARTIM MİNİ YOL (10A) — Yol Hero'nun (10f) ANLIK alt-tasarımı:
+           altın "Olduğun" kart ↔ 3 anlık vuruş halkası (GÖRDÜN/YÜRÜDÜN/OLDUM)
+           ↔ lapis "Olman gereken" kart + altın→lapis path + verdict.
+           3/3 dolunca lapis altına YANAR ("ARTIK O KİŞİSİN"), ikisi de
+           koleksiyona iner. akRenderYolHero doldurur, boşken display:none. -->
+      <div id="ak-bugun-strip" style="display:none;"></div>
+
+      <!-- ═══════════════════════════════════════════════
+           WANDERER OYUNU · AYNA KARTI (10g)
+           "Bugün ___ bir kişiyim → Olmak istediğin"
+           Felsefe: "Mesele O değil, sensin."
+      ═══════════════════════════════════════════════ -->
+      <!-- DUYURU — Emre admin "Duyuru"dan mesaj gönderince alttan kayan bir
+           sayfa olarak (Kitaplık alt-sayfası gibi) belirir; inline band emekli.
+           Portal body'ye eklenir (10g announceSheetOpen), Bugün'ün de Wanderer'ın
+           da üstüne biner; markup burada DEĞİL. -->
+
+      <!-- ═══════════════════════════════════════════════
+           MANİFESTO · AYNA · GEÇİŞ ALANI · KENDİNLE KONUŞ · HAYAL SEANSI
+           Bu beş özellik "Üç Mühür" → "Hayal" detayındaki kontrol listesinden
+           açılıyor (bkz. 10u-w2-ultra-seri.js · usHayalChecklist).
+           Manifesto okuma ritüeli (10v) Ayna'dan önce gelir.
+      ═══════════════════════════════════════════════ -->
+
+      <!-- NOT: Hayal Seansı/Harita ve Davranış Kanıtı overlay'leri
+           body root'a (ws-reel-portal yanına) taşındı — Bugün view'ı
+           içinde tutmak ekran karartma bug'ına yol açtı. -->
+
+      <!-- NOT: İçsel Hava + İç Ses kartları "Olmak İstediğin Kişi" kartının
+           altına taşındı (yukarı bkz. #bugun-state-row). -->
+
+    </div>
+
+    <!-- OzetSayfasi overlay (wsv4-screens.jsx:131–310) -->
+    <div class="ws-ozet-page" id="dunun-ozet-page" style="display:none;">
+      <div class="ws-grain ws-grain--strong" aria-hidden="true"></div>
+      <div class="ws-vignette" aria-hidden="true"></div>
+      <div class="ws-ozet-topnav">
+        <button class="ws-ozet-back" onclick="wsBugunOzetKapat()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>BUGÜN</span>
+        </button>
+        <div style="text-align:center;">
+          <div style="font-family:var(--cinzel);font-size:11px;letter-spacing:5px;color:var(--gold);font-weight:600;">ÖZET</div>
+          <div style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--text-mid);margin-top:2px;">· seçilen günün özeti ·</div>
+        </div>
+        <div style="width:60px;"></div>
+      </div>
+      <div class="ws-ozet-page-body" id="dunun-ozet-page-body"></div>
+    </div>
+
+  </div>
+
+  <!-- ── DİNLENME · Başarı Günlüğü ── -->
+  <div class="view" id="dinlenme-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette--light" aria-hidden="true"></div>
+
+    <!-- TopBar -->
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="dn.title">DİNLENME</div>
+        <div class="ws-topbar-mode" data-i18n="dn.mode">· Başarı Günlüğü ·</div>
+      </div>
+      <div class="ws-vesper-ring" onclick="vesperTap()">
+        <svg viewBox="0 0 38 38" width="38" height="38">
+          <circle cx="19" cy="19" r="16" class="ws-vesper-track"/>
+          <circle cx="19" cy="19" r="16" class="ws-vesper-arc"
+                  stroke-dasharray="100.53" stroke-dashoffset="100.53"
+                  transform="rotate(-90 19 19)"/>
+        </svg>
+        <div class="ws-vesper-num">0</div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="ws-body">
+      <!-- Hero -->
+      <div class="dn-hero">
+        <div class="dn-hero-glyph">
+          <svg class="dn-flame" viewBox="0 0 120 140" width="64" height="74" aria-hidden="true">
+            <defs>
+              <radialGradient id="dn-flame-grad" cx="50%" cy="70%">
+                <stop offset="0%" stop-color="#F7C744" stop-opacity="0.95"/>
+                <stop offset="40%" stop-color="#B8953C" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#B8953C" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="60" cy="98" rx="55" ry="14" fill="url(#dn-flame-grad)"/>
+            <path class="dn-flame-outer" d="M60 20 C 45 50 35 70 40 90 Q 50 105 60 96 Q 70 105 80 90 C 85 70 75 50 60 20 Z" fill="url(#dn-flame-grad)" opacity="0.85"/>
+            <path class="dn-flame-inner" d="M60 40 C 52 55 47 70 52 86 Q 58 96 60 90 Q 62 96 68 86 C 73 70 68 55 60 40 Z" fill="#F7C744" opacity="0.75"/>
+            <path d="M30 110 L90 110 M25 116 L95 116" stroke="#52504A" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h1 class="dn-hero-title" data-i18n="dn.title">DİNLENME</h1>
+        <p class="dn-hero-sub" id="dn-hero-sub">Henüz mühür yok. İlk zaferini buraya yaz.</p>
+      </div>
+
+      <!-- Gerçek verilerle beslenen şerit -->
+      <div class="dn-stats">
+        <div class="dn-stat">
+          <div class="dn-stat-num" id="dn-stat-streak">0</div>
+          <div class="dn-stat-label" data-i18n="dn.stat.streak">Gün Serisi</div>
+        </div>
+        <div class="dn-stat">
+          <div class="dn-stat-num" id="dn-stat-total">0</div>
+          <div class="dn-stat-label" data-i18n="dn.stat.seal">Mühür</div>
+        </div>
+        <div class="dn-stat">
+          <div class="dn-stat-num" id="dn-stat-days">0</div>
+          <div class="dn-stat-label" data-i18n="dn.stat.days">Dolu Gün</div>
+        </div>
+      </div>
+
+      <!-- Yeni başarı formu -->
+      <div class="dn-form">
+        <div class="dn-form-label" data-i18n="dn.form.label">Bir başarı mühürle</div>
+        <div class="dn-form-row">
+          <input type="date" class="dn-date" id="dn-date" aria-label="Tarih">
+          <input type="text" class="dn-input dn-title" id="dn-title" data-i18n-ph="dn.title_ph" placeholder="Başlık (opsiyonel)" maxlength="120">
+        </div>
+        <textarea class="dn-textarea" id="dn-text" data-i18n-ph="dn.text_ph" placeholder="Ne başardın? Küçük de olsa yaz — bu bir kanıt." maxlength="2000"></textarea>
+
+        <!-- Fotoğraf ekleme -->
+        <input type="file" id="dn-photo-input" accept="image/*" style="display:none" onchange="dnPhotoSelected(this)">
+        <div id="dn-form-photo-wrap"></div>
+        <button type="button" class="dn-photo-btn" onclick="dnPickPhoto()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M9 5l1.5-2h3L15 5"/></svg>
+          <span data-i18n="dn.add_photo">Fotoğraf Ekle</span>
+        </button>
+
+        <!-- Etki Puanı — bu olayın hayatındaki yeri -->
+        <div class="dn-impact-pick">
+          <div class="dn-impact-head">
+            <span class="dn-impact-title" data-i18n="dn.impact_title">Etki · Hayatındaki Yeri</span>
+            <span class="dn-impact-name" id="dn-impact-name" data-i18n="dn.impact.3">Önemli</span>
+          </div>
+          <div class="dn-impact-dots" id="dn-impact-dots" role="radiogroup" aria-label="Etki puanı">
+            <button type="button" class="dn-impact-dot" data-val="1" onclick="dnSetImpact(1)" aria-label="Küçük an">◆</button>
+            <button type="button" class="dn-impact-dot" data-val="2" onclick="dnSetImpact(2)" aria-label="Anlamlı">◆</button>
+            <button type="button" class="dn-impact-dot" data-val="3" onclick="dnSetImpact(3)" aria-label="Önemli">◆</button>
+            <button type="button" class="dn-impact-dot" data-val="4" onclick="dnSetImpact(4)" aria-label="Dönüm noktası">◆</button>
+            <button type="button" class="dn-impact-dot" data-val="5" onclick="dnSetImpact(5)" aria-label="Hayatımı değiştirdi">◆</button>
+          </div>
+        </div>
+
+        <div class="dn-form-actions">
+          <button class="dn-add-btn" onclick="dnAdd()" data-i18n="dn.form.seal">Mühürle</button>
+        </div>
+      </div>
+
+      <!-- Günlük listesi -->
+      <div class="dn-section-title" data-i18n="dn.section_title">Mühürlü Zaferler</div>
+      <div class="dn-empty" id="dn-empty" data-i18n="dn.empty">
+        Burası senin dinlenme alanın. Yorulduğunda, ne kadar yol aldığını hatırlamak için döneceğin yer.
+      </div>
+      <div id="dn-list"></div>
+    </div>
+  </div>
+
+  <!-- Legacy onboarding holders (hidden, for backward compat) -->
+  <span id="ob-name" style="display:none;"></span>
+  <span id="daily-thought-text" style="display:none;"></span>
+
+  <!-- ── CHAT — kartın ÖN YÜZÜ: boot doğrudan buraya iner (10y), Bugün flash'ı olmaz ── -->
+  <div class="view active llm-home" id="chat-view">
+    <div id="ambient-aura" aria-hidden="true"></div>
+    <!-- Wanderer v4 üst bar -->
+    <div class="w2-topbar">
+      <div class="w2-topbar-inner">
+        <!-- Ön yüz = dil modeli: profil cameo'su LLM kenar çubuğunu (sohbet
+             geçmişi) açar. Ana menü arka yüzde — ✦ flip ile ulaşılır. -->
+        <button class="w2-back-btn" onclick="chDrawerOpen()" aria-label="Sohbetler ve profil">
+          <div class="w2-avatar-cameo">
+            <img id="w2-topbar-avatar-img" src="https://i.hizliresim.com/dc6faqr.png" alt="Emre The Wanderer">
+          </div>
+        </button>
+        <div class="w2-title-col">
+          <div class="w2-topbar-title">WANDERER</div>
+          <span class="w2-mode-badge mode-badge" id="mode-badge" onclick="showModeInfo(event)" role="status" aria-label="Mevcut mod" tabindex="0">Dinleme</span>
+        </div>
+        <div class="w2-topbar-right">
+          <div class="ch-topbar-btns">
+          <!-- EN ÜSTTE (bar açık) — kartı çevir, uygulamayı aç -->
+          <button class="ch-topbar-hist-btn w2-flip-btn" onclick="wsFlipTo('bugun')" aria-label="Kartı çevir — uygulamayı aç">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="3.5" width="14" height="17" rx="2.2"/>
+              <path d="M2.5 9.5C2.5 7 4 5.5 5 5" opacity="0.7"/>
+              <path d="M21.5 14.5c0 2.5-1.5 4-2.5 4.5" opacity="0.7"/>
+              <path d="M2.5 9.5l-1.2-1.8M2.5 9.5l2-0.6" opacity="0.7"/>
+              <path d="M21.5 14.5l1.2 1.8M21.5 14.5l-2 0.6" opacity="0.7"/>
+            </svg>
+          </button>
+          <!-- KAYDIRINCA (bar çökünce) — flip kart işaretiyle aynı dil: dolgusuz
+               çizgi-ok (currentColor, text-dim → hover altın). Tıklanınca sohbetin
+               en üstüne çıkar, en üste varınca yerini yeniden flip'e bırakır -->
+          <button class="ch-topbar-hist-btn w2-scrolltop-btn" onclick="w2ScrollTop()" aria-label="Sohbetin en üstüne çık">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 19V6M6 12l6-6 6 6"/>
+            </svg>
+          </button>
+          <!-- İÇ SES erişimi LLM kenar çubuğuna (ch-drawer başlığı) taşındı -->
+          <!-- Ultra Seri çemberi (us-ring) kaldırıldı — Üç Mühür erişimi
+               Drawer "ÜÇ MÜHÜR" üzerinden (smOpenCollection). -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy state holders — görünmez, eski JS için korunuyor -->
+    <div class="top-nav-legacy" aria-hidden="true" style="display:none;">
+      <span id="chat-streak">0</span>
+      <span id="topbar-streak-count">0</span>
+      <span id="chat-mood">-</span>
+      <span id="w2-topbar-avatar-img-holder"></span>
+      <div id="w2-topbar-streak">
+        <div class="w2-topbar-streak-day" id="tsd-0"></div>
+        <div class="w2-topbar-streak-day" id="tsd-1"></div>
+        <div class="w2-topbar-streak-day" id="tsd-2"></div>
+        <div class="w2-topbar-streak-day" id="tsd-3"></div>
+        <div class="w2-topbar-streak-day" id="tsd-4"></div>
+        <div class="w2-topbar-streak-day" id="tsd-5"></div>
+        <div class="w2-topbar-streak-day" id="tsd-6"></div>
+      </div>
+      <button id="premium-indicator" onclick="switchView('sub')">✦ Premium</button>
+      <button id="session-ring-fill"></button>
+      <span id="session-ring-count">0</span>
+    </div>
+
+    <!-- SVG film grain filter — Ken Burns + grain katmanı için tek seferlik -->
+    <svg width="0" height="0" style="position:absolute;pointer-events:none;" aria-hidden="true">
+      <filter id="hero-grain-filter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" seed="5"/>
+        <feColorMatrix values="0 0 0 0 0.85  0 0 0 0 0.82  0 0 0 0 0.78  0 0 0 1.2 -0.1"/>
+      </filter>
+    </svg>
+
+    <!-- HERO — topbar'ın hemen altında sabit, mesajlarla kaybolmaz -->
+    <div id="hero-container"></div>
+
+    <div class="chat-area w2-infinite" id="messages-area" role="log" aria-label="Sohbet mesajları" aria-live="polite"></div>
+
+    <div class="input-area">
+      <!-- ANA EKRAN BAŞLIĞI — yalnızca llm-home durumunda görünür (claude.ai açılışı) -->
+      <div id="llm-home-head" aria-hidden="true">
+        <div class="llm-home-glyph" aria-hidden="true">✦</div>
+        <div class="llm-home-greet" id="llm-greeting">—</div>
+        <div class="llm-home-sub" id="llm-greeting-sub">Wanderer · Kişisel Dönüşüm</div>
+        <!-- DEVAM ÇİPİ — bugünün sohbetinde mesaj varken selamın altında
+             belirir; dokununca bugünün konuşma akışına geçilir (10y) -->
+        <button id="llm-continue" class="llm-continue" onclick="llmContinueToday()" aria-label="Bugünkü sohbete dön">
+          <span class="llm-continue-glyph" aria-hidden="true">✦</span>
+          <span>Bugünkü mesajlaşmaya devam et</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <!-- DUYURU: Emre'nin duyurusu artık alttan kayan bir sayfa (10g
+           announceSheetOpen); inline not emekli, markup burada DEĞİL. -->
+      <!-- CLAUDE-TARZI COMPOSER — model pili + mesaj + gönder -->
+      <div class="cl-composer" id="cl-composer">
+        <!-- Bekleyen görseller — gönderimde mesaja işlenir (13c) -->
+        <div id="gorsel-pending" class="gorsel-host" style="display:none;" aria-label="Eklenecek görseller"></div>
+        <textarea id="chat-input" rows="1" placeholder="Wanderer'a yaz…" onkeydown="handleKey(event)" oninput="autoResize(this)" aria-label="Mesaj yaz"></textarea>
+        <div class="cl-composer-foot">
+          <!-- KOTA ÇEMBERİ (13m) — ücretsizde kalan 5 saatlik pencere; premium'da shimmer "sınırsız" halkası. Dokununca detay kartı -->
+          <button class="kt-ring-btn" data-kt-ring type="button" onclick="ktOpenSheet()" aria-label="Kalan kullanım" style="display:none;">
+            <svg viewBox="0 0 22 22" width="19" height="19" aria-hidden="true">
+              <circle class="kt-ring-track" cx="11" cy="11" r="8.5"/>
+              <circle class="kt-ring-arc" cx="11" cy="11" r="8.5" stroke-dasharray="53.41" stroke-dashoffset="0" transform="rotate(-90 11 11)"/>
+            </svg>
+          </button>
+          <button class="ws-attach-btn" id="cl-attach-btn" type="button" onclick="gorselPick()" aria-label="Görsel ekle">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <button class="cl-model-pill" id="cl-model-pill" type="button" onclick="fmOpenPicker(event)" aria-label="Model seç">
+            <span class="cl-model-glyph" id="cl-model-glyph" aria-hidden="true">◆</span>
+            <span class="cl-model-name" id="cl-model-name">Öz</span>
+            <svg class="cl-model-caret" width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="ws-mic-btn" id="cl-mic-btn" type="button" onclick="sesMicToggle('chat-input', this)" aria-label="Sesle yaz">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg>
+          </button>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Mesaj gönder">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- SOHBET BAŞLATICILARI — composer'ın altında, Model Stüdyosu'ndan yönetilir -->
+      <div id="llm-starters" aria-label="Sohbet başlatıcıları"></div>
+      <!-- ATMOSFER ÇİZGİSİ — konuşma başladıktan sonra composer'ın yerini alır;
+           dokununca Ritüel Kartı (ic-overlay) açılır (eski kalıp, 13-extras) -->
+      <div id="breath-pill" role="button" tabindex="0" aria-label="Mesaj yaz — kartı aç"></div>
+    </div>
+
+  </div>
+
+  <!-- ── HASIMLAR (S4Hasimlar wsv4-screens.jsx:1054–1185) ── -->
+  <div class="view" id="hasimlar-view">
+    <div class="ws-grain ws-grain--strong" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title">İÇ MECLİS</div>
+        <div class="ws-topbar-mode">· tahtında sen varsın ·</div>
+      </div>
+      <div class="ws-vesper-ring" onclick="vesperTap()">
+        <svg viewBox="0 0 38 38" width="38" height="38">
+          <circle cx="19" cy="19" r="16" class="ws-vesper-track"/>
+          <circle cx="19" cy="19" r="16" class="ws-vesper-arc"
+                  stroke-dasharray="100.53" stroke-dashoffset="100.53"
+                  transform="rotate(-90 19 19)"/>
+        </svg>
+        <div class="ws-vesper-num">0</div>
+      </div>
+    </div>
+    <div class="ws-body ws-body--wide">
+      <!-- Sayfa başlığı (S4Hasimlar lines 1090–1100) -->
+      <div class="ws-section-header" style="margin-bottom:14px;">
+        <div class="ws-section-label">~ concilium interius ~</div>
+        <div class="ws-section-title--serif">Suretler & <em>Sen</em></div>
+        <div class="ws-section-sub">Sen bir kişi değilsin, bir meclissin. Her yüzü tanı, ona bir ad ver.</div>
+      </div>
+
+      <!-- Sefer özet sayaçları (S4Hasimlar lines 1103–1121) -->
+      <div class="ws-stat-grid" id="hasimlar-stats">
+        <div class="ws-stat-cell"><div class="ws-stat-val ws-stat-val--dim">0</div><div class="ws-stat-label">SEZİLEN</div></div>
+        <div class="ws-stat-cell"><div class="ws-stat-val ws-stat-val--gold">0</div><div class="ws-stat-label">TANINDI</div></div>
+        <div class="ws-stat-cell"><div class="ws-stat-val ws-stat-val--gold">0</div><div class="ws-stat-label">DÖNÜŞTÜ</div></div>
+        <div class="ws-stat-cell"><div class="ws-stat-val ws-stat-val--text">0</div><div class="ws-stat-label">ELMAS</div></div>
+      </div>
+
+      <!-- Engel Atlası & Öz-Tanı — 6 Perde · 6 Zehir · 7 Tuzak -->
+      <button class="eng-entry-btn" onclick="engOpen()">
+        <span class="eng-entry-glyph">◇</span>
+        <div class="eng-entry-text">
+          <div class="eng-entry-title">ENGEL ATLASI & ÖZ-TANI</div>
+          <div class="eng-entry-sub">6 Perde · 6 Zehir · 7 Tuzak — hangisi seni tutuyor?</div>
+        </div>
+        <span class="eng-entry-arrow">›</span>
+      </button>
+
+      <!-- Aktif Sefer + Emre Önerisi + Diğer Hasımlar — JS ile doldurulacak -->
+      <div id="hasimlar-content"></div>
+    </div>
+  </div>
+
+  <!-- ── MÜHRÜM (S2Muhrum wsv2-screens.jsx:640–788) ── -->
+  <div class="view" id="muhrum-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title">MÜHRÜM</div>
+        <div class="ws-topbar-mode">· Kitap ·</div>
+      </div>
+      <div class="ws-vesper-ring" onclick="vesperTap()">
+        <svg viewBox="0 0 38 38" width="38" height="38">
+          <circle cx="19" cy="19" r="16" class="ws-vesper-track"/>
+          <circle cx="19" cy="19" r="16" class="ws-vesper-arc"
+                  stroke-dasharray="100.53" stroke-dashoffset="100.53"
+                  transform="rotate(-90 19 19)"/>
+        </svg>
+        <div class="ws-vesper-num">0</div>
+      </div>
+    </div>
+    <div class="ws-body ws-body--narrow">
+      <!-- Başlık (S2Muhrum lines 654–661) -->
+      <div class="ws-section-header" style="margin-bottom:10px;">
+        <div class="ws-section-label">~ liber primus ~</div>
+        <div class="ws-section-title--serif ws-section-title--large">Mühürler <em>Kitabı</em></div>
+      </div>
+      <!-- Sekmeler — Kitaplık artık Sohbet drawer'ından açılır (libOpenReader) -->
+      <div class="ws-tab-row ws-tab-row--center">
+        <button class="ws-tab active" data-tab="muhrum-elmas" onclick="wsTab(this,'muhrum')">ELMAS</button>
+        <button class="ws-tab" data-tab="muhrum-manifesto" onclick="wsTab(this,'muhrum')">12 MÜHÜR</button>
+      </div>
+      <div class="ws-tab-content active" id="muhrum-elmas" data-group="muhrum"></div>
+      <div class="ws-tab-content" id="muhrum-manifesto" data-group="muhrum"></div>
+    </div>
+  </div>
+
+  <!-- ── ARKETİP ── -->
+  <div class="view" id="arketip-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri" style="display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;color:var(--gold);">GERİ</span>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title">OLMAK İSTEDİĞİN KİŞİ</div>
+        <div class="ws-topbar-mode">· Hedef Kişi ·</div>
+      </div>
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+    </div>
+    <div class="ws-body ws-body--narrow" id="arketip-body"></div>
+  </div>
+
+  <!-- ── KİŞİLER (eski Arketipler) — sahipsiz kartlar ── -->
+  <div class="view" id="arketipler-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri" style="display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;color:var(--gold);" data-i18n="kk.back">GERİ</span>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="kk.view.kisiler_title">KİŞİLER</div>
+        <div class="ws-topbar-mode" data-i18n="kk.view.kisiler_mode">· Olunabilecek Kişiler ·</div>
+      </div>
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+    </div>
+    <div class="ws-body ws-body--narrow" id="arketipler-body"></div>
+  </div>
+
+  <!-- ── KİŞİLERİM — kart koleksiyonu (10q) ── -->
+  <div class="view" id="kisilerim-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri" style="display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;color:var(--gold);" data-i18n="kk.back">GERİ</span>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="kk.view.kisilerim_title">KİŞİLERİM</div>
+        <div class="ws-topbar-mode" data-i18n="kk.view.kisilerim_mode">· Topladığın Kişiler ·</div>
+      </div>
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+    </div>
+    <div class="ws-body" id="kisilerim-body"></div>
+  </div>
+
+  <!-- ── BENLİK KARTIM (Emre Beni Tanıyor) ── -->
+  <div class="view" id="benlik-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri" style="display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;color:var(--gold);">GERİ</span>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title">BENLİK KARTIM</div>
+        <div class="ws-topbar-mode">· Olduğun Kişi ·</div>
+      </div>
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+    </div>
+    <div class="ws-body"><div id="benlik-root" style="max-width:560px;margin:0 auto;padding:20px 16px 60px;"></div></div>
+  </div>
+
+  <!-- ── KENDİ KOLEKSİYONUM (İlham + An kartları — yalnız sahibi görür) ── -->
+  <div class="view" id="kk-mine-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri" style="display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;color:var(--gold);">GERİ</span>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title">KENDİ KOLEKSİYONUM</div>
+        <div class="ws-topbar-mode">· Senin yarattığın kişiler ·</div>
+      </div>
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+    </div>
+    <div class="ws-body" id="kk-mine-body"></div>
+  </div>
+
+  <!-- ── KİŞİLERİN KİŞİLERİ (sosyal feed — anonim rumuzlu) ── -->
+  <div class="view" id="sosyal-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('kk-mine')" aria-label="Geri" style="display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span style="font-family:var(--cinzel);font-size:9px;letter-spacing:2px;color:var(--gold);" data-i18n="sf.back">GERİ</span>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="sf.title_kicker">KİŞİLERİN KİŞİLERİ</div>
+        <div class="ws-topbar-mode" data-i18n="sf.topbar_mode">· Halka pazarı ·</div>
+      </div>
+      <button class="ws-topbar-menu" onclick="w2OpenDrawer()" aria-label="Menü">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+    </div>
+    <div class="ws-body" id="sosyal-body"></div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+
+  <!-- ── HISTORY (Takvim Görünümü — Wanderer v2) ── -->
+
+
+  <!-- ── DÖNÜŞÜM HATTI (Wanderer v3) ── -->
+
+  <!-- ── YOLCULUK HARİTASI (Gezginin Yolu + Zaman Çizelgesi birleşik) ── -->
+
+  <!-- ── SUMMARIES ── -->
+
+  <!-- ── NOT DEFTERİ — Wanderer LLM kenar çubuğundan açılır (07-settings-knowledge.js) ── -->
+  <div class="view" id="notebook-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-body ws-body--narrow nb-body">
+      <!-- Başlık satırı: geri ok | hero (orta) | indir — tam hizalı flex -->
+      <div class="nb-header">
+        <button class="ch-topbar-hist-btn" onclick="switchView('chat')" aria-label="Sohbete dön">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <header class="nb-hero">
+          <div class="nb-hero-kicker">✦ SENİN DEFTERİN</div>
+          <h1 class="nb-hero-title">Not Defteri</h1>
+          <p class="nb-hero-sub">Önemli olan kaybolmaz.</p>
+          <span class="nb-hero-rule" aria-hidden="true"></span>
+        </header>
+        <button class="ch-topbar-hist-btn nb-export-btn" onclick="exportNotes()" aria-label="Notları indir">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        </button>
+      </div>
+
+      <!-- Sekmeler: KİŞİSEL (lapis) / EMRE'DEN (altın) -->
+      <div class="nb-tabs" role="tablist" aria-label="Not türleri">
+        <button class="nb-tab nb-tab--active" id="nb-tab-personal"
+                role="tab" aria-selected="true" aria-controls="notes-list"
+                onclick="switchNoteTab('personal')">
+          <span class="nb-tab-glyph" aria-hidden="true">✦</span> KİŞİSEL
+        </button>
+        <button class="nb-tab" id="nb-tab-quote"
+                role="tab" aria-selected="false" aria-controls="notes-list"
+                onclick="switchNoteTab('quote')">
+          <span class="nb-tab-glyph" aria-hidden="true">❝</span> EMRE'DEN
+        </button>
+      </div>
+
+      <!-- Yeni not — yalnız KİŞİSEL sekmesinde görünür -->
+      <div class="nb-composer" id="nb-composer">
+        <textarea id="manual-note-input" class="nb-composer-input" rows="1" placeholder="Bir düşünce, bir farkındalık…" oninput="autoResize(this)"></textarea>
+        <div class="nb-composer-foot">
+          <span class="nb-composer-hint">DEFTERE DÜŞÜR</span>
+          <button class="nb-seal-btn" onclick="addManualNote(this)" aria-label="Deftere ekle">
+            <svg class="nb-seal-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="nb-seal-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Arama -->
+      <div class="nb-search-wrap">
+        <svg class="nb-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="note-search-input" type="search" placeholder="Notlarda ara…" oninput="filterNotes(this.value)" autocomplete="off" class="nb-search" aria-label="Notlarda ara">
+      </div>
+
+      <!-- Liste -->
+      <div id="notes-list" class="nb-list" role="tabpanel"></div>
+    </div>
+  </div>
+
+  <!-- Note Detail / Edit Modal -->
+  <div class="overlay" id="note-detail-overlay">
+    <div class="modal" style="max-height:85dvh; overflow-y:auto; text-align:left; position:relative;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div id="note-detail-date" style="font-size:10px; color:var(--gold); text-transform:uppercase; letter-spacing:2px;"></div>
+        <button onclick="document.getElementById('note-detail-overlay').classList.remove('open')" style="background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div id="note-detail-badge" style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:16px;"></div>
+      <textarea id="note-detail-input" class="field-textarea" style="font-family:var(--serif); font-size:18px; line-height:1.7; min-height:120px; border-bottom:1px solid var(--border-active);" oninput="autoResize(this)"></textarea>
+      <div style="display:flex; gap:12px; margin-top:24px;">
+        <button class="btn-outline-gold" style="flex:1;" onclick="saveNoteEdit()">Kaydet</button>
+        <button class="kb-btn del" style="padding:16px 20px; border:1px solid rgba(192,57,43,0.3);" onclick="deleteNote()">Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div class="view" id="settings-view">
+    <div class="top-nav">
+      <button class="nav-btn" onclick="switchView('chat')" data-i18n="settings.back">Geri</button>
+      <span class="nav-title serif" data-i18n="settings.title">Ayarlar</span>
+      <div class="nav-spacer"></div>
+    </div>
+    <div class="scroll-content">
+      <div class="settings-group">
+        <div class="settings-title serif" data-i18n="settings.avatar.title">Profil Fotoğrafı</div>
+        <label for="u-avatar-file" style="display:flex;align-items:center;gap:20px;cursor:pointer;margin-bottom:24px;">
+          <img id="settings-avatar-preview" src="data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='52'%20height='78'%20viewBox='0%200%2052%2078'%3E%3Crect%20width='52'%20height='78'%20fill='%23141414'/%3E%3Ccircle%20cx='26'%20cy='30'%20r='10'%20fill='%2352504A'/%3E%3Cpath%20d='M8%2068%20Q8%2050%2026%2050%20Q44%2050%2044%2068%20L44%2078%20L8%2078%20Z'%20fill='%2352504A'/%3E%3C/svg%3E" style="width:52px;max-height:78px;height:auto;object-fit:cover;object-position:top center;border-radius:2px;border:1px solid var(--border);">
+          <div style="flex:1;border:1px solid var(--border);padding:14px;color:var(--text-mid);font-size:13px;text-align:center;transition:border-color .2s;" data-i18n="settings.avatar.gallery">Galeriden Seç</div>
+        </label>
+        <input type="file" id="u-avatar-file" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
+        <button class="btn-outline-gold" id="save-avatar-btn" onclick="saveUserSettings()" data-i18n="settings.avatar.save">Kaydet</button>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title serif" data-i18n="settings.notif.title">Bildirimler</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:18px;line-height:1.6;">Seni doğru anda — serin, verdiğin söz ve o günkü adımın için — uygulama kapalıyken bile geri çağırayım.</p>
+        <label for="push-toggle" style="display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;margin-bottom:12px;">
+          <span style="font-size:14px;color:var(--text-mid);">Bildirimleri aç</span>
+          <input type="checkbox" id="push-toggle" onchange="bildirimToggle(this.checked)"
+                 style="width:22px;height:22px;accent-color:var(--gold);cursor:pointer;flex:none;">
+        </label>
+        <p id="push-status" style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:18px;">—</p>
+        <button class="btn-outline-gold" onclick="bildirimTest()">Bildirimi Test Et</button>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title serif">Doku · Ses &amp; Titreşim</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:18px;line-height:1.6;">Mühür, kart ve elmas anlarında ince imza sesleri ve dokunsal titreşim.</p>
+        <label for="fx-sound-toggle" style="display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;margin-bottom:12px;">
+          <span style="font-size:14px;color:var(--text-mid);">İmza sesleri</span>
+          <input type="checkbox" id="fx-sound-toggle" checked onchange="fxToggleSound(this.checked)"
+                 style="width:22px;height:22px;accent-color:var(--gold);cursor:pointer;flex:none;">
+        </label>
+        <label for="fx-haptic-toggle" style="display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;">
+          <span style="font-size:14px;color:var(--text-mid);">Titreşim</span>
+          <input type="checkbox" id="fx-haptic-toggle" checked onchange="fxToggleHaptic(this.checked)"
+                 style="width:22px;height:22px;accent-color:var(--gold);cursor:pointer;flex:none;">
+        </label>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title serif">Dil · Language</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;line-height:1.6;" data-i18n="lang.subtitle">Arayüz ve koç yanıtları bu dilde olacak.</p>
+        <button class="btn-outline-gold" id="w2-lang-btn" onclick="openLangPicker()" data-i18n="lang.title">Dil Seç</button>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title serif" data-i18n="settings.security.title">Güvenlik</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;line-height:1.6;" data-i18n="settings.security.desc">Şifre sıfırlama bağlantısı e-posta adresine gönderilir.</p>
+        <button class="btn-outline-gold" id="reset-pw-btn" onclick="sendPasswordReset()" data-i18n="settings.security.reset">Şifre Sıfırlama Gönder</button>
+      </div>
+      <div class="settings-group">
+        <div class="settings-title serif">Oturum</div>
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;line-height:1.6;">Hesabından güvenle çıkış yap.</p>
+        <button class="btn-outline-gold settings-logout-btn" onclick="doLogout()">Çıkış Yap</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROFİL (Emre Beni Nasıl Tanıyor) ── -->
+
+  <!-- ── YOL HARİTASI ── -->
+
+
+  <!-- ── EMRE'NİN KİTAPLIĞI ── -->
+
+  <!-- ── TOPLULUK ── -->
+
+  <!-- ── CHALLENGE ── -->
+
+  <!-- ── MANİFESTOM ── -->
+
+  <!-- ── ADMIN ── -->
+  <div class="view" id="admin-view">
+    <!-- ═══ YÖNETİM GİRİŞİ · Wanderer Studio deneyimi (tam-bleed) ═══
+         Üst bar kaldırıldı: Yönetim'den çıkış, sağ-alttaki kart-dönüş tuşuyla
+         (#admin-exit-card) yapılır — kart çevrilir, uygulamaya (index.html) dönülür.
+         Görev sayfalarından stüdyo girişine dönüş ise #admin-pages başındaki
+         geri çipiyle (.admin-back-chip → adminNavBack) sağlanır.
+         Stüdyonun bütün tasarımı buraya taşındı: usturlap kadranı, yükselen
+         yıldız tozu, ışıltılı serif başlık, kanat ayraçları, oda kartları ve
+         günün düşüncesi plaketi. Her oda bir yönetim görevidir; tıklanınca o
+         görev .scroll-content içinde tam sayfa açılır (switchAdmin), üst bardaki
+         "‹ Yönetim" ile bu girişe dönülür. Stil: studio.css + .ws-studio--admin. -->
+    <div id="admin-home" class="ws-studio ws-studio--admin open">
+
+      <!-- Atmosfer: yavaş dönen kadran (usturlap) + yükselen yıldız tozu -->
+      <svg class="ws-st-ring" viewBox="0 0 400 400" aria-hidden="true">
+        <g class="ws-st-ring-dial">
+          <circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <circle cx="200" cy="200" r="158" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.65"/>
+          <circle cx="200" cy="200" r="120" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.4" stroke-dasharray="3 7"/>
+          <g stroke="currentColor" stroke-width="0.8">
+            <line x1="200" y1="10" x2="200" y2="28"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(30 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(60 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(90 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(120 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(150 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(180 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(210 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(240 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(270 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(300 200 200)"/>
+            <line x1="200" y1="10" x2="200" y2="28" transform="rotate(330 200 200)"/>
+          </g>
+          <g fill="currentColor">
+            <path d="M200 36 L204 42 L200 48 L196 42 Z"/>
+            <path d="M200 352 L204 358 L200 364 L196 358 Z"/>
+            <path d="M36 200 L42 196 L48 200 L42 204 Z"/>
+            <path d="M352 200 L358 196 L364 200 L358 204 Z"/>
+          </g>
+        </g>
+      </svg>
+      <div class="ws-st-dust" aria-hidden="true">
+        <span style="--x:8%;  --d:17s; --s:2px;"></span>
+        <span style="--x:24%; --d:23s; --s:1.5px; --delay:4s;"></span>
+        <span style="--x:46%; --d:19s; --s:2.5px; --delay:9s;"></span>
+        <span style="--x:63%; --d:26s; --s:1.5px; --delay:2s;"></span>
+        <span style="--x:81%; --d:21s; --s:2px;  --delay:6s;"></span>
+        <span style="--x:93%; --d:24s; --s:1.5px; --delay:12s;"></span>
+      </div>
+
+      <!-- Başlık -->
+      <header class="ws-st-head">
+        <div class="ws-st-eyebrow">
+          <span class="ws-st-eyebrow-word">WANDERER</span>
+        </div>
+        <div class="ws-st-title">Yönetim</div>
+        <div class="ws-st-tagline">Uygulamayı buradan biçimlendir.</div>
+      </header>
+
+      <!-- Kanatlar -->
+      <div class="ws-st-body">
+
+        <!-- ── ÇEKİRDEK · kimlik · model · bilgi ── -->
+        <div class="ws-st-sec" style="--i:0;"><span class="ws-st-sec-label">ÇEKİRDEK</span></div>
+        <div class="ws-st-grid">
+          <button class="ws-st-room" style="--i:0;" onclick="switchAdmin('dashboard')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <rect x="20" y="20" width="24" height="24" rx="4"/><rect x="56" y="20" width="24" height="24" rx="4"/>
+              <rect x="20" y="56" width="24" height="24" rx="4"/><rect x="56" y="56" width="24" height="24" rx="4"/>
+            </svg>
+            <div class="ws-st-room-label">ÖZET</div>
+            <div class="ws-st-room-sub">üye · modül · aktif ses</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:1;" onclick="switchAdmin('persona')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <circle cx="50" cy="38" r="16"/><path d="M22 82 Q50 56 78 82"/>
+            </svg>
+            <div class="ws-st-room-label">KİŞİLİK</div>
+            <div class="ws-st-room-sub">kimlik · ses · karşılama</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:2;" onclick="switchAdmin('focus')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <path d="M50 30 L29 66 M50 30 L71 66 M33 70 L67 70" opacity="0.5"/>
+              <circle cx="50" cy="24" r="8"/><circle cx="26" cy="72" r="8"/><circle cx="74" cy="72" r="8"/>
+            </svg>
+            <div class="ws-st-room-label">MODEL STÜDYOSU</div>
+            <div class="ws-st-room-sub">öz · bağ · eser</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:3;" onclick="switchAdmin('knowledge')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <path d="M50 32 Q34 24 20 30 L20 74 Q34 68 50 76 Q66 68 80 74 L80 30 Q66 24 50 32 Z"/>
+              <path d="M50 32 L50 76" opacity="0.5"/>
+            </svg>
+            <div class="ws-st-room-label">BİLGİ</div>
+            <div class="ws-st-room-sub">alıntılar · kavramlar</div>
+          </button>
+        </div>
+
+        <!-- ── TOPLULUK · sesler · özetler · push ── -->
+        <div class="ws-st-sec" style="--i:4;"><span class="ws-st-sec-label">TOPLULUK</span></div>
+        <div class="ws-st-grid">
+          <button class="ws-st-room" style="--i:4;" onclick="switchAdmin('feedbacks')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <rect x="18" y="26" width="64" height="42" rx="9"/>
+              <path d="M36 68 L32 82 L52 68 Z" fill="currentColor" stroke="none"/>
+            </svg>
+            <div class="ws-st-room-label">GERİ BİLDİRİMLER</div>
+            <div class="ws-st-room-sub">kullanıcı sesleri</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:5;" onclick="switchAdmin('summaries')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <rect x="28" y="18" width="44" height="64" rx="5"/>
+              <line x1="38" y1="36" x2="62" y2="36"/><line x1="38" y1="50" x2="62" y2="50"/><line x1="38" y1="64" x2="54" y2="64"/>
+            </svg>
+            <div class="ws-st-room-label">ÖZETLER</div>
+            <div class="ws-st-room-sub">tüm seans özetleri</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:6;" onclick="switchAdmin('bildirimler')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <path d="M50 22 C37 22 31 31 31 44 C31 60 22 64 22 68 L78 68 C78 64 69 60 69 44 C69 31 63 22 50 22 Z"/>
+              <path d="M42 74 Q50 82 58 74"/>
+            </svg>
+            <div class="ws-st-room-label">BİLDİRİMLER</div>
+            <div class="ws-st-room-sub">toplu push</div>
+          </button>
+        </div>
+
+        <!-- ── VİTRİN · tanıtım · mektup · sistem ── -->
+        <div class="ws-st-sec" style="--i:7;"><span class="ws-st-sec-label">VİTRİN</span></div>
+        <div class="ws-st-grid">
+          <button class="ws-st-room" style="--i:7;" onclick="switchAdmin('feature-videos')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <rect x="18" y="28" width="64" height="44" rx="7"/>
+              <path d="M44 42 L62 50 L44 58 Z" fill="currentColor" stroke="none"/>
+            </svg>
+            <div class="ws-st-room-label">TANITIM VİDEOLARI</div>
+            <div class="ws-st-room-sub">kapı ardı tanıtımları</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:8;" onclick="switchAdmin('mektup')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <rect x="18" y="30" width="64" height="42" rx="5"/>
+              <path d="M18 35 L50 57 L82 35"/>
+            </svg>
+            <div class="ws-st-room-label">MEKTUP</div>
+            <div class="ws-st-room-sub">gezgine mektup</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:8;" onclick="switchAdmin('user-letters')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" style="overflow:visible;">
+              <rect x="18" y="30" width="64" height="42" rx="5"/>
+              <path d="M18 35 L50 57 L82 35"/>
+              <path d="M28 62 L42 50"/>
+              <path d="M72 62 L58 50"/>
+            </svg>
+            <div class="ws-st-room-label">MEKTUPLAR</div>
+            <div class="ws-st-room-sub">kullanıcıdan gelen</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:9;" onclick="switchAdmin('library-banner')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="overflow:visible;">
+              <rect x="14" y="32" width="72" height="36" rx="10"/>
+              <circle cx="30" cy="50" r="5" fill="currentColor" stroke="none"/>
+              <line x1="44" y1="44" x2="76" y2="44"/>
+              <line x1="44" y1="56" x2="68" y2="56"/>
+            </svg>
+            <div class="ws-st-room-label">DUYURU</div>
+            <div class="ws-st-room-sub">bugün ekranı bandı</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:10;" onclick="switchAdmin('download-links')">
+            <svg class="ws-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="overflow:visible;">
+              <path d="M50 18 V62"/>
+              <path d="M36 48 L50 62 L64 48"/>
+              <path d="M22 72 H78"/>
+            </svg>
+            <div class="ws-st-room-label">İNDİRME</div>
+            <div class="ws-st-room-sub">store bağlantıları</div>
+          </button>
+
+          <button class="ws-st-room" style="--i:11;" onclick="switchAdmin('settings')">
+            <svg class="ws-sigil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="overflow:visible;">
+              <circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.4"/>
+              <line x1="12" y1="2.5" x2="12" y2="5.6"/><line x1="12" y1="18.4" x2="12" y2="21.5"/>
+              <line x1="2.5" y1="12" x2="5.6" y2="12"/><line x1="18.4" y1="12" x2="21.5" y2="12"/>
+              <line x1="5.2" y1="5.2" x2="7.4" y2="7.4"/><line x1="16.6" y1="16.6" x2="18.8" y2="18.8"/>
+              <line x1="18.8" y1="5.2" x2="16.6" y2="7.4"/><line x1="7.4" y1="16.6" x2="5.2" y2="18.8"/>
+            </svg>
+            <div class="ws-st-room-label">SİSTEM</div>
+            <div class="ws-st-room-sub">fiyat · kota · api</div>
+          </button>
+        </div>
+
+        <!-- Günün Düşüncesi — stüdyo duvar plaketi -->
+        <div class="ws-st-thought">
+          <span class="ws-st-thought-mark" aria-hidden="true">❝</span>
+          <div class="ws-st-thought-label">GÜNÜN DÜŞÜNCESİ · KİTAPTAN</div>
+          <div class="ws-st-thought-text" id="admin-daily-thought">—</div>
+        </div>
+
+        <!-- Oturumu kapat — üst bar kalktı; çıkış burada (yalnız ayrı yönetim
+             sayfasında JS ile görünür kılınır). -->
+        <button class="ws-st-logout" id="admin-logout-link" onclick="doLogout()">Oturumu Kapat</button>
+      </div>
+    </div>
+
+    <div class="scroll-content" id="admin-pages" style="max-width:800px;">
+
+      <!-- Görev sayfası başlık çubuğu: stüdyo girişine dönüş + açık görevin adı.
+           Eski top-nav'ın "‹ Yönetim · <görev>" işlevini taşır. -->
+      <button class="admin-back-chip" onclick="adminNavBack()" aria-label="Yönetim girişine dön">
+        <span class="abc-arrow" aria-hidden="true">‹</span>
+        <span class="abc-home">Yönetim</span>
+        <span class="abc-sep" aria-hidden="true">·</span>
+        <span class="abc-page" id="admin-page-title">—</span>
+      </button>
+
+      <div class="admin-page" id="page-dashboard">
+        <div class="admin-stat-row">
+          <div class="stat-block" style="border:1px solid var(--border);"><div class="stat-num" id="stat-users">—</div><div class="stat-label">Üye</div></div>
+          <div class="stat-block" style="border:1px solid var(--border);"><div class="stat-num" id="stat-knowledge">—</div><div class="stat-label">Modül</div></div>
+        </div>
+        <div class="section-label">Aktif Kimlik & Ses</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:8px;margin-bottom:4px;letter-spacing:1px;">Mod talimatları sistem tarafından otomatik eklenir, burada görünmez.</div>
+        <div id="active-prompt-preview" style="font-size:13px;color:var(--text-dim);line-height:1.7;font-style:italic;margin-top:8px;">—</div>
+      </div>
+
+      <div class="admin-page" id="page-persona">
+        <div style="font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Koç Adı</div>
+        <input class="field-input" id="p-name" placeholder="Örn. Emre the Wanderer" type="text" style="margin-bottom:28px;">
+
+        <div style="font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Karşılama Mesajı</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.6;">Her yeni konuşmanın açılışında kullanıcıya gösterilen ilk mesaj.</div>
+        <textarea class="field-textarea" id="p-welcome" placeholder="Örn. Bugün ne üzerine konuşmak istersin?" style="margin-bottom:28px;"></textarea>
+
+        <div style="font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Kimlik & Ses</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.6;">
+          Emre'nin <em>kim olduğunu</em> tanımla: sesi, tonu, cümle kuruş biçimi, temel inançları, dünya görüşü.<br><br>
+          <span style="color:var(--gold);font-style:normal;">Buraya yazılmaması gerekenler:</span> Sohbet akışı talimatları, kaçınma tepkileri, mod yönergeleri. Bunlar sistem tarafından otomatik yönetilir.
+        </div>
+        <textarea class="field-textarea" id="p-system" rows="10" placeholder="Sen Emre'sin. Dönüşüm koçusun. Teselli etmezsin — görünür kılarsın. Kısa konuşursun. Her cümlen bir ağırlık taşır..."></textarea>
+        <button class="btn-outline-gold" onclick="savePersona()">Yayınla</button>
+      </div>
+
+      <div class="admin-page" id="page-focus">
+        <div class="section-label">Model Stüdyosu</div>
+        <div style="font-size:12px;color:var(--text-mid);margin:8px 0 18px;line-height:1.6;">
+          Wanderer bir dil modeli; üç modeli var:
+          <strong>Wanderer Öz · Wanderer Bağ · Wanderer Eser</strong> — bireysel hayat,
+          ilişki hayatı, iş hayatı. Her modelin kimliği, davranışı (sistem promptu),
+          bilgi tabanı, karşılaması, sohbet başlatıcıları ve üretim parametreleri
+          buradan yönetilir. İçerikleri kitaplarına göre sen doldurursun.<br><br>
+          <span style="color:var(--gold);font-style:normal;">Katman düzeni:</span>
+          Emre'nin temel kimliği &amp; sesi "Kişilik" sekmesinde, ortak bilgi havuzu
+          "Bilgi" sekmesinde yaşar; buradaki alanlar <em>modele özgü</em> davranış ve bilgidir.
+        </div>
+        <div id="focus-models-list">Yükleniyor…</div>
+        <button class="btn-outline-gold" onclick="saveFocusModels(this)" style="margin-top:4px;margin-bottom:40px;">Modelleri Yayınla</button>
+      </div>
+
+      <div class="admin-page" id="page-knowledge">
+        <div style="font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Başlık</div>
+        <input class="field-input" id="k-title" placeholder="Örn. Kaçınma Psikolojisi — Steven Pressfield" type="text" style="margin-bottom:16px;">
+
+        <div style="font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">İçerik</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.6;">
+          Emre'nin <em>ne bildiğini</em> tanımla: kitap alıntıları, kavramlar, teoriler, referans aldığı düşünceler.<br><br>
+          <span style="color:var(--gold);font-style:normal;">Buraya yazılmaması gerekenler:</span> Emre'nin kişiliği, sesi ya da nasıl davranacağı. Bunlar Kimlik & Ses alanına aittir.
+        </div>
+        <textarea class="field-textarea" id="k-content" rows="4" placeholder="İçeriği buraya yaz..."></textarea>
+        <button class="btn-outline-gold" onclick="saveKnowledge(this)" style="margin-bottom:40px;">Ekle</button>
+        <div class="section-label">Mevcut İçerikler</div>
+        <div id="knowledge-list"></div>
+      </div>
+
+      <div class="admin-page" id="page-feedbacks">
+        <div class="section-label">Geri Bildirimler</div>
+        <div id="feedbacks-list">Yükleniyor...</div>
+      </div>
+
+      <div class="admin-page" id="page-summaries">
+        <div class="section-label">Tüm Özetler</div>
+        <div id="admin-summaries-list">Yükleniyor...</div>
+      </div>
+
+      <div class="admin-page" id="page-feature-videos">
+        <div class="section-label">Özellik Tanıtım Videoları</div>
+        <div style="font-size:12px;color:var(--text-mid);margin:8px 0 18px;line-height:1.6;">
+          Her özelliğe ilk girişte, kapının ardından gösterilen tanıtım videosu.
+          Buraya video bağlantısını yapıştır (mp4/webm). Boş bırakırsan o özellikte
+          video "yakında" olarak görünür. Video sonuna kadar izlenirse kullanıcıda
+          bir daha açılmaz.
+        </div>
+        <div id="feature-videos-list">Yükleniyor...</div>
+        <button class="btn-outline-gold" onclick="saveFeatureVideos(this)" style="margin-top:4px;margin-bottom:40px;">Kaydet</button>
+      </div>
+
+      <div class="admin-page" id="page-mektup">
+        <div class="section-label">Gezgine Mektup</div>
+        <div style="font-size:12px;color:var(--text-mid);margin:8px 0 18px;line-height:1.6;">
+          Kenar çubuğunun altındaki <strong>Emre the wanderer · Wanderer Movement</strong>
+          satırına dokunan kullanıcı bu mektubu okur. Üstte büyük oval portren,
+          altında kendi sesinle yazdığın mektup görünür.
+        </div>
+        <div id="mektup-admin-host">Yükleniyor…</div>
+        <button class="btn-outline-gold" onclick="saveMektup(this)" style="margin-top:14px;margin-bottom:40px;">Mektubu Yayınla</button>
+      </div>
+
+      <div class="admin-page" id="page-user-letters">
+        <div class="section-label">Kullanıcı Mektupları</div>
+        <div style="font-size:12px;color:var(--text-mid);margin:8px 0 18px;line-height:1.6;">
+          Wanderer Studio üyeleri Mektup sayfasının altındaki
+          <strong>"Benim de sana bir mektubum var!"</strong> butonundan
+          ayda 1 kez sana mektup yazar. Mektuplar aşağıda listelenir;
+          hedef e-posta girersen <em>Resend</em> üzerinden o adrese de iletilir
+          (kurulum: <code style="font-size:11px;">SETUP-USER-LETTER.md</code>).
+        </div>
+        <div id="user-letters-admin-host">Yükleniyor…</div>
+      </div>
+
+      <div class="admin-page" id="page-library-banner">
+        <div class="section-label">Duyuru</div>
+        <div style="font-size:12px;color:var(--text-mid);margin:8px 0 18px;line-height:1.6;">
+          Buraya yazıp kaydettiğinde, açık tüm kullanıcıların Bugün ekranında
+          <strong>"Anladım"</strong> ile kapatılan bir duyuru bandı belirir
+          (Emre'nin sesiyle). Metni her değiştirdiğinde herkese yeniden gösterilir.
+          <br><br>
+          <span style="color:var(--gold);">Ayrı çalışan:</span> Kitaplığa yeni içerik
+          eklediğinde kullanıcıya <em>otomatik</em> bir alt-sayfa da açılır — o burada
+          ayar gerektirmez.
+        </div>
+        <div id="library-banner-admin-host">Yükleniyor…</div>
+        <button class="btn-outline-gold" onclick="saveLibraryBanner(this)" style="margin-top:18px;margin-bottom:40px;">Kaydet</button>
+      </div>
+
+      <div class="admin-page" id="page-download-links">
+        <div class="section-label">İndirme Bağlantıları</div>
+        <div style="font-size:12px;color:var(--text-mid);margin:8px 0 18px;line-height:1.6;">
+          Kitaplık'tan paylaşılan kart görsellerinin altında "uygulamayı indir" ayakizi
+          olarak görünür: paylaşılan mesajın metnine de bağlantı eklenir, görsel kartın
+          alt köşesinde de kısa bağlantı görünür. Henüz mağaza linki yoksa boş bırakabilirsin —
+          paylaşım çalışmaya devam eder, yalnızca alt link gösterilmez.
+          <br><br>
+          <span style="color:var(--gold);">Not:</span> İlk kayıt için
+          <code style="font-size:11px;">migrations/021_download_links.sql</code> Supabase
+          SQL editöründe çalıştırılmalı (eski tablolar gibi: ELLE).
+        </div>
+        <div id="download-links-admin-host">Yükleniyor…</div>
+        <button class="btn-outline-gold" onclick="saveAppDownloadLinks(this)" style="margin-top:18px;margin-bottom:40px;">Kaydet</button>
+      </div>
+
+      <div class="admin-page" id="page-bildirimler">
+        <div class="section-label">Toplu Bildirim</div>
+        <div style="font-size:12px;color:var(--text-mid);margin:8px 0 18px;line-height:1.6;">
+          Bildirimi <strong>açık</strong> tüm kullanıcılara elle push gönder. Akıllı motor
+          (seri-riski, geri-çağırma, söz, sabah) bunun dışında otomatik çalışır; bu yalnızca
+          duyuru/özel anlar içindir. <span style="color:var(--gold);">Dikkatli kullan</span> —
+          bildirim yorgunluğu retention'ı düşürür.
+        </div>
+        <div style="font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Başlık</div>
+        <input class="field-input" id="push-bc-title" type="text" placeholder="Emre the Wanderer" maxlength="60" style="margin-bottom:16px;">
+        <div style="font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Metin</div>
+        <textarea class="field-textarea" id="push-bc-body" rows="3" maxlength="180" placeholder="Kısa, Emre'nin sesiyle. En fazla 180 karakter."></textarea>
+        <button class="btn-outline-gold" onclick="bildirimBroadcast(this)" style="margin-top:8px;margin-bottom:40px;">Tüm Kullanıcılara Gönder</button>
+      </div>
+
+      <div class="admin-page" id="page-settings">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Aylık Fiyat (₺)</div>
+        <input class="field-input" id="s-monthly" type="number">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Ücretsiz Mesaj Limiti (eski · günlük yedek)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.5;">Kota motoru (migration 018) kurulu değilken devreye giren yerel günlük sınır.</div>
+        <input class="field-input" id="s-limit" type="number">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Kota · 5 Saatlik Pencere (mesaj)</div>
+        <input class="field-input" id="s-kota-5h" type="number" placeholder="15">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Kota · Haftalık Tavan (mesaj)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.5;">Claude tarzı çift kota: pencere ilk mesajla açılır, 5 saatte yenilenir; haftalık tavan 7 günde bir. Karşılaştırma: ChatGPT free ~10/5s · Claude free ~15-40/5s · Gemini ~30/gün.</div>
+        <input class="field-input" id="s-kota-week" type="number" placeholder="75">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Kota · Ultra Armağanı (mesaj)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.5;">Üç Mühür'ü (Seri+Hayal+Söz) aynı gün tamamlayan ücretsiz kullanıcıya o gün eklenen mesaj hakkı. Migration 019 gerekli.</div>
+        <input class="field-input" id="s-kota-ultra" type="number" placeholder="9">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Calendly Linki (1-1 Görüşme)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.5;">Örn: https://calendly.com/emre/60min. Kullanıcılar "Emre'ye Sor" üzerinden randevu alacak.</div>
+        <input class="field-input" id="s-calendly" type="url" placeholder="https://calendly.com/...">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;margin-top:20px;letter-spacing:2px;text-transform:uppercase;">Topluluk Linki (WhatsApp)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.5;">Örn: https://chat.whatsapp.com/... Topluluk sayfasındaki "Topluluğa Katıl" butonu bu bağlantıya yönlendirir.</div>
+        <input class="field-input" id="s-community" type="url" placeholder="https://chat.whatsapp.com/...">
+        <button class="btn-outline-gold" onclick="saveSettings()" style="margin-bottom:48px;">Kaydet</button>
+        <div class="section-label">API Bağlantısı</div>
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;margin-top:16px;letter-spacing:2px;text-transform:uppercase;">LLMApi.ai Anahtarı (Sohbet + Özet)</div>
+        <input class="field-input" id="u-api-key" type="password" placeholder="API anahtarı...">
+        <button class="btn-outline-gold" onclick="saveApiKey(this)" style="margin-bottom:32px;">Güncelle</button>
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Together AI Anahtarı (Görsel Üretim)</div>
+        <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px;line-height:1.5;">together.ai → API Keys → Create Key. Dönüşüm kartı görselleri için kullanılır.</div>
+        <input class="field-input" id="u-together-key" type="password" placeholder="together_...">
+        <button class="btn-outline-gold" onclick="saveTogetherKey(this)">Güncelle</button>
+      </div>
+    </div>
+
+    <!-- ÇIKIŞ KARTI — Yönetim'den uygulamaya dönüş. Mini tarot kartı (ana
+         kabuğun ✦ FAB'ının ikizi); dokununca tüm ekran kart gibi çevrilir
+         (adminExitToApp → flip-out → index.html). -->
+    <button id="admin-exit-card" onclick="adminExitToApp()" aria-label="Kartı çevir — uygulamaya dön">
+      <span class="ff-scene" aria-hidden="true">
+        <span class="ff-card">
+          <span class="ff-face ff-front">
+            <span class="ff-glyph">✦</span>
+            <span class="ff-label">WANDERER</span>
+          </span>
+          <span class="ff-face ff-back">
+            <span class="ff-back-glyph"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 18 L74 38 L60 78 L40 78 L26 38 Z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M26 38 L74 38 M50 18 L50 78" stroke="currentColor" stroke-width="1.2" opacity="0.55"/><circle cx="50" cy="50" r="4" fill="currentColor"/></svg></span>
+          </span>
+        </span>
+      </span>
+    </button>
+  </div>
+
+  <!-- ── PREMIUM ── -->
+  <div class="view" id="sub-view">
+    <div class="top-nav">
+      <button class="nav-btn" onclick="switchView('chat')">Geri</button>
+      <span class="nav-title serif">Wanderer Studio</span>
+      <div class="nav-spacer"></div>
+    </div>
+    <div class="scroll-content">
+
+      <!-- ── HERO ── -->
+      <div class="sub-hero">
+        <div class="sub-eyebrow">Wanderer Studio</div>
+        <div class="sub-headline serif">Tüm sistemi aç.<br>Tüm yolculuğu yaşa.</div>
+        <div class="sub-hero-sub">Kişiden Kişiye Geçiş — yalnızca sohbetle değil, tüm araçlarla.</div>
+        <div id="sub-trial-status" style="display:none;margin-top:12px;color:var(--gold);font-size:13px;letter-spacing:0.4px;"></div>
+      </div>
+
+      <!-- ── ÜCRETSİZ NEYİ KAPSÜYOR ── -->
+      <div class="sub-free-tier">
+        <div class="sub-free-label">Wanderer — ücretsiz planında şu an</div>
+        <div class="sub-free-item">
+          <span class="sub-free-check">✓</span>
+          <div>
+            <div class="sub-free-item-title">Günlük 20 Mesaj</div>
+            <div class="sub-free-item-desc">Sohbet sınırı — her gün sıfırlanır.</div>
+          </div>
+        </div>
+        <div class="sub-free-item">
+          <span class="sub-free-check">✓</span>
+          <div>
+            <div class="sub-free-item-title">Gün Kapanışı</div>
+            <div class="sub-free-item-desc">Günlük puanlama ve özet ekranı.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PREMIUM PLAN KARTI ── -->
+      <div class="sub-plan-card">
+        <div class="sub-plan-header">
+          <div>
+            <div class="sub-plan-name serif">Wanderer Studio</div>
+            <div class="sub-plan-tagline">Tüm özellikler. Sınırsız derinlik.</div>
+          </div>
+          <div>
+            <div class="sub-plan-price serif" id="sub-price-usd">$9<sub>/ay</sub></div>
+            <div class="sub-plan-price-local" id="sub-price-local"></div>
+          </div>
+        </div>
+
+        <div class="sub-features">
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 4v4l2 2"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Sınırsız Mesaj</div><div class="sub-feature-desc">Günlük limit yok. Tam derinleşme.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Emre Beni Tanıyor</div><div class="sub-feature-desc">Konuşmalardan çıkan kişisel profil — seanslar arası hafıza.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M7.5 7.5a2.5 2.5 0 014.9.8c0 1.7-2.5 2.5-2.5 2.5M10 14.5h.01"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Emre'ye Sor</div><div class="sub-feature-desc">Geçmişsiz, anlık bir karşılaşma — tek soru, tek cevap.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M3 5h2v12H3V5zm3 0h2v12H6V5zm5-2l7 2-3 11-7-2 3-11z"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Emre'nin Kitaplığı</div><div class="sub-feature-desc">Konuşmalarına göre kişiselleştirilmiş içerik önerileri.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="3" y="2" width="14" height="16" rx="1"/><path d="M6 7h8M6 10h8M6 13h5"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Not Defteri</div><div class="sub-feature-desc">Anlık farkındalıklar ve düşünceler — kaybolmaz.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14l5-5 4 4 7-9"/><path d="M12 4h6v6"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Yolculuk Haritası</div><div class="sub-feature-desc">Ayna → Tasarım → Geçiş — hangi aşamadasın, görsel olarak.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="10" r="3"/><path d="M10 2v4M10 14v4M2 10h4M14 10h4"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Hayattaki Sen</div><div class="sub-feature-desc">3 alanda kimlik profili — bireysel, ilişki, iş.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M10 2L3 5.5v5c0 4.2 3 8 7 8.5 4-0.5 7-4.3 7-8.5v-5L10 2z"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Yol Haritası</div><div class="sub-feature-desc">Sana özel adım adım değişim planı.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M6 3v2H3v5c0 2 1.5 3.5 3.5 3.5h.5v2H5v2h10v-2h-2v-2h.5c2 0 3.5-1.5 3.5-3.5V5h-3V3H6z"/></svg>
+            </div>
+            <div><div class="sub-feature-label">21 Günlük Challenge</div><div class="sub-feature-desc">Kişi değişim programı — her gün bir adım, her adım bir seçim.</div></div>
+          </div>
+          <div class="sub-feature">
+            <div class="sub-feature-icon">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M12 2H5a1 1 0 00-1 1v14a1 1 0 001 1h10a1 1 0 001-1V6l-4-4z"/><path d="M12 2v4h4M7 11h6M7 14h4"/></svg>
+            </div>
+            <div><div class="sub-feature-label">Manifestom</div><div class="sub-feature-desc">Olmak istediğin kişinin beyannamesi — yaz, hatırla, yaşa.</div></div>
+          </div>
+        </div>
+
+        <button class="btn-primary sub-cta-btn" id="sub-cta-btn" onclick="startPayment()">
+          Stüdyo'ya Geç →
+        </button>
+        <div class="sub-cta-note" id="sub-cta-note">İlk 30 gün deneme · Aylık · İstediğin zaman iptal · App Store / Google Play üzerinden</div>
+        <button class="modal-skip" onclick="restorePurchases()" style="margin-top:14px;width:100%;">Satın alımları geri yükle</button>
+      </div>
+
+      <!-- ── DAVET ── -->
+      <div class="sub-referral-section">
+        <div class="sub-referral-label">Birini Davet Et</div>
+        <div class="sub-referral-desc">Tanıdığın birinin buna ihtiyacı var mı? Davet et — ikimiz de kazanalım.</div>
+        <button class="btn-outline-gold" onclick="shareReferral()">Davet Linkini Paylaş</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DÖNÜŞÜM KARTLARI ── -->
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       AYNA · ayrı sayfa (eski Bugün kartı + sayfa-içi Davranış Kanıtı).
+       "Üç Mühür → Hayal" başlığından switchView('ayna') ile gelinir.
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="view" id="ayna-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette--light" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title">AYNA</div>
+        <div class="ws-topbar-mode">· Bugün Hangi Kişiyim? ·</div>
+      </div>
+      <div style="width:38px;"></div>
+    </div>
+    <div class="ws-body ws-feat-body">
+      <div class="ws-ayna-card ws-corners ws-feat-hero" id="ayna-card">
+        <div class="ws-corner ws-corner--tl"></div>
+        <div class="ws-corner ws-corner--tr"></div>
+        <div class="ws-corner ws-corner--bl"></div>
+        <div class="ws-corner ws-corner--br"></div>
+        <div class="ws-ayna-eyebrow">
+          <span style="color:var(--gold);font-size:7px;">◆</span>
+          <span class="ws-ayna-eyebrow-label">AYNA · BUGÜN HANGİ KİŞİYİM?</span>
+        </div>
+        <div class="ws-ayna-mirror-row">
+          <div class="ws-ayna-side ws-ayna-side--current">
+            <div class="ws-ayna-label">ŞU AN</div>
+            <div class="ws-ayna-text" id="ayna-current">Tanımla, başla.</div>
+          </div>
+          <div class="ws-ayna-arrow">→</div>
+          <div class="ws-ayna-side ws-ayna-side--desired">
+            <div class="ws-ayna-label">OLMAK İSTEDİĞİN</div>
+            <div class="ws-ayna-text" id="ayna-desired">Hedef kişini seç.</div>
+          </div>
+        </div>
+        <div class="ws-ayna-meter-wrap" title="Derinlik + Temeller ortalaması">
+          <div class="ws-ayna-meter">
+            <div class="ws-ayna-meter-fill" id="ayna-meter-fill" style="width:0%"></div>
+          </div>
+          <div class="ws-ayna-meter-label">GEÇİŞ · derinlik + temeller</div>
+        </div>
+        <div class="ws-ayna-foot">
+          <span class="ws-elmas-chip" title="Sıcaklık ve basınç altında biriken değer">
+            <span class="ws-elmas-glyph">◆</span>
+            <span id="ayna-elmas">0</span>
+            <span class="ws-elmas-label">Elmas</span>
+          </span>
+          <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="aynaEdit()">Düzenle / Tasarla</button>
+        </div>
+      </div>
+
+      <!-- Davranış Kanıtı · sayfa içi (eski kanit-overlay) -->
+      <div class="ws-kanit-panel ws-feat-panel ws-corners">
+        <div class="ws-corner ws-corner--tl"></div>
+        <div class="ws-corner ws-corner--tr"></div>
+        <div class="ws-corner ws-corner--bl"></div>
+        <div class="ws-corner ws-corner--br"></div>
+        <div class="ws-kanit-eyebrow">
+          <span style="color:var(--gold);font-size:7px;">◆</span>
+          <span>DAVRANIŞ KANITI</span>
+        </div>
+        <div class="ws-kanit-title">Bugün, olmak istediğin kişinin <em>hangi davranışını</em> sergiledin?</div>
+        <div class="ws-kanit-hint">En küçük olanı bile sayılır. Bir cümle, bir an.</div>
+        <textarea id="kanit-input" class="ws-kanit-input" maxlength="500"
+                  placeholder="Örn: Tartışmada üç nefes aldım, sonra konuştum."></textarea>
+        <div class="ws-kanit-actions">
+          <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="aynaSaveKanit()">Mühürle ✦</button>
+        </div>
+        <div class="ws-kanit-gecmis">
+          <div class="ws-kanit-gecmis-header">
+            <span class="ws-micro ws-micro--gold">SON KANITLAR</span>
+            <span class="ws-kanit-gecmis-count" id="kanit-gecmis-count">0 kanıt</span>
+          </div>
+          <div class="ws-kanit-gecmis-list" id="kanit-gecmis-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       GEÇİŞ ALANI · ayrı sayfa. Hub kristal kartı + KART (editör) ve
+       OKU & HAYAL ET (okuma) sayfa-içi bölümleri (eski ga-*-overlay).
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="view" id="gecis-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette--light" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="ga.title">GEÇİŞ ALANI</div>
+        <div class="ws-topbar-mode" data-i18n="ga.mode">· Olmak İstediğin Kişi ·</div>
+      </div>
+      <div style="width:38px;"></div>
+    </div>
+    <div class="ws-body ws-feat-body">
+      <div class="ga-bugun-card ws-feat-hero">
+        <div class="ga-bugun-head">
+          <span class="ws-micro ws-micro--gold" data-i18n="ga.hero_micro">Geçiş Alanı · Olmak İstediğin Kişi</span>
+          <span class="ga-bugun-crystal" id="ga-bugun-crystal">· İlk Kıvılcım</span>
+        </div>
+        <div class="ga-bugun-kisi" id="ga-bugun-kisi">Henüz tanımlamadın</div>
+        <div class="ga-bugun-crystal-meter"><div class="ga-bugun-crystal-fill" id="ga-bugun-crystal-bar" style="width:0%"></div></div>
+        <div class="ga-bugun-row">
+          <div class="ga-bugun-slots">
+            <span class="ga-slot" id="ga-bugun-sabah" title="Sabah okuması">○</span>
+            <span class="ga-slot-label" data-i18n="ga.morning">Sabah</span>
+            <span class="ga-slot" id="ga-bugun-gece" title="Gece okuması">○</span>
+            <span class="ga-slot-label" data-i18n="ga.night">Gece</span>
+          </div>
+          <div class="ga-bugun-sub" id="ga-bugun-sub">Olmak istediğin kişiyi tasarla</div>
+        </div>
+        <div class="ga-bugun-actions">
+          <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="gaOpenCardEditor()" data-i18n="ga.btn_card">Kart</button>
+          <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="gaOpenReading()">
+            <span style="font-size:9px;">✦</span> <span data-i18n="ga.btn_read">Oku &amp; Hayal Et</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KART · editör (eski ga-editor-overlay) -->
+      <div class="ws-feat-section" id="ga-editor-section" style="display:none;">
+        <div class="ga-panel ws-feat-panel ws-corners">
+          <div class="ws-corner ws-corner--tl"></div>
+          <div class="ws-corner ws-corner--tr"></div>
+          <div class="ws-corner ws-corner--bl"></div>
+          <div class="ws-corner ws-corner--br"></div>
+          <div class="ga-head">
+            <span style="color:var(--gold);font-size:7px;">◆</span>
+            <span class="ga-head-label" data-i18n="ga.editor.head">KART · OLMAK İSTEDİĞİN KİŞİ</span>
+            <span style="flex:1;"></span>
+            <button class="ga-close" onclick="gaCloseCardEditor()">×</button>
+          </div>
+          <div class="ga-body">
+            <label class="ga-field-label" data-i18n="ga.field.kisi">Olmak İstediğin Kişi</label>
+            <input id="ga-kisi-input" class="ga-text-input" type="text" maxlength="120"
+                   data-i18n-ph="ga.field.kisi_ph" placeholder="Örn: İlişkisinde huzurlu ve kendine güvenen bir kişi" />
+            <div class="ga-fill-row">
+              <button class="ga-fill-btn" id="ga-ai-fill-btn" onclick="gaFillWithAI()" data-i18n="ga.ai_fill">✦ AI ile Doldur</button>
+              <button class="ga-fill-btn" onclick="gaFillFromArchetype()" data-i18n="ga.from_arch">◆ Arketipten</button>
+            </div>
+            <label class="ga-field-label"><span data-i18n="ga.field.dusunce">Düşünce &amp; İnancı</span> <span class="ga-field-hint" data-i18n="ga.field.dusunce_hint">("Ben…" ile, şimdiki zaman)</span></label>
+            <textarea id="ga-dusunce-input" class="ga-area" rows="4"
+                      data-i18n-ph="ga.field.dusunce_ph" placeholder="Her satıra bir cümle:&#10;Ben sevilmeye layık bir kişiyim.&#10;Ben kendi kararlarıma güvenirim."></textarea>
+            <label class="ga-field-label" data-i18n="ga.field.duygu">Duygusu</label>
+            <textarea id="ga-duygu-input" class="ga-area" rows="2"
+                      data-i18n-ph="ga.field.duygu_ph" placeholder="Her satıra bir duygu:&#10;Huzur&#10;Sakin bir özgüven"></textarea>
+            <label class="ga-field-label" data-i18n="ga.field.davranis">Davranışı</label>
+            <textarea id="ga-davranis-input" class="ga-area" rows="3"
+                      data-i18n-ph="ga.field.davranis_ph" placeholder="Her satıra bir davranış:&#10;Sınırını sakince koyar&#10;Gerektiğinde hayır der"></textarea>
+            <div class="ga-editor-actions">
+              <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="gaCloseCardEditor()" data-i18n="ga.close">Kapat</button>
+              <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="gaSaveCard()" data-i18n="ga.seal_card">Mühürle ◆</button>
+            </div>
+            <div class="ga-card-list-wrap">
+              <div class="ws-micro ws-micro--gold" style="margin-bottom:8px;" data-i18n="ga.your_cards">KARTLARIN</div>
+              <div class="ga-card-list" id="ga-card-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OKU & HAYAL ET · okuma ritüeli (eski ga-reading-overlay) -->
+      <div class="ws-feat-section" id="ga-reading-section" style="display:none;">
+        <div class="ga-read-panel ws-feat-panel ws-corners">
+          <div class="ws-corner ws-corner--tl"></div>
+          <div class="ws-corner ws-corner--tr"></div>
+          <div class="ws-corner ws-corner--bl"></div>
+          <div class="ws-corner ws-corner--br"></div>
+          <div class="ga-head">
+            <span style="color:var(--gold);font-size:7px;">✦</span>
+            <span class="ga-head-label" id="ga-read-slot">SABAH OKUMASI</span>
+            <span style="flex:1;"></span>
+            <span class="ga-read-streak" id="ga-read-streak"></span>
+            <button class="ga-close" onclick="gaCloseReading()">×</button>
+          </div>
+          <div class="ga-read-kisi" id="ga-read-kisi"></div>
+          <div class="ga-read-coach" data-i18n="ga.read.coach">Sesli oku. Kendini bu kişi olarak gör — onun gözlerinin içinden bak.</div>
+          <div class="ga-read-lines" id="ga-read-lines"></div>
+          <div class="ga-read-meta">
+            <div><span class="ga-read-meta-label" data-i18n="ga.read.duygu_label">Duygu</span><span id="ga-read-duygu">—</span></div>
+            <div><span class="ga-read-meta-label" data-i18n="ga.read.davranis_label">Davranış</span><span id="ga-read-davranis">—</span></div>
+          </div>
+          <div class="ga-rec-row">
+            <button class="ga-rec-btn" id="ga-rec-btn" onclick="gaToggleRecord()">
+              <span class="ga-rec-dot"></span><span class="ga-rec-label" data-i18n="ga.record">Sesini Kaydet</span>
+            </button>
+            <button class="ga-play-btn" id="ga-play-btn" onclick="gaPlayRecording()" style="display:none;" data-i18n="ga.listen">▶ Dinle</button>
+            <audio id="ga-audio" preload="none"></audio>
+          </div>
+          <div class="ga-rec-status" id="ga-rec-status"></div>
+          <div class="ga-read-status">
+            <span class="ga-read-status-pill" id="ga-read-status-sabah">○ Sabah</span>
+            <span class="ga-read-status-pill" id="ga-read-status-gece">○ Gece</span>
+          </div>
+          <div class="ga-editor-actions">
+            <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="gaCloseReading()" data-i18n="ga.close">Kapat</button>
+            <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="gaCompleteReading()" data-i18n="ga.seal_reading">Bu Okumayı Mühürle ✦</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /gecis-view -->
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       KENDİNLE KONUŞMAK · ayrı sayfa (eski sk-overlay).
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="view" id="konusma-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette--light" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="sk.title">KENDİNLE KONUŞ</div>
+        <div class="ws-topbar-mode" data-i18n="sk.mode">· yalnız kal, sor, cevapla ·</div>
+      </div>
+      <div style="width:38px;"></div>
+    </div>
+    <div class="ws-body ws-feat-body">
+      <div class="ga-panel ws-feat-panel ws-corners">
+        <div class="ws-corner ws-corner--tl"></div>
+        <div class="ws-corner ws-corner--tr"></div>
+        <div class="ws-corner ws-corner--bl"></div>
+        <div class="ws-corner ws-corner--br"></div>
+
+        <!-- ADIM: set seç -->
+        <div id="sk-step-set">
+          <div class="sk-set-intro" data-i18n="sk.set_intro">Yalnız kal, kendinle konuş. Yaz veya sesini kaydet, kendine sor ve cevapla.</div>
+          <div class="sk-set-grid">
+            <button class="sk-set-btn" onclick="skSelectSet('inanc')"><span class="sk-set-glyph">◐</span><span class="sk-set-name" data-i18n="sk.set.inanc.title">İnanç Kazma</span><span class="sk-set-sub" data-i18n="sk.set.inanc.sub">Seni baltalayan inancı bul</span></button>
+            <button class="sk-set-btn" onclick="skSelectSet('sabah')"><span class="sk-set-glyph">☀</span><span class="sk-set-name" data-i18n="sk.set.sabah.title">Sabah Sorusu</span><span class="sk-set-sub" data-i18n="sk.set.sabah.sub">Güne niyetle başla</span></button>
+            <button class="sk-set-btn" onclick="skSelectSet('amac')"><span class="sk-set-glyph">✶</span><span class="sk-set-name" data-i18n="sk.set.amac.title">Amaç Bulma</span><span class="sk-set-sub" data-i18n="sk.set.amac.sub">Üst amacını ara</span></button>
+            <button class="sk-set-btn" onclick="skSelectSet('serbest')"><span class="sk-set-glyph">◇</span><span class="sk-set-name" data-i18n="sk.set.serbest.title">Serbest</span><span class="sk-set-sub" data-i18n="sk.set.serbest.sub">İçinden geçeni dök</span></button>
+          </div>
+        </div>
+
+        <!-- ADIM: sorular -->
+        <div id="sk-step-questions" style="display:none;">
+          <div class="sk-q-head" id="sk-q-title" data-i18n="sk.set.inanc.title">İnanç Kazma</div>
+          <div class="sk-q-introtext" id="sk-q-intro"></div>
+          <div class="sk-q-list" id="sk-q-list"></div>
+          <div class="ga-rec-row">
+            <button class="ga-rec-btn" id="sk-rec-btn" onclick="skToggleRecord()"><span class="ga-rec-dot"></span><span class="sk-rec-label" data-i18n="sk.record">Sesini Kaydet</span></button>
+            <button class="ga-play-btn" id="sk-play-btn" onclick="skPlayRecording()" style="display:none;" data-i18n="sk.listen">▶ Dinle</button>
+            <audio id="sk-audio" preload="none"></audio>
+          </div>
+          <div class="ga-rec-status" id="sk-rec-status"></div>
+          <div class="ga-editor-actions">
+            <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="skClose()" data-i18n="sk.cancel">Vazgeç</button>
+            <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="skFinish()" data-i18n="sk.complete">Tamamla ✦</button>
+          </div>
+        </div>
+
+        <!-- ADIM: yansıma -->
+        <div id="sk-step-reflect" style="display:none;">
+          <div class="sk-reflect-eyebrow" data-i18n="sk.reflect_eyebrow">EMRE'NİN YANSIMASI</div>
+          <div class="sk-reflect-text" id="sk-reflect-text"></div>
+          <div class="ga-editor-actions">
+            <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="skClose()" data-i18n="sk.close">Kapat</button>
+            <button class="ws-ayna-btn ws-ayna-btn--gold" id="sk-bridge-btn" onclick="skBridgeToGecis()" style="display:none;" data-i18n="sk.bridge_btn">Geçiş Alanı Kartı Yap ◆</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DEĞERLENDİRME · ayrı sayfa (eski rv-overlay).
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="view" id="degerlendirme-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette--light" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="rv.title">DEĞERLENDİRME</div>
+        <div class="ws-topbar-mode" data-i18n="rv.mode">· geçmişten ders, geleceğe tasarım ·</div>
+      </div>
+      <div style="width:38px;"></div>
+    </div>
+    <div class="ws-body ws-feat-body">
+      <div class="ga-panel ws-feat-panel ws-corners">
+        <div class="ws-corner ws-corner--tl"></div>
+        <div class="ws-corner ws-corner--tr"></div>
+        <div class="ws-corner ws-corner--bl"></div>
+        <div class="ws-corner ws-corner--br"></div>
+
+        <!-- ADIM: dönem seç -->
+        <div id="rv-step-pick">
+          <div class="sk-set-intro" data-i18n="rv.pick_intro">Geçmişten ders al, şimdiyi tart, geleceği tasarla. Hangi dönemi değerlendiriyorsun?</div>
+          <div class="sk-set-grid">
+            <button class="sk-set-btn" onclick="rvSelectPeriod('gun')"><span class="sk-set-glyph">☽</span><span class="sk-set-name" data-i18n="rv.btn.gun">Gün</span><span class="sk-set-sub" id="rv-pick-status-gun"></span></button>
+            <button class="sk-set-btn" onclick="rvSelectPeriod('hafta')"><span class="sk-set-glyph">◷</span><span class="sk-set-name" data-i18n="rv.btn.hafta">Hafta</span><span class="sk-set-sub" id="rv-pick-status-hafta"></span></button>
+            <button class="sk-set-btn" onclick="rvSelectPeriod('ay')"><span class="sk-set-glyph">◑</span><span class="sk-set-name" data-i18n="rv.btn.ay">Ay</span><span class="sk-set-sub" id="rv-pick-status-ay"></span></button>
+            <button class="sk-set-btn" onclick="rvSelectPeriod('yil')"><span class="sk-set-glyph">✷</span><span class="sk-set-name" data-i18n="rv.btn.yil">Yıl</span><span class="sk-set-sub" id="rv-pick-status-yil"></span></button>
+          </div>
+        </div>
+
+        <!-- ADIM: sorular -->
+        <div id="rv-step-questions" style="display:none;">
+          <div class="sk-q-head" id="rv-q-title" data-i18n="rv.period.hafta.title">Hafta Değerlendirmesi</div>
+          <div class="sk-q-introtext"><span id="rv-q-intro"></span> <span class="rv-q-key" id="rv-q-key"></span></div>
+          <div class="sk-q-list" id="rv-q-list"></div>
+          <div class="ga-editor-actions">
+            <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="rvClose()" data-i18n="rv.cancel">Vazgeç</button>
+            <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="rvFinish()" data-i18n="rv.seal">Mühürle ✦</button>
+          </div>
+        </div>
+
+        <!-- ADIM: tamamlandı + %1 görseli -->
+        <div id="rv-step-done" style="display:none;">
+          <div class="sk-reflect-eyebrow" data-i18n="rv.done_eyebrow">KAPANIŞ YANSIMASI</div>
+          <div class="sk-reflect-text" id="rv-done-summary"></div>
+          <div class="rv-compound" id="rv-compound"></div>
+          <div class="ga-editor-actions">
+            <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="rvClose()" data-i18n="rv.done_ok">Tamam</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HAYAL SEANSI · ayrı sayfa (eski hayal-overlay + harita + kart).
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="view" id="hayalseans-view">
+    <div class="ws-grain" aria-hidden="true"></div>
+    <div class="ws-vignette--light" aria-hidden="true"></div>
+    <div class="ws-topbar">
+      <button class="ws-topbar-menu" onclick="switchView('bugun')" aria-label="Geri">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ws-topbar-center">
+        <div class="ws-topbar-title" data-i18n="ha.title">HAYAL SEANSI</div>
+        <div class="ws-topbar-mode">· <span id="hayal-step-counter">1 / 4</span> ·</div>
+      </div>
+      <button class="ws-topbar-menu" onclick="hayalAcHarita()" title="Biriken sahneler" aria-label="Harita">
+        <span style="font-size:15px;">◈</span>
+      </button>
+    </div>
+    <div class="ws-body ws-feat-body">
+      <!-- SEANS akışı -->
+      <div id="hayal-seans-wrap" class="hayal-panel ws-feat-panel ws-corners">
+        <div class="ws-corner ws-corner--tl"></div>
+        <div class="ws-corner ws-corner--tr"></div>
+        <div class="ws-corner ws-corner--bl"></div>
+        <div class="ws-corner ws-corner--br"></div>
+
+        <!-- AŞAMA 1: Kavram seç -->
+        <div class="hayal-step" id="hayal-step-1">
+          <div class="hayal-step-title" data-i18n="ha.step1.title">Bugün hangi kavram üzerine çalışacaksın?</div>
+          <div class="hayal-step-hint" data-i18n="ha.step1.hint">Düşük skorlu kavramlar önce gösterilir.</div>
+          <div class="hayal-kavram-grid" id="hayal-kavram-grid"></div>
+        </div>
+
+        <!-- AŞAMA 2: LLM rehberli soru -->
+        <div class="hayal-step" id="hayal-step-2" style="display:none;">
+          <div class="hayal-step-title" id="hayal-step2-kavram">◆ Kavram</div>
+          <div class="hayal-step-hint" data-i18n="ha.step2.hint">Emre senin için bir görselleştirme sorusu hazırladı:</div>
+          <div class="hayal-prompt-box" id="hayal-step2-prompt">Hazırlanıyor…</div>
+          <div class="hayal-step-actions">
+            <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="hayalKapatSeans()" data-i18n="ha.cancel">Vazgeç</button>
+            <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="hayalGecAdim3()" data-i18n="ha.start_imagine">Hayal Etmeye Başla →</button>
+          </div>
+        </div>
+
+        <!-- AŞAMA 3: Sahneyi betimle -->
+        <div class="hayal-step" id="hayal-step-3" style="display:none;">
+          <div class="hayal-step-title" data-i18n="ha.step3.title">Sahneni betimle</div>
+          <div class="hayal-prompt-reminder" id="hayal-step3-reminder"></div>
+          <textarea id="hayal-scene-input" class="hayal-scene-input" maxlength="2000"
+                    data-i18n-ph="ha.scene_ph" placeholder="Ne görüyorsun? Hangi mekândasın? Yanında kim var? Ne hissediyorsun? Ne yapıyorsun?"></textarea>
+          <div class="hayal-step-hint" style="margin-top:6px;" data-i18n="ha.step3.hint">Detay verdikçe sahne güçlenir. Görsel, duygu, beden — hepsini yaz.</div>
+          <div class="hayal-step-actions">
+            <button class="ws-ayna-btn ws-ayna-btn--ghost" onclick="hayalKapatSeans()" data-i18n="ha.cancel">Vazgeç</button>
+            <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="hayalMuhurleSahne()" data-i18n="ha.seal_scene">Mühürle ◇</button>
+          </div>
+        </div>
+
+        <!-- AŞAMA 4: Mühürlendi -->
+        <div class="hayal-step hayal-step-success" id="hayal-step-4" style="display:none;">
+          <div class="hayal-step4-art" id="hayal-step4-art"></div>
+          <div class="hayal-success-title" data-i18n="ha.step4.title">Sahne mühürlendi</div>
+          <div class="hayal-success-elmas" id="hayal-step4-elmas">+15 Elmas</div>
+          <div class="hayal-success-count" id="hayal-step4-count"></div>
+          <div class="hayal-success-quote">
+            <span data-i18n="ha.step4.quote">"Hayal aleminde gördüğün kişinin davranışlarını otomatik olarak sergilersin."</span>
+            <span class="hayal-success-quote-by" data-i18n="ha.step4.quote_by">— Wanderer İlişki Felsefesi</span>
+          </div>
+          <div class="hayal-step-actions" style="justify-content:center;">
+            <button class="ws-ayna-btn ws-ayna-btn--gold" onclick="hayalKapatSeans()" data-i18n="ha.done">Tamam</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HARİTA · biriken sahneler -->
+      <div id="hayal-harita-section" class="ws-feat-section" style="display:none;">
+        <div class="hayal-harita-panel ws-feat-panel">
+          <div class="hayal-harita-head">
+            <button class="hayal-harita-back" onclick="hayalKapatHarita()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="ha.map.session_btn">SEANS</span>
+            </button>
+            <div class="hayal-harita-title-wrap">
+              <div class="hayal-harita-title" data-i18n="ha.map.title">HAYAL ALEMİ</div>
+              <div class="hayal-harita-sub" data-i18n="ha.map.sub">· biriken sahneler ·</div>
+            </div>
+            <div class="hayal-harita-meta">
+              <span id="hayal-harita-count">0 sahne</span>
+              <span class="hayal-harita-yansima" id="hayal-harita-yansima">0% yansıma</span>
+            </div>
+          </div>
+          <div class="hayal-harita-body">
+            <div class="hayal-harita-list" id="hayal-harita-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KART detay (görsel + senin sözlerin) -->
+      <div id="hayal-kart-section" class="ws-feat-section" style="display:none;">
+        <div class="hayal-kart-panel ws-feat-panel">
+          <div class="hayal-kart-head">
+            <button class="hayal-harita-back" onclick="hayalKapatKart()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="ha.card.map_btn">HARİTA</span>
+            </button>
+            <div class="hayal-harita-title-wrap">
+              <div class="hayal-harita-title" data-i18n="ha.card.title">HAYAL KARTI</div>
+              <div class="hayal-harita-sub" data-i18n="ha.card.sub">· görsel ve senin sözlerin ·</div>
+            </div>
+            <span style="width:64px;"></span>
+          </div>
+          <div class="hayal-kart-body" id="hayal-kart-body"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-screen -->
+
+<!-- ═══ KART DETAY ═══ -->
+<div class="card-detail-overlay" id="card-detail-overlay">
+  <div style="width:100%;max-width:340px;">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+      <button onclick="document.getElementById('card-detail-overlay').classList.remove('open')"
+        style="background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <img id="card-detail-img" class="card-detail-img" src="" alt="">
+    <div id="card-detail-date"  class="card-detail-date"></div>
+    <div id="card-detail-title" class="card-detail-title"></div>
+    <div id="card-detail-summary" class="card-detail-summary"></div>
+    <div class="card-detail-actions">
+      <button class="btn-outline-gold" onclick="shareTransformationCard()">Paylaş</button>
+      <button class="btn-outline-gold" style="border-color:rgba(184,149,60,0.2);color:var(--text-mid);"
+        onclick="document.getElementById('card-detail-overlay').classList.remove('open')">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     PREMIUM ÖZELLIK SPOTLIGHT MODALI
+     Kilitli bir özelliğe tıklandığında gösterilir
+═══════════════════════════ -->
+<div class="overlay" id="premium-spotlight-overlay" role="dialog" aria-modal="true" aria-label="Premium Özellik" style="z-index:720;">
+  <div class="pso-modal">
+    <button class="pso-close" onclick="closePremiumSpotlight()" aria-label="Kapat">×</button>
+    <div class="pso-icon" id="pso-icon"></div>
+    <div class="pso-eyebrow" id="pso-eyebrow"></div>
+    <div class="pso-title serif" id="pso-title"></div>
+    <div class="pso-desc" id="pso-desc"></div>
+    <div class="pso-premium-badge">✦ Premium Özelliği</div>
+    <button class="pso-cta" onclick="closePremiumSpotlight();switchView('sub')">
+      Premium'a Geç →
+    </button>
+    <button class="pso-skip" onclick="closePremiumSpotlight()">Şimdi değil</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════
+     MAĞAZA YÖNLENDİRME MODALI (yalnız web)
+     Studio aboneliği App Store / Google Play içinden başlatılır;
+     native'de startPayment doğrudan mağaza satın alma ekranını açar.
+═══════════════════════════ -->
+<div class="overlay" id="payment-overlay" role="dialog" aria-modal="true" aria-label="Wanderer Studio Abonelik" style="z-index:700;">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-title serif">Wanderer Studio</div>
+    <div class="modal-desc">Stüdyo aboneliği App Store veya Google Play üzerinden, Wanderer mobil uygulamasının içinden başlatılır. Uygulamayı indir, aynı hesapla giriş yap — aboneliğin tüm cihazlarında geçerli olur.</div>
+    <a class="btn-primary" style="display:block;text-align:center;text-decoration:none;background:var(--gold);color:#000;margin-bottom:10px;" href="https://apps.apple.com/app/idBURAYA_APPLE_APP_ID" target="_blank" rel="noopener"> App Store</a>
+    <a class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:12px;" href="https://play.google.com/store/apps/details?id=com.emretransformation.wanderer" target="_blank" rel="noopener">▶ Google Play</a>
+    <button class="modal-skip" onclick="closePayment()">Kapat</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════
+     MODALS
+═══════════════════════════ -->
+<div class="overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-label="Seans Özeti">
+  <div class="modal" style="max-height:85dvh;overflow-y:auto;display:flex;flex-direction:column;gap:0;">
+    <!-- State: analyzing -->
+    <div id="sum-state-analyzing">
+      <div class="modal-title serif" style="font-size:22px;margin-bottom:16px;">Günün analiz ediliyor...</div>
+      <div style="display:flex;justify-content:center;margin:24px 0;">
+        <div style="width:40px;height:40px;border:2px solid var(--border-active);border-top-color:var(--gold);border-radius:50%;animation:spinRing 0.9s linear infinite;"></div>
+      </div>
+      <div class="modal-desc" style="font-size:13px;text-align:center;">Konuşman işleniyor...</div>
+    </div>
+    <!-- State: result -->
+    <div id="sum-state-result" style="display:none;">
+      <div class="modal-title serif" id="sum-modal-title" style="margin-bottom:16px;"></div>
+      <div class="modal-desc" id="sum-modal-desc" style="text-align:left;margin-bottom:32px;"></div>
+      <button class="btn-outline-gold" onclick="proceedToMood()" style="margin-bottom:12px;">İçsel Duruma Geç →</button>
+      <button class="btn-outline-gold" onclick="openShareCard()" style="margin-bottom:12px;border-color:rgba(184,149,60,0.2);color:var(--text-mid);">Kartı Paylaş</button>
+      <button class="modal-skip" onclick="dismissSummary()">Sohbete Dön</button>
+    </div>
+    <!-- State: not-eligible -->
+    <div id="sum-state-ineligible" style="display:none;">
+      <div style="font-size:32px;margin-bottom:20px;text-align:center;">◎</div>
+      <div class="modal-title serif" style="font-size:22px;">Özet Yok</div>
+      <div class="modal-desc">Daha derin bir konuşma gerekiyor. En az 3 mesaj ve anlamlı içerik.</div>
+      <button class="modal-skip" onclick="dismissSummary()">Sohbete Dön</button>
+    </div>
+    <!-- State: error -->
+    <div id="sum-state-error" style="display:none;">
+      <div class="modal-title serif" style="font-size:22px;">Hata</div>
+      <div class="modal-desc" id="sum-error-desc" style="margin-bottom:32px;"></div>
+      <button class="modal-skip" onclick="dismissSummary()">Sohbete Dön</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GÜNLÜK KAPANIŞ — Ruh + Beden birleşik ═══ -->
+<div class="overlay closure-ritual" id="closure-overlay" role="dialog" aria-modal="true" aria-label="Günün Kapanışı">
+  <div class="modal" style="max-width:380px;">
+    <div class="kp-kicker">GÜNÜN KAPANIŞI</div>
+    <div class="kp-moon" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="50" height="50" fill="none">
+        <path d="M52 36.5A22 22 0 1 1 27.5 12 17 17 0 0 0 52 36.5Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="38" cy="18" r="1.6" fill="currentColor"/>
+        <circle cx="46" cy="26" r="1.1" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="modal-title serif">Gün Kapanıyor</div>
+
+    <!-- STEP 0: ONAY -->
+    <div class="closure-step" id="closure-step-0" style="display:none;">
+      <p class="closure-confirm-text">Günü kapattığında bugün için <strong>Ruh ve Beden</strong>'ini puanlarsın ve o ana kadar konuşulan tüm mesajların analiz edilip <strong>Gün Özetin</strong> oluşturulur. Günü kapattıktan sonra Emre ile konuşmaya devam edebilirsin — ama bu andan yeni güne kadar yazdıkların <strong>Gün Özeti'ne dâhil edilmez</strong>. Bu süreci 00:00'dan önce sen yapmazsan senin yerine otomatik yapılır ve işaretlemediğin için <strong>elmas kaybedersin</strong>.</p>
+      <button class="btn-outline-gold" onclick="goToClosureStep(1)" style="width:100%;margin-bottom:12px;">Hazırım</button>
+      <button class="modal-skip" onclick="closeDailyClosure(false)">Vazgeç</button>
+    </div>
+
+    <div class="closure-progress" id="closure-progress-bar">
+      <div class="closure-progress-step active" id="closure-prog-1">1 · Ruh</div>
+      <div class="closure-progress-sep">—</div>
+      <div class="closure-progress-step" id="closure-prog-2">2 · Beden</div>
+      <div class="closure-progress-sep">—</div>
+      <div class="closure-progress-step" id="closure-prog-3">3 · Özet</div>
+    </div>
+
+    <!-- STEP 1: MOOD -->
+    <div class="closure-step" id="closure-step-1">
+      <div class="modal-desc">Bugün neresindesin? Dürüst ol. (1–10)</div>
+      <div class="mood-grid" id="closure-mood-grid">
+        <button class="mood-btn serif" data-score="1">1</button>
+        <button class="mood-btn serif" data-score="2">2</button>
+        <button class="mood-btn serif" data-score="3">3</button>
+        <button class="mood-btn serif" data-score="4">4</button>
+        <button class="mood-btn serif" data-score="5">5</button>
+        <button class="mood-btn serif" data-score="6">6</button>
+        <button class="mood-btn serif" data-score="7">7</button>
+        <button class="mood-btn serif" data-score="8">8</button>
+        <button class="mood-btn serif" data-score="9">9</button>
+        <button class="mood-btn serif" data-score="10">10</button>
+      </div>
+      <button class="modal-skip" onclick="closeDailyClosure(false)">Vazgeç</button>
+    </div>
+
+    <!-- STEP 2: BODY -->
+    <div class="closure-step" id="closure-step-2" style="display:none;">
+      <div class="modal-desc">Şu an bedeninde nerede, ne var?</div>
+
+      <div class="somatic-step-label">Bölge</div>
+      <svg class="body-map" id="closure-body-map" viewBox="0 0 120 280" xmlns="http://www.w3.org/2000/svg" aria-label="Beden haritası">
+        <path class="body-map-outline" d="M60,8 C70,8 75,14 75,22 C75,30 72,35 68,38 L68,44 L85,50 C92,54 94,60 94,68 L94,130 C94,135 93,138 90,138 L86,138 L84,210 C84,230 80,252 78,272 L70,272 L67,210 L60,180 L53,210 L50,272 L42,272 C40,252 36,230 36,210 L34,138 L30,138 C27,138 26,135 26,130 L26,68 C26,60 28,54 35,50 L52,44 L52,38 C48,35 45,30 45,22 C45,14 50,8 60,8 Z"/>
+        <ellipse data-region="bas"      cx="60" cy="22" rx="14" ry="16"/>
+        <rect    data-region="bogaz"    x="53" y="38" width="14" height="10" rx="2"/>
+        <path    data-region="gogus"    d="M34,50 L86,50 L88,90 L32,90 Z"/>
+        <path    data-region="mide"     d="M34,90 L86,90 L84,130 L36,130 Z"/>
+        <path    data-region="legen"    d="M36,130 L84,130 L82,160 L38,160 Z"/>
+        <path    data-region="kollar"   d="M16,58 L32,54 L32,132 L18,136 Z"/>
+        <path    data-region="kollar"   d="M104,58 L88,54 L88,132 L102,136 Z"/>
+        <path    data-region="bacaklar" d="M38,160 L60,160 L58,272 L42,272 Z"/>
+        <path    data-region="bacaklar" d="M60,160 L82,160 L78,272 L62,272 Z"/>
+      </svg>
+
+      <div class="region-name" id="closure-region-name"></div>
+
+      <div class="somatic-step-label">Duyum</div>
+      <div class="sensation-grid" id="closure-sensations">
+        <button class="sensation-btn" data-sensation="siksima">Sıkışma</button>
+        <button class="sensation-btn" data-sensation="baski">Baskı</button>
+        <button class="sensation-btn" data-sensation="isi">Isı</button>
+        <button class="sensation-btn" data-sensation="soguk">Soğukluk</button>
+        <button class="sensation-btn" data-sensation="uyusukluk">Uyuşukluk</button>
+        <button class="sensation-btn" data-sensation="titreme">Titreme</button>
+        <button class="sensation-btn" data-sensation="bosluk">Boşluk</button>
+        <button class="sensation-btn" data-sensation="agirlik">Ağırlık</button>
+        <button class="sensation-btn" data-sensation="hafiflik">Hafiflik</button>
+      </div>
+
+      <div class="somatic-step-label">Şiddet</div>
+      <div class="intensity-row" id="closure-intensity">
+        <button class="intensity-dot" data-intensity="1">1</button>
+        <button class="intensity-dot" data-intensity="2">2</button>
+        <button class="intensity-dot" data-intensity="3">3</button>
+        <button class="intensity-dot" data-intensity="4">4</button>
+        <button class="intensity-dot" data-intensity="5">5</button>
+      </div>
+
+      <button id="closure-save-btn" class="btn-outline-gold" onclick="saveDailyClosure(true)" disabled style="margin-bottom:10px;">Kaydet</button>
+      <button class="modal-skip" onclick="saveDailyClosure(false)">Sadece Ruhla Kapat</button>
+    </div>
+
+    <!-- STEP 3: GEÇİŞ SORUSU → GÜNÜN ÖZETİ -->
+    <div class="closure-step" id="closure-step-3" style="display:none;">
+      <!-- 3a · Geçiş sorusu -->
+      <div id="closure-step-3-transition">
+        <div class="closure-transition-icon">🦋</div>
+        <div class="modal-desc" style="font-size:1rem;margin-bottom:20px;" data-i18n="ui.closure_transition_question">Bugün olmak istediğin kişiye bir adım attın mı?</div>
+        <div class="closure-transition-btns">
+          <button class="closure-transition-btn" onclick="closureRecordTransition('yes')">
+            <span class="ct-icon">✓</span>
+            <span data-i18n="ui.closure_transition_yes">Attım</span>
+          </button>
+          <button class="closure-transition-btn" onclick="closureRecordTransition('partial')">
+            <span class="ct-icon">→</span>
+            <span data-i18n="ui.closure_transition_partial">Biraz</span>
+          </button>
+          <button class="closure-transition-btn" onclick="closureRecordTransition('no')">
+            <span class="ct-icon">○</span>
+            <span data-i18n="ui.closure_transition_no">Henüz değil</span>
+          </button>
+        </div>
+        <button class="modal-skip" onclick="closureRecordTransition('skip')">Atla</button>
+      </div>
+      <!-- 3b · Günün Özeti (inline — Geçmiş Sohbetler ile aynı görünüm) -->
+      <div id="closure-step-3-summary" style="display:none;">
+        <div id="closure-summary-loading" class="closure-summary-loading">
+          <div class="closure-summary-spinner" aria-hidden="true"></div>
+          <div class="closure-summary-loading-text">Günün özeti hazırlanıyor…</div>
+        </div>
+        <div id="closure-summary-body" class="closure-summary-body"></div>
+        <button id="closure-seal-btn" class="btn-outline-gold" style="display:none;width:100%;margin-top:14px;" onclick="closureSealAndClose()">GÜNÜ MÜHÜRLE ☽</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay modlar kaldırıldı (court, mirror, hardtruth, mode-chat) -->
+
+
+<!-- ═══ PAYLAŞIM KARTI MODALI ═══ -->
+<div class="overlay" id="share-card-overlay" role="dialog" aria-modal="true" aria-label="Paylaşım Kartı">
+  <div class="modal" style="max-width:400px;">
+    <div id="share-canvas-wrap">
+      <canvas id="share-canvas" width="1080" height="1080" role="img" aria-label="Paylaşım kartı önizlemesi" aria-hidden="true"></canvas>
+    </div>
+    <button class="btn-primary" style="background:var(--gold);color:#000;margin-bottom:12px;" onclick="downloadShareCard()">İndir</button>
+    <button class="btn-outline-gold" style="margin-bottom:12px;" onclick="nativeShareCard()">Paylaş</button>
+    <button class="modal-skip" onclick="document.getElementById('share-card-overlay').classList.remove('open')">Kapat</button>
+  </div>
+</div>
+
+<div class="overlay" id="feedback-overlay" role="dialog" aria-modal="true" aria-label="Geri Bildirim">
+  <div class="modal">
+    <div class="modal-title serif" id="fb-modal-title">Geri Bildirim</div>
+    <div class="modal-desc" id="fb-modal-desc">Bu yanıt hakkında ne düşünüyorsun?</div>
+    <textarea class="field-textarea" id="fb-comment" placeholder="Yorumunu yaz... (isteğe bağlı)" style="margin-bottom:24px;border:1px solid var(--border);padding:12px;"></textarea>
+    <button class="btn-outline-gold" onclick="submitFeedback()">Gönder</button>
+    <button class="modal-skip" style="margin-top:16px;display:block;" onclick="document.getElementById('feedback-overlay').classList.remove('open')">İptal</button>
+  </div>
+</div>
+
+<!-- ═══ EMRE'YE SOR — 1-1 RANDEVU TAKVİMİ ═══ -->
+<div class="overlay" id="quickask-overlay">
+  <div class="modal" style="max-width:560px;width:min(560px,94vw);text-align:left;padding:0;overflow:hidden;">
+    <!-- Başlık -->
+    <div style="padding:28px 28px 20px;border-bottom:1px solid var(--border);">
+      <div style="font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">1-1 Görüşme</div>
+      <div class="serif" style="font-size:26px;line-height:1.2;color:var(--text);margin-bottom:8px;">Emre ile doğrudan konuş</div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.5;">Uygun bir saat seç. Birebir görüşme için takvimden randevu al.</div>
+    </div>
+
+    <!-- Takvim gövdesi -->
+    <div id="quickask-calendar-body" style="position:relative;min-height:420px;background:#0D0D0D;">
+      <!-- Yüklenme durumu -->
+      <div id="quickask-loading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 24px;">
+        <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);">Takvim yükleniyor</div>
+        <div style="width:32px;height:1px;background:var(--gold);opacity:0.5;"></div>
+      </div>
+
+      <!-- Takvim konfigüre edilmemiş durumu -->
+      <div id="quickask-unconfigured" style="display:none;padding:60px 32px;text-align:center;">
+        <div style="font-size:32px;color:var(--text-dim);margin-bottom:16px;">◌</div>
+        <div class="serif" style="font-size:19px;color:var(--text);margin-bottom:10px;">Randevu sistemi henüz hazır değil</div>
+        <div style="font-size:13px;color:var(--text-dim);line-height:1.6;max-width:360px;margin:0 auto;">
+          Emre takvimini yakında açacak. Şimdilik bir sonraki konuşmada doğrudan onunla konuşabilirsin.
+        </div>
+      </div>
+
+      <!-- Calendly iframe konteynırı -->
+      <div id="quickask-calendly-wrap" style="display:none;height:640px;"></div>
+
+      <!-- Fallback: iframe yüklenemediğinde harici link -->
+      <div id="quickask-external" style="display:none;padding:60px 32px;text-align:center;">
+        <div style="font-size:32px;color:var(--gold);margin-bottom:16px;">◇</div>
+        <div class="serif" style="font-size:19px;color:var(--text);margin-bottom:10px;">Takvimi yeni sekmede aç</div>
+        <div style="font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:24px;max-width:360px;margin-left:auto;margin-right:auto;">
+          Takvim bu ekranda yüklenemedi. Aşağıdaki butonla Calendly üzerinden uygun saati seç.
+        </div>
+        <a id="quickask-external-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary" style="display:inline-block;text-decoration:none;padding:16px 32px;background:var(--gold);color:#000;letter-spacing:3px;text-transform:uppercase;font-size:11px;font-weight:500;">Randevu Al</a>
+      </div>
+    </div>
+
+    <!-- Alt bar -->
+    <div style="padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;align-items:center;gap:12px;background:var(--bg);">
+      <button class="modal-skip" style="margin:0;" onclick="document.getElementById('quickask-overlay').classList.remove('open')">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MEZUNİYET SERTİFİKASI ═══ -->
+<div class="overlay" id="graduation-overlay">
+  <div class="modal" style="max-width:400px;">
+    <div style="font-size:40px;margin-bottom:16px;">◈</div>
+    <div style="font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Tamamlandı</div>
+    <div class="modal-title serif" id="grad-title"></div>
+    <div class="modal-desc" id="grad-desc"></div>
+    <div id="grad-canvas-wrap" style="border:1px solid var(--border);margin-bottom:24px;background:#000;"><canvas id="grad-canvas" width="1080" height="1080"></canvas></div>
+    <button class="btn-primary" style="background:var(--gold);color:#000;margin-bottom:12px;" onclick="downloadGradCert()">İndir</button>
+    <button class="btn-outline-gold" style="margin-bottom:12px;" onclick="shareGradCert()">Paylaş</button>
+    <button class="modal-skip" onclick="document.getElementById('graduation-overlay').classList.remove('open')">Kapat</button>
+  </div>
+</div>
+
+<!-- Confrontation flash -->
+<div class="flash-overlay" id="flash-overlay" aria-hidden="true"></div>
+
+<!-- Seçim üstü floating alıntı butonu -->
+<div class="selection-toolbar" id="selection-toolbar" onmousedown="event.preventDefault()" onclick="quoteSelection()">
+  <svg viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+  <span>Alıntıla</span>
+</div>
+
+<!-- iOS Ana Ekrana Ekle Banner -->
+<div id="ios-install-banner" style="
+  display:none; position:fixed; bottom:0; left:0; right:0; z-index:9000;
+  background:#0D0D0D; border-top:1px solid #2A2A2A;
+  padding:16px 24px max(env(safe-area-inset-bottom,0px),16px);
+  flex-direction:row; align-items:center; gap:16px;
+">
+  <img src="https://i.hizliresim.com/dc6faqr.png" style="width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0;">
+  <div style="flex:1;min-width:0;">
+    <div style="font-size:13px;font-weight:500;color:#E8E6E0;margin-bottom:3px;">Ana Ekrana Ekle</div>
+    <div style="font-size:11px;color:#52504A;line-height:1.4;">
+      Paylaş <span style="font-size:14px;">⎙</span> → "Ana Ekrana Ekle" ile uygulama olarak kullan
+    </div>
+  </div>
+  <button onclick="document.getElementById('ios-install-banner').style.display='none';localStorage.setItem('etw_install_dismissed','1');"
+    style="background:none;border:none;color:#52504A;font-size:22px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;">×</button>
+</div>
+
+<!-- ═══ WANDERER V3 · MİGRASYON EKRANI ═══ -->
+<div class="w3-migrate-screen" id="w3-migrate-screen">
+  <div class="w3-migrate-inner">
+    <div class="w3-migrate-label">Sistem Güncelleniyor</div>
+    <div class="w3-migrate-title serif">Yolculuğun yeniden şekilleniyor.</div>
+    <div class="w3-migrate-desc">
+      Geçmiş günlerin daha derin bir özetle yeniden işleniyor. Mesajlarına dokunulmuyor — yalnızca özetler yeniden üretiliyor.
+    </div>
+    <div class="w3-migrate-progress-wrap">
+      <div class="w3-migrate-progress-bar" id="w3-migrate-bar"></div>
+    </div>
+    <div class="w3-migrate-progress-text" id="w3-migrate-text">Hazırlanıyor...</div>
+    <div class="w3-migrate-current" id="w3-migrate-current"></div>
+  </div>
+</div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ✦ ANA KART FAB — arka yüzdeyken görünür; kartı ön yüze (Sohbet) çevirir.
+       Mini 3B tarot kartı: periyodik Y-ekseni dönüşüyle "çevrilebilir kart"
+       olduğunu fısıldar; ön yüz ✦ + SOHBET, arka yüz desenli kart sırtı. -->
+  <button id="flip-fab" onclick="wsFlipTo('chat')" aria-label="Kartı çevir — Sohbete dön">
+    <span class="ff-scene" aria-hidden="true">
+      <span class="ff-card">
+        <span class="ff-face ff-front">
+          <span class="ff-glyph">✦</span>
+          <span class="ff-label">SOHBET</span>
+        </span>
+        <span class="ff-face ff-back">
+          <span class="ff-back-glyph"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 18 L74 38 L60 78 L40 78 L26 38 Z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M26 38 L74 38 M50 18 L50 78" stroke="currentColor" stroke-width="1.2" opacity="0.55"/><circle cx="50" cy="50" r="4" fill="currentColor"/></svg></span>
+        </span>
+      </span>
+    </span>
+  </button>
+
+  <!-- TAM EKRAN FLIP BAŞLIĞI — kart çevrilirken yüzün adı ekranı kaplar:
+       arka yüze dönüşte "Wanderer Studio" (altın), öne dönüşte "Wanderer"
+       (lapis). 10y _flip tetikler; stiller llm-shell.css §1b. -->
+  <div id="ws-flip-title" aria-hidden="true">
+    <div class="wft-word"></div>
+    <div class="wft-sub"></div>
+  </div>
+
+  <!-- AÇILIŞ EKRANI — giriş yapmış kullanıcıyı 4 sn karşılar (eski giriş
+       overlay'inin yerini aldı). Flip başlığıyla aynı yazı dili (Cinzel +
+       lapis ışıması), arka yüz siyahı zemin, Emre'nin oval portresi.
+       03-auth-shell initApp gösterir/söker; stiller llm-shell.css §1c. -->
+  <div id="wn-splash" aria-hidden="true">
+    <img class="wns-portrait" src="https://i.hizliresim.com/dc6faqr.png" alt="" draggable="false">
+    <div class="wns-word">Wanderer</div>
+    <div class="wns-sub">BUGÜN HANGİ KİŞİ OLMAK VE HANGİ HAYATI YAŞAMAK İSTERSİN?</div>
+  </div>
+
+<!-- ═══════════════════════════════════════════════
+     INPUT CARD MODAL
+═══════════════════════════════════════════════ -->
+<div id="ic-overlay" role="dialog" aria-modal="true" aria-label="Mesaj yaz" onclick="icOverlayClick(event)">
+  <div id="ic-card">
+    <div class="ic-emre" id="ic-emre" aria-live="polite">
+      <!-- Splash oval portresi — sola yaslanır, isim sağına kayar, söz sarmalar -->
+      <img class="ic-emre-portrait" src="https://i.hizliresim.com/dc6faqr.png" alt="Emre the wanderer" draggable="false">
+      <div class="ic-emre-sender" id="ic-emre-sender">EMRE THE WANDERER</div>
+      <div class="ic-emre-text markdown-body" id="ic-emre-text"></div>
+    </div>
+    <div class="ic-accent-line"></div>
+    <!-- Bekleyen görseller — Ritüel Kartı görünümü (13c) -->
+    <div class="gorsel-host" style="display:none;" aria-label="Eklenecek görseller"></div>
+    <textarea id="ic-textarea" placeholder="ne görünüdü?" rows="3"
+      onkeydown="icHandleKey(event)"
+      oninput="icHandleInput(this)"
+      aria-label="Mesajını yaz"></textarea>
+    <div class="ic-footer">
+      <div class="ic-models-wrap">
+        <button id="ic-models-toggle" class="ic-models-toggle" type="button"
+          onclick="fmOpenPicker(event)" aria-pressed="false"
+          aria-label="Model: Wanderer Öz — değiştir">
+          <span class="ic-models-glyph" id="ic-models-glyph" aria-hidden="true">◆</span>
+          <span class="ic-models-label" id="ic-models-label">Wanderer Öz</span>
+          <svg class="ic-models-caret" width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="ic-model-desc" id="ic-model-desc">Bireysel hayat</span>
+      </div>
+      <div class="ic-actions">
+        <!-- KOTA ÇEMBERİ (13m) — Ritüel Kartı ayağı; premium'da shimmer "sınırsız" halkası -->
+        <button class="kt-ring-btn" data-kt-ring type="button" onclick="ktOpenSheet()" aria-label="Kalan kullanım" style="display:none;">
+          <svg viewBox="0 0 22 22" width="17" height="17" aria-hidden="true">
+            <circle class="kt-ring-track" cx="11" cy="11" r="8.5"/>
+            <circle class="kt-ring-arc" cx="11" cy="11" r="8.5" stroke-dasharray="53.41" stroke-dashoffset="0" transform="rotate(-90 11 11)"/>
+          </svg>
+        </button>
+        <span id="ic-countdown" class="ic-countdown"></span>
+        <button class="ic-dismiss" onclick="icClose()" aria-label="Kapat">×</button>
+        <button class="ws-attach-btn" type="button" onclick="gorselPick()" aria-label="Görsel ekle">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+        <button class="ws-mic-btn" id="ic-mic-btn" type="button" onclick="sesMicToggle('ic-textarea', this)" aria-label="Sesle yaz">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg>
+        </button>
+        <button class="ic-send-btn" id="ic-send-btn" onclick="icSend()" aria-label="Gönder">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODEL SEÇİCİ — küçük popover pencere (Claude Code'un model menüsü gibi) ──
+     Tetikleyen düğmenin (composer pili / Ritüel Kartı ayağı) üstüne demirlenir;
+     konumlama 10w fmOpenPicker'da. Görünmez backdrop'a dokunmak kapatır. -->
+<div class="fm-pop" id="fm-pop" aria-hidden="true" onclick="if(event.target===this)fmClosePicker()">
+  <div class="fm-pop-panel" role="listbox" aria-label="Wanderer modeli seç">
+    <div class="fm-pop-head">Wanderer Modelleri</div>
+    <div class="fm-pop-list" id="fm-pop-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<!-- ── DİL SEÇİCİ MODAL ── -->
+<div id="lang-picker-overlay" style="display:none;" onclick="if(event.target===this)closeLangPicker()">
+  <div id="lang-picker-modal">
+    <div id="lang-picker-header">
+      <div id="lang-picker-title" data-i18n="lang.title">Dil Seç</div>
+      <div id="lang-picker-subtitle" data-i18n="lang.subtitle">Arayüz ve koç yanıtları bu dilde olacak.</div>
+    </div>
+    <div id="lang-picker-list"></div>
+  </div>
+</div>
+
+
+<!-- Arketip portalleri — JS tarafından innerHTML ile doldurulup açılır/kapatılır -->
+<div id="ws-reel-portal"></div>
+
+<!-- ── İÇ SES · global overlay · somatik + içsel parça + ruh hâli ──
+     Sohbet topbar'ı düğmesiyle açılır; position:fixed → her view'dan çalışır. -->
+<div class="ws-ozet-page ws-icses-overlay" id="icses-page" style="display:none;">
+  <div class="ws-grain ws-grain--strong" aria-hidden="true"></div>
+  <div class="ws-vignette" aria-hidden="true"></div>
+  <div class="ws-ozet-topnav">
+    <button class="ws-ozet-back" onclick="wsIcSesKapat()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>GERİ</span>
+    </button>
+    <div style="text-align:center;">
+      <div style="font-family:var(--cinzel);font-size:11px;letter-spacing:5px;color:var(--gold);font-weight:600;">İÇ SES</div>
+      <div style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--text-mid);margin-top:2px;">· beden & içindeki parçalar ·</div>
+    </div>
+    <div style="width:60px;"></div>
+  </div>
+  <div class="ws-ozet-page-body">
+
+    <!-- Ruh hâli grafiği (mood) -->
+    <div class="icses-section">
+      <div class="icses-section-head">
+        <span class="icses-section-line"></span>
+        <span class="icses-section-label">Ruh Hâli · Son Günler</span>
+      </div>
+      <div class="icses-chart-wrap"><canvas id="moodChart"></canvas></div>
+      <div class="icses-empty" id="icses-mood-empty" style="display:none;">Henüz ruh hâli kaydın yok. Günü kapatınca burası dolar.</div>
+    </div>
+
+    <!-- Somatik · Beden Taraması -->
+    <div class="icses-section">
+      <div class="icses-section-head">
+        <span class="icses-section-line"></span>
+        <span class="icses-section-label">Beden Taraması · Somatik</span>
+      </div>
+      <div class="db-somatic-wrap">
+        <svg class="body-map-dash" id="somaticHeatmap" viewBox="0 0 120 280" xmlns="http://www.w3.org/2000/svg" aria-label="Beden haritası">
+          <path class="body-map-outline" fill="none" stroke="var(--border-active)" stroke-width="1" d="M60,8 C70,8 75,14 75,22 C75,30 72,35 68,38 L68,44 L85,50 C92,54 94,60 94,68 L94,130 C94,135 93,138 90,138 L86,138 L84,210 C84,230 80,252 78,272 L70,272 L67,210 L60,180 L53,210 L50,272 L42,272 C40,252 36,230 36,210 L34,138 L30,138 C27,138 26,135 26,130 L26,68 C26,60 28,54 35,50 L52,44 L52,38 C48,35 45,30 45,22 C45,14 50,8 60,8 Z"/>
+          <ellipse data-region="bas"      cx="60" cy="22" rx="14" ry="16"/>
+          <rect    data-region="bogaz"    x="53" y="38" width="14" height="10" rx="2"/>
+          <path    data-region="gogus"    d="M34,50 L86,50 L88,90 L32,90 Z"/>
+          <path    data-region="mide"     d="M34,90 L86,90 L84,130 L36,130 Z"/>
+          <path    data-region="legen"    d="M36,130 L84,130 L82,160 L38,160 Z"/>
+          <path    data-region="kollar"   d="M16,58 L32,54 L32,132 L18,136 Z"/>
+          <path    data-region="kollar"   d="M104,58 L88,54 L88,132 L102,136 Z"/>
+          <path    data-region="bacaklar" d="M38,160 L60,160 L58,272 L42,272 Z"/>
+          <path    data-region="bacaklar" d="M60,160 L82,160 L78,272 L62,272 Z"/>
+        </svg>
+        <div class="db-somatic-list" id="somaticList"></div>
+      </div>
+    </div>
+
+    <!-- İçsel Parçalar · İçsel çocuk dahil parça haritası (IFS) -->
+    <div class="icses-section">
+      <div class="icses-section-head">
+        <span class="icses-section-line"></span>
+        <span class="icses-section-label">İçsel Parçalar · İçsel Çocuk</span>
+      </div>
+      <div class="db-parts-wrap">
+        <div class="db-parts-chart-wrap"><canvas id="partsChart"></canvas></div>
+        <div class="db-parts-legend" id="partsLegend"></div>
+      </div>
+      <div class="db-parts-dominant" id="partsDominant"></div>
+      <div class="icses-empty" id="icses-parts-empty" style="display:none;">Sohbetlerin derinleştikçe içindeki parçalar burada belirir.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ENGEL ATLASI & ÖZ-TANI · 6 Perde · 6 Zehir · 7 Tuzak overlay
+═══════════════════════════════════════════════════════════════ -->
+<div class="ga-overlay" id="eng-overlay" style="display:none;">
+  <div class="ga-panel ws-corners">
+    <div class="ws-corner ws-corner--tl"></div>
+    <div class="ws-corner ws-corner--tr"></div>
+    <div class="ws-corner ws-corner--bl"></div>
+    <div class="ws-corner ws-corner--br"></div>
+
+    <div class="ga-head">
+      <span style="color:var(--gold);font-size:7px;">◇</span>
+      <span class="ga-head-label">ENGEL ATLASI & ÖZ-TANI</span>
+      <span style="flex:1;"></span>
+      <button class="ga-close" onclick="engClose()">×</button>
+    </div>
+
+    <div class="eng-diagnosis" id="eng-diagnosis"></div>
+    <div class="eng-atlas" id="eng-atlas"></div>
+  </div>
+</div>
+
+<div id="ws-ceremony-portal"></div>
+
+<!-- ═══ SOHBETLER — LLM KENAR ÇUBUĞU ═══
+     Ön yüzde (Sohbet) profil cameo'sundan SOLDAN açılır; claude.ai kenar
+     çubuğu muadili: bugünün sohbeti + geçmiş günler + altta profil satırı. -->
+<div id="ch-drawer" role="dialog" aria-modal="true" aria-label="Sohbetler">
+  <div class="ch-drawer-backdrop" onclick="chDrawerClose()"></div>
+  <div class="ch-drawer-panel">
+    <div class="ch-drawer-header">
+      <div>
+        <div class="ch-drawer-title">SOHBETLER</div>
+        <div class="ch-drawer-sub">· her gün bir sayfa ·</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button class="ch-drawer-icses-btn" onclick="chDrawerClose();wsIcSesAc();" aria-label="İçsel Durum — beden taraması">
+          <svg width="20" height="47" viewBox="0 0 120 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" d="M60,8 C70,8 75,14 75,22 C75,30 72,35 68,38 L68,44 L85,50 C92,54 94,60 94,68 L94,130 C94,135 93,138 90,138 L86,138 L84,210 C84,230 80,252 78,272 L70,272 L67,210 L60,180 L53,210 L50,272 L42,272 C40,252 36,230 36,210 L34,138 L30,138 C27,138 26,135 26,130 L26,68 C26,60 28,54 35,50 L52,44 L52,38 C48,35 45,30 45,22 C45,14 50,8 60,8 Z"/>
+          </svg>
+        </button>
+        <button class="ch-drawer-icses-btn" onclick="chDrawerClose();switchView('notebook');" aria-label="Not Defteri">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <path d="M9 7h7M9 11h7"/>
+          </svg>
+        </button>
+        <button class="ch-drawer-settings-btn" onclick="chDrawerClose();switchView('settings');" aria-label="Hesap Ayarları">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- LİSTE PANELİ -->
+    <div id="ch-list-panel">
+      <!-- KİMLİK KARTLARI — Studio drawer'ından taşındı: Olduğun Kişi (Benlik
+           Kartı) + Olmak İstediğin Kişi. Tasarım aynen korunur (ws-drawer-identity);
+           dokununca kenar çubuğu kapanır, kart arka yüze çevrilir. -->
+      <button class="ws-drawer-identity" id="ws-drawer-benlik-card" onclick="chDrawerClose();setTimeout(()=>switchView('benlik'),190)" style="padding:12px 22px;margin-bottom:0;">
+        <svg class="ws-sigil" width="34" height="34" viewBox="0 0 100 100" style="overflow:visible;">
+          <rect x="24" y="18" width="52" height="64" rx="6" fill="none" stroke="var(--gold)" stroke-width="1.2"/>
+          <circle cx="50" cy="40" r="9" fill="none" stroke="var(--gold)" stroke-width="1.2"/>
+          <path d="M34 66 Q50 52 66 66" fill="none" stroke="var(--gold)" stroke-width="0.9" opacity="0.7"/>
+          <circle cx="50" cy="40" r="2.4" fill="var(--gold)"/>
+        </svg>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:8px;color:var(--text-dim);letter-spacing:3px;font-family:var(--sans);font-weight:500;margin-bottom:2px;">
+            OLDUĞUN KİŞİ · BENLİK KARTI
+          </div>
+          <div style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--text);" id="ws-drawer-benlik-name">Benlik Kartım</div>
+          <div style="font-family:var(--cinzel);font-size:9px;color:var(--gold);letter-spacing:2px;margin-top:2px;" id="ws-drawer-benlik-meta">· OLUŞTUR ·</div>
+        </div>
+        <span style="font-size:18px;color:var(--gold);line-height:1;">›</span>
+      </button>
+      <button class="ws-drawer-identity" id="ws-drawer-identity" onclick="chDrawerClose();setTimeout(()=>switchView('arketip'),190)" style="padding:12px 22px;margin-top:0;">
+        <svg class="ws-sigil" width="34" height="34" viewBox="0 0 100 100" style="overflow:visible;">
+          <rect x="24" y="18" width="52" height="64" rx="6" fill="none" stroke="var(--lapis-bright,#5A8AD8)" stroke-width="1.2"/>
+          <circle cx="50" cy="40" r="9" fill="none" stroke="var(--lapis-bright,#5A8AD8)" stroke-width="1.2"/>
+          <path d="M34 66 Q50 52 66 66" fill="none" stroke="var(--lapis-bright,#5A8AD8)" stroke-width="0.9" opacity="0.7"/>
+          <circle cx="50" cy="40" r="2.4" fill="var(--lapis-bright,#5A8AD8)"/>
+        </svg>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:8px;color:var(--text-dim);letter-spacing:3px;font-family:var(--sans);font-weight:500;margin-bottom:2px;">
+            OLMAK İSTEDİĞİN KİŞİ · GÜN <span id="ws-drawer-days">0</span>
+          </div>
+          <div style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--text);" id="ws-drawer-identity-name">Gezgin</div>
+          <div style="font-family:var(--cinzel);font-size:9px;color:var(--lapis-bright,#5A8AD8);letter-spacing:2px;margin-top:2px;" id="ws-drawer-depth">· GÖR ·</div>
+        </div>
+        <span style="font-size:18px;color:var(--lapis-bright,#5A8AD8);line-height:1;">›</span>
+      </button>
+      <!-- SOHBETLERDE ARAMA — tüm günlerin mesajları + özet başlıkları (11) -->
+      <div class="ch-section-header">
+        <div class="ch-list-section-label">
+          <span>GEÇMİŞ GÜNLER</span>
+          <button class="ch-search-toggle" onclick="chSearchToggle()" aria-label="Sohbetlerde ara">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+          </button>
+        </div>
+        <div class="ch-search-row" id="ch-search-row" style="display:none">
+          <input id="ch-search-input" class="ch-search-input" type="search" placeholder="Sohbetlerde ara…" oninput="chDrawerSearchInput(this)" autocomplete="off" aria-label="Sohbetlerde ara">
+        </div>
+      </div>
+      <div id="ch-list" class="ch-list"></div>
+    </div>
+
+    <!-- DETAY PANELİ — Gün Özeti -->
+    <div id="ch-detail-panel" class="hidden">
+      <div class="ch-detail-topnav">
+        <button class="ch-detail-back" onclick="chDrawerBackToList()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>GEÇMİŞ</span>
+        </button>
+        <div class="ch-detail-nav-label">GÜN ÖZETİ</div>
+        <div style="width:60px"></div>
+      </div>
+      <div id="ch-detail-body" class="ws-ozet-page-body"></div>
+      <div class="ch-detail-footer">
+        <button class="ch-view-full-btn" onclick="chDrawerViewFull()">TAM SOHBETİ GÖRÜNTÜLE</button>
+        <button class="ch-delete-day-btn" onclick="chDrawerDeleteDay()" aria-label="Bu günün sohbetini sil">GÜNÜ SİL</button>
+      </div>
+    </div>
+
+    <!-- PROFİL SATIRI — Emre the wanderer · Wanderer Movement; Gezgine Mektup'u açar (13d) -->
+    <!-- EMRE'NİN HAFIZASI — "Hakkımda bildiklerin" paneli (09c) -->
+    <button class="ch-memory-row" onclick="chDrawerClose();memPanelOpen();" type="button" aria-label="Emre'nin hafızası — hakkında bildikleri">
+      <span class="ch-memory-glyph" aria-hidden="true">◈</span>
+      <span class="ch-memory-col">
+        <span class="ch-memory-label">EMRE'NİN HAFIZASI</span>
+        <span class="ch-memory-sub">Hakkında bildikleri — gör, düzelt, sil</span>
+      </span>
+    </button>
+    <div class="ch-drawer-profile-row">
+      <button class="ch-drawer-profile" onclick="chDrawerProfile()" type="button" aria-label="Emre'den sana mektup">
+        <div class="w2-avatar-cameo ch-drawer-profile-cameo">
+          <img id="ch-drawer-avatar-img" src="" alt="">
+        </div>
+        <div class="ch-drawer-profile-col">
+          <div class="ch-drawer-profile-name" id="ch-drawer-profile-name">Emre the wanderer</div>
+          <div class="ch-drawer-profile-model" id="ch-drawer-profile-model">Wanderer Movement</div>
+        </div>
+      </button>
+      <button class="ch-drawer-library" onclick="chDrawerClose();window.libOpenReader&amp;&amp;window.libOpenReader();" type="button" aria-label="Kitaplık">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+          <line x1="16" y1="8" x2="2" y2="22"/>
+          <line x1="17.5" y1="15" x2="9" y2="15"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

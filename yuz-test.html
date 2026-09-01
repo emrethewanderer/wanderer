@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!-- GEÇİCİ TEST SAYFASI — 12g Yüz Çizgisi entegrasyon önizlemesi (build'e girmez).
+     Prototip DEĞİL: sevk edilen modülün (12g) ve 12c'deki yuz dalının kendisini çizer. -->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yüz Çizgisi Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Barlow:wght@300;400;500&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0F0C08;--text:#EAE2D6;--text-dim:#585349;--text-mid:#95897A;--gold:#F5A623;--gold-bright:#F7C744;
+    --lapis:#2D5FA8;--lapis-bright:#5A8AD8;--serif:'EB Garamond',Georgia,serif;--cinzel:'Cinzel',serif;--border:#281F16;}
+  body{margin:0;background:linear-gradient(180deg,#12100C,#0B0908);color:var(--text);font-family:Barlow,sans-serif;padding:24px;}
+  h2{font-family:var(--cinzel);font-size:13px;letter-spacing:4px;color:var(--gold);margin:30px 0 14px;}
+  .row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;}
+  .cell{display:flex;flex-direction:column;gap:6px;align-items:center;flex:none;}
+  .cap{font-family:var(--serif);font-style:italic;font-size:11px;color:var(--text-mid);max-width:220px;text-align:center;}
+  .w300{width:300px}.w200{width:200px}.w150{width:150px}.w96{width:96px}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "@supabase/supabase-js": "data:text/javascript,const h={get:(t,p)=>{if(p==='then')return(res)=>res({data:null,error:null});return(...a)=>new Proxy(function(){},h)},apply:(t,th,a)=>new Proxy(function(){},h)};export const createClient=()=>new Proxy(function(){},h);",
+    "marked": "data:text/javascript,export const marked=Object.assign((s)=>String(s),{setOptions(){},parse:(s)=>String(s),use(){}});",
+    "dompurify": "data:text/javascript,const d={sanitize:(x)=>x,addHook(){},removeHook(){}};export default d;",
+    "chart.js": "data:text/javascript,export class Chart{static register(){}constructor(){}update(){}destroy(){}};const o={};export const LineController=o,BarController=o,DoughnutController=o,LineElement=o,BarElement=o,ArcElement=o,PointElement=o,LinearScale=o,CategoryScale=o,Tooltip=o,Legend=o,Filler=o,Title=o;"
+  }
+}
+</script>
+</head>
+<body>
+<div id="out">yükleniyor…</div>
+<script type="module">
+import { ikvCardFace } from './js/parts/12c-kart-gorsel.js';
+import { yzEnsure, yzUnut, yzVar } from './js/parts/12g-yuz-cizgisi.js';
+
+const FOTO = './public/emre-portre.png';
+
+// İKİ ANA KART — uygulamadaki kart nesnelerinin birebir aynısı (yuz: true)
+const ALTIN = { id: 'portre-olunan', name: 'Olunan Emre', whisper: 'Sözünü tutan', virtue: 'yansima', category: 'cekirdek', yuz: true };
+const LAPIS = { id: 'oik_hedef', name: 'Niyet Alınan Emre', whisper: 'Sözünü tutan', virtue: 'odak', category: 'cekirdek', yuz: true };
+
+const kart = (card, pal, mini = false) => ikvCardFace(card, {
+  palette: pal,
+  kicker: pal === 'gold' ? 'OLDUĞUN KİŞİ' : 'OLMAK İSTEDİĞİN',
+  badge: pal === 'gold' ? '✦ v3' : '✦',
+  sub: 'Sözünü tutan',
+  mini,
+});
+
+const out = document.getElementById('out');
+const ok = await yzEnsure(FOTO);
+let html = `<h2>İZ: ${ok ? 'ÖLÇÜLDÜ' : 'YOK'} · yzVar()=${yzVar()}</h2>`;
+
+html += '<h2>İKİ ANA KART — 300px</h2><div class="row">';
+html += `<div class="cell"><div class="w300">${kart(ALTIN, 'gold')}</div><div class="cap">Olunan [Ad] · altın</div></div>`;
+html += `<div class="cell"><div class="w300">${kart(LAPIS, 'lapis')}</div><div class="cap">Niyet Alınan [Ad] · lapis</div></div>`;
+html += '</div>';
+
+html += '<h2>ÖLÇEKLER — 200 · 150 · 96 mini</h2><div class="row">';
+html += `<div class="cell"><div class="w200">${kart(ALTIN, 'gold')}</div><div class="cap">200</div></div>`;
+html += `<div class="cell"><div class="w200">${kart(LAPIS, 'lapis')}</div><div class="cap">200</div></div>`;
+html += `<div class="cell"><div class="w150">${kart(ALTIN, 'gold')}</div><div class="cap">150</div></div>`;
+html += `<div class="cell"><div class="w150">${kart(LAPIS, 'lapis')}</div><div class="cap">150</div></div>`;
+html += `<div class="cell"><div class="w96">${kart(ALTIN, 'gold', true)}</div><div class="cap">96 mini</div></div>`;
+html += `<div class="cell"><div class="w96">${kart(LAPIS, 'lapis', true)}</div><div class="cap">96 mini</div></div>`;
+html += '</div>';
+
+// GERÇEKLİK KAPISI — iz yokken kart bugünkü sahnesine düşmeli, yüz UYDURULMAMALI
+yzUnut();
+html += '<h2>İZ YOKKEN (foto/ten kanıtı yok) — eski sahneye düşüş</h2><div class="row">';
+html += `<div class="cell"><div class="w200">${kart(ALTIN, 'gold')}</div><div class="cap">altın · katalog sahnesi</div></div>`;
+html += `<div class="cell"><div class="w200">${kart(LAPIS, 'lapis')}</div><div class="cap">lapis · katalog sahnesi</div></div>`;
+html += `<div class="cap">yzVar()=${yzVar()} — çizim doğmadı, uydurma yok</div>`;
+html += '</div>';
+
+out.innerHTML = html;
+</script>
+</body>
+</html>

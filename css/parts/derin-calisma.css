@@ -1,0 +1,1322 @@
+/* ═══════════════════════════════════════════════════════
+   DERİN ÇALIŞMA (13A) — tezgâhın yüzeyi
+   ───────────────────────────────────────────────────────
+   Alan bir tören portalı DEĞİL, kalıcı bir view'dır (--z-ceremony
+   kullanılmaz; ayna-ani.css / oruntu.css ile aynı duruş). Kabuk
+   .ws-feat-body + .ga-panel.ws-feat-panel'den gelir; burada yalnız
+   tezgâhın kendi parçaları tanımlanır.
+   GÖRSEL DİL (FAZ 4'te kalibre edildi): kap KAPALI ve grenlidir, ışık
+   ölçümün karşılığıdır. Kanıtsız kavram SÖNÜK durur — ne sayı ne cümle
+   taşır; sessizliğini grubun başındaki tek davet adlandırır. Kanıt gelince
+   kart altın kenar kazanır ve dibindeki halka izi mertebesince kalınlaşır
+   (İNCE → SAĞLAM). Mühür altındır ve damgayla basılır (13b `.ck-stamp`).
+   text-transform YOK: TR büyük harf içerikte HTML'de/sözlükte yazılı (İ tuzağı).
+═══════════════════════════════════════════════════════ */
+
+/* ─── Giriş cümlesi ─── */
+.dc-intro {
+  margin: 2px 0 22px;
+}
+.dc-intro-line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-mid);
+  text-align: center;
+  max-width: 30ch;
+  margin: 0 auto;
+}
+
+/* ─── Bölüm ayracı ─── */
+.dc-sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 0 14px;
+}
+.dc-sec::before,
+.dc-sec::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-hairline), transparent);
+}
+.dc-sec-label {
+  font-family: var(--cinzel);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--gold-quiet);
+  white-space: nowrap;
+}
+
+/* ─── Tezgâh: dokuz kavram ─── */
+.dc-oneri {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 16px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-mid);
+  text-align: center;
+}
+.dc-oneri-btn {
+  font-family: var(--cinzel);
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-full, 9999px);
+  padding: 5px 12px;
+  cursor: pointer;
+}
+.dc-oneri-btn:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+.dc-grup { margin-bottom: 18px; }
+.dc-grup-ad {
+  font-family: var(--cinzel);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--text-mid);
+  margin-bottom: 9px;
+}
+/* Davet grubun başında BİR KEZ durur — dokuz kartta dokuz kez tekrarlanınca
+   göz onu okumayı bırakıyordu. Kartlar sessizliklerini sözle değil sönük
+   kalarak söyler; cümle o sönüklüğü bir kez adlandırır.
+   Negatif üst marj: davet başlığa yaslanır (aralarında 5px), ama grup
+   tamamen kanıtlıysa davet hiç basılmaz ve başlığın 9px'i olduğu gibi kalır —
+   boşluk davetin varlığına göre kaymasın. */
+.dc-grup-davet {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  margin: -4px 0 9px;
+}
+.dc-kavramlar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (max-width: 340px) {
+  .dc-kavramlar { grid-template-columns: 1fr; }
+}
+
+.dc-kavram {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  /* Sabit taban: kanıtlı kart alıntısıyla uzun, sessiz kart kısa doğuyordu;
+     ızgara satırları kayıyordu. Taban ortak, halka izi `margin-top:auto` ile
+     dibe yapışıyor → dokuz kartın çizgisi aynı hizada okunur. */
+  min-height: 88px;
+  padding: 12px 12px 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.018), transparent);
+  /* Kanıtsız kavram SESSİZ durur: kenarı bronz-soluk, ışığı yok. Kanıt
+     geldiğinde altın kenar kazanır — ışık ölçümün karşılığıdır, süs değil. */
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-lg, 20px);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--anim-normal, .3s) var(--ease-out, ease),
+              background-color var(--anim-normal, .3s) var(--ease-out, ease);
+}
+.dc-kavram-ust {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+/* Kullanıcının kendi mührünün izi — ölçüm değil, "burada çalıştın". */
+.dc-kavram-iz {
+  font-size: 8px;
+  line-height: 1;
+  color: var(--gold-quiet);
+  flex: none;
+}
+
+/* Halkanın izi: mertebe dilinin (İNCE → SAĞLAM) görsel ikizi. Kalınlık
+   arttıkça halka dövülmüş sayılır; kanıtsız kavramda halka yoktur, yerinde
+   kesik bronz bir iz durur. Çizgi uçlarda erir (kıl çizgi dili). */
+.dc-kavram-halka {
+  /* `auto` halkayı kartın dibine yapıştırır (kartlar eşit boy); üstündeki
+     6px nefes uzun alıntının çizgiye yapışmasını engeller. */
+  margin-top: auto;
+  padding-top: 6px;
+  width: 100%;
+  border-radius: 2px;
+  background-clip: content-box;
+}
+/* Dövülmemiş halka: KISA ve kesik, kartın sol ekseninde. Tam genişlikte
+   çizilince beş sessiz kart yan yana bir desen kuruyordu — sessizliğin
+   kendisi gürültüye dönüşüyordu. Kanıtlı halka ise sürekli ve tam
+   genişliktir; ayrım böylece kalınlıktan önce BİÇİMDEN okunur. */
+.dc-halka--yok {
+  height: 7px;   /* 6px padding + 1px iz */
+  width: 34%;
+  /* Doz opacity'den ayarlanır, renk token'dan gelir: `--bronze-dim` (0.12
+     alfa) üstüne bir de opacity binince iz görünmez oluyordu — okunmayan bir
+     imge süstür, anayasa onu yasaklar. Tam bronz + 0.3 → sessiz ama VAR. */
+  opacity: 0.3;
+  background-image: repeating-linear-gradient(90deg,
+    var(--bronze) 0 5px, transparent 5px 12px);
+}
+/* Yükseklikler 6px nefes payını İÇERİR (box-sizing: border-box) — çizginin
+   kendi kalınlığı farkın kalan kısmıdır: 1 · 1.5 · 2 · 3px. */
+.dc-halka--dusuk {
+  height: 7px;
+  background-image: linear-gradient(90deg, transparent, var(--gold-hairline), transparent);
+}
+.dc-halka--orta_dusuk {
+  height: 7.5px;
+  background-image: linear-gradient(90deg, transparent, var(--gold-hairline), transparent);
+}
+.dc-halka--orta {
+  height: 8px;
+  background-image: linear-gradient(90deg, transparent, var(--gold-edge), transparent);
+}
+.dc-halka--guclu {
+  height: 9px;
+  background-image: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.dc-kavram--kanitli { border-color: var(--gold-hairline); }
+.dc-kavram:hover,
+.dc-kavram:focus-visible { border-color: var(--gold-edge); background: var(--gold-dim); }
+.dc-kavram:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+.dc-kavram-ad {
+  font-family: var(--serif-display);
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text);
+}
+.dc-kavram-mertebe {
+  font-family: var(--cinzel);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  color: var(--gold-quiet);
+}
+.dc-kavram-yon { color: var(--text-mid); }
+/* NOT: `.dc-kavram-davet` artık yalnız `.sr-only` ile birlikte basılır (davet
+   görsel olarak grup başında duruyor) — görsel kuralı YOKTUR; buraya bir stil
+   eklemek onu ekran okuyucudan çıkarıp ekrana geri getirir. */
+.dc-kavram-alinti {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--text-mid);
+  /* İki satırda kes — kartlar aynı boyda kalsın, alıntı taşmasın. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Kağıdın açıldığı yuva — 13b `.ck-card` kendi stilini getirir. */
+.dc-kagit-host:empty { display: none; }
+.dc-kagit-host {
+  margin: 14px 0 4px;
+  /* Kağıt açılınca başlığı topbar'ın altında kalmasın: `.ws-topbar` mutlak
+     konumlu ve safe-area kadar aşağı iniyor (sentez.css) — scroll hedefi o
+     yüksekliğin altından başlar. */
+  scroll-margin-top: calc(var(--safe-t, 0px) + 76px);
+}
+/* Sohbet FAB'ı ekranın sağ-alt köşesinde sabit duruyor ve kağıdın sağa
+   hizalı MÜHÜRLE düğmesini örtüyordu. Sohbette kağıt akışın içinde kaydığı
+   için orada sorun çıkmıyor; alanda footer ortalanır ve FAB'ın yüksekliği
+   kadar alt boşluk bırakılır. */
+.dc-kagit-host .ck-foot { justify-content: center; }
+.dc-kagit-host .ck-card { padding-bottom: 20px; }
+
+/* ─── Ko-Zo tezgâhı: ortamı kur ───
+   Burada ÖLÇÜM YOK — her madde kullanıcının beyanı. Tezgâhın kuralı gereği
+   (ışık ölçümün karşılığıdır) sütunlar ışık almaz: ikisi de kavram kartıyla
+   aynı bronz kenarı taşır. Ayrım renkte değil BAŞLIKTA: KO eylemin tarafıdır
+   ve altın-sessiz durur, ZO engelin tarafıdır ve nötr kalır. Kurulan düzenek
+   ◆ ile işaretlenir — kavram kartındaki "çalışıldı" iziyle aynı glif, çünkü
+   ikisi de aynı şeyi söyler: burada bir şey yaptın. */
+.dc-kozo-intro {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  text-align: center;
+  max-width: 34ch;
+  margin: 0 auto 14px;
+}
+.dc-kozo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+/* İki sütun ancak metin nefes alabildiğinde: dar ekranda yan yana iki 140
+   karakterlik madde okunmaz hâle geliyor. KO/ZO karşıtlığını taşıyan şey
+   yerleşim değil başlıklar, o yüzden alt alta düşmek anlamı bozmuyor. */
+@media (min-width: 480px) {
+  .dc-kozo { grid-template-columns: repeat(2, 1fr); }
+}
+.dc-kozo-sutun {
+  padding: 12px 12px 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.018), transparent);
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-lg, 20px);
+}
+.dc-kozo-ad {
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--gold-quiet);
+}
+.dc-kozo-sutun--zo .dc-kozo-ad { color: var(--text-mid); }
+.dc-kozo-alt {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 3px 0 10px;
+}
+/* Boş sütun kitabın örnekleriyle konuşur — "ekle" demez, ne tür bir maddeden
+   söz ettiğimizi gösterir. */
+.dc-kozo-bos {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.dc-kozo-liste {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dc-kozo-madde {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.dc-kozo-metin {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dc-kozo-madde--done .dc-kozo-metin {
+  color: var(--text-dim);
+  text-decoration: line-through;
+  text-decoration-color: var(--bronze-dim);
+}
+/* Üç ikon-buton da aynı ölçüde: görsel ~14px, dokunma hedefi 44px (negatif
+   marj — global min-height yastığı satırı şişiriyordu, bkz. arşiv sil tuşu). */
+.dc-kozo-tik,
+.dc-kozo-soz,
+.dc-kozo-sil {
+  width: 44px;
+  height: 44px;
+  margin: -15px -13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+.dc-kozo-tik { color: var(--gold-quiet); margin-left: -13px; }
+.dc-kozo-madde--done .dc-kozo-tik { color: var(--gold); }
+.dc-kozo-soz { color: var(--text-dim); }
+.dc-kozo-soz:hover { color: var(--gold); }
+.dc-kozo-sil { color: var(--text-dim); margin-right: -13px; }
+.dc-kozo-sil:hover { color: var(--gold); }
+.dc-kozo-tik:focus-visible,
+.dc-kozo-soz:focus-visible,
+.dc-kozo-sil:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: -12px; }
+
+.dc-kozo-giris {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dc-kozo-input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  font-family: var(--serif);
+  font-size: 12.5px;
+  color: var(--text);
+  background: rgba(0,0,0,0.22);
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-md, 8px);
+}
+.dc-kozo-input::placeholder { color: var(--text-dim); font-style: italic; }
+.dc-kozo-input:focus {
+  outline: none;
+  border-color: var(--gold-edge);
+}
+.dc-kozo-ekle {
+  width: 44px;
+  height: 44px;
+  margin: -3px -3px -3px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+.dc-kozo-ekle:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: -12px; }
+
+/* ─── Kazanma Yöntemi: yol haritası ───
+   Örüntü kartı tezgâhın tek "ölçüm taşıyan" yüzeyi: damıtılmış bir örüntü
+   varsa altın-ince kenar alır (kanıt var), yoksa hiç basılmaz — yerine sessiz
+   davet durur. Kanıt cümlesi kavram kartındaki `.dc-kavram-alinti` diliyle
+   aynı: eğik, kısık, tırnak içinde — kullanıcının kendi sözü. */
+.dc-ky-intro {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  text-align: center;
+  max-width: 34ch;
+  margin: 0 auto 14px;
+}
+.dc-ky-sessiz {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 4px 0 10px;
+}
+.dc-ky-oruntu {
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.018), transparent);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-lg, 20px);
+  margin-bottom: 12px;
+}
+.dc-ky-ust {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.dc-ky-baslik {
+  flex: 1;
+  font-family: var(--cinzel);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--gold-quiet);
+}
+.dc-ky-tekrar {
+  font-family: var(--serif);
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.dc-ky-kanit {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-mid);
+  margin-top: 6px;
+}
+
+.dc-ky-ac {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-ky-ac:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+.dc-ky-form { display: flex; flex-direction: column; }
+.dc-ky-soru {
+  font-family: var(--cinzel);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--text-mid);
+  margin: 12px 0 6px;
+}
+.dc-ky-alan {
+  width: 100%;
+  padding: 9px 10px;
+  font-family: var(--serif);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  background: rgba(0,0,0,0.22);
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-md, 8px);
+  resize: vertical;
+}
+.dc-ky-alan::placeholder { color: var(--text-dim); font-style: italic; }
+.dc-ky-alan:focus { outline: none; border-color: var(--gold-edge); }
+
+/* İki yol yan yana durur ve eşit ağırlıktadır: kitap hangisinin doğru olduğunu
+   söylemez, soruyu sorar. Seçilen taraf altın kenar alır — karar kullanıcının
+   olduğu an görünür olsun. */
+.dc-ky-secim {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.dc-ky-sec {
+  min-height: 44px;
+  padding: 8px 10px;
+  font-family: var(--serif);
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text-mid);
+  background: none;
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-lg, 20px);
+  cursor: pointer;
+  transition: border-color var(--anim-normal, .3s) var(--ease-out, ease),
+              color var(--anim-normal, .3s) var(--ease-out, ease);
+}
+.dc-ky-sec--on {
+  color: var(--gold);
+  border-color: var(--gold-edge);
+  background: var(--gold-dim);
+}
+.dc-ky-sec:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+.dc-ky-kitap {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  text-align: center;
+  margin: 10px 0;
+}
+.dc-ky-muhur {
+  align-self: center;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 26px;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-edge);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-ky-muhur:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+.dc-ky-gecmis { margin-top: 14px; }
+.dc-ky-kayit {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--gold-hairline);
+}
+.dc-ky-kayit:last-child { border-bottom: none; }
+.dc-ky-kayit-ust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dc-ky-kayit-yol {
+  flex: 1;
+  font-family: var(--cinzel);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--gold-quiet);
+}
+.dc-ky-kayit-tarih {
+  font-family: var(--serif);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.dc-ky-sil {
+  width: 44px;
+  height: 44px;
+  margin: -14px -12px -14px 0;   /* görsel 13px, dokunma hedefi 44px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+.dc-ky-sil:hover { color: var(--gold); }
+.dc-ky-sil:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: -8px; }
+.dc-ky-kayit-neden {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-mid);
+  margin-top: 3px;
+}
+
+/* ─── Süper Odak: tek hedef, çift onay ───
+   Kurulu odak alanın tek "tamamlanmış" yüzeyidir ve altın kenar taşır — ama
+   ışığı bir ölçümden değil kullanıcının iki beyanından gelir. Onay düğmeleri
+   Ko-Zo'nun ◇/◆ glifini sürdürür: aynı glif her yerde aynı şeyi söyler —
+   "burada bir şey kuruldu". */
+.dc-odak-intro {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  text-align: center;
+  max-width: 34ch;
+  margin: 0 auto 14px;
+}
+.dc-odak-ac {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-odak-ac:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+.dc-odak-form { display: flex; flex-direction: column; }
+.dc-odak-oik {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 10px;
+}
+/* Lapis = hayal/hedef ekseni (anayasa): Olmak İstediğin Kişi geleceğin
+   tarafındadır, hedef ise bugünden ona uzanır. Koyu zemin üstünde okunan
+   ton `--lapis` değil `--lapis-bright` (base.css:32). */
+.dc-odak-oik-ad {
+  font-style: normal;
+  color: var(--lapis-bright, #5A8AD8);
+}
+.dc-odak-soru {
+  font-family: var(--cinzel);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--text-mid);
+  margin: 0 0 6px;
+}
+.dc-odak-alan {
+  width: 100%;
+  padding: 9px 10px;
+  font-family: var(--serif);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  background: rgba(0,0,0,0.22);
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-md, 8px);
+  resize: vertical;
+}
+.dc-odak-alan:focus { outline: none; border-color: var(--gold-edge); }
+/* Kitabın KRİTİK NOKTA'sı: hedefi yazmak değil, yazdıktan sonra içeri bakmak.
+   Cümle iki alanın arasında durur ve nefes alır. */
+.dc-odak-kritik {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-mid);
+  text-align: center;
+  margin: 16px 0 10px;
+}
+.dc-odak-onaylar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dc-odak-onay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--text-mid);
+  background: none;
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-lg, 20px);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--anim-normal, .3s) var(--ease-out, ease),
+              color var(--anim-normal, .3s) var(--ease-out, ease);
+}
+.dc-odak-onay--on {
+  color: var(--gold);
+  border-color: var(--gold-edge);
+  background: var(--gold-dim);
+}
+.dc-odak-onay:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+.dc-odak-onay-glif { font-size: 13px; flex: 0 0 auto; }
+.dc-odak-onay-metin { flex: 1; min-width: 0; }
+.dc-odak-muhur {
+  align-self: center;
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 0 26px;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-edge);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-odak-muhur:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+.dc-odak-kart {
+  padding: 14px 12px 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.018), transparent);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-lg, 20px);
+  text-align: center;
+}
+.dc-odak-etiket {
+  font-family: var(--cinzel);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--gold-quiet);
+}
+.dc-odak-hedef {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text);
+  margin: 8px 0 10px;
+}
+.dc-odak-izler {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-family: var(--serif);
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+.dc-odak-iz { color: var(--gold-quiet); }
+.dc-odak-eylemler {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 6px;
+}
+.dc-odak-kaldir {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+}
+.dc-odak-kaldir:hover { color: var(--gold); }
+.dc-odak-kaldir:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: -12px; }
+.dc-odak-degistir {
+  min-height: 44px;
+  padding: 0 16px;
+  font-family: var(--serif);
+  font-size: 11.5px;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.dc-odak-degistir:hover { color: var(--gold); }
+.dc-odak-degistir:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: -10px; }
+
+/* ─── Sefer: 21 gün, aynı yere dönmek ───
+   Yolun görsel dili SAYI değil İZ: 21 küçük çentik, mühürlenen gün kadarı
+   altın. Sayı yine yazılır ama küçük ve sessiz durur — göz önce izi okur,
+   ritmi oradan anlar. Kalıbın kitaptan gelen sözü kartın başında italik
+   durur: sefer bir sayaç değil, bir cümlenin üstünde 21 gün durmaktır. */
+.dc-sefer-kart {
+  padding: 14px 14px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-lg, 20px);
+}
+.dc-sefer-ad {
+  font-family: var(--cinzel);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--text);
+}
+.dc-sefer-soz {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin-top: 5px;
+}
+.dc-sefer-izler {
+  display: flex;
+  gap: 3px;
+  margin: 13px 0 6px;
+}
+.dc-sefer-iz {
+  flex: 1 1 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--bronze, #8A6A3B);
+  opacity: 0.3;
+}
+.dc-sefer-iz--dolu {
+  background: var(--gold);
+  opacity: 0.85;
+}
+.dc-sefer-sayi {
+  font-family: var(--cinzel);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+}
+.dc-sefer-gorev-etiket {
+  font-family: var(--cinzel);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--text-mid);
+  margin: 14px 0 5px;
+}
+.dc-sefer-gorev {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.dc-sefer-muhur {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 16px;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-sefer-muhur:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+/* Mühürlenmiş gün bir düğme değildir: iz olur, tekrar davet etmez. */
+.dc-sefer-muhurlu {
+  margin-top: 16px;
+  font-family: var(--cinzel);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--gold-quiet);
+  text-align: center;
+}
+.dc-sefer-sessiz {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  text-align: center;
+  max-width: 34ch;
+  margin: 0 auto 12px;
+}
+.dc-sefer-basla {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-sefer-basla:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+.dc-sefer-biten {
+  margin-top: 10px;
+  font-family: var(--serif);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ─── Dönüşüm Hattı: günler bölümlere ayrılınca ───
+   Bölüm başlığı MODELİN OKUMASIDIR, altındaki gün satırları kullanıcının
+   kendi başlıkları — o yüzden hiyerarşi terstir: başlık serif ve büyük ama
+   ALTIN DEĞİL (ışık ölçüme ayrılmıştır), gün satırları ise sola dayanmış
+   sade kayıtlar. Gün satırı TIKLANMAZ: hover yok, cursor yok, ok yok —
+   götüreceği yer olmayan bir satır bir yere götürür gibi durmasın. */
+.dc-hat-intro,
+.dc-hat-sessiz,
+.dc-hat-bekle {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  text-align: center;
+  max-width: 36ch;
+  margin: 0 auto 12px;
+}
+.dc-hat-cikar {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-hat-cikar:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+/* Okuma etiketi: yorumun yorum olduğunu söyleyen satır. Küçük, sessiz,
+   ama VAR — kanıtla yorumu ayıran çizgi budur (§6.10). */
+.dc-hat-okuma {
+  font-family: var(--serif);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  text-align: center;
+  max-width: 40ch;
+  margin: 0 auto 14px;
+}
+.dc-hat-giris {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-mid);
+  margin-bottom: 18px;
+}
+.dc-hat-bolum {
+  padding: 13px 0 14px;
+  border-top: 1px solid var(--gold-hairline);
+}
+.dc-hat-ust {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+.dc-hat-no {
+  flex: 0 0 auto;
+  font-family: var(--cinzel);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--gold-quiet);
+}
+.dc-hat-baslik {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--text);
+}
+.dc-hat-aciklama {
+  font-family: var(--serif);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-mid);
+  margin-top: 6px;
+}
+.dc-hat-gunler {
+  margin-top: 10px;
+  padding-left: 20px;
+  border-left: 1px solid var(--bronze-dim);
+}
+.dc-hat-gun {
+  display: flex;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.dc-hat-gun-tarih {
+  flex: 0 0 auto;
+  font-family: var(--cinzel);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  padding-top: 2px;
+}
+.dc-hat-gun-baslik {
+  font-family: var(--serif);
+  color: var(--text-mid);
+  min-width: 0;
+}
+.dc-hat-tazele {
+  display: block;
+  margin: 14px auto 0;
+  min-height: 44px;
+  padding: 0 20px;
+  font-family: var(--cinzel);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+.dc-hat-tazele:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+
+/* ─── Arşiv ─── */
+.dc-arsiv-bos {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 8px 0 4px;
+}
+.dc-arsiv-satir {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--gold-hairline);
+}
+.dc-arsiv-satir:last-child { border-bottom: none; }
+.dc-arsiv-ust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dc-arsiv-kavram {
+  font-family: var(--cinzel);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--gold-quiet);
+  flex: 1;
+}
+.dc-arsiv-tarih {
+  font-family: var(--serif);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.dc-arsiv-sil {
+  width: 44px;
+  height: 44px;
+  margin: -14px -12px -14px 0;   /* görsel 16px, dokunma hedefi 44px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+.dc-arsiv-sil:hover { color: var(--gold); }
+.dc-arsiv-sil:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: -8px; }
+.dc-arsiv-metin {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-mid);
+  margin-top: 3px;
+}
+/* Özet KAPALI hâlin kimliğidir; panel açılınca 1. adımın tamamı zaten
+   görünür — aynı cümleyi iki kez göstermek satırı kalabalıklaştırıyordu. */
+.dc-arsiv-satir--acik .dc-arsiv-metin { display: none; }
+
+/* ─── Arşiv paneli: mühürlenen kağıt geri açılır ─── */
+
+/* Satırın kimliği artık bir KAPI. Sil düğmesi kardeştir (iç içe <button>
+   geçersiz markup'tır), o yüzden aç/kapa yalnız kavram+tarih'i kaplar. */
+.dc-arsiv-ac {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+/* Dokunma hedefi yastığı: satırın görsel boşluğunu büyütmeden 44px'e taşır
+   ([[dokunma-hedefi-gorsel-bosluk]] — global min-height burada 21px'lik bir
+   yastık açardı). */
+.dc-arsiv-ac::after {
+  content: '';
+  position: absolute;
+  inset: -9px 0;
+  min-height: 44px;
+}
+.dc-arsiv-ac:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 3px; }
+.dc-arsiv-satir--acik .dc-arsiv-kavram { color: var(--gold); }
+
+.dc-arsiv-detay {
+  margin-top: 9px;
+  padding: 10px 0 4px 12px;
+  /* Okunan yüzey: kağıdın kendi dokusunu taklit etmez. Kağıt çalışılan yer,
+     defter okunan yer — tek bir kısık tel ikisini ayırır. */
+  border-left: 1px solid var(--gold-hairline);
+}
+.dc-arsiv-adim + .dc-arsiv-adim { margin-top: 10px; }
+.dc-arsiv-adim-ad {
+  font-family: var(--cinzel);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: var(--gold-quiet);
+  opacity: 0.75;
+  margin-bottom: 3px;
+}
+/* Kullanıcının kendi cümlesi panelin EN OKUNUR şeyidir — tez bunu ister
+   ("Mesele Sensin"). `--text-mid` denendi ve göz önce kitabın altın cümlesine
+   gidiyordu: yanlış hiyerarşi. Not: `--text-light` KULLANILMAZ, o token repoda
+   hiç tanımlı değil (13 yerde kazara miras alınıyor — ayrı bir iş). */
+.dc-arsiv-adim-metin {
+  font-family: var(--serif);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;        /* kullanıcının kendi satır aralıkları korunur */
+}
+
+/* KİTABIN cümlesi (3. adımın olumlaması) kullanıcının üç cümlesinden ayrılır.
+   Kağıtta olumlama tam altındır (`.ck-affirmation`) çünkü orası TÖRENDİR —
+   cümle sesli okunur. Arşiv okunan yerdir: altın burada kısılır, cümle
+   kitabın kendi sesiyle konuşur. Tırnak ayrımı repodan gelir: «…» kullanıcının
+   kendi sözü, “…” kitabınki. */
+.dc-arsiv-adim--kitap .dc-arsiv-adim-metin {
+  font-style: italic;
+  color: var(--gold-quiet);
+}
+.dc-arsiv-adim-kaynak {
+  margin-left: 7px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 9px;
+  letter-spacing: 0;          /* etiketin cinzel aralığını devralmasın */
+  color: var(--text-dim);
+}
+
+/* Defter açılır gibi açılır: kısa, tek yönlü, gösterişsiz. Hareket bilgi
+   taşımaz — yalnız "bu satırın altı açıldı" der. */
+@keyframes dc-arsiv-acilis {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+.dc-arsiv-detay:not([hidden]) {
+  animation: dc-arsiv-acilis var(--anim-normal, .3s) var(--ease-out, ease) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dc-arsiv-detay:not([hidden]) { animation: none; }
+}
+
+.dc-arsiv-ses { margin-top: 12px; }
+.dc-arsiv-ses-btn {
+  font-family: var(--serif);
+  font-size: 11.5px;
+  color: var(--gold-quiet);
+  background: none;
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-sm, 10px);
+  padding: 8px 13px;
+  cursor: pointer;
+  transition: border-color var(--anim-normal, .3s) var(--ease-out, ease),
+              color var(--anim-normal, .3s) var(--ease-out, ease);
+}
+.dc-arsiv-ses-btn:hover,
+.dc-arsiv-ses-btn:focus-visible { border-color: var(--gold-edge); color: var(--gold); }
+.dc-arsiv-audio { display: none; }
+
+/* ─── Oda ızgarası ─── */
+.dc-rooms {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 340px) {
+  .dc-rooms { grid-template-columns: 1fr; }
+}
+
+.dc-room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  /* min-height dokunma hedefi için değil, görsel denge için: iç boşluk
+     zaten 44px'i aşıyor → global min-height yastığı devreye girmez
+     ([[dokunma-hedefi-gorsel-bosluk]]). */
+  padding: 18px 10px 15px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.022), transparent);
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-lg, 20px);
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--anim-normal, .3s) var(--ease-out, ease),
+              background-color var(--anim-normal, .3s) var(--ease-out, ease),
+              transform var(--anim-normal, .3s) var(--ease-out, ease);
+}
+.dc-room:hover,
+.dc-room:focus-visible {
+  border-color: var(--gold-edge);
+  background: var(--gold-dim);
+}
+.dc-room:focus-visible {
+  outline: 1px solid var(--gold-edge);
+  outline-offset: 2px;
+}
+.dc-room:active { transform: scale(0.985); }
+
+/* En son girilen oda. İz KISIK: kenarın altın telini bir kademe uyandırır,
+   başka hiçbir şey yapmaz — bir rozet değil, bir hatırlatma. Odalar arasında
+   hiyerarşi kurmaz; "burada kaldın" der, "buraya dön" demez. */
+.dc-room--son {
+  border-color: var(--gold-edge);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+}
+
+.dc-room-sigil {
+  width: 34px;
+  height: 34px;
+  color: var(--gold-quiet);
+  opacity: 0.82;
+}
+.dc-room-label {
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text);
+}
+.dc-room-sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-mid);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-room { transition: none; }
+  .dc-room:active { transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BUGÜN PENCERESİ (.dcb-*) — tezgâhın Bugün'deki kesiti
+   ───────────────────────────────────────────────────────────────────
+   Sökülen Kişilerim bölümünün yerinde durur (2026-08-18) ve İKİ dili
+   birden konuşur: kabuk Bugün'ün bölüm dilidir (kenar + gren + Cinzel
+   başlık + "›" kapısı — eski `.kkb` kabuğunun ölçüleri), içi Derin
+   Çalışma'nın tezgâh dilidir (kısık kicker, kullanıcının «cümlesi»
+   fildişi ve okunur). Derin metafor KAP: içine girilen bir oda —
+   Yolculuk'un aciliyeti buraya girmez.
+   ═══════════════════════════════════════════════════════════════════ */
+
+#dc-bugun { margin: 2px 0 18px; }
+
+.dcb {
+  position: relative;
+  border: 1px solid var(--border, #281F16);
+  border-radius: var(--radius-lg, 20px);
+  padding: 12px 14px 13px;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(245, 166, 35, .055), transparent 62%),
+    linear-gradient(180deg, #16110C, #0F0C08);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, .4));
+  overflow: hidden;
+}
+.dcb::after {                                   /* kâğıt greni (prensip 3) */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain-img); opacity: .22;
+}
+
+.dcb-head {
+  position: relative; z-index: 1;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  width: 100%; margin: 0 0 10px; padding: 0;
+  background: none; border: 0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.dcb-head-word {
+  font-family: var(--cinzel, serif); font-weight: 600;
+  font-size: 9px; letter-spacing: 3.2px; color: var(--gold, #F5A623);
+}
+.dcb-head-go {
+  font-family: var(--cinzel, serif); font-size: 8px; letter-spacing: 2.2px;
+  color: var(--text-mid, #95897A);
+  transition: color .2s var(--ease-out, ease);
+}
+.dcb-head:hover .dcb-head-go { color: var(--gold, #F5A623); }
+
+.dcb-body { position: relative; z-index: 1; }
+
+.dcb-kicker {
+  font-family: var(--cinzel, serif); font-size: 7px; letter-spacing: 2.2px;
+  color: rgba(245, 166, 35, .62); margin-bottom: 5px;
+}
+/* Kullanıcının kendi cümlesi — göz önce buraya gitmeli (§6.10 kaynak
+   ayrımı: «…» yaşanmış olan, "…" okunmuş olan). */
+.dcb-cumle {
+  font-family: var(--garamond, serif); font-size: 14px; line-height: 1.5;
+  color: var(--text, #EAE2D6);
+}
+.dcb-davet {
+  font-family: var(--garamond, serif); font-style: italic;
+  font-size: 13px; line-height: 1.5; color: var(--text-mid, #95897A);
+}
+/* Durum satırı tezgâhın kapı DURUMUnu söyler ("tezgâh açık" / "bir çalışma
+   seni bekliyor" / "Max ile açılır") — üründe `--text-dim`de okunmuyordu ve
+   okunmayan bir kapı bilgisi hiç yazılmamış gibidir. Bir perde açıldı; yine
+   de kullanıcının cümlesinin ALTINDA kalır: hiyerarşi bozulmaz. */
+.dcb-durum {
+  margin-top: 10px; padding-top: 9px;
+  border-top: 1px solid rgba(245, 166, 35, .12);
+  font-family: var(--cinzel, serif); font-size: 7.5px; letter-spacing: 2px;
+  color: var(--text-mid, #95897A);
+}

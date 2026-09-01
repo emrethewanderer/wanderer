@@ -1,0 +1,480 @@
+/* ═══════════════════════════════════════════════════════════════════
+   gunluk.css — Günlük Ritüel (10s): Elmas Barı + Sabah Açılış Töreni
+   (Armağan / Söz / Akşam Hesabı) + Verdiğin Söz kartı.
+
+   TASARIM (Tasarım-Prensipleri uyumu): Bu tören, Akşam Kapanışı'nın
+   (aksam.css) ALTIN-ŞAFAK İKİZİ'dir — "akşam lapis-gece kapatır, sabah
+   altın-şafak açar." Aynı sahne dili, kutup ters:
+     §1 Renk:   Armağan=ALTIN (şimdi/eylem) · Söz=BRONZ (yemin) · Mühür DAİMA altın.
+     §2 Zaman:  sahne --dawn-* token'larıyla saatle yaşar (sabah→gündüz otomatik kayar).
+     §3 Doku:   kâğıt greni (::before) + köşe-radial atmosfer + dövülmüş mühür CTA.
+     §4 Tipo:   Cinzel kicker → Fraunces başlık → EB Garamond italik kalıbı.
+     §5 Hareket: --ease-out giriş, --ease-spring kutlama (ödül açılışı), nefes.
+     §7 Tören:  toast değil, sahnelenmiş eşik.  §9: 44px hedef, focus-visible, 16px input.
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── ELMAS HALKASI — seri çemberinin (ws-vesper-ring) İKİZİ ──
+   Kolona (app-screen, position:relative, max-width 501px) absolute bağlı →
+   masaüstünde de seri çemberiyle aynı kolonda, hizalı kalır. Pill yok;
+   seri halkasıyla aynı dil: ince altın halka + Cinzel altın yazı. */
+#gl-elmas-bar {
+  position: absolute;
+  top: calc(var(--safe-t, 0px) + 15px);  /* seri çemberiyle (ws-vesper-ring) tam hizalı */
+  right: 58px;                          /* vesper ring (right:16, 38px) hemen solu */
+  /* KRİTİK: .ws-topbar position:absolute + z-index:40 + ~opak arka plan (rgba(11,11,11,.95)).
+     Elmas barı app-screen'in çocuğu (topbar'ın kardeşi) → topbar'dan DÜŞÜK z-index'te
+     kalırsa topbar arka planı barı örter ve "kaybolur" (seri çemberi topbar'ın çocuğu
+     olduğu için görünür kalır). Bu yüzden topbar'ın 40'ının ÜSTÜNDE durmalı. */
+  z-index: var(--z-sahne-serit);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;                 /* sadece gösterge — vesper tap'ini engelleme */
+  font-family: var(--cinzel, 'Cinzel', serif);
+}
+.gl-elmas-num {
+  font-size: 13px; color: var(--gold, #F5A623); font-weight: 600;
+  letter-spacing: .5px; line-height: 1; transition: transform .25s ease;
+}
+.gl-elmas-ring { position: relative; width: 38px; height: 38px; flex-shrink: 0; }
+.gl-elmas-ring svg { position: absolute; inset: 0; }
+.gl-elmas-track { fill: none; stroke: var(--border, #281F16); stroke-width: 1.2; }
+.gl-elmas-arc {
+  fill: none; stroke: var(--gold, #F5A623); stroke-width: 1.4; stroke-linecap: round;
+  filter: drop-shadow(0 0 4px var(--gold-edge, rgba(245, 166, 35, .55)));
+}
+.gl-elmas-glyph {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: var(--gold, #F5A623); font-size: 13px;
+  filter: drop-shadow(0 0 5px rgba(245, 166, 35, .5));
+}
+.gl-elmas-pulse { animation: glElmasPulse .7s ease; }
+@keyframes glElmasPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   TÖREN ÇERÇEVESİ — SABAH AÇILIŞI (altın-şafak)
+   ════════════════════════════════════════════════════════════════════ */
+/* z-index korunur (9700): tören tüm kabuğun ÜSTÜNDE durmalı — elmas barı (45),
+   topbar (40), spotlight (720), input-card (900). cz-spark (9500) ALTINDA kalır
+   ve artık veil-guard ile susturulur (hayalet-çizgi fix). */
+.gl-portal { position: fixed; inset: 0; z-index: var(--z-toren-portal); }
+
+.gl-veil {
+  position: absolute; inset: 0;
+  /* Sıcak şafak örtüsü — merkezde hafif kehribar, kenarda derin obsidyen (atmosfer
+     §3/§8). Asla saf siyah değil (§1); töreni tam yalıtır (arka kabuk sızmaz). */
+  background: radial-gradient(ellipse at 50% 32%, rgba(24, 16, 7, 0.84), rgba(5, 4, 2, 0.96));
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  animation: glVeilIn .4s ease both;
+}
+@keyframes glVeilIn { from { opacity: 0; } to { opacity: 1; } }
+
+.gl-modal {
+  --grain-op: .12;   /* kağıt greni → .wn-grain sarmalı (base.css) */
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 420px);
+  max-height: 88dvh; overflow-y: auto;
+  border-radius: var(--radius-lg, 20px);
+  /* Sahne saatle yaşar (§2): altın "ocak başı/yükselen güneş" kutbu üstte; köşelerden
+     şeftali + gül (--dawn-*) sızar → sabah→gündüz OTOMATİK kayar (html.tw-* token'ları
+     değiştirir). Obsidyen taban sabit, asla saf siyah değil (§1). Akşam'ın lapis
+     kutbunun altın ikizi. */
+  background:
+    radial-gradient(125% 65% at 50% -10%, var(--dawn-amber, rgba(245,166,35,0.11)) 0%, transparent 60%),
+    radial-gradient(90% 70% at 6% 108%, var(--dawn-peach, rgba(255,178,120,0.08)) 0%, transparent 62%),
+    radial-gradient(85% 65% at 104% -4%, var(--dawn-rose, rgba(202,102,96,0.09)) 0%, transparent 58%),
+    linear-gradient(170deg, #1A130B 0%, var(--bg, #0F0C08) 55%, #0C0A07 100%);
+  border: 1px solid var(--gold-hairline, rgba(245, 166, 35, 0.28));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.62), 0 0 44px rgba(245, 166, 35, 0.10);
+  font-family: var(--cinzel, 'Cinzel', serif);
+  text-align: center; isolation: isolate;
+  animation: glModalIn .5s var(--ease-out, ease) both;
+}
+/* Yastık sarmalda: gren kenar boşluğunu da örtmeli (bkz. .wn-grain) */
+.gl-modal .wn-grain { padding: 26px 22px 22px; }
+/* Kâğıt greni (§3 — her büyük yüzeyde). ::before z-index:-1 + isolation → degradelerin
+   ÜSTÜNDE / metnin ALTINDA; mix-blend yok (kırılgan, §3 uyarısı). */
+@keyframes glModalIn { from { opacity: 0; transform: translate(-50%, -46%) scale(.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.gl-modal--out { animation: glModalOut .4s var(--ease-out, ease) both; }
+@keyframes glModalOut { to { opacity: 0; transform: translate(-50%, -54%) scale(.97); } }
+
+/* Kicker = Cinzel altın (§4). İçerik HTML'de gerçek TR büyük harfle (İ tuzağı §4) —
+   CSS text-transform YOK. */
+.gl-kicker {
+  font-family: var(--cinzel, serif);
+  font-size: 9px; letter-spacing: 3px; color: var(--gold, #F5A623);
+  font-weight: 700; opacity: .9; text-align: center;
+}
+
+/* ── CTA = günü açan/mühürleyen eylem → ALTIN dövülmüş mühür (§1/§3) ──
+   Mühür DAİMA altın; fiziksel obje = üstten ışık (inset highlight) + alttan glow +
+   basınca scale(.93). Tüm tören ekranları paylaşır. */
+.gl-cta {
+  width: 100%; margin-top: 18px;
+  background: linear-gradient(165deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  color: var(--gold-ink, #1A1206); border: 1px solid var(--gold, #F5A623);
+  padding: 14px; border-radius: 14px;
+  font-family: var(--cinzel, serif); font-size: 12px; letter-spacing: 2.5px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), 0 6px 20px rgba(245, 166, 35, .22);
+  transition: filter .15s, transform .1s var(--ease-out, ease), box-shadow .2s, opacity .15s;
+}
+.gl-cta:hover { filter: brightness(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 26px rgba(245, 166, 35, .32); }
+.gl-cta:active { transform: scale(.93); }   /* mühür basıncı (§3) */
+.gl-cta:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 3px; }
+.gl-cta:disabled { opacity: .4; cursor: default; box-shadow: none; filter: saturate(.6); }
+.gl-cta--bob { animation: glBob 2.4s ease-in-out infinite; }
+@keyframes glBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+/* ════════════════════════════════════════════════════════════════════
+   1) GÜNÜN ARMAĞANI
+   ════════════════════════════════════════════════════════════════════ */
+.gl-gift { text-align: center; }
+
+/* Sabah yıldızı — Akşam'ın nefes alan ayının altın ikizi (§5: durağan ama canlı) */
+.gl-gift-glyph {
+  font-size: 42px; color: var(--gold, #F5A623); margin: 16px 0 4px;
+  filter: drop-shadow(0 0 16px rgba(245, 166, 35, .55));
+  animation: glStarBreath 4.2s ease-in-out infinite;
+}
+@keyframes glStarBreath {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(245, 166, 35, .4)); transform: scale(1); opacity: .92; }
+  50%      { filter: drop-shadow(0 0 22px rgba(245, 166, 35, .7)); transform: scale(1.06); opacity: 1; }
+}
+
+/* Fraunces display başlık (§4 kalıbı: kicker → BAŞLIK → italik) */
+.gl-gift-title {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 25px; color: var(--text, #EAE2D6); margin: 6px 0 0; line-height: 1.15;
+}
+.gl-gift-lead {
+  font-family: var(--serif, Georgia, serif); font-style: italic;
+  font-size: 13.5px; color: var(--text-mid, #95897A);
+  line-height: 1.6; margin: 10px auto 18px; max-width: 320px;
+}
+
+/* Üç armağan — eriyen-kıl kenarlı çipler; açılınca altın yanar (§3/§5) */
+.gl-reward-rail { display: flex; gap: 10px; justify-content: center; margin-bottom: 6px; }
+.gl-reward {
+  flex: 1; max-width: 130px;
+  border: 1px solid var(--gold-hairline, rgba(245, 166, 35, .28)); border-radius: 14px;
+  padding: 13px 8px; background: var(--gold-dim, rgba(245, 166, 35, .06));
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: opacity .5s var(--ease-out, ease), transform .5s var(--ease-spring, ease), border-color .5s;
+}
+.gl-reward-ic { font-size: 20px; color: var(--gold, #F5A623); filter: drop-shadow(0 0 6px rgba(245, 166, 35, .35)); }
+.gl-reward-lbl { font-size: 10px; letter-spacing: 1px; color: var(--text, #EAE2D6); }
+.gl-reward--locked { opacity: .3; transform: scale(.95); border-color: var(--border, #281F16); background: rgba(255, 255, 255, .015); }
+.gl-reward--locked .gl-reward-ic { color: var(--text-dim, #585349); filter: none; }
+
+.gl-gift-reveal[hidden] { display: none; }
+.gl-gift-reveal { margin-top: 16px; text-align: left; animation: glFadeIn .5s var(--ease-out, ease); }
+@keyframes glFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Kitap alıntısı — şiirsel italik, uçta eriyen kıl-altın aksan çizgisi (§3) */
+.gl-quote {
+  font-family: var(--serif, Georgia, serif); font-style: italic; font-size: 14px;
+  color: var(--gold-bright, #F7C744); line-height: 1.55; margin: 0 0 10px;
+  padding-left: 13px;
+  border-left: 2px solid transparent;
+  border-image: linear-gradient(180deg, transparent, var(--gold-glow, rgba(245, 166, 35, .4)), transparent) 1;
+}
+.gl-para {
+  font-family: var(--serif, Georgia, serif); font-size: 13px; color: var(--text-mid, #95897A);
+  line-height: 1.7; margin: 12px 0;
+}
+/* İçsel/kişisel dokunuş (♥ yaşam belleği · ☽ dünkü niyet) → lapis (içsel derinlik §1) */
+.gl-touch {
+  font-family: var(--serif, Georgia, serif); font-style: italic; font-size: 11.5px;
+  color: var(--lapis-bright, #5A8AD8); line-height: 1.5; margin: 10px 0 0; padding-top: 9px;
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, rgba(90, 138, 216, .25), transparent) 1;
+}
+
+/* Kitaplık kapısı — altın hairline davet (kapı/davet DAİMA altın §1) */
+.gl-article {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  margin-top: 14px; text-align: left;
+  border: 1px solid var(--gold-hairline, rgba(245, 166, 35, .28)); border-radius: 14px;
+  padding: 12px 14px; cursor: pointer; min-height: 44px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, var(--gold-dim, rgba(245, 166, 35, .08)), transparent 70%),
+    rgba(255, 255, 255, .015);
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.gl-article:hover, .gl-article:active { border-color: var(--gold, #F5A623); background: var(--gold-dim, rgba(245, 166, 35, .1)); }
+.gl-article:active { transform: scale(.99); }
+.gl-article:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.gl-article-ic { font-size: 18px; color: var(--gold, #F5A623); flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(245, 166, 35, .3)); }
+.gl-article-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.gl-article-kick { font-family: var(--cinzel, serif); font-size: 8px; letter-spacing: 2px; color: var(--gold, #F5A623); font-weight: 700; opacity: .85; }
+.gl-article-title { font-family: var(--serif, Georgia, serif); font-size: 13.5px; color: var(--text, #EAE2D6); line-height: 1.35; }
+.gl-article-arrow { color: var(--gold, #F5A623); font-size: 18px; flex-shrink: 0; }
+
+/* ════════════════════════════════════════════════════════════════════
+   2) GÜNÜN SÖZÜ — söz/yemin = BRONZ aksan; mühür yine ALTIN (§1)
+   ════════════════════════════════════════════════════════════════════ */
+.gl-soz-title {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 24px; color: var(--text, #EAE2D6); margin: 6px 0 0; line-height: 1.15; text-align: center;
+}
+/* Sabah Sorusu (deneme 152) — sözün GEREKÇESİ. Başlıkla mekanik yönerge
+   arasında durur ve ikisinden de ayrı okunmalı: kitabın sesi bronz ve
+   serif, yönerge sessiz gri. Cinzel mirası kırılır — majüskül çizen tören
+   fontu okunacak bir soruda yanlış (bkz. .gl-soz-why). */
+.gl-soz-question {
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-size: 15px; line-height: 1.55; letter-spacing: .01em;
+  color: var(--bronze, #C9A24B);
+  margin: 12px auto 2px; max-width: 330px; text-align: center;
+}
+.gl-soz-lead {
+  font-family: var(--serif, Georgia, serif); font-style: italic;
+  font-size: 13px; color: var(--text-mid, #95897A);
+  line-height: 1.6; margin: 10px auto 16px; max-width: 330px; text-align: center;
+}
+.gl-soz-lead b { color: var(--bronze, #C9A24B); font-style: normal; font-weight: 600; }
+/* Çalışma Kağıdı köprüsü — cümlenin nereden geldiğini söyler. Lapis: içsel
+   taraftan gelen bir not, sözün kendisi (bronz) değil (bkz. .gl-soz-why). */
+.gl-soz-fromkagit {
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-size: 12px; line-height: 1.5;
+  color: var(--lapis-bright, #5A8AD8); opacity: .8;
+  margin: -6px auto 14px; max-width: 330px; text-align: center;
+}
+.gl-soz-areas { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.gl-area {
+  border: 1px solid var(--border, #281F16); border-radius: 14px; overflow: hidden;
+  background: rgba(255, 255, 255, .02);
+  transition: border-color .18s, background .18s;
+}
+.gl-area:has(.gl-area-head--on) { border-color: var(--bronze-glow, rgba(201, 162, 75, .45)); }
+.gl-area-head {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px;
+  padding: 12px 13px; background: transparent;
+  border: none; cursor: pointer; text-align: left; transition: background .15s;
+  font-family: var(--cinzel, serif);
+}
+.gl-area-head:hover { background: var(--bronze-dim, rgba(201, 162, 75, .07)); }
+.gl-area-head--on { background: linear-gradient(135deg, var(--bronze-dim, rgba(201, 162, 75, .14)), transparent); }
+.gl-area-head:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: -2px; }
+.gl-area-glyph {
+  width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
+  border: 1px solid var(--bronze-glow, rgba(201, 162, 75, .4)); display: flex; align-items: center; justify-content: center;
+  color: var(--bronze, #C9A24B); font-size: 14px;
+}
+.gl-area-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gl-area-label { font-size: 13px; color: var(--text, #EAE2D6); font-weight: 700; letter-spacing: .5px; }
+.gl-area-found { font-family: var(--serif, Georgia, serif); font-style: italic; font-size: 10px; color: var(--text-mid, #95897A); }
+.gl-area-check {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--bronze-glow, rgba(201, 162, 75, .4)); display: flex; align-items: center; justify-content: center;
+  color: var(--bronze, #C9A24B); font-size: 14px; font-weight: 700; transition: all .18s var(--ease-spring, ease);
+}
+.gl-area-head--on .gl-area-check { background: var(--bronze, #C9A24B); color: var(--gold-ink, #1A1206); border-color: var(--bronze, #C9A24B); }
+.gl-area-body[hidden] { display: none; }
+.gl-area-body { padding: 4px 13px 13px; }
+/* İhtiyaç kanıtı (13v) — sözün NEDEN bu söz olduğunu fısıldar. Sözün
+   kendisinden (bronz, italik) bir kademe sessiz ve lapis: gerekçe içsel
+   taraftır, söz ise verilen taahhüt. Söz asıldır, kanıt arkasında durur. */
+.gl-soz-why {
+  /* Cinzel MİRASINI KIR: modalın tören fontu majüskül çizer (küçük harfler de
+     büyük görünür) — kicker'da doğru, okunacak bir gerekçe cümlesinde değil. */
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-size: 12.5px; line-height: 1.5; letter-spacing: .01em;
+  color: var(--lapis-bright, #5A8AD8); opacity: .72;
+  margin: 2px 0 2px;
+}
+.gl-soz-text {
+  font-family: var(--serif, Georgia, serif); font-style: italic; font-size: 13.5px;
+  color: var(--bronze, #C9A24B); line-height: 1.55; margin: 4px 0 10px;
+}
+.gl-soz-input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(0, 0, 0, .25); border: 1px solid var(--border, #281F16);
+  border-radius: 12px; padding: 12px 13px;
+  color: var(--text, #EAE2D6); font-family: var(--serif, Georgia, serif); font-size: 16px;  /* iOS zoom engeli §9 */
+  outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.gl-soz-input:focus { border-color: var(--bronze, #C9A24B); box-shadow: 0 0 0 3px var(--bronze-dim, rgba(201, 162, 75, .12)); }
+.gl-soz-input--ok { border-color: #5fbf7a; box-shadow: 0 0 0 2px rgba(95, 191, 122, .35); }
+.gl-soz-input--bad { border-color: rgba(214, 120, 80, .55); }
+.gl-soz-state { min-height: 14px; margin-top: 6px; font-size: 10.5px; letter-spacing: .5px; font-family: var(--cinzel, serif); color: var(--text-mid, #95897A); }
+.gl-soz-input--ok ~ .gl-soz-state { color: #5fbf7a; }
+.gl-soz-foot { margin-top: 16px; }
+.gl-skip {
+  display: block; width: 100%; margin-top: 10px; min-height: 44px;
+  background: transparent; border: 1px dashed var(--bronze-glow, rgba(201, 162, 75, .4));
+  border-radius: 12px; padding: 11px;
+  color: var(--bronze, #C9A24B); font-family: var(--cinzel, serif); font-size: 10.5px; letter-spacing: 1px;
+  cursor: pointer; transition: background .15s, border-color .15s;
+}
+.gl-skip:hover, .gl-skip:active { background: var(--bronze-dim, rgba(201, 162, 75, .07)); }
+.gl-skip:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+/* ════════════════════════════════════════════════════════════════════
+   3) AKŞAM HESABI — sözün dürüst muhasebesi (tutuldu=yeşil, tutulmadı=terrakota)
+   ════════════════════════════════════════════════════════════════════ */
+.gl-reckon-title {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 24px; color: var(--text, #EAE2D6); margin: 6px 0 0; line-height: 1.15; text-align: center;
+}
+.gl-reckon .gl-reckon-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 4px; text-align: left; }
+.gl-reckon-row {
+  border: 1px solid var(--border, #281F16); border-left: 2px solid var(--bronze-glow, rgba(201, 162, 75, .45));
+  border-radius: 14px; padding: 12px 13px; background: rgba(255, 255, 255, .02);
+  transition: border-color .2s, background .2s;
+}
+.gl-reckon-row--kept { border-left-color: rgba(80, 200, 120, .65); background: rgba(80, 200, 120, .05); }
+.gl-reckon-row--broke { border-left-color: rgba(214, 120, 80, .55); background: rgba(214, 120, 80, .04); }
+.gl-reckon-btns { display: flex; gap: 8px; margin-top: 10px; }
+.gl-reckon-btn {
+  flex: 1; min-height: 44px; padding: 10px 6px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--border, #281F16); background: rgba(255, 255, 255, .02);
+  color: var(--text-mid, #95897A); font-family: var(--cinzel, serif); font-size: 11px;
+  font-weight: 700; letter-spacing: .5px; transition: all .15s;
+}
+.gl-reckon-yes.gl-reckon-btn--on { color: var(--gold-ink, #1A1206); background: #8fe3a8; border-color: #8fe3a8; }
+.gl-reckon-no.gl-reckon-btn--on { color: var(--gold-ink, #1A1206); background: #d6a07a; border-color: #d6a07a; }
+.gl-reckon-btn:hover { border-color: var(--bronze-glow, rgba(201, 162, 75, .4)); }
+.gl-reckon-btn:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 1px; }
+
+/* "Ne engel oldu?" — tutulamayan sözün ardından tek dokunuşluk gerekçe.
+   Terrakota değil NÖTR ton: bu bir suçlama satırı değil, ölçü. Cevap
+   yarının sözünün ağırlığını ayarlar (13u sdMertebe). */
+.gl-reason { margin-top: 8px; }
+.gl-reason-q {
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-size: 12px; color: var(--text-mid, #95897A); opacity: .85; margin-bottom: 6px;
+}
+.gl-reason-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.gl-reason-btn {
+  min-height: 34px; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border, #281F16); background: rgba(255, 255, 255, .02);
+  color: var(--text-mid, #95897A);
+  font-family: var(--serif, 'EB Garamond', Georgia, serif); font-size: 12.5px;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.gl-reason-btn:hover { border-color: var(--bronze-glow, rgba(201, 162, 75, .4)); }
+.gl-reason-btn--on {
+  color: var(--bronze, #C9A24B); border-color: var(--bronze, #C9A24B);
+  background: var(--bronze-dim, rgba(201, 162, 75, .12));
+}
+.gl-reason-btn:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 1px; }
+
+/* Armağan kanıtı — söz kanıtının ikizi, ama tören merkezinde durduğu için
+   ortalanır ve lead ile mühür arasında nefes alır. */
+.gl-gift-why { text-align: center; margin: 6px 0 2px; }
+
+/* KENDİ SÖZÜN — sessiz bir davet; önerilen sözün altında durur, onunla
+   yarışmaz. Kendi cümlesini yazınca önerilen söz soluklaşır (artık asıl
+   olan kullanıcının kendi ifadesidir). */
+.gl-soz-own {
+  display: inline-block; margin-top: 8px; padding: 4px 0;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--serif, 'EB Garamond', Georgia, serif); font-size: 12.5px;
+  color: var(--text-mid, #95897A); opacity: .8;
+  border-bottom: 1px solid var(--border, #281F16);
+  transition: color .15s, border-color .15s, opacity .15s;
+}
+.gl-soz-own:hover { color: var(--bronze, #C9A24B); border-color: var(--bronze-glow, rgba(201, 162, 75, .4)); opacity: 1; }
+.gl-soz-own:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.gl-area--own .gl-soz-text { opacity: .38; }
+.gl-area--own .gl-soz-own { color: var(--bronze, #C9A24B); border-color: var(--bronze-glow, rgba(201, 162, 75, .4)); opacity: 1; }
+
+/* MERTEBE çerçevesi — sözün ağırlığını söyler; yalnız dokunuş/eşik
+   mertebelerinde görünür, normal günlerde hiç basılmaz. */
+.gl-soz-frame {
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-size: 12px; line-height: 1.5; margin: 0 0 8px; opacity: .8;
+}
+.gl-soz-frame--dokunus { color: var(--lapis-bright, #5A8AD8); }   /* küçülme = içsel, sakin */
+.gl-soz-frame--esik { color: var(--bronze, #C9A24B); }            /* büyüme = yemin kutbu */
+
+/* ════════════════════════════════════════════════════════════════════
+   GÜNÜN MÜHRÜ · VERDİĞİN SÖZ — Bugün kartı (kimlik kartının altında)
+   Söz kartı → BRONZ sol aksan (yemin kutbu). Mühür glyph'i ALTIN (§1).
+   ════════════════════════════════════════════════════════════════════ */
+.gl-vs-card {
+  position: relative; border: 1px solid var(--border, #281F16);
+  border-left: 2px solid var(--bronze-glow, rgba(201, 162, 75, .5));   /* yemin aksanı */
+  border-radius: 14px;
+  padding: 13px 14px; margin: 10px 0 14px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, var(--bronze-dim, rgba(201, 162, 75, .08)), transparent 65%),
+    rgba(255, 255, 255, .015);
+  font-family: var(--cinzel, 'Cinzel', serif);
+}
+.gl-vs-card--live { background: radial-gradient(120% 120% at 0% 0%, var(--bronze-dim, rgba(201, 162, 75, .11)), transparent 65%), rgba(255, 255, 255, .02); }
+
+/* Boş/atlanmış → söz vermeye davet (her zaman görünür, tıklanabilir) */
+.gl-vs-card--invite {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  cursor: pointer; min-height: 44px; border-style: dashed; border-left-style: solid;
+  transition: background .15s, border-color .15s;
+}
+.gl-vs-card--invite:hover, .gl-vs-card--invite:active { background: var(--bronze-dim, rgba(201, 162, 75, .1)); border-color: var(--bronze-glow, rgba(201, 162, 75, .5)); }
+.gl-vs-card--invite:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+/* Mühür glyph'i — ALTIN, nefes alan (§1: mühür daima altın) */
+.gl-vs-seal {
+  font-size: 22px; color: var(--gold, #F5A623); flex-shrink: 0; width: 30px; text-align: center;
+  filter: drop-shadow(0 0 8px rgba(245, 166, 35, .4)); animation: glStarBreath 3.4s ease-in-out infinite;
+}
+.gl-vs-invite-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.gl-vs-invite-text { font-family: var(--serif, Georgia, serif); font-style: italic; font-size: 12px; color: var(--text-mid, #95897A); line-height: 1.45; }
+.gl-vs-invite-cta { flex-shrink: 0; align-self: center; color: var(--gold, #F5A623); font-family: var(--cinzel, serif); font-size: 10px; letter-spacing: 1.5px; }
+.gl-vs-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; transition: opacity .32s ease; }
+.gl-vs-row.gl-vs-fade { opacity: 0; }
+.gl-vs-stack { display: flex; align-items: flex-start; gap: 12px; margin-top: 10px; }
+.gl-vs-glyph { font-size: 22px; color: var(--bronze, #C9A24B); flex-shrink: 0; width: 28px; text-align: center; }
+.gl-vs-body { flex: 1; min-width: 0; }
+/* Alan etiketi — Cinzel bronz; içerik doğal halde (CSS uppercase YOK → İ tuzağı §4) */
+.gl-vs-area { font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 2px; color: var(--bronze, #C9A24B); font-weight: 700; }
+.gl-vs-text { font-family: var(--serif, Georgia, serif); font-style: italic; font-size: 13px; color: var(--text, #EAE2D6); line-height: 1.5; margin-top: 4px; }
+.gl-vs-empty { font-family: var(--serif, Georgia, serif); font-style: italic; font-size: 12px; color: var(--text-mid, #95897A); line-height: 1.45; margin-top: 7px; }
+.gl-vs-dots { display: flex; gap: 6px; justify-content: center; margin-top: 11px; }
+.gl-vs-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .18); transition: background .3s, transform .3s; }
+.gl-vs-dot.on { background: var(--bronze, #C9A24B); transform: scale(1.2); }
+
+/* Akşam hesabı durumu (Verdiğin Söz kartında) */
+.gl-vs-mark {
+  display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 8px;
+  font-size: 8.5px; letter-spacing: 1px; font-weight: 800; vertical-align: middle;
+}
+.gl-vs-mark--kept { color: #8fe3a8; background: rgba(80, 200, 120, .12); border: 1px solid rgba(80, 200, 120, .4); }
+.gl-vs-mark--broke { color: #d6a07a; background: rgba(214, 120, 80, .1); border: 1px solid rgba(214, 120, 80, .35); }
+.gl-vs-card--kept { border-left-color: rgba(80, 200, 120, .6); }
+.gl-vs-card--broke { border-left-color: rgba(214, 120, 80, .5); }
+.gl-vs-foot {
+  display: block; width: 100%; margin-top: 12px; padding-top: 11px;
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, var(--border, #281F16), transparent) 1;
+  text-align: center; font-family: var(--cinzel, serif); font-size: 10px; letter-spacing: 1.5px;
+}
+.gl-vs-foot--cta {
+  background: none; border: none; min-height: 44px;
+  border-top: 1px solid var(--border, #281F16);
+  color: var(--gold, #F5A623); cursor: pointer; font-weight: 700;
+  transition: color .15s, letter-spacing .2s;
+}
+.gl-vs-foot--cta:hover, .gl-vs-foot--cta:active { color: var(--gold-bright, #F7C744); letter-spacing: 2px; }
+.gl-vs-foot--cta:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.gl-vs-foot--done { color: var(--text-mid, #95897A); font-weight: 600; }
+
+/* ════════════════════════════════════════════════════════════════════
+   prefers-reduced-motion (§5 — zorunlu, istisnasız)
+   Tören canlı kalır ama hareket susar: perde/modal anında belirir, yıldız
+   nefesi ve mühür basıncı durur, ödül çipleri kayma yapmaz.
+   ════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .gl-veil, .gl-modal, .gl-modal--out, .gl-gift-reveal { animation: none !important; }
+  .gl-gift-glyph, .gl-vs-seal, .gl-cta--bob { animation: none; }
+  .gl-reward { transition: opacity .3s, border-color .3s; }
+  .gl-cta { transition: filter .15s, box-shadow .2s; }
+  .gl-cta:active { transform: none; }
+}

@@ -1,0 +1,70 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ULTRA UYANIŞ ANI (10u _renderUltraAwaken) — üçü de bugün canlıysa
+   bir kez beliren tören: altın kartın üstüne lapis kart biner.
+   ───────────────────────────────────────────────────────────────────
+   Bu dosya eskiden Üç Mühür'ün TÜM detay sahnesini taşıyordu (Roma
+   sütunları, mor bahçe, mermer, paralel kart stilleri). Sahne
+   2026-08-17'de `css/parts/uc-muhur.css`'e taşındı ve oradaki kart
+   yüzleri tek motora (12c ikvCardFace/ikvCardBack) devredildi. Burada
+   yalnız tören kaldı — kendi keyframe adlarıyla (`usAwaken*`), iki
+   dosya birbirinin adını taşımasın diye.
+   Konvansiyon: sınıf öneki `us-` (modül 10u).
+═══════════════════════════════════════════════════════════════════ */
+
+.us-awaken { position: fixed; inset: 0; z-index: var(--z-toren-portal); display: grid; place-items: center; }
+.us-awaken-veil { position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(80,60,20,.6), rgba(4,4,6,.97));
+  backdrop-filter: blur(10px); animation: usAwakenIn .4s ease; }
+@keyframes usAwakenIn { from { opacity: 0; transform: scale(1.03); } to { opacity: 1; transform: scale(1); } }
+.us-awaken-modal { position: relative; width: min(420px,92vw); padding: 30px 24px 24px; border-radius: 20px; text-align: center;
+  font-family: var(--cinzel,'Cinzel',serif); color: #e8e2d2;
+  background: linear-gradient(168deg, #1b1609, #0a0a0d); border: 1px solid rgba(245,200,90,.6);
+  box-shadow: 0 30px 100px rgba(0,0,0,.85), inset 0 0 90px rgba(245,200,90,.12); animation: usAwakenRise .55s var(--ease-out); }
+@keyframes usAwakenRise { from { opacity: 0; transform: translateY(20px) scale(.94); } to { opacity: 1; transform: none; } }
+.us-awaken--out { animation: usAwakenOut .3s ease forwards; }
+@keyframes usAwakenOut { to { opacity: 0; transform: scale(1.02); } }
+/* İçerik katmanı dekoratif ışınların ÜSTÜNDE durur — .us-awaken-rays konumlandırılmış
+   olduğu için statik kardeşlerinin üstüne boyanır ve CTA'nın tıklamasını yutardı. */
+.us-awaken-modal > * { position: relative; z-index: 1; }
+.us-awaken-rays { position: absolute; inset: -20px; border-radius: 50%; opacity: .8; z-index: 0; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(245,200,90,.4) 12deg, transparent 30deg, transparent 90deg, rgba(245,200,90,.35) 102deg, transparent 120deg, transparent 180deg, rgba(245,200,90,.4) 192deg, transparent 210deg, transparent 270deg, rgba(245,200,90,.35) 282deg, transparent 300deg);
+  mask: radial-gradient(circle, transparent 60%, #000 62%); -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
+  animation: usSpin 16s linear infinite; }
+@keyframes usSpin { to { transform: rotate(360deg); } }
+.us-awaken-crest { font-size: 40px; color: #ffd76a; text-shadow: 0 0 22px rgba(255,215,106,.7); position: relative; }
+
+/* ── İKİ KART BİNDİRME — "bugün o kişiydin" (lapis altının üstüne biner) ── */
+.us-awaken-merge { position: relative; width: 168px; height: 132px; margin: 6px auto 4px; }
+.us-awaken-card { position: absolute; top: 0; width: 88px; }
+.us-awaken-card--gold  { left: 10px; transform: rotate(-7deg); z-index: 1;
+  animation: usMergeGold .9s var(--ease-out) both; }
+.us-awaken-card--lapis { right: 10px; z-index: 2;
+  animation: usMergeLapis 1.1s .25s var(--ease-spring, var(--ease-out)) both; }
+.us-awaken-merge-glow { position: absolute; inset: -12px; z-index: 0; border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,200,90,.4), transparent 65%);
+  opacity: 0; animation: usMergeGlow 1.2s .7s ease forwards; }
+@keyframes usMergeGold  { from { opacity: 0; transform: translateX(-22px) rotate(-7deg); } to { opacity: 1; transform: translateX(0) rotate(-7deg); } }
+@keyframes usMergeLapis { 0% { opacity: 0; transform: translateX(28px) rotate(10deg); }
+  60% { opacity: 1; transform: translateX(-26px) rotate(3deg); }
+  100% { opacity: 1; transform: translateX(-22px) rotate(2deg); } }
+@keyframes usMergeGlow  { to { opacity: 1; } }
+
+.us-awaken-kicker { font-size: 10px; letter-spacing: 5px; color: #ffd76a; margin-top: 8px; }
+.us-awaken-title { font-size: 19px; margin: 8px 0; }
+.us-awaken-body { font-size: 12px; line-height: 1.6; color: rgba(232, 226, 210, .78); }
+/* Ultra Armağanı satırı — altın↔lapis köprüsü (kota motoru ödülü, 13m) */
+.us-awaken-bonus { position: relative; margin: 14px auto 0; max-width: 300px; padding: 9px 14px; border-radius: 11px;
+  font-size: 10.5px; letter-spacing: 1.8px; color: rgba(232, 226, 210, .85);
+  border: 1px solid rgba(255,215,106,.28);
+  background: linear-gradient(90deg, rgba(245,166,35,.10), rgba(90,138,216,.14)); }
+.us-awaken-bonus b { font-weight: 700; color: var(--lapis-bright, #5A8AD8); text-shadow: 0 0 8px rgba(90,138,216,.5); }
+/* min-height 44px: parmakla basılabilir hedef (padding tek başına ~36px bırakıyordu) */
+.us-awaken-cta { margin-top: 18px; padding: 11px 30px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 11px; border: 0; cursor: pointer; font-family: var(--cinzel,'Cinzel',serif);
+  font-weight: 700; letter-spacing: 2px; font-size: 12px; background: linear-gradient(180deg, #ffd76a, #c89020); color: var(--gold-ink, #1a1206); box-shadow: 0 8px 24px rgba(245,200,90,.4); }
+
+@media (prefers-reduced-motion: reduce) {
+  .us-awaken-rays, .us-awaken-card--gold, .us-awaken-card--lapis,
+  .us-awaken-merge-glow { animation: none !important; }
+  .us-awaken-merge-glow { opacity: 1; }
+}

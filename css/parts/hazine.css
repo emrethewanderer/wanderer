@@ -1,0 +1,85 @@
+/* ═══════════════════════════════════════════════════════════════════
+   HAZİNE ODASI (12f) — bilgelik kart paketleri
+   ───────────────────────────────────────────────────────────────────
+   Salon dili 12c tören primitiflerini (.ikv-panel/.ikv-cascade/
+   .ikv-seal-btn/.ikv-ghost-btn) reuse eder — burada yalnız raf düzeni,
+   taç slotu ve detay paneli özel kuralları var (kart-salon-dili emsali).
+═══════════════════════════════════════════════════════════════════ */
+
+.hz-wrap { max-width: 560px; margin: 0 auto; padding: 4px 4px 60px; }
+
+.hz-hero { text-align: center; padding: 22px 20px; margin-bottom: 18px; }
+.hz-hero-title { font-family: var(--serif-display); font-size: 21px; color: var(--gold); letter-spacing: 0.3px; margin-bottom: 8px; }
+.hz-hero-sub { font-size: 13px; line-height: 1.6; color: var(--text-mid); max-width: 360px; margin: 0 auto; }
+
+.hz-sets { display: flex; flex-direction: column; gap: 16px; }
+
+.hz-set-card { padding: 18px 16px; }
+.hz-set-card--lapis { border-color: var(--lapis-hairline, rgba(90,138,216,0.28)); }
+
+.hz-set-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.hz-set-headtxt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hz-set-name { font-family: var(--cinzel); font-size: 14px; letter-spacing: 0.4px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hz-set-card--lapis .hz-set-name { color: var(--lapis-bright); }
+.hz-set-badge { display: inline-block; align-self: flex-start; font-family: var(--cinzel); font-size: 9px; letter-spacing: 1.5px; color: var(--gold-ink); background: var(--gold); padding: 2px 8px; border-radius: 999px; }
+
+.hz-set-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; margin-bottom: 14px; }
+
+.hz-mini-cell { padding: 0; background: none; border: none; cursor: pointer; border-radius: 10px; transition: transform 0.15s var(--ease-out); }
+.hz-mini-cell:hover { transform: translateY(-2px); }
+.hz-mini-cell--locked { cursor: default; }
+.hz-mini-cell--owned.is-holo .ikv-card { box-shadow: 0 0 12px var(--gold-glow); }
+
+.hz-tac-slot { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
+.hz-tac-slot--locked { opacity: 0.5; filter: grayscale(0.6); }
+.hz-tac-slot--owned { box-shadow: 0 0 16px var(--gold-glow); border-radius: 10px; cursor: pointer; }
+.hz-tac-badge { font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
+
+.hz-buy-btn { display: block; width: 100%; margin-top: 4px; min-height: 44px; }
+.hz-set-locked-note { font-size: 12px; line-height: 1.6; color: var(--text-dim); font-style: italic; text-align: center; padding-top: 6px; border-top: 1px solid var(--border); }
+
+/* ── Detay paneli — sahipli kartın tam yüzü + alıntı + kaynak ────────── */
+.hz-detail-modal { text-align: center; max-width: 340px; }
+.hz-detail-card { max-width: 220px; margin: 0 auto 18px; }
+.hz-detail-quote { font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+.hz-detail-source { font-family: var(--cinzel); font-size: 10px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 18px; }
+.hz-detail-close { min-height: 44px; padding: 0 20px; }
+
+/* ── Çok kartlı tören (yelpaze) — BURADA DEĞİL ARTIK.
+   Yelpazenin ikinci tüketicisi doğdu (10q kkOpenFan: aynı gün düşen kişi
+   kartları tek törende toplanır), böylece primitif hazineye özel olmaktan
+   çıktı. Sınıflar `.hz-fan*` → `.kk-fan*` adına göçtü ve kk-pack kabuğuyla
+   aynı yere, 10q kkEnsureStyles'a taşındı — 12f zaten kkEnsureStyles()
+   çağırdığı için hazine töreni stilini oradan alır. ────────────────────── */
+
+/* ── Set töreni — halka uyanışı + Taç reveal + ödül satırları ─────────── */
+.hz-set-modal { text-align: center; max-width: 340px; }
+.hz-set-ring { margin: 0 auto 14px; width: fit-content; }
+.hz-set-ring-glyph { color: var(--gold); font-size: 20px; }
+.hz-set-modal-title { font-family: var(--cinzel); font-size: 18px; letter-spacing: 1px; color: var(--gold); margin-bottom: 8px; }
+.hz-set-modal-sub { font-size: 13px; color: var(--text-mid); margin-bottom: 18px; }
+.hz-set-tac { max-width: 180px; margin: 0 auto 16px; filter: drop-shadow(0 0 18px var(--gold-glow)); }
+.hz-set-quote { font-family: var(--serif); font-style: italic; font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 16px; }
+.hz-set-rewards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.hz-set-reward-line { font-size: 12.5px; color: var(--text-mid); }
+.hz-set-reward-line--ayet { color: var(--lapis-bright); }
+.hz-set-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.hz-set-close, .hz-set-share { min-height: 44px; padding: 0 22px; }
+
+/* ── Haftalık armağan — sakin kabul sahnesi (paket töreninden bilinçli
+   olarak farklı: lütuf, çekiliş değil — K6.1/K8) ─────────────────────── */
+.hz-gift-modal { text-align: center; max-width: 360px; }
+.hz-gift-title { font-family: var(--serif-display); font-size: 19px; color: var(--gold); margin-bottom: 6px; }
+.hz-gift-sub { font-size: 13px; color: var(--text-mid); margin-bottom: 16px; }
+.hz-gift-cards { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.hz-gift-card { width: 110px; }
+.hz-gift-ayet { padding-top: 14px; margin-top: 4px; border-top: 1px solid var(--lapis-hairline, rgba(90,138,216,0.28)); }
+.hz-gift-ayet-card { width: 110px; margin: 0 auto 10px; }
+.hz-gift-ayet-line { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--lapis-bright); margin-bottom: 16px; }
+.hz-gift-close { min-height: 44px; padding: 0 24px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hz-mini-cell { transition: none !important; }
+  .hz-mini-cell:hover { transform: none !important; }
+  /* .kk-fan* karşılıkları 10q kkEnsureStyles'ta — yelpaze artık ortak primitif. */
+}

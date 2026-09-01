@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════
+   HAFTALIK MECLİS TOPLANTISI (13i) — divan sahnesi
+═══════════════════════════════════════ */
+.mt-portal { position: fixed; inset: 0; z-index: var(--z-modal, 700); }
+
+.mt-veil {
+  position: absolute; inset: 0;
+  background: rgba(8, 6, 4, 0.8);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: mtVeilIn .4s ease both;
+}
+@keyframes mtVeilIn { from { opacity: 0; } to { opacity: 1; } }
+
+.mt-modal {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 410px); max-height: 88dvh; overflow-y: auto;
+  padding: 26px 20px 20px; border-radius: 20px;
+  background:
+    radial-gradient(130% 55% at 50% -10%, rgba(245, 166, 35, 0.10) 0%, transparent 60%),
+    linear-gradient(170deg, #1A140C, #0F0C08 60%, #0D0A06);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 50px rgba(245, 166, 35, 0.08);
+  text-align: center;
+  animation: mtModalIn .55s var(--ease-out, ease) both;
+}
+@keyframes mtModalIn { from { opacity: 0; transform: translate(-50%, -46%) scale(.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.mt-modal--out { animation: mtModalOut .36s ease both; }
+@keyframes mtModalOut { to { opacity: 0; transform: translate(-50%, -54%) scale(.97); } }
+
+.mt-kicker {
+  font-size: 9px; letter-spacing: 3px; color: var(--gold, #F5A623);
+  text-transform: uppercase; font-weight: 700; opacity: .85;
+}
+
+/* taht + bütünlük halkası (10p divan dili) */
+.mt-throne { position: relative; width: 74px; height: 74px; margin: 16px auto 4px; }
+.mt-halo {
+  position: absolute; inset: 0; border-radius: 50%;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+}
+.mt-sun {
+  position: absolute; inset: 6px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: var(--gold, #F5A623);
+  background: radial-gradient(circle at 50% 35%, rgba(245, 166, 35, 0.16), transparent 70%);
+  text-shadow: 0 0 18px var(--gold-edge, rgba(245, 166, 35, 0.55));
+}
+
+.mt-title {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 26px; color: var(--text, #EAE2D6); margin-top: 4px;
+}
+.mt-sub { font-size: 12px; color: var(--text-mid, #95897A); margin-top: 5px; letter-spacing: .5px; }
+.mt-up { color: #5BB97B; font-weight: 600; }
+.mt-down { color: var(--red, #C0392B); font-weight: 600; }
+
+/* ── Suret konuşmaları — sırayla belirir ── */
+.mt-rows { margin: 18px 0 4px; display: flex; flex-direction: column; gap: 9px; }
+.mt-row {
+  display: flex; align-items: flex-start; gap: 11px; text-align: left;
+  padding: 11px 13px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border, #281F16);
+  opacity: 0; animation: mtRowIn .6s var(--ease-out, ease) both;
+}
+@keyframes mtRowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.mt-row-sigil {
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; border: 1px solid var(--border-active, #34281B);
+  color: var(--text-mid, #95897A); background: rgba(0, 0, 0, .25);
+}
+.mt-row--ally .mt-row-sigil { color: var(--gold, #F5A623); border-color: rgba(245, 166, 35, .5); box-shadow: 0 0 12px rgba(245, 166, 35, .18); }
+.mt-row--named .mt-row-sigil { color: var(--gold-bright, #F7C744); border-color: rgba(245, 166, 35, .3); }
+.mt-row--sensed .mt-row-sigil { color: var(--text-dim, #585349); border-style: dashed; }
+.mt-row-name { font-size: 10.5px; letter-spacing: 1.5px; font-weight: 700; color: var(--text-mid, #95897A); text-transform: uppercase; }
+.mt-row--ally .mt-row-name { color: var(--gold, #F5A623); }
+.mt-row-line {
+  font-family: var(--serif, Georgia, serif); font-style: italic;
+  font-size: 13.5px; line-height: 1.55; color: var(--text, #EAE2D6); margin-top: 3px;
+}
+.mt-row--sensed .mt-row-line { color: var(--text-mid, #95897A); }
+
+/* ── Reis'in sözü ── */
+.mt-reis {
+  margin-top: 14px; padding: 13px 14px; border-radius: 12px;
+  background: linear-gradient(165deg, rgba(245, 166, 35, 0.08), rgba(245, 166, 35, 0.02));
+  border: 1px solid rgba(245, 166, 35, 0.3);
+}
+.mt-reis-kicker { font-size: 9px; letter-spacing: 2.5px; font-weight: 700; color: var(--gold, #F5A623); }
+.mt-reis-line {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 14px; line-height: 1.6; color: var(--text, #EAE2D6); margin-top: 6px;
+}
+
+.mt-cta {
+  width: 100%; margin-top: 16px;
+  background: var(--gold, #F5A623); color: var(--gold-ink, #1a1206); border: none;
+  padding: 13px; border-radius: 10px;
+  font-family: var(--cinzel, serif); font-size: 12px; letter-spacing: 2px; font-weight: 700;
+  cursor: pointer; transition: filter .15s, transform .1s;
+}
+.mt-cta:hover { filter: brightness(1.08); }
+.mt-cta:active { transform: scale(.98); }
+
+/* ════════════════════════════════════════════════════════════════════
+   prefers-reduced-motion (§5 — zorunlu, istisnasız)
+   Meclis toplanır ama perde ve satırlar kaymadan, anında belirir.
+   ════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .mt-veil, .mt-modal, .mt-modal--out { animation: none !important; }
+  /* .mt-row açıkça opacity:0 ile doğar ve görünürlüğünü animasyondan alır —
+     hareket sönerken satırın kendisi sönmesin diye opaklık elle verilir. */
+  .mt-row { animation: none !important; opacity: 1; }
+}

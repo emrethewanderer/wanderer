@@ -1,0 +1,2810 @@
+/* ═══════════════════════════════════════
+   CHAT VIEW
+═══════════════════════════════════════ */
+.chat-stats {
+  font-size: 9px; color: var(--text-dim); letter-spacing: 2px;
+  text-transform: uppercase; display: flex; gap: 6px; align-items: center;
+  margin-top: 4px; cursor: pointer;
+}
+.chat-stats .stat-val { color: var(--gold); font-weight: 500; }
+
+/* AI mode badge */
+.mode-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 4px 10px; border: 1px solid var(--border-active);
+  color: var(--text-dim); transition: all 0.4s;
+}
+.mode-badge.direct        { border-color: rgba(192,57,43,0.4); color: #C0392B; }
+.mode-badge.reflective    { border-color: rgba(90,138,216,0.5); color: #5A8AD8; }
+.mode-badge.hard-truth    { border-color: rgba(192,57,43,0.8); color: #E74C3C; font-weight:600; animation: hardTruthPulse 2s ease-in-out infinite; }
+.mode-badge.mirror        { border-color: rgba(91,185,123,0.5); color: #5BB97B; }
+.mode-badge.celebrate     { border-color: rgba(91,185,123,0.6); color: #5BB97B; animation: celebratePulse 2s ease-in-out infinite; }
+.mode-badge.pattern       { border-color: rgba(168,85,247,0.5); color: #A855F7; animation: patternPulse 3s ease-in-out infinite; }
+.mode-badge.depth         { border-color: rgba(245,166,35,0.5); color: #F5A623; animation: patternPulse 3s ease-in-out infinite; }
+@keyframes celebratePulse {
+  0%,100% { box-shadow: none; }
+  50%     { box-shadow: 0 0 8px rgba(91,185,123,0.3); }
+}
+@keyframes hardTruthPulse {
+  0%,100% { box-shadow: none; }
+  50%     { box-shadow: 0 0 8px rgba(231,76,60,0.4); }
+}
+@keyframes patternPulse {
+  0%,100% { box-shadow: none; }
+  50%     { box-shadow: 0 0 10px rgba(168,85,247,0.3); }
+}
+.mode-badge::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+
+/* ─── SEANS HERO — ilk mesaj gibi akışın içinde; scroll ile kaybolur ─── */
+.session-hero-block {
+  width: 100%;
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+}
+.session-hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 62dvh;
+  overflow: hidden;
+  background: #0a0a0a;
+  isolation: isolate;
+}
+.session-hero-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center 28%;
+  filter: grayscale(35%) contrast(1.04) brightness(0.76);
+  user-select: none; -webkit-user-drag: none;
+  transform-origin: 50% 35%;
+  animation: heroKenBurns 32s linear infinite alternate;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0) scale(1.04);
+}
+/* Yumuşak, uzun ve ucuz Ken Burns — küçük scale aralığı, linear ease, translateZ ile GPU katmanı */
+@keyframes heroKenBurns {
+  0%   { transform: translateZ(0) scale(1.04) translate(0%, 0%); }
+  100% { transform: translateZ(0) scale(1.10) translate(-1.5%, -1%); }
+}
+
+/* Film grain — statik SVG noise data-URI (browser bir kez rasterize eder, canlı filter yok) */
+.session-hero-grain {
+  position: absolute; inset: -8%;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n' x='0' y='0'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 0.88  0 0 0 0 0.85  0 0 0 0 0.80  0 0 0 0.85 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 240px 240px;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: heroGrainShift 1.8s steps(6) infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+.session-hero-grain.alt {
+  opacity: 0.08;
+  mix-blend-mode: soft-light;
+  animation-duration: 1.3s;
+  animation-direction: reverse;
+  background-size: 180px 180px;
+}
+@keyframes heroGrainShift {
+  0%   { transform: translate3d(0%, 0%, 0); }
+  25%  { transform: translate3d(-2%, 1.5%, 0); }
+  50%  { transform: translate3d(1.5%, -2%, 0); }
+  75%  { transform: translate3d(-1%, 2%, 0); }
+  100% { transform: translate3d(0%, 0%, 0); }
+}
+
+.session-hero-vignette {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 40%, transparent 0%, rgba(0,0,0,0.35) 75%, rgba(0,0,0,0.85) 100%),
+    linear-gradient(to bottom, rgba(0,0,0,0.20) 0%, transparent 30%, rgba(0,0,0,0.78) 85%, var(--bg) 100%);
+  pointer-events: none;
+}
+.session-hero-overlay {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 26px 28px 28px;
+  display: flex; flex-direction: column; gap: 10px;
+  z-index: 2;
+}
+
+/* Yavaş, sinematik metin reveal */
+@keyframes heroTextIn {
+  0%   { opacity: 0; transform: translateY(24px); filter: blur(8px); letter-spacing: 0.35em; }
+  55%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes heroTitleShimmer {
+  0%   { background-position: -30% center, 0 0; }
+  38%  { background-position: 130% center, 0 0; }
+  100% { background-position: 130% center, 0 0; }
+}
+
+.session-hero-date {
+  font-family: var(--sans); font-size: 10px;
+  font-weight: 500; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--gold);
+  display: inline-flex; align-items: center; gap: 8px;
+  opacity: 0;
+  animation: heroTextIn 1.6s var(--ease-out) forwards 0.45s;
+}
+.session-hero-date::before {
+  content: '•'; color: var(--gold); font-size: 10px;
+}
+.session-hero-title {
+  font-family: var(--serif);
+  font-size: clamp(22px, 6.5vw, 34px);
+  font-weight: 500;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  line-height: 1.05;
+  text-shadow: 0 2px 28px rgba(0,0,0,0.7);
+  position: relative;
+  opacity: 0;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(252,224,110,0.85) 50%, transparent 100%) no-repeat,
+    var(--gold);
+  background-size: 30% 100%, auto;
+  background-position: -30% center, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    heroTextIn 2.2s var(--ease-out) forwards 1.1s,
+    heroTitleShimmer 5s ease-in-out 4.5s infinite;
+}
+.session-hero-subtitle {
+  font-family: var(--serif);
+  font-size: clamp(13px, 3.6vw, 16px);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--text-mid);
+  letter-spacing: 0.1px;
+  line-height: 1.4;
+  margin-top: 6px;
+  text-shadow: 0 2px 18px rgba(0,0,0,0.7);
+  opacity: 0;
+  animation: heroTextIn 2s var(--ease-out) forwards 1.6s;
+}
+
+/* Hero içi bugün etiketi — Seans stili */
+.session-hero-today-btn {
+  font-family: var(--sans); font-size: 10px;
+  font-weight: 500; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--gold);
+  display: inline-flex; align-items: center; gap: 8px;
+  opacity: 0;
+  animation: heroTextIn 1.4s var(--ease-out) forwards 0.1s;
+  margin-bottom: 2px;
+}
+.session-hero-today-btn::before { content: '•'; font-size: 10px; }
+
+/* Hero içi geçmiş günler butonu — divider stili */
+.session-hero-archive-btn {
+  display: flex; align-items: center; gap: 16px;
+  cursor: pointer;
+  opacity: 0;
+  animation: heroTextIn 1.6s var(--ease-out) forwards 1.6s;
+  transition: opacity 0.2s;
+  margin-top: 6px;
+}
+.session-hero-archive-btn:hover { opacity: 0.7 !important; }
+
+/* Hero altı ayırıcı — DİNLEME · TARİH */
+.session-hero-divider {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 22px 28px 0;
+  opacity: 0;
+  animation: heroTextIn 1.6s ease forwards 1.9s;
+}
+.session-hero-divider::before,
+.session-hero-divider::after {
+  content: ''; height: 1px; flex: 1;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  max-width: 120px;
+}
+.session-hero-divider-label {
+  font-family: var(--sans); font-size: 9px;
+  font-weight: 500; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Performans: kullanıcı düşük güç / azaltılmış hareket istediyse sakinleşir */
+@media (prefers-reduced-motion: reduce) {
+  .session-hero-img,
+  .session-hero-grain { animation: none; }
+  .session-hero-date,
+  .session-hero-title,
+  .session-hero-divider { animation-duration: 0.4s; animation-delay: 0.1s; }
+  .session-hero-title { animation-duration: 0.4s; }
+}
+
+@media (max-width: 640px) {
+  .session-hero { aspect-ratio: 1 / 1; max-height: 58dvh; }
+  .session-hero-overlay { padding: 22px 18px 22px; }
+  .session-hero-divider { padding: 20px 18px 0; }
+}
+
+/* Messages */
+.chat-area {
+  flex: 1; overflow-y: auto; overflow-x: hidden; padding: 32px 28px 16px;
+  display: flex; flex-direction: column; gap: 48px;
+  scroll-behavior: smooth;
+  touch-action: pan-y;
+  position: relative; z-index: var(--z-chat-area);
+}
+
+/* Atmosferik yansıma #chat-view::before'a taşındı (base.css) */
+
+.message { display: flex; gap: 20px; max-width: 100%; }
+.message.user { flex-direction: row-reverse; align-self: flex-end; max-width: 88%; }
+.message.emre { flex-direction: column; align-self: flex-start; max-width: 92%; gap: 0; }
+.msg-row { display: flex; flex-direction: row; gap: 20px; }
+
+.msg-line {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(184, 149, 60, 0.55) 0%,
+    rgba(184, 149, 60, 0.18) 100%
+  );
+  border-radius: 1px;
+  opacity: 0.9;
+}
+
+.msg-body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.msg-sender {
+  font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 10px;
+}
+.msg-time { font-size: 9px; color: var(--text-dim); opacity: 0.5; }
+
+/* Gönderen + footer aynı satırda */
+.msg-header {
+  display: flex; align-items: center; margin-bottom: 10px;
+}
+.msg-header .msg-sender { margin-bottom: 0; }
+
+/* Emre footer: gönderen satırının sağında, sender font'uyla uyumlu */
+.message.emre .msg-footer {
+  display: flex; align-items: center; gap: 4px;
+  margin-left: auto;
+}
+.message.emre .msg-footer .msg-time {
+  font-family: var(--sans); font-size: 9px; letter-spacing: 0.18em; margin: 0;
+  color: rgba(245,166,35,0.5); opacity: 1;
+}
+
+.message.emre .msg-sender {
+  color: var(--gold);
+  opacity: 0.85;
+}
+
+/* Mod aktif emre mesajlarında isim mod renginde */
+.message.emre.mode-mirror .msg-sender,
+.message.emre.mode-celebrate .msg-sender { color: #5BB97B; opacity: 0.95; }
+.message.emre.mode-hard-truth .msg-sender { color: #E74C3C; opacity: 0.95; }
+.message.emre.mode-court .msg-sender { color: #A89880; opacity: 0.95; }
+.message.emre.mode-direct .msg-sender,
+.message.emre.mode-confrontation .msg-sender { color: #C0392B; opacity: 0.95; }
+.message.emre.mode-reflective .msg-sender,
+.message.emre.mode-pattern-break .msg-sender,
+.message.emre.mode-socratic .msg-sender { color: #5A8AD8; opacity: 0.95; }
+.message.emre.mode-pattern .msg-sender { color: #A855F7; opacity: 0.95; }
+.message.emre.mode-depth .msg-sender   { color: #F5A623; opacity: 0.95; }
+
+/* mode-wanderer-title: w2-topbar-title'ın gradient-text efektini override eder.
+   JS openModeChat tarafından --mode-title-color CSS değişkeni set edilir. */
+#mode-wanderer-title {
+  background: var(--mode-title-color, var(--gold)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  transition: background 0.3s ease;
+}
+
+.message.emre .msg-content {
+  font-family: var(--serif); font-size: 21px; line-height: 1.65;
+  color: var(--text); letter-spacing: -0.1px;
+  transition: color 0.4s ease;
+}
+
+/* Mod renkleri — mesaj metni moda göre değişsin */
+.message.emre.mode-direct .msg-content,
+.message.emre.mode-confrontation .msg-content { color: #C0392B; font-size: 22px; }
+.message.emre.mode-hard-truth    .msg-content { color: #E74C3C; font-weight: 500; }
+.message.emre.mode-mirror        .msg-content { color: #5BB97B; font-style: italic; }
+.message.emre.mode-celebrate     .msg-content { color: #5BB97B; }
+.message.emre.mode-reflective .msg-content,
+.message.emre.mode-socratic      .msg-content { color: #5A8AD8; }
+.message.emre.mode-pattern-break .msg-content { color: var(--gold); }
+.message.emre.mode-pattern       .msg-content { color: #A855F7; }
+.message.emre.mode-depth         .msg-content { color: #F5A623; }
+
+.message.user .msg-content {
+  font-size: 14px; line-height: 1.7; color: var(--text-mid);
+  font-weight: 300; text-align: right;
+}
+.message.user .msg-body { align-items: flex-end; }
+.message.user .msg-sender,
+.message.user .msg-time { text-align: right; }
+
+/* Mobile: ince dikey çizgi + metin yan yana — padding değeri aşağıdaki genel mobile bloğu tarafından override edilir */
+@media (max-width: 640px) {
+  .chat-area { padding: 20px 14px 12px; gap: 24px; }
+  .message { max-width: 100% !important; }
+  .message.user { max-width: 100% !important; align-self: stretch; gap: 0; }
+  .message.emre { max-width: 100% !important; align-self: stretch; gap: 14px; }
+
+  .message.emre .msg-line { width: 2px; min-height: 28px; }
+  .message.emre .msg-body { flex: 1; min-width: 0; }
+  .message.user .msg-body { flex: 1; }
+
+  .message.emre .msg-sender { margin-top: 0; }
+
+  .message.emre .msg-content { font-size: 21px; line-height: 1.65; }
+  .message.emre.mode-direct .msg-content,
+  .message.emre.mode-confrontation .msg-content { font-size: 22px; }
+}
+
+/* Feedback — hover'da ya da ODAK şeride girince görünür.
+   :focus-within şart: şerit opacity:0 iken klavyeyle tab'lanan buton
+   odaklanıyor ama görünmüyordu — klavye kullanıcısı görmediği bir butonun
+   üstünde duruyordu. Odak halkası base.css'in :focus-visible'ından gelir. */
+.message.emre .msg-footer { opacity: 0; transition: opacity 0.18s var(--ease-out); }
+.message.emre:hover .msg-footer,
+.message.emre .msg-footer:focus-within { opacity: 1; }
+
+/* Kullanıcı mesajı footer'ı — saat + butonlar hover'da birlikte görünür.
+   Negatif margin: line-height trailing space'i (14px × 1.7 → ~5px) dengeler. */
+.message.user .msg-footer {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 4px; margin-top: -4px;
+  opacity: 0; transition: opacity 0.18s var(--ease-out);
+}
+.message.user:hover .msg-footer,
+.message.user .msg-footer:focus-within { opacity: 1; }
+.message.user .msg-footer .msg-actions { display: flex; gap: 2px; }
+.message.user .msg-footer .msg-time { margin: 0; }
+
+/* Dokunmatik cihazlarda hover yok — footer'ları düşük opaklıkla kalıcı göster */
+@media (hover: none) {
+  .message.emre .msg-footer,
+  .message.user .msg-footer { opacity: 0.6; }
+}
+
+.msg-feedback { display: flex; gap: 2px; margin: 0; }
+/* Şeridin TEK ölçüsü. Eskiden üç ayrı ölçek vardı (taban 28, emre 18/glif 10,
+   kullanıcı 18/glif 12) — aynı şerit iki mesaj türünde iki boyda okunuyordu.
+   Ölçü artık base.css token'ından iner; override yok. */
+.fb-btn {
+  background: none; border: none; color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.15s var(--ease-out), background 0.15s var(--ease-out),
+              transform 0.12s var(--ease-out);
+  display: flex; align-items: center; justify-content: center;
+  width: var(--ikon-kutu-sik); height: var(--ikon-kutu-sik);
+  border-radius: var(--ikon-radius);
+  /* Görülen glif 28px, uzanılan hedef 44px. base.css'in global
+     button{min-height:44px} kuralı kutuyu şişirip şeridi içerikten
+     ayırıyordu; yükseklik içeriğe bırakılır, hedef görünmez kaplamaya. */
+  min-height: 0; position: relative; z-index: 2;
+}
+/* Dikey ±8px → 28+16 = 44px. YATAY taşma dar (-1px): butonlar 2px arayla yan
+   yana durur, geniş bir taşma komşunun hedefini yutardı. */
+.fb-btn::after {
+  content: ''; position: absolute; top: -8px; bottom: -8px; left: -1px; right: -1px;
+}
+.fb-btn:hover { color: var(--gold); background: rgba(245,166,35,0.08); }
+/* Basış mikro-vuruşu — eylem ele değdiğini söyler (.kt-ring-btn emsali). */
+.fb-btn:active { transform: scale(0.92); }
+.fb-btn.active { color: var(--gold); }
+/* Stroke dili tek yerde: glif sözlüğü (FB_GLIF, 06-summary-chat.js) yalnız
+   geometri taşır, kalınlık ve uç buradan iner. Ölçü _SEND_ICON_SVG'dir. */
+.fb-btn svg {
+  width: var(--ikon-glif-sik); height: var(--ikon-glif-sik);
+  fill: none; stroke: currentColor; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ── DUYGU MOTORU — "Neden böyle konuştun?" şeffaflık paneli (13D, FAZ 11) ──
+   Emsal BİREBİR 10q'nun .kk-neden-* kalıbı (js/parts/10q-w2-kisi-karti.js,
+   kkNedenAc): giriş düğmesi bilerek SESSİZ (alçak kontrast, ince harf) —
+   öne çıkan şey yanıtın kendisi olmalı, bu bir davet değil bir haktır.
+   Modal `.overlay`/`.modal`/`.ikv-panel`/`.ikv-ghost-btn`/`.ikv-seal-btn`
+   primitiflerini REUSE eder (12c) — yeni bir modal iskeleti kurulmadı. */
+.dg-neden-giris {
+  display: block; margin: 6px 0 0; padding: 3px 10px;
+  background: none; border: 1px solid rgba(234,226,214,.10); border-radius: var(--radius-full, 999px);
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 10.5px;
+  color: var(--text-dim); cursor: pointer;
+  transition: color 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
+}
+.dg-neden-giris:hover { color: var(--text-mid, #95897A); border-color: rgba(234,226,214,.2); }
+
+.dg-neden-modal { max-width: 420px; padding: 26px 22px 20px; text-align: left; }
+.dg-neden-kicker {
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 3px;
+  color: var(--lapis-bright, #5A8AD8); font-weight: 600;
+}
+.dg-neden-ad {
+  font-family: var(--serif-display, var(--serif, Georgia)); font-style: italic;
+  font-size: 22px; color: var(--text); margin-top: 5px; line-height: 1.15;
+}
+.dg-neden-govde { margin-top: 16px; display: flex; flex-direction: column; gap: 9px; }
+.dg-neden-satir {
+  font-family: var(--serif, Georgia); font-size: 13px; line-height: 1.55;
+  color: var(--text-mid, #95897A); padding-left: 13px; position: relative;
+}
+.dg-neden-satir::before { content: '·'; position: absolute; left: 2px; color: var(--text-dim); }
+/* Güvenlik dikkat satırı — dürüstlük çizgisi (K10): kırmızıya kaçmadan,
+   uyarı olduğunu renkle söyler ama kartuşun panik dilini almaz. */
+.dg-neden-satir--kriz { color: #B8953C; }
+.dg-neden-satir--kriz::before { color: #B8953C; }
+
+/* ÖLÇÜM — kanıt kullanıcının kendi cümlesi, altın (K3: beyan/ölçüm
+   hiyerarşisi renkle kurulur, kk-neden-alinti ile aynı töre). */
+.dg-neden-alinti {
+  margin-top: 15px; padding: 13px 14px; border-radius: var(--radius, 14px);
+  border: 1px solid rgba(245,166,35,.18); background: rgba(245,166,35,.05);
+}
+.dg-neden-alinti-h {
+  font-family: var(--cinzel, serif); font-size: 8px; letter-spacing: 1.8px;
+  color: var(--gold); text-transform: uppercase;
+}
+.dg-neden-alinti-q {
+  margin: 8px 0 0; font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 14px; line-height: 1.6; color: var(--text);
+}
+/* YORUM — modelin ikinci okuyucusu, İHTİMALSEL konuşur; kısık renk bunu
+   görsel olarak da söyler (iddia değil ihtimal, [[ihtimalsel-dil-devrimi]]). */
+.dg-neden-yorum {
+  margin-top: 9px; font-family: var(--serif, Georgia); font-size: 11.5px;
+  font-style: italic; color: var(--text-dim); line-height: 1.5;
+}
+
+.dg-neden-alt {
+  margin-top: 18px; padding-top: 13px; border-top: 1px solid rgba(234,226,214,.07);
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 11.5px;
+  color: var(--text-dim); line-height: 1.5;
+}
+/* BEYAN — "beni yanlış okudun" jesti zaten uygulanmışsa altın (kullanıcının
+   kendi sesi, K3'ün en güçlü sınıfı — aynı hiyerarşi burada da geçerli). */
+.dg-neden-susmus {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 11.5px;
+  color: var(--gold); margin-bottom: 10px;
+}
+.dg-neden-nav { margin-top: 15px; display: flex; flex-direction: column; gap: 9px; }
+.dg-neden-btn, .dg-neden-kapat { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dg-neden-giris { transition: none; }
+}
+
+/* ── SEÇİM → ALINTI ── Claude tarzı floating quote butonu */
+.selection-toolbar {
+  position: fixed; z-index: var(--z-input-card);
+  display: none; align-items: center; gap: 6px;
+  background: #1a1a1a; border: 1px solid var(--border);
+  border-radius: 2px; padding: 6px 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  font-family: var(--sans); font-size: 12px;
+  color: var(--text); cursor: pointer;
+  transform: translate(-50%, -100%);
+  transition: opacity 0.15s;
+  user-select: none; -webkit-user-select: none;
+}
+.selection-toolbar.visible { display: inline-flex; }
+.selection-toolbar:hover { border-color: var(--gold); color: var(--gold); }
+.selection-toolbar svg { width: 13px; height: 13px; fill: currentColor; }
+
+/* Markdown */
+.markdown-body p { margin-bottom: 10px; }
+.markdown-body p:last-child { margin-bottom: 0; }
+.markdown-body strong { font-weight: 600; }
+
+/* Typing indicator — typewriter cursor */
+.typing-writer {
+  display: flex; align-items: center; gap: 10px; padding: 4px 0;
+  font-family: var(--serif); font-size: 18px; color: var(--text-dim);
+  font-style: italic; letter-spacing: 0.3px;
+}
+.typing-cursor {
+  display: inline-block; width: 2px; height: 22px;
+  background: var(--gold); animation: cursorBlink 1s step-end infinite;
+  vertical-align: middle;
+}
+@keyframes cursorBlink { 50% { opacity: 0; } }
+
+/* "Düşünüyor" göstergesi — nabız atan 3 altın nokta (ilk token'a kadar canlı).
+   prefers-reduced-motion'da hareket durur, sadece sabit noktalar kalır. */
+.thinking-dots {
+  display: inline-flex; align-items: center; gap: 5px; height: 22px;
+  vertical-align: middle;
+}
+.thinking-dots i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold); opacity: 0.3;
+  animation: thinkingPulse 1.4s ease-in-out infinite;
+}
+.thinking-dots i:nth-child(2) { animation-delay: 0.18s; }
+.thinking-dots i:nth-child(3) { animation-delay: 0.36s; }
+@keyframes thinkingPulse {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30%           { opacity: 1;   transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thinking-dots i { animation: none; opacity: 0.55; }
+}
+
+/* Input area — yalnızca breath pill barındırır; tüm alan pillin altına çekilir */
+.input-area {
+  padding: 0;
+  flex-shrink: 0;
+  background: transparent;
+  position: relative; z-index: var(--z-input-area);
+}
+.input-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 2px; padding: 0 12px;
+  height: 38px; box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+.input-row:focus-within { border-color: rgba(245,166,35,0.35); }
+#chat-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); font-size: 16px; resize: none; padding: 0;
+  min-height: 19px; max-height: 120px; font-weight: 300;
+  font-family: var(--sans); line-height: 19px;
+}
+#chat-input::placeholder { color: var(--text-dim); font-style: italic; }
+.send-btn {
+  background: transparent; cursor: pointer;
+  border: 1px solid rgba(245,166,35,0.45);
+  color: var(--gold); flex-shrink: 0;
+  padding: 0; border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 28px; height: 28px; width: 28px;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
+}
+.send-btn:hover { background: rgba(245,166,35,0.12); border-color: var(--gold); }
+.send-btn:active { transform: scale(0.95); }
+.send-btn:disabled { color: var(--text-dim); border-color: var(--border); cursor: not-allowed; background: transparent; }
+.send-btn svg { display: block; }
+
+/* Durdur modu — üretim sürerken gönder butonu kare "durdur" ikonuna döner */
+.send-btn.stop-mode {
+  color: var(--gold); border-color: var(--gold);
+  animation: stopPulse 1.6s ease-in-out infinite;
+}
+@keyframes stopPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0.30); }
+  50%      { box-shadow: 0 0 0 6px rgba(245,166,35,0); }
+}
+
+/* Hata sonrası "Tekrar dene" chip'i */
+.llm-retry-chip { display: flex; justify-content: center; padding: 4px 0 14px; }
+.llm-retry-chip .llm-retry-btn { padding: 10px 26px; letter-spacing: 1px; cursor: pointer; }
+
+/* ─── SES KATMANI (10z) — dikte mikrofonu + sesli okuma ─── */
+.ws-mic-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: var(--ikon-kutu); height: var(--ikon-kutu);
+  min-width: var(--ikon-kutu); flex-shrink: 0;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 50%; color: var(--text-dim); cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ws-mic-btn:hover { color: var(--gold); border-color: rgba(245,166,35,0.5); }
+/* Composer'da mikrofon gönder butonuna komşu (sağ grup) */
+.cl-composer-foot .ws-mic-btn { margin-left: auto; }
+.cl-composer-foot .ws-mic-btn + .send-btn { margin-left: 0; }
+.ws-mic-btn.listening {
+  color: var(--gold); border-color: var(--gold);
+  background: rgba(245,166,35,0.08);
+  animation: micPulse 1.4s ease-in-out infinite;
+}
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0.35); }
+  50%      { box-shadow: 0 0 0 7px rgba(245,166,35,0); }
+}
+/* Sesli okuma aktif — footer hoparlörü */
+.fb-btn.speaking { color: var(--gold); animation: micPulse 1.4s ease-in-out infinite; border-radius: 50%; }
+
+/* ─── ARAÇ MOTORU (13a) — onay chip'leri + takip pilleri + kaynakça ─── */
+.arac-after { padding: 2px 20px 10px; display: flex; flex-direction: column; gap: 10px; }
+.arac-chip {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border: 1px solid rgba(245,166,35,0.3);
+  border-radius: 12px; background: rgba(245,166,35,0.04);
+  animation: aracIn 0.35s ease-out;
+}
+@keyframes aracIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.arac-chip-glyph { color: var(--gold); font-size: 11px; margin-top: 2px; flex-shrink: 0; }
+.arac-chip-text { flex: 1; font-family: var(--serif); font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+.arac-chip-btns { display: flex; gap: 6px; flex-shrink: 0; align-self: center; }
+.arac-yes {
+  padding: 7px 14px; font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px;
+  font-weight: 600; color: #16110A; background: var(--gold); border: none;
+  border-radius: 8px; cursor: pointer;
+}
+.arac-yes:hover { background: var(--gold-bright); }
+.arac-no {
+  padding: 7px 10px; font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px;
+  color: var(--text-dim); background: none; border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+}
+.arac-no:hover { color: var(--text-mid); }
+
+.takip-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.takip-pill {
+  padding: 8px 14px; font-family: var(--serif); font-size: 12.5px; font-style: italic;
+  color: var(--text-mid); background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border); border-radius: 100px; cursor: pointer;
+  text-align: right; transition: border-color 0.15s, color 0.15s;
+}
+.takip-pill:hover { border-color: rgba(245,166,35,0.5); color: var(--text); }
+
+.kaynak-row { display: flex; flex-direction: column; gap: 6px; }
+.kaynak-chip {
+  align-self: flex-start; padding: 5px 12px;
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px;
+  color: var(--gold); background: rgba(245,166,35,0.05);
+  border: 1px solid rgba(245,166,35,0.25); border-radius: 100px; cursor: pointer;
+}
+.kaynak-quote {
+  display: none; padding: 10px 14px; margin-top: 4px;
+  font-family: var(--serif); font-size: 12.5px; font-style: italic;
+  color: var(--text-mid); line-height: 1.6;
+  border-left: 2px solid rgba(245,166,35,0.4);
+}
+.kaynak-quote.open { display: block; }
+
+/* ─── ÇALIŞMA KAĞIDI ARTIFACT'İ (13b) ─── */
+.ck-card {
+  position: relative;   /* damganın yedek sahnesi; asıl sahne .ck-foot */
+  border: 1px solid rgba(245,166,35,0.35); border-radius: 18px;
+  background: linear-gradient(180deg, rgba(245,166,35,0.05), rgba(11,11,11,0.4));
+  padding: 16px; animation: aracIn 0.4s ease-out;
+}
+/* Mühür damgası — motor `oik-seal-stamp`'ın KENDİSİ (ikizi yazılmadı); burada
+   yalnız kağıt ölçüsüne ayarlanır: 74px yerine 56px ve gecikmesiz (oik'teki
+   .55s bekleme orada kartın flip'ini bekler, burada beklenecek bir şey yok).
+   Özgüllük iki sınıf: oik.css chat.css'ten SONRA yükleniyor, tek sınıfla
+   yazılsa bu ayarlar ezilirdi. */
+.ck-card .ck-stamp {
+  width: 56px; height: 56px; font-size: 22px;
+  animation-delay: 0s;
+  z-index: 2;
+}
+.ck-card .ck-stamp--out {
+  opacity: 0;
+  transition: opacity .55s var(--ease-out, ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ck-card .ck-stamp--out { transition: none; }
+}
+.ck-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.ck-glyph { color: var(--gold); font-size: 13px; }
+.ck-title { font-family: var(--cinzel); font-size: 9px; letter-spacing: 3px; font-weight: 600; color: var(--gold); }
+.ck-concept {
+  margin-left: auto; padding: 3px 10px;
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px;
+  color: var(--text); border: 1px solid var(--border); border-radius: 100px;
+}
+.ck-close { background: none; border: none; color: var(--text-dim); font-size: 12px; cursor: pointer; padding: 2px 4px; }
+.ck-step { margin-bottom: 14px; }
+.ck-step-label { font-family: var(--cinzel); font-size: 8px; letter-spacing: 2.5px; color: var(--gold); margin-bottom: 5px; }
+.ck-step-q { font-family: var(--serif); font-size: 13.5px; color: var(--text-mid); line-height: 1.55; margin-bottom: 8px; }
+.ck-input {
+  width: 100%; padding: 10px 12px; resize: vertical;
+  background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: var(--serif); font-size: 13.5px; line-height: 1.5;
+}
+.ck-input:focus { outline: none; border-color: rgba(245,166,35,0.5); }
+.ck-affirmation { font-family: var(--serif); font-size: 15px; color: var(--gold); line-height: 1.5; margin-bottom: 6px; }
+.ck-step-hint { font-family: var(--serif); font-size: 11.5px; font-style: italic; color: var(--text-dim); }
+/* ── 3. adımın ses satırı (kitabın "ses kaydı yap ve dinle" tarifi) ── */
+.ck-ses { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.ck-rec-btn, .ck-play-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 36px; padding: 8px 14px;
+  background: rgba(0,0,0,0.35); border: 1px solid var(--border);
+  border-radius: 100px; cursor: pointer;
+  font-family: var(--serif); font-size: 12.5px; color: var(--text-mid);
+}
+.ck-rec-btn:hover, .ck-play-btn:hover { border-color: rgba(245,166,35,0.5); color: var(--text); }
+.ck-rec-btn:focus-visible, .ck-play-btn:focus-visible,
+.ck-rec-del:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+.ck-rec-btn[disabled], .ck-rec-del[disabled] { opacity: 0.45; cursor: default; }
+.ck-rec-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-dim); flex: none;
+}
+.ck-rec-btn.recording .ck-rec-dot { background: #C7502F; animation: ckRecPulse 1.4s ease-in-out infinite; }
+.ck-rec-del {
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  background: none; border: none; color: var(--text-dim); font-size: 12px; cursor: pointer;
+}
+.ck-rec-del:hover { color: var(--gold); }
+.ck-rec-status { flex-basis: 100%; font-family: var(--serif); font-style: italic; font-size: 11.5px; color: var(--text-dim); }
+@keyframes ckRecPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.28; } }
+@media (prefers-reduced-motion: reduce) {
+  .ck-rec-btn.recording .ck-rec-dot { animation: none; }
+}
+
+.ck-foot { position: relative; display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* Mühürden sonra günün sözüne DAVET — söz arka planda yazılmaz, mührü
+   kullanıcı basar. */
+.ck-soz-btn {
+  padding: 9px 16px; font-family: var(--cinzel); font-size: 8.5px; letter-spacing: 2px;
+  color: var(--gold); background: var(--gold-dim);
+  border: 1px solid var(--gold-hairline); border-radius: 100px; cursor: pointer;
+}
+.ck-soz-btn:hover { border-color: var(--gold-edge); }
+.ck-soz-btn:focus-visible { outline: 1px solid var(--gold-edge); outline-offset: 2px; }
+.ck-save {
+  padding: 10px 24px; font-family: var(--cinzel); font-size: 9px; letter-spacing: 3px;
+  font-weight: 600; color: #16110A; background: var(--gold); border: none;
+  border-radius: 8px; cursor: pointer;
+}
+.ck-save:hover { background: var(--gold-bright); }
+.ck-card.sealed { opacity: 0.85; }
+.ck-sealed-mark { font-family: var(--cinzel); font-size: 9px; letter-spacing: 2.5px; color: var(--gold); }
+
+/* ─── GÖRSEL EKLEME (13c) ─── */
+.ws-attach-btn {
+  display: flex; align-items: center; justify-content: center;
+  /* Mikrofonun kardeşi — composer'da yan yana dururlar. Eskiden 30 ↔ 32'ydi;
+     2px fark tasarım değil, birikimdi. */
+  width: var(--ikon-kutu); height: var(--ikon-kutu);
+  min-width: var(--ikon-kutu); flex-shrink: 0;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 50%; color: var(--text-dim); cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Glif ölçüsü de token'dan — HTML'deki width/height nitelikleri (15 ↔ 16)
+   iki kardeşi yine ayırıyordu. */
+.ws-attach-btn svg,
+.ws-mic-btn svg { width: var(--ikon-glif-sik); height: var(--ikon-glif-sik); }
+.ws-attach-btn:hover { color: var(--gold); border-color: rgba(245,166,35,0.5); }
+.ws-attach-btn.busy { animation: micPulse 1.2s ease-in-out infinite; color: var(--gold); }
+.gorsel-host { display: flex; gap: 8px; padding: 0 0 10px; flex-wrap: wrap; }
+.gorsel-chip { position: relative; width: 56px; height: 56px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.gorsel-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gorsel-chip button {
+  position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7); border: none; border-radius: 50%;
+  color: #fff; font-size: 9px; cursor: pointer;
+}
+/* Mesaj balonu içindeki görseller */
+.msg-content img {
+  max-width: min(320px, 100%); border-radius: 10px;
+  border: 1px solid var(--border); display: block; margin: 8px 0;
+}
+
+/* ═══════════════════════════════════════
+   BREATH PILL — boş giriş atmosferik çizgi
+   Her nefeste renk kayar: bir altın (olduğun kişi / eylem), bir lapis
+   (hayal / içsel derinlik). Renk, çizginin yumuşak yanıp sönüşüne kilitli
+   ayrı bir döngüyle (2× nefes süresi) sürer; geçiş hep çizgi sönükken,
+   yani nefesler arası boşlukta olur. @property kaydı tonlar arası akışkan
+   geçiş sağlar; desteklenmeyen tarayıcılarda renk yine altın↔lapis arasında
+   adımlanır (zarif geri düşüş). */
+@property --breath-col {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: rgba(245,166,35,0.55);
+}
+@property --breath-glow {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: rgba(245,166,35,0.28);
+}
+#breath-pill {
+  display: none;
+  position: relative;        /* görünmez tıklama alanı için konak */
+  width: 134px;
+  height: 5px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, transparent 0%, var(--breath-col, var(--gold-edge, rgba(245,166,35,0.55))) 50%, transparent 100%);
+  margin: 6px auto calc(var(--safe-b, 0px) + 8px);
+  cursor: pointer;
+  transform-origin: center;
+  animation: breathPillAnim 3.8s ease-in-out infinite,
+             breathPillColor 7.6s ease-in-out infinite; /* 2 nefette tam tur: altın→lapis→altın */
+}
+/* Çizgi 5px ince kalır; parmak ~40px görünmez hedefe dokunur (tasarım aynı) */
+#breath-pill::before {
+  content: "";
+  position: absolute;
+  left: -28px;
+  right: -28px;
+  top: -18px;
+  bottom: -18px;
+}
+#breath-pill.visible { display: block; }
+#breath-pill:hover, #breath-pill:focus {
+  background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.9) 50%, transparent 100%);
+  outline: none;
+}
+@keyframes breathPillAnim {
+  0%, 100% { transform: scaleX(0.55); opacity: 0.18; }
+  50%       { transform: scaleX(1);    opacity: 0.72; filter: drop-shadow(0 0 6px var(--breath-glow, var(--gold-hairline, rgba(245,166,35,0.28)))); }
+}
+/* Renk döngüsü nefes döngüsünün iki katı; ton DEĞİŞİMİ yalnızca KÜÇÜLME
+   fazında olur (çizgi büyükten küçüğe inerken, ease-in-out ile yumuşak) ve
+   tam küçüldüğü an tamamlanır. BÜYÜME fazı baştan sona yeni tonda geçer —
+   yani yeni renk büyürken "açılır". Nefes tepeleri (%25 altın, %75 lapis)
+   saf kalır; geçişler %25→%50 ve %75→%100 küçülme pencerelerine biner.
+   0% = 100% = altın → kesintisiz döngü. */
+@keyframes breathPillColor {
+  0%, 25%  { --breath-col: var(--gold-edge,  rgba(245,166,35,0.55)); --breath-glow: var(--gold-hairline,  rgba(245,166,35,0.28)); }
+  50%, 75% { --breath-col: var(--lapis-edge, rgba(90,138,216,0.55)); --breath-glow: var(--lapis-hairline, rgba(90,138,216,0.28)); }
+  100%     { --breath-col: var(--gold-edge,  rgba(245,166,35,0.55)); --breath-glow: var(--gold-hairline,  rgba(245,166,35,0.28)); }
+}
+.input-row.pill-mode { display: none; }
+
+/* ═══════════════════════════════════════
+   INPUT CARD MODAL
+═══════════════════════════════════════ */
+#ic-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-input-card);
+  background: rgba(0,0,0,0.52);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+#ic-overlay.open { display: flex; }
+
+#ic-card {
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(150deg, rgba(245,166,35,0.06) 0%, var(--bg-raised) 60%);
+  border: 1px solid var(--gold-edge, rgba(245,166,35,0.55));
+  border-radius: 2px;
+  padding: 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.06);
+  animation: icIn 0.32s cubic-bezier(0.34,1.46,0.64,1) forwards;
+  overflow: hidden;
+}
+#ic-card.closing { animation: icOut 0.18s ease forwards; }
+
+@keyframes icIn {
+  from { transform: scale(0.88) translateY(16px); opacity: 0; }
+  to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+@keyframes icOut {
+  to { transform: scale(0.9) translateY(10px); opacity: 0; }
+}
+
+.ic-accent-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(245,166,35,0.7), transparent);
+  margin-bottom: 18px;
+}
+
+#ic-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.65;
+  resize: none;
+  min-height: 80px;
+  max-height: 220px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+#ic-textarea::placeholder { color: rgba(138,136,127,0.5); font-style: italic; }
+
+.ic-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+}
+.ic-countdown {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  min-width: 20px;
+  transition: color 0.4s;
+}
+.ic-countdown.urgent { color: rgba(192,57,43,0.85); }
+.ic-actions { display: flex; align-items: center; gap: 8px; }
+.ic-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.ic-dismiss:hover { color: var(--text); }
+.ic-send-btn {
+  background: transparent;
+  border: 1px solid rgba(245,166,35,0.5);
+  color: var(--gold);
+  border-radius: 2px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.ic-send-btn:hover { background: rgba(245,166,35,0.12); border-color: var(--gold); }
+.ic-send-btn:active { transform: scale(0.93); }
+
+/* ── Emre'nin mesajı — kartın içinde, yazmadan önce okunan söz ── */
+.ic-emre {
+  padding: 26px 22px 4px;
+  max-height: 38vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#ic-card:not(.has-emre) .ic-emre { display: none; }
+.ic-emre-sender {
+  font-family: var(--cinzel, var(--serif));
+  font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.8; margin-bottom: 12px;
+}
+.ic-emre-text {
+  font-family: var(--serif);
+  font-size: 19px; line-height: 1.62; color: var(--text);
+  letter-spacing: -0.1px;
+}
+/* Emre'nin sözü açılırken usulca belirir */
+#ic-overlay.open #ic-card.has-emre .ic-emre-text {
+  animation: icEmreBloom 0.66s cubic-bezier(0.22,0.61,0.36,1) both;
+  animation-delay: 0.12s;
+}
+@keyframes icEmreBloom {
+  from { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
+}
+
+/* ── Karta özel: Emre'nin oval portresi + sarmalanan söz ──
+   splash .wns-portrait dili (oval + mühür-altını çerçeve). Sola yaslanır,
+   isim sağına kayar, gelen söz portreyi sarmalar (float + shape-outside). */
+.ic-emre-portrait {
+  float: left;
+  width: 92px; height: 116px;
+  object-fit: cover; object-position: top center;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold-edge, rgba(245,166,35,0.55));
+  box-shadow: 0 0 0 5px rgba(245,166,35,0.07), 0 0 36px rgba(245,166,35,0.14);
+  margin: 2px 18px 8px 0;
+  shape-outside: ellipse(50% 50%);
+}
+#ic-card:not(.has-emre) .ic-emre-portrait { display: none; }
+#ic-overlay.open #ic-card.has-emre .ic-emre-portrait {
+  animation: icEmreBloom 0.6s cubic-bezier(0.22,0.61,0.36,1) both;
+}
+/* İsim portrenin sağına usulca kayar */
+#ic-overlay.open #ic-card.has-emre .ic-emre-sender {
+  animation: icNameSlide 0.6s var(--ease-out) both;
+  animation-delay: 0.16s;
+}
+@keyframes icNameSlide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 0.8; transform: translateX(0); }
+}
+
+/* ── Ritüel modu anahtarı — Emre yanıtlayınca kart kendiliğinden açılır ── */
+.ic-ritual-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  padding: 4px 4px; font-family: var(--sans);
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-dim); transition: color 0.25s;
+}
+.ic-ritual-toggle .ic-ritual-glyph { font-size: 11px; transition: transform 0.4s, color 0.25s; }
+.ic-ritual-toggle:hover { color: var(--text-mid); }
+.ic-ritual-toggle[aria-pressed="true"] { color: var(--gold); }
+.ic-ritual-toggle[aria-pressed="true"] .ic-ritual-glyph {
+  color: var(--gold); transform: rotate(45deg);
+  filter: drop-shadow(0 0 5px rgba(245,166,35,0.5));
+}
+
+/* ── Mühürleme — gönderince kart sözleri arka plandaki sohbete süzerek bırakır ── */
+#ic-card.sealing {
+  animation: icSeal 0.48s cubic-bezier(0.5,0,0.3,1) forwards;
+  transform-origin: center bottom;
+  pointer-events: none;
+}
+@keyframes icSeal {
+  0%   { transform: translateY(0) scale(1);        opacity: 1; }
+  32%  { transform: translateY(-5px) scale(1.012); opacity: 1; }   /* mühür basma nefesi */
+  100% { transform: translateY(66px) scale(0.9);   opacity: 0; filter: blur(2px); }
+}
+/* Mühür anında accent çizgisi altın bir parıltı verir */
+#ic-card.sealing .ic-accent-line {
+  animation: icSealLine 0.42s ease forwards;
+}
+@keyframes icSealLine {
+  0%   { opacity: 1; }
+  30%  { background: linear-gradient(90deg, transparent, rgba(245,166,35,1), transparent);
+         box-shadow: 0 0 14px 2px var(--gold-edge, rgba(245,166,35,0.55)); }
+  100% { opacity: 0.35; }
+}
+/* Backdrop netleşir — kart inerken arkadaki sohbet sertleşir */
+#ic-overlay.sealing {
+  animation: icOverlaySeal 0.46s ease forwards;
+}
+@keyframes icOverlaySeal {
+  to { background: rgba(0,0,0,0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+}
+
+/* ── Yerleşme — mühürlenip inen kartın bıraktığı kullanıcı mesajı altın bir parıltıyla oturur ── */
+.message.user.ma-land { animation: maLand 0.8s cubic-bezier(0.22,0.61,0.36,1); }
+@keyframes maLand {
+  0%   { opacity: 0; transform: translateY(-16px); }
+  55%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.message.user.ma-land .msg-content { animation: maLandGlow 1s ease; }
+@keyframes maLandGlow {
+  0%   { color: var(--gold); text-shadow: 0 0 12px rgba(245,166,35,0.5); }
+  100% { color: var(--text-mid); text-shadow: none; }
+}
+
+/* ═══════════════════════════════════════
+   MOD INPUT KARTI (mic)
+═══════════════════════════════════════ */
+#mic-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-flash);
+  background: rgba(0,0,0,0.52);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+#mic-overlay.open { display: flex; }
+
+#mic-card {
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--mode-pill-c, rgba(245,166,35,0.55)) 10%, transparent) 0%, var(--bg-raised) 60%);
+  border: 1px solid var(--mode-pill-c, rgba(245,166,35,0.55));
+  border-radius: 2px;
+  padding: 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.7);
+  animation: icIn 0.32s cubic-bezier(0.34,1.46,0.64,1) forwards;
+  overflow: hidden;
+}
+#mic-card.closing { animation: icOut 0.18s ease forwards; }
+
+.mic-accent-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--mode-pill-c-strong, rgba(245,166,35,0.7)), transparent);
+  margin-bottom: 18px;
+}
+
+#mic-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.65;
+  resize: none;
+  min-height: 80px;
+  max-height: 220px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+#mic-textarea::placeholder { color: rgba(138,136,127,0.5); font-style: italic; }
+
+.mic-send-btn {
+  background: transparent;
+  border: 1px solid var(--mode-pill-c, rgba(245,166,35,0.5));
+  color: var(--mode-pill-c-strong, var(--gold));
+  border-radius: 2px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.mic-send-btn:hover { background: color-mix(in srgb, var(--mode-pill-c, rgba(245,166,35,0.55)) 20%, transparent); border-color: var(--mode-pill-c-strong, var(--gold)); }
+.mic-send-btn:active { transform: scale(0.93); }
+
+/* ═══════════════════════════════════════
+   MODALS / OVERLAYS
+═══════════════════════════════════════ */
+.overlay {
+  position: fixed; inset: 0; z-index: var(--z-overlay); display: none;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.96); backdrop-filter: blur(12px);
+}
+.overlay.open { display: flex; }
+.modal {
+  width: 100%; max-width: 420px;
+  padding: 40px 28px calc(var(--safe-b) + 40px);
+  text-align: center;
+}
+@media (max-width: 640px) {
+  .modal { padding: 32px 20px calc(var(--safe-b) + 28px); }
+  .modal-title { font-size: 24px; }
+  .modal-desc { font-size: 13px; margin-bottom: 32px; }
+  .mood-grid { gap: 8px; margin-bottom: 36px; }
+  .mood-btn { font-size: 16px; }
+}
+.modal-title { font-family: var(--serif); font-size: 30px; color: var(--text); margin-bottom: 14px; line-height: 1.25; }
+.modal-desc { font-size: 14px; color: var(--text-mid); margin-bottom: 48px; font-weight: 300; line-height: 1.6; }
+
+.mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 48px; }
+.mood-btn {
+  aspect-ratio: 1; border: 1px solid var(--border); background: transparent;
+  color: var(--text-mid); font-family: var(--serif); font-size: 18px;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.mood-btn:hover { border-color: var(--gold); color: var(--gold); }
+.modal-skip {
+  background: transparent; border: none; color: var(--text-dim);
+  font-size: 10px; text-transform: uppercase; letter-spacing: 2.5px;
+  cursor: pointer; padding: 16px; font-family: var(--sans);
+  min-height: 44px;
+}
+
+/* ─── SESSION PROGRESS RING ─── */
+.session-ring-wrap {
+  position: relative; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+}
+.session-ring-wrap svg {
+  position: absolute; top: 0; left: 0;
+  width: 36px; height: 36px; transform: rotate(-90deg);
+}
+.session-ring-bg {
+  fill: none; stroke: var(--border-active); stroke-width: 2.5;
+}
+.session-ring-fill {
+  fill: none; stroke: var(--gold); stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 94.25; /* 2π × 15 */
+  stroke-dashoffset: 94.25;
+  transition: stroke-dashoffset 0.6s var(--ease-out);
+}
+.session-ring-fill.complete {
+  stroke: #5BB97B;
+  animation: ringPulse 0.8s ease;
+}
+@keyframes ringPulse {
+  0%   { stroke: var(--gold); }
+  50%  { stroke: #fff; filter: drop-shadow(0 0 4px #fff); }
+  100% { stroke: #5BB97B; }
+}
+.session-ring-count {
+  font-family: var(--serif); font-size: 11px; font-weight: 500;
+  color: var(--gold); line-height: 1; position: relative; z-index: 1;
+  transition: color 0.3s;
+}
+.session-ring-count.complete { color: #5BB97B; }
+
+/* Özetlenmiş seans: halka soluk altın, "✓" simgesi */
+.session-ring-fill.summarized { stroke: rgba(245,166,35,0.45); animation: none; }
+.session-ring-count.summarized { color: var(--text-dim); font-size: 9px; }
+
+/* ═══════════════════════════════════════
+   DÖNÜŞÜM KARTLARI
+═══════════════════════════════════════ */
+.cards-grid {
+  padding: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.tx-card {
+  position: relative;
+  border-radius: 2px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+  transition: transform 0.3s, opacity 0.3s;
+  background: var(--surface);
+}
+.tx-card:hover { transform: scale(0.97); opacity: 0.9; }
+.tx-card img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.tx-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 14px;
+}
+.tx-card-date {
+  font-size: 9px; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+.tx-card-title {
+  font-family: var(--serif); font-size: 15px;
+  color: var(--text); line-height: 1.3;
+}
+.tx-card-generating {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+}
+.tx-card-spinner {
+  width: 28px; height: 28px;
+  border: 1.5px solid var(--border-active);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spinRing 0.9s linear infinite;
+}
+.tx-card-gen-label {
+  font-size: 9px; color: var(--text-dim);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+/* Kart detay overlay */
+.card-detail-overlay {
+  position: fixed; inset: 0; z-index: var(--z-modal);
+  background: rgba(0,0,0,0.97);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: calc(var(--safe-t) + 24px) 20px calc(var(--safe-b) + 24px);
+}
+.card-detail-overlay.open { display: flex; }
+.card-detail-img {
+  width: 100%; max-width: 340px;
+  aspect-ratio: 1; object-fit: cover;
+  border-radius: 2px; margin-bottom: 24px;
+}
+.card-detail-title {
+  font-family: var(--serif); font-size: 24px;
+  color: var(--text); text-align: center;
+  margin-bottom: 10px; line-height: 1.3;
+}
+.card-detail-summary {
+  font-size: 14px; color: var(--text-mid);
+  text-align: center; line-height: 1.65;
+  font-weight: 300; margin-bottom: 32px;
+  max-width: 320px;
+}
+.card-detail-date {
+  font-size: 10px; color: var(--text-dim);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.card-detail-actions {
+  display: flex; gap: 12px; width: 100%; max-width: 340px;
+}
+.card-detail-actions button { flex: 1; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: calc(var(--safe-b) + 80px);
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  z-index: var(--z-toast); background: var(--text); color: #000;
+  padding: 12px 24px; font-size: 13px; font-weight: 500;
+  opacity: 0; transition: all 0.3s ease; pointer-events: none;
+  text-align: center; border-radius: 2px;
+  white-space: normal; width: min(400px, calc(100vw - 24px));
+  line-height: 1.5;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.err { background: var(--red); color: #fff; }
+
+/* ═══════════════════════════════════════
+   MODE FLASH OVERLAY
+   Activates on mode transitions
+═══════════════════════════════════════ */
+.flash-overlay {
+  position: fixed; inset: 0; z-index: var(--z-flash); pointer-events: none;
+  background: var(--flash-color, rgba(245,166,35,0.04)); opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.flash-overlay.flash { opacity: 1; transition: opacity 0.08s ease; }
+
+/* ── PAYLAŞIM KARTI ── */
+#share-card-overlay .modal { padding: 32px 28px; }
+#share-canvas-wrap {
+  width: 100%; border: 1px solid var(--border);
+  margin-bottom: 24px; background: #000; border-radius: 2px;
+  display: flex; justify-content: center; align-items: center;
+  overflow: hidden;
+}
+#share-canvas-wrap canvas { width: 100%; height: auto; display: block; }
+
+/* ═══ CHAT CONTEXT CARDS ═══ */
+.ws-chat-ctx-wrap {
+  padding: 0 0 4px;
+}
+.ws-ctx-lesson {
+  margin: 6px 0 10px;
+  padding: 14px 14px 12px;
+  border-left: 2px solid var(--gold);
+  background: var(--surface, rgba(255,255,255,0.03));
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ws-ctx-lesson:active { background: rgba(212,175,55,0.06); }
+.ws-ctx-lesson-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.ws-ctx-lesson-text {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.45;
+}
+.ws-ctx-lesson-conj {
+  font-style: italic;
+  color: var(--gold);
+}
+.ws-ctx-muhur {
+  padding: 12px 14px;
+  border: 1px dashed var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+.ws-ctx-muhur:active { background: rgba(212,175,55,0.06); }
+.ws-ctx-muhur-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ws-ctx-muhur-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold-bright, #FFD700);
+  box-shadow: 0 0 10px 2px var(--gold-bright, #FFD700);
+}
+.ws-ctx-muhur-body { flex: 1; min-width: 0; }
+.ws-ctx-muhur-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.ws-ctx-muhur-text {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--text);
+  font-style: italic;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ws-ctx-muhur-arrow {
+  color: var(--gold);
+  font-size: 18px;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* Bağlamsal kart giriş animasyonu */
+.ws-ctx-card-enter {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.ws-ctx-lesson:not(.ws-ctx-card-enter),
+.ws-ctx-muhur:not(.ws-ctx-card-enter) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════
+   V4 SOHBET — chat-view scoped görsel uyum
+   (wsv2-screens.jsx:81–189 — S2Sohbet birebir)
+═══════════════════════════════════════════════ */
+
+/* Hero v4 sohbette yok */
+#chat-view #hero-container { display: none; }
+
+/* Tarih divider — spiral sigil + BUGÜN · GÜN · TARİH */
+.ws-chat-date-divider {
+  text-align: center;
+  margin: 4px 0 18px;
+  opacity: 0.7;
+}
+.ws-chat-date-divider svg {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+.ws-chat-date-divider-text {
+  display: block;
+  font-family: var(--sans);
+  font-size: 8px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* Period divider chat sohbetinde gizlenir (v4'te yok) */
+#chat-view .time-period-divider { display: none; }
+
+/* Emre mesajı: dikey gold çizgi + sender başlığı gizlenir, içerik italik serif */
+#chat-view .message.emre .msg-line { display: none; }
+#chat-view .message.emre .msg-row { gap: 0; }
+#chat-view .message.emre .msg-header { display: none; }
+/* Footer (feedback) hover'da görünmeye devam etsin, içeriğe bitişik dursun.
+   Negatif margin: line-height trailing space'i (15px × 1.55 → ~4px) dengeler. */
+#chat-view .message.emre .msg-footer {
+  margin-left: 0;
+  margin-top: -4px;
+  justify-content: flex-start;
+}
+/* (min-height sıfırlaması ve 44px dokunma hedefi artık .fb-btn'in kendi
+   bloğunda — yalnız #chat-view'da değil, şeridin göründüğü her yerde geçerli.) */
+/* Emre: satır-içi metin, line-height boşluğuna hafifçe çekilir (mevcut -4px korunur).
+   Kullanıcı: kutu kabarcık — üstüne binmesin diye küçük pozitif boşluk. */
+#chat-view .message.user .msg-footer { margin-top: 2px; }
+#chat-view .message.emre .msg-content,
+#chat-view .message.emre .msg-content.markdown-body {
+  font-family: var(--serif);
+  font-style: normal;
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--text);
+  letter-spacing: -0.1px;
+}
+/* Mod renkleri chat-view'da nötr — v4'te mod-renkli text yok */
+#chat-view .message.emre.mode-direct .msg-content,
+#chat-view .message.emre.mode-confrontation .msg-content,
+#chat-view .message.emre.mode-hard-truth    .msg-content,
+#chat-view .message.emre.mode-mirror        .msg-content,
+#chat-view .message.emre.mode-celebrate     .msg-content,
+#chat-view .message.emre.mode-reflective    .msg-content,
+#chat-view .message.emre.mode-socratic      .msg-content,
+#chat-view .message.emre.mode-pattern-break .msg-content,
+#chat-view .message.emre.mode-pattern       .msg-content,
+#chat-view .message.emre.mode-depth         .msg-content {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 400;
+  font-style: normal;
+}
+/* Typing cursor serif satırında düzgün dursun */
+#chat-view .message.emre .typing-cursor { height: 20px; }
+
+/* User mesajı: sağa hizalı gri kabarcık */
+#chat-view .message.user { max-width: 100%; align-self: stretch; }
+#chat-view .message.user .msg-body { align-items: flex-end; }
+#chat-view .message.user .msg-sender { display: none; }
+/* Kullanıcı saati de Emre'ninki gibi görünür: Barlow, 9px, gold-soft */
+#chat-view .message.user .msg-time {
+  display: block;
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: rgba(245,166,35,0.5);
+  opacity: 1;
+}
+#chat-view .message.user .msg-content {
+  background: #1c1c1c;
+  padding: 8px 12px;
+  border-radius: 4px;
+  max-width: 240px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  font-weight: 400;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Chat akış aralığını v4'e uyacak şekilde sıkılaştır */
+#chat-view .chat-area { gap: 18px; }
+@media (max-width: 640px) {
+  #chat-view .chat-area { gap: 16px; padding: 14px 22px 12px; }
+}
+
+/* ═══════════════════════════════════════
+   SOHBETLER — LLM KENAR ÇUBUĞU
+   Profil cameo'sundan (sol üst) açılır → claude.ai
+   kenar çubuğu gibi SOLDAN kayar.
+═══════════════════════════════════════ */
+#ch-drawer {
+  position: fixed; inset: 0; z-index: var(--z-sheet);
+  pointer-events: none;
+}
+#ch-drawer.open { pointer-events: auto; }
+
+.ch-drawer-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+  opacity: 0; transition: opacity 0.28s ease;
+}
+#ch-drawer.open .ch-drawer-backdrop { opacity: 1; }
+
+.ch-drawer-panel {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: min(88vw, 360px);
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.28s var(--ease-out);
+  will-change: transform;
+}
+#ch-drawer.open .ch-drawer-panel { transform: translateX(0); }
+
+/* Kimlik kartları — kenar çubuğu üst sabiti (Studio drawer'ından taşındı).
+   Kart tasarımı sentez.css .ws-drawer-identity'den aynen gelir; burada yalnız
+   panel içine oturma payı verilir ("Bugünün Sohbeti" butonunun yerini aldılar). */
+#ch-drawer .ws-drawer-identity { flex-shrink: 0; }
+#ch-drawer .ws-drawer-identity:first-child { margin-top: 6px; }
+
+/* Bölüm etiketi — geçmiş günler listesinin başlığı */
+.ch-section-header {
+  position: relative;
+  flex-shrink: 0;
+  min-height: 16px;
+}
+@keyframes ch-label-shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 100% center; }
+}
+.ch-list-section-label {
+  padding: 10px 18px;
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 3px;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.ch-list-section-label > span {
+  background: linear-gradient(
+    90deg,
+    var(--text-dim) 0%,
+    var(--text-dim) 18%,
+    #F5A623 28%,
+    var(--text-dim) 38%,
+    var(--text-dim) 60%,
+    #5A8AD8 70%,
+    var(--text-dim) 80%,
+    var(--text-dim) 100%
+  );
+  background-size: 500% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: ch-label-shimmer 8s linear infinite;
+}
+.ch-search-toggle {
+  background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+  color: var(--text-dim); line-height: 0; opacity: 0.7;
+  min-height: unset;
+  transition: opacity 0.15s, color 0.15s;
+}
+.ch-search-toggle:hover, .ch-search-toggle.active { opacity: 1; color: var(--gold); }
+
+/* Profil satırı — panel alt sabiti (claude.ai hesap satırı muadili) */
+/* Profil + Kitaplık tek bir alt kuşakta yan yana durur (13d Mektup / 10g libOpenReader) */
+.ch-drawer-profile-row {
+  flex-shrink: 0;
+  display: flex; align-items: stretch;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(0deg, rgba(11,11,11,0.98), rgba(11,11,11,0.85));
+}
+.ch-drawer-profile {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 12px 8px calc(var(--safe-b, 0px) + 12px) 18px;
+  cursor: pointer; color: inherit;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ch-drawer-profile:hover, .ch-drawer-profile:focus-visible {
+  background: rgba(245,166,35,0.05);
+  outline: none;
+}
+.ch-drawer-profile-cameo { width: 26px; height: 36px; }
+.ch-drawer-profile-col { min-width: 0; }
+.ch-drawer-profile-name {
+  font-family: var(--serif); font-size: 14px; color: var(--text);
+  line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ch-drawer-profile-model {
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px;
+  color: var(--gold); margin-top: 3px; text-transform: uppercase;
+}
+/* Kitaplık sembolü — profil bandının sağında BÜTÜNLEŞİK durur.
+   NEDEN: eski tasarım border-left + 56px kutu ile bandı "kesip" sağa ayrı bir
+   bölme açıyordu; "Emre the wanderer · Wanderer Movement" satırı bölünmüş
+   görünüyordu. Artık ayraç yok, kutu yok — yalnızca sessiz altın bir sembol.
+   Profil bandı tam genişlikte tek parça kalır; kitap sağ uçta sembol olarak oturur. */
+.ch-drawer-library {
+  flex-shrink: 0;
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: none;
+  border: none;
+  padding: 8px 18px calc(var(--safe-b, 0px) + 8px);
+  /* altın↔lapis shimmer — ch-label-shimmer ile aynı ritim */
+  color: var(--text-dim);
+  animation: ch-drawer-library-shimmer 8s linear infinite;
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+@keyframes ch-drawer-library-shimmer {
+  0%, 18%   { color: var(--text-dim); }
+  28%       { color: var(--gold); }
+  38%, 60%  { color: var(--text-dim); }
+  70%       { color: var(--lapis-bright); }
+  80%, 100% { color: var(--text-dim); }
+}
+.ch-drawer-library:hover, .ch-drawer-library:focus-visible {
+  transform: scale(1.06);
+}
+/* NOT: eski 'outline:none' :focus-visible'daki global altın klavye odağını
+   (base.css) gizliyordu → kaldırıldı; klavye navigasyonu artık görünür
+   (tasarım-prensibi 9). Hareket azaltma tercihinde ölçek nabzı sönümlenir (5). */
+@media (prefers-reduced-motion: reduce) {
+  .ch-drawer-library { animation: none; color: var(--gold); transition: color 0.15s; }
+  .ch-drawer-library:hover, .ch-drawer-library:focus-visible { transform: none; }
+}
+
+/* Gün özeti detayı açıkken profil kuşağı gizlenir — tek alt şerit kalsın */
+#ch-detail-panel:not(.hidden) ~ .ch-drawer-profile-row { display: none; }
+
+/* Header */
+.ch-drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(var(--safe-t,0px) + 14px) 18px 14px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg,rgba(11,11,11,0.98),rgba(11,11,11,0.85));
+  flex-shrink: 0;
+}
+.ch-drawer-title {
+  font-family: var(--cinzel); font-size: 11px; letter-spacing: 5px;
+  color: var(--gold); font-weight: 600;
+}
+.ch-drawer-sub {
+  font-family: var(--serif); font-style: italic; font-size: 10px;
+  color: var(--text-dim); margin-top: 3px; letter-spacing: 0.5px;
+}
+/* ── AYAR DİŞLİSİ ──
+   ✕ kapat tuşunun "tasarımında" sade ikon buton; kullanıcının isteğiyle
+   avatar çerçevesinin yerini aldı. Dokununca Hesap Ayarları'na gider —
+   drawer'ı backdrop dokunuşu zaten kapatır. */
+.ch-drawer-settings-btn {
+  background: none; border: none; color: var(--text-dim);
+  cursor: pointer; padding: 6px; line-height: 0;
+  display: flex; align-items: center;
+  transition: color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ch-drawer-settings-btn:hover,
+.ch-drawer-settings-btn:focus-visible { color: var(--gold); }
+
+/* Drawer İçsel Durum — beden figürü butonu */
+.ch-drawer-icses-btn {
+  background: none; border: none; color: var(--text-dim);
+  padding: 4px 8px; cursor: pointer; display: flex; align-items: center;
+  transition: color 0.18s;
+}
+.ch-drawer-icses-btn:hover { color: var(--gold); }
+
+/* Topbar icon buttons — kart çevirme (İç Ses drawer başlığına taşındı) */
+.ch-topbar-btns {
+  display: flex; flex-direction: row; align-items: center; gap: 2px;
+}
+.ch-topbar-hist-btn {
+  background: none; border: none; color: var(--text-dim);
+  padding: 6px; cursor: pointer; display: flex; align-items: center;
+  transition: color 0.18s;
+}
+.ch-topbar-hist-btn:hover { color: var(--gold); }
+
+/* Gün Serisi (13r) — Wanderer LLM'e özel sohbet serisi rozeti. Altın = şimdi/
+   eylem (bugün geldin) ekseninde; nefes alan yumuşak glow ile "canlı" kalır. */
+.gs-streak-btn {
+  display: none; align-items: center; gap: 4px;
+  min-width: 44px; min-height: 32px; padding: 5px 9px;
+  background: none; border: none; border-radius: var(--radius-full);
+  color: var(--gold); cursor: pointer;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  transition: color 0.18s, background 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.gs-streak-btn:hover, .gs-streak-btn:focus-visible { background: rgba(245, 166, 35, 0.1); }
+.gs-streak-btn:active { transform: scale(0.94); }
+.gs-streak-glyph {
+  font-size: 13px; line-height: 1;
+  animation: gsGlyphBreath 4.2s ease-in-out infinite alternate;
+}
+.gs-streak-n { line-height: 1; }
+@keyframes gsGlyphBreath {
+  from { opacity: 0.72; text-shadow: none; }
+  to   { opacity: 1; text-shadow: 0 0 6px var(--gold-dim); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-streak-glyph { animation: none; }
+}
+
+/* List panel */
+#ch-list-panel {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+}
+#ch-list-panel.hidden { display: none; }
+
+.ch-list {
+  padding: 6px 0 24px;
+}
+.ch-list-empty {
+  padding: 48px 24px; text-align: center;
+  font-family: var(--serif); font-style: italic;
+  font-size: 13px; color: var(--text-dim); line-height: 1.6;
+}
+.ch-list-item {
+  display: block; width: 100%; text-align: left;
+  background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 14px 18px; cursor: pointer; color: inherit;
+  transition: background 0.15s;
+}
+.ch-list-item:hover { background: rgba(245,166,35,0.05); }
+.ch-list-item:active { background: rgba(245,166,35,0.09); }
+.ch-list-item-date {
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 3px;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 5px;
+}
+.ch-list-item-title {
+  font-family: var(--serif); font-size: 15px; color: var(--text);
+  line-height: 1.3; margin-bottom: 4px;
+}
+.ch-list-item-tone {
+  display: inline-block; font-size: 7px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold);
+  border: 1px solid rgba(245,166,35,0.3); padding: 2px 7px;
+  margin-bottom: 5px;
+}
+.ch-list-item-preview {
+  font-family: var(--serif); font-style: italic; font-size: 12px;
+  color: var(--text-dim); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Detail panel */
+#ch-detail-panel {
+  flex: 1; overflow: hidden; display: flex; flex-direction: column;
+}
+#ch-detail-panel.hidden { display: none; }
+
+.ch-detail-topnav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: linear-gradient(180deg,rgba(11,11,11,0.95),rgba(11,11,11,0.7));
+}
+.ch-detail-back {
+  background: none; border: none; color: var(--gold);
+  padding: 5px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2.5px;
+}
+.ch-detail-nav-label {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 4px;
+  color: var(--text-dim); font-weight: 600; text-transform: uppercase;
+}
+#ch-detail-body {
+  flex: 1; overflow-y: auto; padding: 22px 20px 16px;
+}
+.ch-detail-footer {
+  padding: 12px 18px calc(var(--safe-b,0px) + 12px);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ch-view-full-btn {
+  width: 100%; padding: 13px; font-family: var(--cinzel);
+  font-size: 9px; letter-spacing: 3px; font-weight: 600;
+  color: var(--gold); border: 1px solid rgba(245,166,35,0.5);
+  background: rgba(245,166,35,0.04); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-transform: uppercase;
+}
+.ch-view-full-btn:hover { background: rgba(245,166,35,0.1); border-color: var(--gold); }
+
+/* ─── SOHBETLERDE ARAMA (Faz 2.3) ─── */
+.ch-search-row {
+  display: flex; align-items: center;
+  position: absolute; top: 0; bottom: 0; left: 14px; right: 14px; z-index: 1;
+  margin: 0; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: rgba(11,11,11,0.98);
+  transition: border-color 0.15s;
+}
+.ch-search-row:focus-within { border-color: rgba(245,166,35,0.5); }
+.ch-search-input {
+  flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: var(--serif); font-size: 13px;
+  letter-spacing: 0.3px;
+}
+.ch-search-input::placeholder { color: var(--text-dim); font-style: italic; }
+.ch-search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+mark.ch-hit {
+  background: rgba(245,166,35,0.22); color: var(--gold);
+  border-radius: 2px; padding: 0 1px;
+}
+
+/* ─── GÜN SİLME (Faz 2.4) ─── */
+.ch-delete-day-btn {
+  width: 100%; margin-top: 8px; padding: 11px; font-family: var(--cinzel);
+  font-size: 8px; letter-spacing: 3px; font-weight: 600;
+  color: rgba(224,108,108,0.85); border: 1px solid rgba(224,108,108,0.3);
+  background: transparent; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-transform: uppercase;
+}
+.ch-delete-day-btn:hover { background: rgba(224,108,108,0.08); border-color: rgba(224,108,108,0.6); }
+
+/* ─── EMRE'NİN HAFIZASI — drawer satırı (09c) ─── */
+.ch-memory-row {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; text-align: left;
+  background: transparent; border: none; border-top: 1px solid var(--border);
+  padding: 11px 18px; cursor: pointer; color: inherit;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ch-memory-row:hover, .ch-memory-row:focus-visible { background: rgba(245,166,35,0.05); }
+.ch-memory-glyph { color: var(--gold); font-size: 13px; flex-shrink: 0; }
+.ch-memory-col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ch-memory-label {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2.5px;
+  font-weight: 600; color: var(--text);
+}
+.ch-memory-sub { font-family: var(--serif); font-size: 11px; font-style: italic; color: var(--text-dim); }
+
+/* ─── HAFIZA PANELİ (09c) ─── */
+#mem-panel, #hwd-panel { position: fixed; inset: 0; z-index: var(--z-panel-tam); opacity: 0; transition: opacity 0.22s; }
+#mem-panel.open, #hwd-panel.open { opacity: 1; }
+.mem-backdrop, .hwd-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(3px); }
+.mem-sheet, .hwd-sheet {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(520px, calc(100vw - 28px)); max-height: min(82vh, 760px);
+  display: flex; flex-direction: column;
+  background: #0d0d0c; border: 1px solid rgba(245,166,35,0.25);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.mem-head, .hwd-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 18px 20px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.mem-title, .hwd-title { font-family: var(--cinzel); font-size: 11px; letter-spacing: 3px; font-weight: 600; color: var(--gold); }
+.mem-sub, .hwd-sub { margin-top: 4px; font-family: var(--serif); font-size: 12px; font-style: italic; color: var(--text-dim); }
+.mem-close, .hwd-close {
+  background: none; border: none; color: var(--text-dim); font-size: 15px;
+  cursor: pointer; padding: 2px 6px; flex-shrink: 0;
+}
+.mem-close:hover, .hwd-close:hover { color: var(--text); }
+.mem-body, .hwd-body { overflow-y: auto; padding: 6px 20px 22px; -webkit-overflow-scrolling: touch; }
+/* Boş hâlin dili tektir: hafıza paneli de ödev defteri de aynı cümleyi
+   aynı sessizlikle kurar — iki ayrı kural iki ayrı lehçe doğururdu. */
+.mem-empty, .hwd-bos {
+  padding: 44px 12px; text-align: center;
+  font-family: var(--serif); font-size: 14px; font-style: italic;
+  color: var(--text-dim); line-height: 1.7;
+}
+
+/* ─── ÖDEV DEFTERİ (09 · hwd) ───────────────────────────────────────
+   Kabuk (#hwd-panel/.hwd-sheet/.hwd-head/.hwd-body) hafıza paneliyle
+   PAYLAŞILIR — yukarıdaki grup selektörlere bak; burada yalnız defterin
+   kendi satır dili var. */
+.hwd-blok { margin-top: 18px; }
+.hwd-blok-tag {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2.5px;
+  color: var(--text-dim); margin-bottom: 10px;
+}
+.hwd-satir {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.hwd-satir:last-child { border-bottom: none; }
+/* Açık ödev altın, tutulan söz sönük: renk hiyerarşisi "hangisi senden bir
+   şey bekliyor" sorusunu cevaplar (altın = eylem). */
+.hwd-glyph { flex-shrink: 0; font-size: 12px; line-height: 1.6; color: var(--text-dim); }
+.hwd-satir--acik .hwd-glyph { color: var(--gold); }
+.hwd-metin { flex: 1; min-width: 0; }
+.hwd-task {
+  font-family: var(--serif); font-size: 14px; line-height: 1.6;
+  color: var(--text-dim); word-break: break-word;
+}
+.hwd-satir--acik .hwd-task { color: var(--text); }
+.hwd-tarih {
+  margin-top: 3px; font-family: var(--cinzel); font-size: 9px;
+  letter-spacing: 1.5px; color: var(--text-dim); opacity: 0.7;
+}
+.hwd-yaptim {
+  flex-shrink: 0; background: none; border: 1px solid rgba(245,166,35,0.35);
+  color: var(--gold); font-family: var(--cinzel); font-size: 9px;
+  letter-spacing: 1.5px; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  transition: background 0.18s, opacity 0.18s;
+}
+.hwd-yaptim:hover { background: rgba(245,166,35,0.10); }
+.hwd-yaptim:disabled { opacity: 0.45; cursor: default; }
+.mem-section { margin-top: 20px; }
+.mem-section-label {
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 3px;
+  color: var(--gold-quiet); text-transform: uppercase; margin-bottom: 2px;
+}
+.mem-section-hint {
+  font-family: var(--serif); font-size: 11px; font-style: italic;
+  color: var(--text-dim); margin-bottom: 8px;
+}
+.mem-section--portre {
+  padding: 14px; border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 10px; background: rgba(245,166,35,0.03);
+}
+.mem-portre-baslik { font-family: var(--serif); font-size: 16px; color: var(--text); margin: 6px 0 4px; }
+.mem-portre-portrait { font-family: var(--serif); font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+/* Yaşayan Portre (09e) — "Emre'nin gözünden sen" günlük tek kanonik sentez */
+.mem-section--yp {
+  padding: 14px; border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 10px; background: rgba(245,166,35,0.03);
+}
+.mem-yp-mesele { font-family: var(--serif); font-size: 15px; font-style: italic; color: var(--text); line-height: 1.55; margin: 6px 0 4px; }
+.mem-yp-yay { font-family: var(--serif); font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+.mem-yp-changelog-title { margin-top: 10px; margin-bottom: 4px; }
+.mem-yp-change { font-family: var(--serif); font-size: 12px; color: var(--text-mid); line-height: 1.5; padding: 3px 0; }
+.mem-yp-change-date { color: var(--gold); font-size: 10px; margin-right: 6px; }
+.mem-yp-reset {
+  margin-top: 12px; background: none; border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px; color: var(--text-dim); font-size: 11px; padding: 6px 12px;
+  cursor: pointer; font-family: inherit;
+}
+.mem-yp-reset:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+/* Salt-okunur okumalar (eski "Beni Tanıyor") */
+.mem-section--read {
+  padding: 14px; border: 1px solid rgba(90,138,216,0.18);
+  border-radius: 10px; background: rgba(90,138,216,0.03);
+}
+.mem-read-item { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.mem-read-item:last-child { border-bottom: none; }
+.mem-read-label {
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px;
+  color: var(--lapis-bright, #5A8AD8); font-weight: 600; margin-bottom: 3px;
+}
+.mem-read-text { font-family: var(--serif); font-size: 13px; color: var(--text-mid); line-height: 1.55; }
+.mem-item {
+  /* flex-start: kanıt satırı maddeyi iki satıra çıkarır, silme düğmesi
+     ortada asılı kalmasın — maddenin ilk satırıyla hizalı dursun. */
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 2px; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.mem-item:last-child { border-bottom: none; }
+.mem-item-text { flex: 1; min-width: 0; font-family: var(--serif); font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+.mem-item-text strong { color: var(--text); font-weight: 500; }
+.mem-item-meta { margin-left: 8px; font-size: 11px; font-style: italic; color: var(--text-dim); }
+
+/* KANITIN YÜZÜ (2026-08-02) — "Mesele Sensin"in görünür hâli.
+   Uygulamanın senin hakkında tuttuğu her kaydın altında, o kaydı doğuran
+   KENDİ cümlen durur. Altın ekseni bilinçli: kanıt geçmişte söylenmiş,
+   olmuş bir şeydir — "olduğun" tarafı (lapis hayale ayrılmıştır).
+   Sol çizgi bir alıntı kenarıdır, süs değil: sözün nerede başladığını
+   gösterir. Sönük tutulur (--gold-quiet) çünkü asıl özne madde değil,
+   maddenin dayandığı sözdür — ama o söz maddeyi bastırmamalıdır. */
+.mem-item-kanit {
+  margin-top: 5px; padding-left: 9px;
+  border-left: 2px solid rgba(201,166,107,0.30);
+  font-family: var(--serif); font-size: 12px; font-style: italic;
+  color: var(--text-dim); line-height: 1.5;
+}
+.mem-item-kanit-label {
+  display: block; margin-bottom: 2px;
+  font-family: var(--cinzel); font-style: normal;
+  font-size: 8px; letter-spacing: 2px; font-weight: 600;
+  color: var(--gold-quiet); opacity: 0.75;
+}
+/* GÖRÜNÜR KANIT (09j · alıntı bloğu) — yanıtın ÜSTÜNDE, kullanıcının kendi
+   cümlesi. Sol altın damar mem-item-kanit'in dilidir: aynı töre (bir sözün
+   nerede başladığını gösteren alıntı kenarı), ama burada söz SÖNÜK DEĞİL —
+   panelde madde asıldı, burada asıl olan sözün kendisi. Karşılaştırma
+   Character.ai ile tam burada: o "hatırlıyorum" der, bu hatırladığını
+   gösterir. Doz FAZ 5'te kalibre edilir. */
+.ht-alinti-kume { margin: 0 0 10px; display: flex; flex-direction: column; gap: 6px; }
+.ht-alinti {
+  margin: 0; padding: 6px 0 6px 11px;
+  border-left: 2px solid rgba(201,166,107,0.45);
+  background: linear-gradient(90deg, rgba(201,166,107,0.06), transparent 60%);
+  border-radius: 0 6px 6px 0;
+}
+.ht-alinti-gun {
+  display: block; margin-bottom: 3px;
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2px;
+  color: var(--gold-quiet); opacity: 0.9;
+}
+/* Ölçü üründe kondu: modelin yanıtı 21px (mobilde 20px) EB Garamond, tam
+   parlaklıkta. Kanıt 13px/--text-mid iken yanıtın yanında dipnot gibi
+   kalıyordu — oysa vaadin kendisi bu satır. 15px ve kısılmış fildişi:
+   okunur, ama akışın önüne geçmez; asıl söz hâlâ modelin cevabıdır. */
+.ht-alinti-soz {
+  font-family: var(--serif); font-size: 15px; font-style: italic;
+  color: rgba(234,226,214,0.80); line-height: 1.5;
+}
+.ht-alinti-soz::before { content: '\201C'; }
+.ht-alinti-soz::after  { content: '\201D'; }
+
+/* Mühürlenmiş söz şeritte ALTIN durur (.ic-ritual-toggle ile aynı dil):
+   altın "olduğun/olmuş olan" eksenidir ve bir beyan tam olarak odur —
+   söylenmiş, geri alınabilir ama şimdilik duran bir söz. Kalıcı işaret
+   şart: toast geçer, mühür kalmalı. Dozu FAZ 5'te kalibre edilir. */
+.fb-btn[data-ht][aria-pressed="true"] { color: var(--gold); }
+
+/* MÜHÜRLÜ SÖZ (09j) — panelin öbür maddelerinden KÖKENİ ile ayrılır: geri
+   kalanı Emre'nin çıkarımı, bu kullanıcının beyanı. Bu yüzden söz kanıt
+   satırında değil, maddenin kendisinde durur ve sönük değil AÇIK yazılır —
+   burada asıl özne cümlenin ta kendisidir. */
+.mem-hatirla-soz {
+  display: block; font-family: var(--serif); font-size: 13px;
+  font-style: italic; color: var(--text); line-height: 1.55;
+}
+.mem-hatirla-gun {
+  display: block; margin-top: 3px;
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2px;
+  color: var(--gold-quiet); opacity: 0.7;
+}
+
+.mem-del {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+  background: none; border: none; color: var(--text-dim);
+  font-size: 11px; cursor: pointer; transition: color 0.15s, background 0.15s;
+}
+.mem-del:hover { color: rgba(224,108,108,0.95); background: rgba(224,108,108,0.08); }
+
+/* Portre maddesi + beyan (İç Çalışma 02 · E) — eylem SİLME değil susturmadır,
+   o yüzden dili de kırmızı değil: altın çizgi, geri alınabilir bir karar.
+   Susmuş madde silinmez, soluklaşır: kullanıcı neyi susturduğunu görebilmeli,
+   yoksa "Geri al" hiçbir yerde görünmezdi. */
+.mem-yp-madde-basi { margin-top: 10px; }
+/* Boş portre: sayı ya da boş kutu değil, davet — kanıt yokluğunun dili (§6.10). */
+.mem-yp-davet { font-family: var(--serif); font-size: 13px; font-style: italic;
+  color: var(--text-dim); line-height: 1.6; margin: 6px 0 2px; }
+.mem-yp-madde--sus .mem-item-text { opacity: 0.45; }
+.mem-yp-sus-not { font-size: 10.5px; color: var(--gold-quiet, #c9a45c); margin-top: 4px; letter-spacing: 0.2px; }
+.mem-beyan {
+  flex: 0 0 auto; align-self: flex-start; margin-left: 8px;
+  background: transparent; border: 1px solid rgba(201,164,92,0.32); border-radius: 999px;
+  color: var(--gold-quiet, #c9a45c); font-family: inherit; font-size: 10.5px;
+  letter-spacing: 0.3px; padding: 4px 10px; cursor: pointer; white-space: nowrap;
+  transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
+}
+.mem-beyan:hover { background: rgba(201,164,92,0.10); border-color: rgba(201,164,92,0.55); }
+
+/* ═══════════════════════════════════════
+   GEZGİNE MEKTUP (13d) — profil satırından açılır.
+   Dil: ısıtılmış kâğıt + gren, Fraunces başlık, Garamond gövde,
+   IM Fell el yazısı imza — sıcak, samimi ama ağırbaşlı bir mektup.
+═══════════════════════════════════════ */
+#mektup-panel { position: fixed; inset: 0; z-index: var(--z-panel-tam); opacity: 0; transition: opacity 0.3s ease; }
+#mektup-panel.open { opacity: 1; }
+.mektup-backdrop { position: absolute; inset: 0; background: rgba(5,4,2,0.78); backdrop-filter: blur(4px); }
+.mektup-sheet {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, calc(-50% + 18px)) scale(0.985);
+  width: min(560px, calc(100vw - 20px));
+  max-height: min(90vh, 860px);
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(245,166,35,0.10), transparent 55%),
+    linear-gradient(180deg, #1B140C 0%, #15100A 60%, #120D08 100%);
+  border: 1px solid rgba(245,166,35,0.22);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.6);
+  transition: transform 0.55s var(--ease-out);
+  isolation: isolate;
+}
+#mektup-panel.open .mektup-sheet { transform: translate(-50%, -50%) scale(1); }
+/* kâğıt greni */
+.mektup-sheet::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain-img); background-size: 240px;
+  opacity: 0.05;
+}
+.mektup-close {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.07);
+  color: var(--text-dim); font-size: 13px; line-height: 1;
+  cursor: pointer; transition: color 0.2s, border-color 0.2s;
+}
+.mektup-close:hover, .mektup-close:focus-visible { color: var(--text); border-color: rgba(245,166,35,0.4); outline: none; }
+.mektup-scroll {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 44px 30px calc(var(--safe-b, 0px) + 40px);
+  text-align: center;
+}
+/* Büyük oval portre — profil cameo'sunun büyütülmüş hâli */
+.mektup-photo-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+.mektup-cameo {
+  width: 116px; height: 152px;
+  border-radius: 50%;
+  overflow: hidden; position: relative; flex-shrink: 0;
+  border: 1px solid rgba(245,166,35,0.65);
+  box-shadow:
+    0 0 0 3px rgba(11,11,11,0.95),
+    0 0 0 5px rgba(245,166,35,0.22),
+    0 10px 34px rgba(245,166,35,0.16);
+}
+.mektup-cameo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+.mektup-from {
+  font-family: var(--cinzel); font-size: 11px; letter-spacing: 5px;
+  color: var(--gold); font-weight: 600;
+}
+.mektup-movement {
+  margin-top: 4px;
+  font-family: var(--serif); font-style: italic; font-size: 12px;
+  letter-spacing: 1.5px; color: var(--text-mid);
+}
+.mektup-date {
+  margin-top: 14px; font-family: var(--serif); font-style: italic;
+  font-size: 11.5px; color: var(--text-dim);
+}
+.mektup-title {
+  margin: 22px auto 0; max-width: 24ch;
+  font-family: var(--serif-display); font-weight: 500;
+  font-size: clamp(24px, 6vw, 30px); line-height: 1.22;
+  color: var(--text); letter-spacing: 0.2px;
+}
+.mektup-divider { margin: 18px 0 26px; color: rgba(245,166,35,0.5); font-size: 12px; letter-spacing: 8px; }
+.mektup-body { text-align: left; max-width: 56ch; margin: 0 auto; }
+.mektup-body p {
+  font-family: var(--serif); font-size: 16.5px; line-height: 1.9;
+  color: #D9CFBE; margin: 0 0 1.35em;
+}
+.mektup-body p:last-child { margin-bottom: 0; }
+/* İlk paragrafın ilk harfi — mürekkepli açılış */
+.mektup-body p:first-child::first-letter {
+  font-family: var(--serif-display);
+  font-size: 3.05em; line-height: 0.82;
+  float: left; padding: 6px 10px 0 0;
+  color: var(--gold-bright);
+}
+.mektup-sign { margin: 40px auto 0; max-width: 56ch; text-align: right; }
+.mektup-sign-name {
+  font-family: var(--fell); font-style: italic;
+  font-size: 34px; color: var(--gold-bright); line-height: 1;
+  transform: rotate(-3deg); display: inline-block;
+  text-shadow: 0 0 18px rgba(245,166,35,0.25);
+}
+.mektup-sign-sub {
+  margin-top: 8px;
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-dim);
+}
+@media (max-width: 640px) {
+  .mektup-sheet { width: calc(100vw - 16px); max-height: calc(100dvh - 24px); border-radius: 22px; }
+  .mektup-scroll { padding: 38px 22px calc(var(--safe-b, 0px) + 34px); }
+}
+
+/* ═══════════════════════════════════════
+   KULLANICI MEKTUBU — "Benim de sana bir mektubum var!"
+   Mektubun sol-alt köşesinde altın çerçeveli CTA + tıklayınca açılan
+   ikiz panel: kullanıcı portresi → altın ok → Emre portresi → metin alanı.
+═══════════════════════════════════════ */
+
+/* Mektup sheet'ine yerleşen sol-alt CTA — okuma deneyimini bozmaz, ek bir
+   "cevap zamanı" izlenimi verir. Sheet absolute-children destekler. */
+/* mektup-scroll'a buton + imzaya yer bırakmak için ek alt boşluk */
+#mektup-panel .mektup-scroll { padding-bottom: calc(var(--safe-b, 0px) + 96px); }
+
+.mektup-reply-btn {
+  position: absolute; left: 18px; bottom: 18px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 9px 14px 9px 12px;
+  background: linear-gradient(180deg, rgba(28,20,12,0.92), rgba(20,14,8,0.92));
+  border: 1px solid rgba(245,166,35,0.42);
+  border-radius: var(--radius-full, 999px);
+  color: var(--gold-bright, var(--gold));
+  font-family: var(--sans, system-ui);
+  font-size: 12.5px; letter-spacing: 0.2px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.02);
+  max-width: calc(100% - 76px); /* close butonuyla çakışmasın */
+  transition:
+    padding 0.42s var(--ease-out, ease),
+    gap 0.42s var(--ease-out, ease),
+    background 0.28s,
+    border-color 0.28s,
+    color 0.22s,
+    transform 0.18s var(--ease-out, ease),
+    box-shadow 0.35s ease,
+    max-width 0.42s var(--ease-out, ease);
+}
+.mektup-reply-btn:hover, .mektup-reply-btn:focus-visible {
+  background: linear-gradient(180deg, rgba(245,166,35,0.18), rgba(245,166,35,0.08));
+  border-color: rgba(245,166,35,0.7);
+  color: var(--text); outline: none;
+  transform: translateY(-1px);
+}
+.mektup-reply-btn.disabled {
+  opacity: 0.55;
+  cursor: default;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border-color: rgba(255,255,255,0.10);
+  color: var(--text-dim);
+  box-shadow: none;
+}
+.mektup-reply-btn.locked { /* Studio değil — kilitli ama davetkâr */
+  border-color: rgba(245,166,35,0.3);
+  opacity: 0.92;
+}
+.mektup-reply-btn .mrb-ico {
+  width: 22px; height: 22px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: rgba(245,166,35,0.10);
+  border: 1px solid rgba(245,166,35,0.25);
+  transition:
+    width 0.45s var(--ease-spring, var(--ease-out)),
+    height 0.45s var(--ease-spring, var(--ease-out)),
+    background 0.38s ease,
+    border-color 0.35s ease,
+    box-shadow 0.4s ease;
+}
+.mektup-reply-btn .mrb-ico svg {
+  width: 13px; height: 13px;
+  transition: width 0.4s var(--ease-out, ease), height 0.4s var(--ease-out, ease),
+              stroke-width 0.35s ease, stroke 0.3s ease, filter 0.35s ease;
+}
+.mektup-reply-btn .mrb-text {
+  font-weight: 500; line-height: 1.1;
+  text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+  max-width: 320px;
+  transition:
+    max-width 0.45s var(--ease-out, ease),
+    opacity 0.28s ease 0.05s,
+    transform 0.45s var(--ease-out, ease);
+}
+.mektup-reply-btn .mrb-sub {
+  font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-dim);
+  padding-left: 8px; margin-left: 2px;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden; white-space: nowrap;
+  max-width: 220px;
+  transition:
+    max-width 0.45s var(--ease-out, ease),
+    opacity 0.28s ease 0.05s,
+    transform 0.45s var(--ease-out, ease),
+    padding 0.42s var(--ease-out, ease),
+    margin 0.42s var(--ease-out, ease),
+    border-left-width 0.42s var(--ease-out, ease);
+}
+
+/* ───── Kapalı hal: yalnız altın mühür-mektup; üstüne gelince / odaklanınca açılır ───── */
+.mektup-reply-btn.is-collapsed:not(:hover):not(:focus-within) {
+  padding: 0;
+  gap: 0;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  max-width: 44px;
+}
+.mektup-reply-btn.is-collapsed:not(:hover):not(:focus-within) .mrb-ico {
+  width: 44px; height: 44px;
+  background:
+    radial-gradient(circle at 34% 26%,
+      rgba(255,238,190,0.96) 0%,
+      var(--gold-bright, #F7C744) 30%,
+      var(--gold, #F5A623) 58%,
+      #8a5c12 95%);
+  border: 1px solid var(--gold-edge, rgba(245,166,35,0.55));
+  box-shadow:
+    inset 0 1.5px 1.5px rgba(255,255,255,0.55),
+    inset 0 -2.5px 3.5px rgba(40,20,5,0.42),
+    inset 0 0 0 1px rgba(94,58,10,0.32),
+    0 8px 22px rgba(0,0,0,0.58),
+    0 2px 6px rgba(245,166,35,0.26),
+    0 0 0 4px rgba(245,166,35,0.10);
+}
+.mektup-reply-btn.is-collapsed:not(:hover):not(:focus-within) .mrb-ico svg {
+  width: 22px; height: 22px;
+  stroke: var(--gold-ink, #1A1206);
+  stroke-width: 1.7;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,235,180,0.55))
+    drop-shadow(0 -0.5px 0 rgba(40,20,5,0.35));
+}
+.mektup-reply-btn.is-collapsed:not(:hover):not(:focus-within) .mrb-text,
+.mektup-reply-btn.is-collapsed:not(:hover):not(:focus-within) .mrb-sub {
+  max-width: 0;
+  opacity: 0;
+  padding-left: 0; padding-right: 0;
+  margin-left: 0; margin-right: 0;
+  border-left-width: 0;
+  transform: translateX(-12px);
+  pointer-events: none;
+}
+.mektup-reply-btn.is-collapsed.disabled:not(:hover):not(:focus-within) .mrb-ico {
+  background:
+    radial-gradient(circle at 34% 26%,
+      rgba(220,220,210,0.55) 0%,
+      rgba(170,160,140,0.6) 30%,
+      rgba(95,85,70,0.7) 70%,
+      rgba(35,30,22,0.85) 100%);
+  border-color: rgba(255,255,255,0.18);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.18),
+    inset 0 -2px 3px rgba(0,0,0,0.45),
+    0 4px 12px rgba(0,0,0,0.45);
+}
+
+@media (max-width: 640px) {
+  .mektup-reply-btn { left: 14px; bottom: 14px; padding: 8px 12px 8px 10px; font-size: 12px; }
+  .mektup-reply-btn .mrb-text { max-width: 200px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mektup-reply-btn,
+  .mektup-reply-btn .mrb-text,
+  .mektup-reply-btn .mrb-sub,
+  .mektup-reply-btn .mrb-ico,
+  .mektup-reply-btn .mrb-ico svg { transition: none !important; }
+}
+
+/* ───── İKİZ PANEL (kmOpen) — Mektup'un dilini tek tek tekrarlar ───── */
+#km-panel { position: fixed; inset: 0; z-index: var(--z-panel-ust); opacity: 0; transition: opacity 0.3s ease; }
+#km-panel.open { opacity: 1; }
+.km-backdrop { position: absolute; inset: 0; background: rgba(5,4,2,0.82); backdrop-filter: blur(4px); }
+.km-sheet {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, calc(-50% + 18px)) scale(0.985);
+  width: min(560px, calc(100vw - 20px));
+  max-height: min(92vh, 880px);
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(245,166,35,0.10), transparent 55%),
+    linear-gradient(180deg, #1B140C 0%, #15100A 60%, #120D08 100%);
+  border: 1px solid rgba(245,166,35,0.22);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.6);
+  transition: transform 0.55s var(--ease-out, cubic-bezier(0.22,1,0.36,1));
+  isolation: isolate;
+}
+#km-panel.open .km-sheet { transform: translate(-50%, -50%) scale(1); }
+.km-sheet::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain-img); background-size: 240px;
+  opacity: 0.05;
+}
+.km-close {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.07);
+  color: var(--text-dim); font-size: 13px; line-height: 1;
+  cursor: pointer; transition: color 0.2s, border-color 0.2s;
+}
+.km-close:hover, .km-close:focus-visible { color: var(--text); border-color: rgba(245,166,35,0.4); outline: none; }
+.km-scroll {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 44px 30px calc(var(--safe-b, 0px) + 40px);
+  text-align: center;
+}
+
+/* SEN · EMRE üst etiketi */
+.km-eyebrow {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 5px;
+  color: var(--gold); font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* İki oval portre + altın ok */
+.km-arrow-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; margin-bottom: 22px;
+}
+.km-cameo {
+  width: 88px; height: 116px;
+  border-radius: 50%;
+  overflow: hidden; position: relative; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #1c1812, #120e08);
+  color: var(--gold-bright, var(--gold));
+}
+.km-cameo--user {
+  border: 1px solid rgba(94,128,196,0.7); /* lapis — kullanıcı = içsel yön */
+  box-shadow:
+    0 0 0 3px rgba(11,11,11,0.95),
+    0 0 0 5px rgba(94,128,196,0.22),
+    0 10px 30px rgba(94,128,196,0.18);
+}
+.km-cameo--emre {
+  border: 1px solid rgba(245,166,35,0.65);
+  box-shadow:
+    0 0 0 3px rgba(11,11,11,0.95),
+    0 0 0 5px rgba(245,166,35,0.22),
+    0 10px 30px rgba(245,166,35,0.18);
+}
+.km-cameo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+.km-cameo .km-initials {
+  font-family: var(--serif-display, Georgia); font-weight: 500;
+  font-size: 30px; letter-spacing: 1px;
+  color: var(--text);
+}
+.km-arrow {
+  width: 64px; flex-shrink: 0;
+  color: var(--gold);
+  opacity: 0.85;
+}
+.km-arrow svg { width: 100%; height: 24px; display: block; }
+
+.km-from {
+  font-family: var(--cinzel); font-size: 10.5px; letter-spacing: 4px;
+  color: var(--text); font-weight: 600;
+}
+.km-movement {
+  margin-top: 4px;
+  font-family: var(--serif); font-style: italic; font-size: 12px;
+  letter-spacing: 1px; color: var(--text-mid);
+}
+.km-title {
+  margin: 22px auto 0; max-width: 24ch;
+  font-family: var(--serif-display); font-weight: 500;
+  font-size: clamp(22px, 5.5vw, 28px); letter-spacing: var(--ls-display); line-height: 1.22;
+  color: var(--text);
+}
+.km-divider { margin: 16px 0 24px; color: rgba(245,166,35,0.5); font-size: 12px; letter-spacing: 8px; }
+
+/* Form — mektup gövdesinin sıcak kâğıt dili */
+.km-form { max-width: 56ch; margin: 0 auto; text-align: left; }
+.km-body {
+  width: 100%;
+  min-height: 220px;
+  padding: 16px 16px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: var(--serif, Georgia), Georgia, serif;
+  font-size: 15.5px; line-height: 1.85;
+  resize: vertical;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+.km-body:focus {
+  outline: none;
+  border-color: rgba(245,166,35,0.45);
+  background: rgba(255,255,255,0.04);
+}
+.km-counter {
+  text-align: right; margin-top: 6px; margin-bottom: 16px;
+  font-size: 10.5px; color: var(--text-dim); letter-spacing: 1px;
+}
+.km-send {
+  display: block; width: 100%;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, rgba(245,166,35,0.18), rgba(245,166,35,0.06));
+  border: 1px solid rgba(245,166,35,0.55);
+  border-radius: 999px;
+  color: var(--gold-bright, var(--gold));
+  font-family: var(--cinzel, var(--sans));
+  font-size: 13px; letter-spacing: 4px; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.18s;
+}
+.km-send:hover:not(:disabled), .km-send:focus-visible:not(:disabled) {
+  background: linear-gradient(180deg, rgba(245,166,35,0.28), rgba(245,166,35,0.12));
+  border-color: rgba(245,166,35,0.85);
+  color: var(--text);
+  outline: none;
+  transform: translateY(-1px);
+}
+.km-send:disabled { opacity: 0.6; cursor: default; transform: none; }
+.km-foot {
+  margin-top: 14px; text-align: center;
+  font-size: 11px; color: var(--text-dim); line-height: 1.6;
+  font-style: italic; font-family: var(--serif);
+}
+
+@media (max-width: 640px) {
+  .km-sheet { width: calc(100vw - 16px); max-height: calc(100dvh - 24px); border-radius: 22px; }
+  .km-scroll { padding: 36px 20px calc(var(--safe-b, 0px) + 30px); }
+  .km-cameo { width: 76px; height: 100px; }
+  .km-arrow { width: 50px; }
+}
+
+/* ═══════════════════════════════════════
+   MODELLER — İç Card ayağındaki seçici + alttan sheet + geçiş ayracı
+   (3 ana renk: düğme/ayraç altın = eylem+mühür; seçili satır lapis = içsel odak)
+═══════════════════════════════════════ */
+
+/* İç Card ayağı: model seçici düğmesi + kısa açıklama (sol grup) */
+.ic-models-wrap {
+  display: flex; align-items: center; gap: 10px;
+  flex: 1; min-width: 0;
+}
+/* Model seçici düğmesi — eski Ritüel toggle'ının yerini aldı, onun dilini izler */
+.ic-models-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  padding: 4px 4px; font-family: var(--sans);
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-dim); transition: color 0.25s;
+  flex-shrink: 0;
+}
+.ic-models-toggle .ic-models-glyph { font-size: 11px; transition: color 0.25s; }
+.ic-models-toggle .ic-models-caret { opacity: 0.6; }
+.ic-models-toggle:hover { color: var(--text-mid); }
+.ic-models-toggle[aria-pressed="true"] { color: var(--gold); }
+.ic-models-toggle[aria-pressed="true"] .ic-models-glyph {
+  color: var(--gold); filter: drop-shadow(0 0 5px rgba(245,166,35,0.5));
+}
+.ic-models-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* Seçili modelin kısa açıklaması — boşlukta usulca durur, taşarsa kısalır */
+.ic-model-desc {
+  font-size: 10px; color: var(--text-dim); font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1; min-width: 0;
+}
+
+/* Küçük popover seçici — Claude Code'un model menüsü gibi, tetikleyen
+   düğmenin üstünde açılır (konumlama 10w fmOpenPicker). Backdrop görünmez;
+   panel hep DOM'da (opacity 0) → açılmadan önce ölçülebilir. */
+.fm-pop {
+  position: fixed; inset: 0; z-index: var(--z-daldirma);
+  background: transparent;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+.fm-pop.open { opacity: 1; pointer-events: auto; }
+.fm-pop-panel {
+  position: fixed;
+  min-width: 232px; max-width: 300px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-active);
+  border-radius: 18px;
+  padding: 6px;
+  box-shadow: 0 14px 44px rgba(0,0,0,0.55), 0 0 0 1px rgba(245,166,35,0.06);
+  transform: scale(0.95) translateY(5px);
+  transition: transform 0.18s var(--ease-out);
+}
+.fm-pop.open .fm-pop-panel { transform: none; }
+.fm-pop-head {
+  padding: 8px 10px 6px;
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.fm-pop-list { display: flex; flex-direction: column; gap: 2px; }
+.fm-pop-row {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 9px 10px;
+  background: transparent; border: none; border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.fm-pop-row:hover, .fm-pop-row:focus-visible { background: rgba(255,255,255,0.04); outline: none; }
+.fm-pop-row--active, .fm-pop-row--active:hover { background: var(--lapis-dim); }
+.fm-pop-glyph {
+  font-size: 14px; color: var(--gold); width: 18px; text-align: center; flex-shrink: 0;
+}
+.fm-pop-row--active .fm-pop-glyph { color: var(--lapis-bright); }
+.fm-pop-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.fm-pop-name {
+  font-size: 13.5px; color: var(--text); font-family: var(--serif, serif); letter-spacing: 0.4px;
+}
+.fm-pop-tag { font-size: 10px; color: var(--text-dim); letter-spacing: 0.3px; }
+.fm-pop-check { color: var(--lapis-bright); font-size: 13px; width: 14px; text-align: center; flex-shrink: 0; }
+
+/* Sohbet içi geçiş ayracı — geçmişe bakana modelin değiştiğini gösterir */
+.fm-switch-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 22px 6px;
+  animation: fmSwitchIn 0.4s ease;
+}
+.fm-switch-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-hairline, rgba(245,166,35,0.28)), transparent); }
+.fm-switch-body {
+  display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
+  padding: 4px 12px;
+  border: 1px solid rgba(245,166,35,0.32);
+  border-radius: 999px;
+  background: rgba(245,166,35,0.05);
+}
+.fm-switch-glyph { color: var(--gold); font-size: 11px; }
+.fm-switch-text {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); font-family: var(--sans);
+}
+@keyframes fmSwitchIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Mod geçiş ayracı (FAZ 5, .claude/plans/mod-sistemi.md) — yalnız "büyük"
+   geçişlerde (↔direct, →depth, →pattern) sohbet akışına eklenir; fm-switch-divider
+   ile aynı iskelet (çizgi+kapsül+çizgi), ama --mdv-c ile mod rengini taşır. */
+.mode-switch-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 22px 6px;
+  animation: fmSwitchIn 0.4s var(--ease-out, ease);
+}
+.mode-switch-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--mdv-c, var(--gold-hairline)), transparent); }
+.mode-switch-body {
+  display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
+  padding: 4px 12px;
+  border: 1px solid var(--mdv-c, rgba(245,166,35,0.32));
+  border-radius: 999px;
+  background: rgba(245,166,35,0.05);
+}
+.mode-switch-glyph { color: var(--mdv-c, var(--gold)); font-size: 11px; }
+.mode-switch-text {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--mdv-c, var(--gold)); font-family: var(--sans);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mode-switch-divider { animation: none; }
+}
+
+/* ═══ KAYDEDİLEMEYEN MESAJ — sözün mürekkebi kurumadıysa ═══
+   Ekranda duran ama veritabanına yazılamamış mesaj, sayfa yenilenince yok
+   olur. Uyarı balonun İÇİNDE durur: kayıp o mesaja aittir, ayrı bir hata
+   balonu (LLM hatasının dili) burada yanlış olurdu.
+   Doz: içerik soluklaşır (henüz demir atmadı), uyarı --red ile ince yazılır
+   — kırmızı burada süs değil, TASARIM-PRENSIPLERI'nin izin verdiği uyarı. */
+.message[data-persist-failed] .msg-content { opacity: 0.5; }
+
+.msg-persist-warn {
+  /* base.css'in global button{min-height:44px} kuralı bu ince şeritte
+     42px'lik ölü boşluğa dönüşürdü — yükseklik içeriğe bırakılır, dokunma
+     hedefi ::after ile görselden AYRI genişletilir. */
+  min-height: 0;
+  position: relative;
+  z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 7px; padding: 0;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.06em;
+  color: var(--red); opacity: 0.9;
+  transition: opacity 0.18s var(--ease-out);
+}
+/* Dokunma hedefi görselden AYRI genişler: 13px'lik şerit ~36px'e çıkar.
+   Üst taşma butonun kendi margin-top'unun (7px) içinde kalır; alt taşma
+   mesajlar arası 18px'lik gap'in içinde durur — bir sonraki balonun
+   tıklama alanı çalınmaz. 44px'e zorlamak tam da onu çalardı. */
+.msg-persist-warn::after {
+  content: ''; position: absolute;
+  left: -8px; right: -8px; top: -7px; bottom: -16px;
+}
+.msg-persist-warn:hover,
+.msg-persist-warn:focus-visible { opacity: 1; }
+.msg-persist-warn:focus-visible { outline: 1px solid var(--red); outline-offset: 3px; border-radius: 4px; }
+.msg-persist-warn:disabled { opacity: 0.4; cursor: default; }
+.msg-persist-warn .mpw-eylem { text-decoration: underline; text-underline-offset: 2px; }
+.msg-persist-warn .mpw-nokta {
+  width: 5px; height: 5px; border-radius: 50%; flex: none;
+  background: var(--red);
+  animation: mpwNabiz 2.6s ease-in-out infinite;
+}
+/* Kullanıcı balonu sağa yaslı — uyarı da onunla hizalanır */
+.message.user .msg-persist-warn { align-self: flex-end; }
+
+@keyframes mpwNabiz { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .msg-persist-warn .mpw-nokta { animation: none; }
+  .msg-persist-warn { transition: none; }
+}
+
+/* ═══ ÖDEV ÇİPİ — kullanıcının kendi taahhüdü ═══
+   Eskiden tamamı inline hardcode'du: çerçevesi rgba(184,149,60,…) ile
+   ürünün altınını (--gold #F5A623) değil, ona benzeyen BAŞKA bir altını
+   konuşuyordu; onay yeşili de token yerine elle yazılmıştı. Tek görsel dil
+   kuralı gereği ikisi de tokenlara bağlandı — renkler değişmedi, kaynakları
+   değişti (yeşil zaten --green-ok'un ta kendisiydi). */
+.hw-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; margin: 12px 20px;
+  border: 1px solid var(--gold-hairline);
+  border-radius: 12px;
+  background: var(--gold-dim);
+}
+.hw-chip-badge {
+  font-family: var(--sans); font-size: 11px; letter-spacing: 1px;
+  color: var(--gold); flex: none;
+}
+.hw-chip-text {
+  font-size: 12px; color: var(--text-mid); flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* base.css'in global button{min-height:44px} kuralı bu iki küçük düğmeyi
+   çipin iki katı yüksekliğe çıkarırdı; 36px hem parmağa yeter hem şeridi
+   şerit bırakır (aynı gerekçe .msg-persist-warn'da da geçerli). */
+.hw-chip-done, .hw-chip-close {
+  min-height: 36px; cursor: pointer; background: none;
+  font-family: var(--sans); letter-spacing: 1px;
+  transition: opacity 0.18s var(--ease-out);
+}
+.hw-chip-done {
+  font-size: 10px; padding: 4px 12px;
+  border: 1px solid var(--green-ok-edge); border-radius: 6px;
+  color: var(--green-ok);
+}
+.hw-chip-close {
+  font-size: 10px; padding: 4px 8px; border: none;
+  color: var(--text-dim);
+}
+.hw-chip-done:hover, .hw-chip-close:hover { opacity: 0.75; }
+.hw-chip-done:focus-visible, .hw-chip-close:focus-visible {
+  outline: 1px solid var(--gold-edge); outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hw-chip-done, .hw-chip-close { transition: none; }
+}

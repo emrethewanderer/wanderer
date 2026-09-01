@@ -1,0 +1,246 @@
+/* ═══════════════════════════════════════
+   BELGE KATMANI (doc-) — editoryal/bilgi yüzeyi primitifleri
+   Kaynak: Emniyet Katmanı raporunun onaylanan editoryal estetiği.
+   Kart motoru (12c-kart-gorsel.js) ve tören sahneleri (mühür, kilometre
+   taşı, flip, Mektuplar, Manifesto Reader) bu dosyanın KAPSAMI DIŞINDADIR
+   — onlar kendi dilinde kalır.
+   Dört sesli koro korunur: Cinzel-kicker = tören/ritüel (dokunulmaz),
+   Barlow-eyebrow (sessiz altın) = belge/bilgi — bu dosyanın sesi.
+   Mevcut olgun eyebrow sınıflarına (.hk-eyebrow, .mem-section-label vb.)
+   bu sınıfları EKLEME — Cinzel/Barlow font-family çekişmesi yaratır.
+   Onlarda yalnız renk token'ını --gold-quiet'e çevir (retint, dual-class değil).
+═══════════════════════════════════════ */
+
+/* ── Eyebrow — numaralı bölüm kickeri ── */
+.doc-eyebrow {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--gold-quiet);
+}
+.doc-eyebrow--crit { color: var(--red); }
+
+/* ── Numaralı bölüm başlığı bloğu ── */
+.doc-section { margin-top: 64px; }
+.doc-section:first-child { margin-top: 0; }
+.doc-section > .doc-eyebrow { margin-bottom: 10px; }
+
+.doc-title {
+  font-family: var(--serif-display);
+  font-weight: 500;
+  font-size: clamp(22px, 4vw, 30px);
+  letter-spacing: var(--ls-display);
+  line-height: 1.25;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.doc-lead {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-mid);
+  max-width: 62ch;
+  margin-top: 10px;
+}
+.doc-lead em { color: var(--text); font-style: italic; }
+
+/* Giriş animasyonu — ev eğrisi */
+.doc-rise { animation: docRise 0.7s var(--ease-out) both; }
+@keyframes docRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doc-rise { animation: none; }
+}
+
+/* ── Seal — kritik bulgu kutusu ── */
+.doc-seal {
+  position: relative;
+  margin: 28px 0;
+  padding: 20px 22px;
+  border: 1px solid rgba(192,57,43,0.35);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(165deg, rgba(192,57,43,0.09), rgba(192,57,43,0.02) 60%, transparent);
+}
+.doc-seal > .doc-eyebrow { color: var(--red); }
+.doc-seal h3 {
+  font-family: var(--serif-display);
+  font-size: 19px;
+  color: var(--text);
+  margin: 8px 0;
+}
+.doc-seal p {
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.65;
+}
+.doc-fixed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--green-ok-edge);
+  background: var(--green-ok-dim);
+  color: var(--green-ok);
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.doc-fixed-badge::before { content: '✓'; }
+
+/* ── Tablebox + gerçek <table> ── */
+.doc-tablebox {
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin: 20px 0;
+}
+.doc-tablebox table { width: 100%; border-collapse: collapse; }
+.doc-tablebox th {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-quiet);
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-active);
+  background: var(--gold-quiet-dim);
+  font-weight: 500;
+}
+.doc-tablebox td {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-mid);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.doc-tablebox tr:last-child td { border-bottom: none; }
+.doc-tablebox td:first-child { color: var(--text); }
+
+/* ── Pill + durum varyantları ── */
+.doc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  border: 1px solid currentColor;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.doc-pill--crit { color: var(--red); background: rgba(192,57,43,0.10); }
+.doc-pill--high { color: #E67E22; background: rgba(230,126,34,0.10); }
+.doc-pill--mid  { color: var(--lapis-bright); background: var(--lapis-dim); }
+.doc-pill--ok   { color: var(--green-ok); background: var(--green-ok-dim); }
+
+/* ── Cards grid ── */
+.doc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.doc-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background: var(--surface);
+}
+.doc-card-k {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lapis-bright);
+  display: block;
+  margin-bottom: 8px;
+}
+.doc-card h4 {
+  font-family: var(--serif-display);
+  font-size: 15px;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.doc-card p {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Phase timeline — sol-çizgili, sessiz altın nokta ──
+   .yh-timeline (modes.css) ile görsel olarak kardeş ama kasıtlı paralel;
+   onboarding'e ait, buraya taşınmadı. ── */
+.doc-phase { position: relative; padding-left: 28px; margin: 24px 0; }
+.doc-phase::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 4px; bottom: 4px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--gold-quiet), var(--border-active) 85%, transparent);
+}
+.doc-phase-item { position: relative; padding-bottom: 22px; }
+.doc-phase-item:last-child { padding-bottom: 0; }
+.doc-phase-item::before {
+  content: '';
+  position: absolute;
+  left: -28px; top: 3px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold-quiet);
+}
+.doc-phase-item.done::before { background: var(--green-ok); }
+.doc-phase-item h5 {
+  font-family: var(--serif-display);
+  font-size: 15px;
+  color: var(--text);
+  margin: 0;
+}
+.doc-phase-item small {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ── Note — sol-bordürlü not kutusu (varsayılan lapis = gelecek/derinlik) ── */
+.doc-note {
+  border-left: 2px solid var(--lapis-bright);
+  padding: 10px 16px;
+  margin: 16px 0;
+  background: var(--lapis-dim);
+  font-family: var(--serif);
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+.doc-note--gold {
+  border-left-color: var(--gold-quiet);
+  background: var(--gold-quiet-dim);
+}
+
+/* ── Foot ── */
+.doc-foot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+}

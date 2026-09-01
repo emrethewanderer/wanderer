@@ -1,0 +1,712 @@
+/* ═══════════════════════════════════════
+   SÖZ DEFTERİ
+═══════════════════════════════════════ */
+.sd-score-wrap {
+  text-align: center;
+  padding: 40px 28px 28px;
+}
+.sd-score-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  font-family: var(--sans);
+}
+.sd-ring-svg {
+  width: 140px;
+  height: 140px;
+  transform: rotate(-90deg);
+  display: block;
+  margin: 0 auto;
+}
+.sd-ring-track {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 8;
+}
+.sd-ring-fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 251.2;
+  stroke-dashoffset: 251.2;
+  transition: stroke-dashoffset 0.8s ease;
+}
+.sd-score-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 2px;
+}
+.sd-score-ring {
+  position: relative;
+  width: 140px;
+  margin: 0 auto 16px;
+}
+.sd-score-pct {
+  font-family: var(--serif);
+  font-size: 38px;
+  color: var(--gold);
+  line-height: 1;
+}
+.sd-score-sign {
+  font-size: 14px;
+  color: var(--text-dim);
+  align-self: flex-end;
+  margin-bottom: 6px;
+}
+.sd-score-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.sd-filter-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 28px 20px;
+  justify-content: center;
+}
+.sd-filter-btn {
+  padding: 6px 18px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.2s;
+}
+.sd-filter-btn.active, .sd-filter-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.sd-list {
+  padding: 0 28px 60px;
+}
+.sd-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.sd-item.sd-done .sd-item-text {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+.sd-check {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-top: 2px;
+}
+.sd-done .sd-check {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(245,166,35,0.12);
+}
+.sd-item-body {
+  flex: 1;
+}
+.sd-item-text {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+.sd-item-date {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* ═══════════════════════════════════════
+   GEZGİNİN YOLU (eski — uyumluluk)
+═══════════════════════════════════════ */
+.gy-view-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 28px 0;
+}
+.gy-view-tab {
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+  color: var(--gold);
+}
+.gy-view-tab--link {
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.gy-view-tab--link:hover {
+  color: var(--text-mid);
+}
+
+/* ═══════════════════════════════════════
+   YOLCULUK HARİTASI — Birleşik Premium
+═══════════════════════════════════════ */
+
+/* ── Başlık ── */
+.yh-header {
+  text-align: center;
+  padding: 24px 28px 8px;
+}
+.yh-label {
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+  font-family: var(--sans);
+}
+.yh-title {
+  font-size: 34px;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.yh-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* ── Aşama İlerleme Şeridi ── */
+.yh-stages {
+  position: relative;
+  padding: 32px 28px 12px;
+}
+.yh-stage-track {
+  position: absolute;
+  top: 44px;
+  left: 56px;
+  right: 56px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+.yh-stage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), rgba(245,166,35,0.4));
+  border-radius: 1px;
+  transition: width 0.8s var(--ease-out);
+  width: 0%;
+}
+.yh-stage-nodes {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+.yh-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.25s;
+}
+.yh-node:hover { transform: translateY(-2px); }
+.yh-node-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  transition: all 0.35s;
+  position: relative;
+  z-index: 2;
+}
+.yh-node.yh-past .yh-node-dot {
+  border-color: var(--gold);
+  background: var(--gold);
+  box-shadow: 0 0 0 3px rgba(245,166,35,0.15);
+}
+.yh-node.yh-active .yh-node-dot {
+  border-color: var(--gold);
+  background: var(--bg);
+  box-shadow: 0 0 0 4px rgba(245,166,35,0.25), 0 0 12px rgba(245,166,35,0.3);
+  animation: yhPulse 2.5s ease-in-out infinite;
+}
+.yh-node.yh-future .yh-node-dot {
+  border-color: rgba(255,255,255,0.08);
+  background: var(--bg);
+}
+@keyframes yhPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(245,166,35,0.25), 0 0 12px rgba(245,166,35,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(245,166,35,0.15), 0 0 20px rgba(245,166,35,0.2); }
+}
+.yh-node-label {
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.4;
+  transition: color 0.25s;
+}
+.yh-node.yh-active .yh-node-label { color: var(--gold); }
+.yh-node.yh-past .yh-node-label { color: var(--text-mid); }
+.yh-node.yh-selected .yh-node-label { color: var(--text); }
+
+/* ── Aşama Detay Kartı ── */
+.yh-stage-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 20px 28px 0;
+  padding: 20px;
+  border: 1px solid var(--gold);
+  background: rgba(245,166,35,0.05);
+  transition: all 0.35s;
+}
+.yh-card-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.yh-card-body { flex: 1; }
+.yh-card-name {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--gold);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.yh-card-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* ── Mini İstatistik Paneli ── */
+.yh-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin: 20px 28px 0;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.yh-stat {
+  background: var(--surface);
+  padding: 14px 6px;
+  text-align: center;
+}
+.yh-stat-num {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--gold);
+  display: block;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.yh-stat-label {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--sans);
+}
+
+/* ── Filtre Sekmeleri ── */
+.yh-filters {
+  display: flex;
+  gap: 6px;
+  padding: 24px 28px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Sekmeler kadraja çarpmaz, karanlığa girer — §3'ün içerik hâli (base.css). */
+  -webkit-mask-image: var(--mask-fade-x); mask-image: var(--mask-fade-x);
+}
+.yh-filters::-webkit-scrollbar { display: none; }
+.yh-filter {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.yh-filter.active,
+.yh-filter:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ── Zaman Akışı ── */
+.yh-timeline {
+  padding: 24px 28px 80px;
+  position: relative;
+}
+.yh-timeline::before {
+  content: '';
+  position: absolute;
+  left: 36px;
+  top: 24px;
+  bottom: 80px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--border) 30%, var(--border) 90%, transparent 100%);
+}
+
+/* Zaman akışı olayları */
+.yh-event {
+  position: relative;
+  padding: 0 0 28px 32px;
+  animation: yhEventIn 0.35s ease both;
+}
+@keyframes yhEventIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.yh-event-dot {
+  position: absolute;
+  left: -5px;
+  top: 3px;
+  font-size: 11px;
+  z-index: 2;
+}
+.yh-event-date {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  font-family: var(--sans);
+}
+.yh-event-title {
+  font-size: 15px;
+  font-family: var(--serif);
+  line-height: 1.3;
+  margin-bottom: 3px;
+}
+.yh-event-detail {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* Olay tipi renkleri */
+.yh-event--session .yh-event-title { color: var(--text-mid); }
+.yh-event--breakthrough .yh-event-title { color: var(--gold); }
+.yh-event--summary .yh-event-title { color: var(--lapis-bright, #5A8AD8); }
+.yh-event--milestone .yh-event-title { color: var(--green-ok, #5BB97B); }
+.yh-event--stage-change .yh-event-title { color: var(--gold); }
+
+/* Kırılma anı kartı — genişletilebilir */
+.yh-event--breakthrough {
+  padding-bottom: 32px;
+}
+.yh-event--breakthrough .yh-event-detail {
+  color: var(--text-mid);
+  font-family: var(--serif);
+  font-style: italic;
+  border-left: 2px solid rgba(245,166,35,0.3);
+  padding-left: 12px;
+  margin-top: 6px;
+}
+
+/* Aşama geçiş olayı */
+.yh-event--stage-change {
+  padding-bottom: 32px;
+}
+.yh-event--stage-change .yh-event-detail {
+  font-size: 11px;
+  color: var(--text-mid);
+  padding: 10px 14px;
+  background: rgba(245,166,35,0.06);
+  border: 1px solid rgba(245,166,35,0.15);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* Boş durum */
+.yh-timeline .empty-state {
+  position: relative;
+  padding-left: 0;
+}
+
+/* ═══════════════════════════════════════
+   DÜŞÜNCE MAHKEMESİ — mod badge + aura
+═══════════════════════════════════════ */
+.mode-badge.court {
+  border-color: rgba(168,152,128,0.5);
+  color: #A89880;
+}
+#ambient-aura.aura-court {
+  background: radial-gradient(ellipse at 50% 120%, rgba(168,152,128,0.15) 0%, transparent 70%);
+  opacity: 1;
+}
+/* Mahkeme mesaj balonu */
+.msg-bubble.mode-court {
+  border-left: 3px solid rgba(168,152,128,0.4);
+  background: rgba(168,152,128,0.05);
+}
+
+/* ═══════════════════════════════════════
+   MOD SOHBET EKRANI (Ayrı pencere)
+═══════════════════════════════════════ */
+#mode-chat-overlay {
+  position: fixed; inset: 0; z-index: var(--z-modal); display: none;
+  flex-direction: column; background: var(--bg);
+}
+#mode-chat-overlay.open { display: flex; }
+
+/* Mode topbar: ana sohbet topbar'ı ile aynı stil */
+#mode-topbar { flex-shrink: 0; }
+#mode-topbar .w2-back-btn {
+  width: 40px; height: 40px; display: flex; align-items: center;
+  justify-content: center; background: transparent; border: none;
+  color: var(--text-dim); cursor: pointer; transition: color 0.2s;
+  border-radius: 50%; flex-shrink: 0;
+}
+#mode-topbar .w2-back-btn:hover { color: var(--text); }
+#mode-topbar .w2-topbar-right { min-width: 40px; }
+
+/* Eski mode-chat-header: artık kullanılmıyor ama silinmedi — eski özetleri bozmamak için */
+.mode-chat-header { display: none; }
+.mode-chat-header-info { display: none; }
+.mode-chat-close-btn { display: none; }
+
+#mode-messages-area {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 28px 28px 16px; display: flex; flex-direction: column;
+  gap: 48px; scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+#mode-readonly-banner {
+  display: none; align-items: center; justify-content: space-between;
+  padding: 10px 20px; border-bottom: 1px solid var(--border);
+  background: rgba(245,166,35,0.06); flex-shrink: 0;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold);
+}
+#mode-readonly-banner button {
+  background: transparent; border: none; color: var(--text-dim);
+  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; font-family: var(--sans); padding: 4px 0;
+}
+#mode-readonly-banner button:hover { color: var(--text); }
+
+#mode-input-area { flex-shrink: 0; }
+
+/* Mod nefes pill */
+#mode-breath-pill {
+  display: none;
+  position: relative;        /* görünmez tıklama alanı için konak */
+  width: 96px;
+  height: 4px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, transparent 0%, var(--mode-pill-c, rgba(245,166,35,0.55)) 50%, transparent 100%);
+  margin: 10px auto 8px;
+  cursor: pointer;
+  transform-origin: center;
+  animation: breathPillAnim 3.8s ease-in-out infinite;
+}
+/* Çizgi 4px ince kalır; parmak ~40px görünmez hedefe dokunur (tasarım aynı) */
+#mode-breath-pill::before {
+  content: "";
+  position: absolute;
+  left: -28px;
+  right: -28px;
+  top: -18px;
+  bottom: -18px;
+}
+#mode-breath-pill.visible { display: block; }
+#mode-breath-pill:hover, #mode-breath-pill:focus {
+  background: linear-gradient(90deg, transparent 0%, var(--mode-pill-c-strong, rgba(245,166,35,0.9)) 50%, transparent 100%);
+  outline: none;
+}
+#mode-input-area .input-row.pill-mode { display: none; }
+
+/* Mod modallarındaki geçmiş kayıt bölümü */
+.mode-past-section {
+  margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border);
+}
+.mode-past-label {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 12px;
+}
+.mode-past-item {
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: opacity 0.2s;
+}
+.mode-past-item:last-child { border-bottom: none; }
+.mode-past-item:hover { opacity: 0.65; }
+.mode-past-item .h-date { font-size: 9px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+.mode-past-item .h-title { font-family: var(--serif); font-size: 15px; color: var(--text); line-height: 1.35; }
+
+/* ═══════════════════════════════════════
+   MOD PUSULASI (FAZ 5, .claude/plans/mod-sistemi.md) — rozet tıklaması
+   showToast yerine tören: 6 mod nokta-halkası + yolculuk çizgisi.
+   Yapı announce-sheet/lib-sheet ile akraba (portal/veil/sheet, paylaşılan
+   libVeilIn/libSheetIn/libSheetOut keyframes) — kendi kimliği: --mp-c ile
+   önceden tanımlı ama hiç kullanılmayan --mode-*-color'lara İLK gerçek görevi.
+═══════════════════════════════════════ */
+.mpc-portal {
+  position: fixed; inset: 0;
+  z-index: var(--z-modal, 700);
+  display: flex; align-items: flex-end;
+}
+.mpc-veil {
+  position: absolute; inset: 0;
+  background: var(--veil, rgba(8, 6, 4, 0.74));
+  backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+  animation: libVeilIn .35s var(--ease-out, ease) both;
+}
+.mpc-sheet {
+  --grain-op: .14; --grain-size: 240px;   /* kağıt greni → .wn-grain sarmalı (base.css) */
+  position: relative; z-index: 1;
+  width: 100%; max-height: 80dvh; overflow-y: auto;
+  border-radius: var(--radius-xl, 24px) var(--radius-xl, 24px) 0 0;
+  background:
+    radial-gradient(150% 62% at 50% 0%, var(--gold-dim, rgba(245,166,35,0.10)) 0%, transparent 58%),
+    radial-gradient(120% 80% at 8% 102%, var(--lapis-dim, rgba(45,95,168,0.10)) 0%, transparent 55%),
+    linear-gradient(178deg, var(--bg-raised, #16110C) 0%, var(--bg, #0F0C08) 60%, #0C0906 100%);
+  border: 1px solid rgba(245,166,35,0.18);
+  border-bottom: none;
+  box-shadow: 0 -22px 64px rgba(0,0,0,0.6), 0 0 50px rgba(245,166,35,0.06);
+  text-align: center;
+  animation: libSheetIn var(--anim-slow, .45s) var(--ease-out, cubic-bezier(0.16,1,0.3,1)) both;
+}
+/* Yastık sarmalda: gren kenar boşluğunu da örtmeli (bkz. .wn-grain) */
+.mpc-sheet .wn-grain { padding: 0 24px calc(28px + env(safe-area-inset-bottom, 0px)); }
+.mpc-sheet--out { animation: libSheetOut .34s var(--ease-out, ease) both; }
+@media (prefers-reduced-motion: reduce) {
+  .mpc-sheet, .mpc-veil, .mpc-kicker, .mpc-ring, .mpc-label, .mpc-desc, .mpc-journey,
+  .mpc-dot--active { animation: none; }
+  /* Yolculuk Haritası (yh-) bu dosya-yerel bloğa alınmamıştı. Korumasız
+     DEĞİLDİ: `base.css`in `*` kuralı (prefers-reduced-motion altında
+     `animation-duration:.01ms !important` + `iteration-count:1`) her
+     animasyonu zaten kesiyor. Yerel blok yine de yazılır — bu reponun
+     konvansiyonu bu ve `animation:none` sonsuz nabızda global kuraldan
+     kesindir (`iteration-count:1` bir kez çalıştırır, `none` hiç). */
+  .yh-node.yh-active .yh-node-dot, .yh-event { animation: none; }
+}
+.mpc-grip {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-glow, rgba(245,166,35,0.4)), transparent);
+  margin: 14px auto 2px;
+}
+/* 44×44 dokunma hedefi (Prensip 9) + bilinen z-index tuzağı: absolute kapat
+   butonu + hemen ardından opaklık<1 sibling → stacking berabere kalır (bkz.
+   Kapat butonu z-index tuzağı notu) — z-index:2 announce/lib-sheet kalıbıyla aynı. */
+.mpc-close {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  background: none; border: none; cursor: pointer;
+  width: 44px; height: 44px; border-radius: 50%;
+  color: var(--gold-edge, rgba(245,166,35,.55)); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: color .15s, background .15s;
+}
+.mpc-close:hover, .mpc-close:focus-visible { color: var(--gold, #F5A623); background: var(--gold-dim, rgba(245,166,35,.1)); }
+
+.mpc-kicker {
+  font-family: var(--cinzel, serif);
+  font-size: 10px; letter-spacing: 4px; font-weight: 700;
+  color: var(--gold, #F5A623); text-transform: uppercase; opacity: .92;
+  margin-top: 26px;
+  animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) .12s both;
+}
+
+/* 6 mod halkası — her nokta kendi modunun rengini taşır (--mp-c inline set edilir);
+   aktif olan büyür + nefes alır, diğerleri sönük ama görünür kalır (bir "harita"). */
+.mpc-ring {
+  display: flex; justify-content: center; align-items: center; gap: 18px;
+  margin: 22px auto 6px;
+  animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) .18s both;
+}
+.mpc-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--mp-c, var(--text-dim));
+  opacity: .4;
+  transition: opacity .3s var(--ease-out), transform .3s var(--ease-out), box-shadow .3s var(--ease-out);
+}
+.mpc-dot--active {
+  opacity: 1; transform: scale(1.4);
+  box-shadow: 0 0 0 5px var(--mp-c), 0 0 16px var(--mp-c);
+  animation: mpcDotBreath 4s ease-in-out infinite;
+}
+@keyframes mpcDotBreath {
+  0%, 100% { box-shadow: 0 0 0 5px var(--mp-c), 0 0 14px var(--mp-c); }
+  50%      { box-shadow: 0 0 0 7px var(--mp-c), 0 0 24px var(--mp-c); }
+}
+
+.mpc-label {
+  font-family: var(--serif-display, Fraunces, Georgia, serif);
+  font-size: 25px; font-weight: 400; letter-spacing: .2px;
+  color: var(--mp-c, var(--text, #EAE2D6));
+  margin: 18px auto 0;
+  animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) .24s both;
+}
+.mpc-desc {
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-style: italic; font-size: 14px; color: var(--text-mid, #95897A);
+  line-height: 1.75;
+  margin: 10px auto 0; max-width: 32ch;
+  animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) .30s both;
+}
+
+/* yolculuk çizgisi — son 8 mod, kıl-gibi eriyen çizgiyle bağlanır (Prensip 3) */
+.mpc-journey {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: 5px; margin: 30px auto 4px; padding-top: 20px; position: relative;
+  animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) .38s both;
+}
+.mpc-journey::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-hairline, rgba(245,166,35,0.28)), transparent);
+}
+.mpc-journey-title {
+  position: absolute; top: -14px; left: 0; right: 0;
+  font-family: var(--sans); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.mpc-jdot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--mp-c, var(--text-dim));
+  opacity: .55;
+}
+.mpc-jdot--now {
+  opacity: 1; width: 9px; height: 9px;
+  box-shadow: 0 0 8px var(--mp-c);
+}
+.mpc-jline { width: 10px; height: 1px; background: linear-gradient(90deg, var(--gold-hairline, rgba(245,166,35,0.2)), transparent); }

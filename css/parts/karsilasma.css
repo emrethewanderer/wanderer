@@ -1,0 +1,335 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KARŞILAŞMA · Kartın Karşısına Geçilen Oda (13B)
+   ───────────────────────────────────────────────────────────────────
+   Derin metafor: BAĞ. Odada tek bir şey vardır — yüz. Mesafe çizgisi,
+   halka, sayaç: hepsi hero'da kalır. Yatayda üç sayfa (olduğun ·
+   yürüdüğün yol · olmak istediğin), dikeyde sentezden onu
+   OLUŞTURANLARA iniş. İki eksen İKİ AYRI kaptadır ve `touch-action`
+   ile ayrılır: dış kap yalnız yatayı, iç kap yalnız dikeyi dinler —
+   yoksa parmak bir sayfayı kaydırırken ötekini de sürükler.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Oda açıkken arkadaki ekran kaymaz — ama kaydırma KONUMUNU korur
+   (position:fixed yerine overflow:hidden: fixed, body'yi başa fırlatır). */
+html.kar-kilit, html.kar-kilit body { overflow: hidden; }
+
+.kar-portal {
+  position: fixed; inset: 0;
+  z-index: var(--z-ceremony, 9650);
+  background: #07070A;
+  animation: karIn .26s var(--ease-out, ease) both;
+}
+@keyframes karIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Gök TEK KAYNAKTAN gelir (base.css --sky-*): degrade kopyalanmaz,
+   oda da günün saatiyle birlikte döner. */
+.kar-sahne {
+  position: absolute; inset: 0; pointer-events: none;
+  background: var(--sky-stars), var(--sky-scene);
+}
+.kar-sahne::after {                      /* kâğıt greni (prensip 3) */
+  content: ''; position: absolute; inset: 0;
+  background-image: var(--grain-img); opacity: .16;
+}
+
+/* ── Yatay: sayfalar ── */
+.kar-yatay {
+  position: absolute; inset: 0;
+  display: flex;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior: contain;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.kar-yatay::-webkit-scrollbar { display: none; }
+
+.kar-sayfa {
+  flex: 0 0 100%; width: 100%; height: 100%;
+  scroll-snap-align: start; scroll-snap-stop: always;
+}
+
+/* ── Dikey: sentez → onu oluşturanlar ── */
+.kar-dikey {
+  height: 100%;
+  overflow-y: auto; overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.kar-dikey::-webkit-scrollbar { display: none; }
+.kar-dikey:focus-visible { outline: 1px solid var(--gold, #F5A623); outline-offset: -4px; }
+
+.kar-kat {
+  min-height: 100%;
+  scroll-snap-align: start; scroll-snap-stop: always;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px;
+  padding: 52px 14px 26px;
+  box-sizing: border-box;
+}
+
+/* ── Kart: odanın tek konusu ──
+   12c kartı kabın GENİŞLİĞİNE göre ölçeklenir (aspect-ratio 5/7 +
+   container-type). Yükseklik sınırı ayrıca verilir: uzun ekranda kart
+   büyürken kısa ekranda etiketi ve daveti ezmesin. */
+/* Ölçü YÜKSEKLİKTEN türetilir, genişlikten değil. `width` + `max-height`
+   birlikte verilirse 5:7 oranı ezilir ve kart yamulur; burada önce kartın
+   alabileceği en büyük yükseklik seçilir (ekranın %70'i, 560px'i geçmez),
+   genişlik ondan hesaplanır, dar ekranda `90vw` sınırı devralır.
+   Ölçülen hâl: 375×812'de 337×472 — ekranın %58'i (kalibre öncesi %49). */
+.kar-kart {
+  width: min(90vw, calc(min(70dvh, 560px) * 5 / 7));
+  aspect-ratio: 5 / 7;
+  display: flex;
+}
+.kar-kart > * { width: 100%; }
+
+/* ── Flip: kart kendi ekseninde döner ──
+   TEK 3B kabı vardır. 12c kartını ikinci bir preserve-3d kabına sarmak
+   holo tilt'iyle (ikvHoloAttach kartı `.ikv-holo` ile sarar) çakışır:
+   çevirme KABIN, eğilme KARTIN işidir. */
+.kar-flip {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .62s var(--ease-spring, cubic-bezier(.34, 1.1, .64, 1));
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.kar-flip.is-arka { transform: rotateY(180deg); }
+.kar-flip:focus-visible { outline: 1px solid var(--gold, #F5A623); outline-offset: 8px; }
+
+.kar-yuz {
+  position: absolute; inset: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.kar-yuz--arka { transform: rotateY(180deg); }
+
+/* ── Sentez kartı: çevrilmez, DETAY açar (Emre, 2026-08-23) ──
+   İki ana kartın kabı flip DEĞİLDİR, o yüzden `.kar-yuz`un mutlak
+   konumlanmasını ve backface gizlemesini geri alır: tek yüz vardır, kartın
+   kendisi. Dokunulabilirliği çerçeveden değil, kartın kendi ışığından
+   anlaşılır — ikinci bir "tıkla" işareti eklenmez (§6: anlamı olmayan süs
+   eklenmez). */
+.kar-detay {
+  position: relative; inset: auto;
+  width: 100%; height: 100%;
+  backface-visibility: visible; -webkit-backface-visibility: visible;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.kar-detay:focus-visible { outline: 1px solid var(--gold, #F5A623); outline-offset: 8px; }
+
+/* ── Aradaki yol: masaya açılan buton ──
+   Kartın ALTINDA durur, `.kar-davet`in ÜSTÜNDE: yatay eksen (iki kutbun
+   arasındaki yol) dikey eksenden (aşağıdaki oluşturanlar) önce gelir.
+   Dili `.kar-masa`nın kardeşidir — aynı kapıyı açtığı için aynı lehçeyi
+   konuşur; farkı, karta gömülü değil serbest durması ve kutbunun rengini
+   taşımasıdır. */
+.kar-yol {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 14px; padding: 9px 16px; cursor: pointer;
+  background: rgba(245, 166, 35, .07);
+  border: 1px solid rgba(245, 166, 35, .55);
+  border-radius: 10px;
+  font-family: var(--cinzel, serif); font-size: 8.5px; letter-spacing: 2.4px;
+  color: var(--gold, #F5A623);
+  -webkit-tap-highlight-color: transparent;
+  transition: background .2s var(--ease-out, ease);
+}
+.kar-yol:hover, .kar-yol:focus-visible { background: rgba(245, 166, 35, .14); }
+.kar-yol--lapis {
+  background: rgba(58, 90, 155, .10);
+  border-color: rgba(90, 138, 216, .55);
+  color: var(--lapis-bright, #5A8AD8);
+}
+.kar-yol--lapis:hover, .kar-yol--lapis:focus-visible { background: rgba(58, 90, 155, .20); }
+
+/* ── Arka yüz: kartın söyledikleri ──
+   Ön yüzün çerçeve dilini sürdürür (aynı zemin, aynı ince kenar), ama
+   sahne yerine METİN taşır. İçerik uzunsa kart İÇİNDE kaydırılır;
+   `overscroll-behavior:contain` sayfanın altından kaymasını keser. */
+.kar-arka {
+  width: 100%; height: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(245, 166, 35, .85);
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(245, 166, 35, .07), transparent 60%),
+    linear-gradient(180deg, #18120B, #0C0906);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, .6);
+  overflow: hidden;
+}
+.kar-arka--lapis {
+  border-color: rgba(90, 138, 216, .55);
+  background:
+    radial-gradient(90% 70% at 50% 18%, rgba(90, 138, 216, .10), transparent 60%),
+    linear-gradient(180deg, #10141E, #0A0C12);
+}
+/* İç çerçeve 12c'nin `.ikv-frame` dilidir: kartın iki yüzü aynı odaya ait
+   görünsün. Köşe TİKLERİ bilerek yok — tik kartın DIŞ imzasıdır, arka yüz
+   kartın içidir. */
+.kar-arka::before {
+  content: ''; position: absolute; inset: 4.5%;
+  border: 1px solid rgba(245, 166, 35, .30);
+  pointer-events: none;
+}
+.kar-arka--lapis::before { border-color: rgba(90, 138, 216, .25); }
+
+/* Metin kart boyunu aşarsa alt kenar KESİLMEZ, söner: kesik bir satır
+   "bitti" der, sönen satır "devamı var" der. */
+.kar-arka::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 44px;
+  background: linear-gradient(180deg, transparent, #0C0906 88%);
+  pointer-events: none;
+}
+.kar-arka--lapis::after { background: linear-gradient(180deg, transparent, #0A0C12 88%); }
+
+.kar-arka-ic {
+  position: relative; z-index: 1;
+  height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  padding: 22px 18px 34px; box-sizing: border-box;
+  scrollbar-width: none;
+}
+.kar-arka-ic::-webkit-scrollbar { display: none; }
+
+.kar-arka-ad {
+  font-family: var(--cinzel, serif); font-weight: 600;
+  font-size: 15px; letter-spacing: 1.4px; color: var(--text, #EAE2D6);
+  text-align: center;
+}
+.kar-arka-fis {
+  font-family: var(--garamond, serif); font-style: italic;
+  font-size: 12px; color: var(--gold, #F5A623);
+  text-align: center; margin-top: 3px; opacity: .82;
+}
+.kar-arka--lapis .kar-arka-fis { color: var(--lapis-bright, #5A8AD8); }
+
+.kar-portre {
+  font-family: var(--garamond, serif); font-size: 13.5px; line-height: 1.55;
+  color: var(--text, #EAE2D6); margin: 14px 0 0;
+}
+.kar-blok { margin-top: 13px; font-family: var(--garamond, serif); font-size: 12.5px;
+  line-height: 1.5; color: var(--text-mid, #95897A); }
+.kar-blok-h {
+  display: block; font-family: var(--cinzel, serif); font-size: 8px;
+  letter-spacing: 2.6px; color: var(--gold, #F5A623); margin-bottom: 5px;
+}
+.kar-arka--lapis .kar-blok-h { color: var(--lapis-bright, #5A8AD8); }
+
+/* Dört boyut bloklardan BİR KADEME aşağıdadır: aynı puntoda ve aynı altında
+   yazıldıklarında göz ikisini tek liste sanıyordu. Başlık kısık, üstünde
+   ince bir ayraç — hiyerarşi renkle ve boşlukla kurulur, kutuyla değil. */
+.kar-boyut { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(245, 166, 35, .10); }
+.kar-boyut:first-of-type { margin-top: 16px; }
+.kar-arka--lapis .kar-boyut { border-top-color: rgba(90, 138, 216, .12); }
+.kar-boyut-h {
+  font-family: var(--cinzel, serif); font-size: 7px; letter-spacing: 2px;
+  color: rgba(245, 166, 35, .62); margin-bottom: 4px;
+}
+.kar-arka--lapis .kar-boyut-h { color: rgba(90, 138, 216, .70); }
+.kar-boyut ul { margin: 0; padding-left: 14px; }
+.kar-boyut li {
+  font-family: var(--garamond, serif); font-size: 12.5px; line-height: 1.5;
+  color: var(--text-mid, #95897A); margin-bottom: 2px;
+}
+/* Kullanıcının KENDİ cümlesi öndedir: göz önce ona gitmeli (§6.10 kaynak
+   ayrımı). Kitabın metni kısık kalır — o okundu, bu yaşandı. */
+.kar-boyut li.kar-benim { color: var(--text, #EAE2D6); }
+
+/* Masaya açılan kapı — eski köprü ışığının halefi. Kart arkasında bir
+   EYLEMdir, o yüzden altın çerçeveyi taşır (prensip §1: altın = eylem). */
+.kar-masa {
+  display: block; width: 100%; margin-top: 16px;
+  padding: 9px 10px; cursor: pointer;
+  background: rgba(245, 166, 35, .07);
+  border: 1px solid rgba(245, 166, 35, .55);
+  font-family: var(--cinzel, serif); font-size: 8.5px; letter-spacing: 2.4px;
+  color: var(--gold, #F5A623);
+  -webkit-tap-highlight-color: transparent;
+  transition: background .2s var(--ease-out, ease);
+}
+.kar-masa:hover, .kar-masa:focus-visible { background: rgba(245, 166, 35, .14); }
+
+.kar-kok {
+  margin-top: 16px; padding-top: 10px;
+  border-top: 1px solid var(--border, #281F16);
+  font-family: var(--cinzel, serif); font-size: 7px; letter-spacing: 1.6px;
+  color: var(--text-dim, #585349); text-align: center;
+}
+.kar-arka-bos {
+  margin-top: 26px; text-align: center;
+  font-family: var(--garamond, serif); font-style: italic; font-size: 13px;
+  color: var(--text-dim, #585349);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kar-flip { transition: none; }
+}
+
+.kar-etiket {
+  font-family: var(--cinzel, serif); font-weight: 600;
+  font-size: 9.5px; letter-spacing: 3.6px;
+  color: var(--gold, #F5A623);
+  text-align: center;
+}
+
+/* ── Sayfa konumu ──
+   Üç sayfanın varlığı görünür olmalı, yoksa yandaki iki kart keşfedilmeyi
+   bekler. Gösterge bir SAYAÇ değildir ("2/3" yazmaz): üç nokta, yanan
+   olan bulunduğun sayfa. Nokta konum söyler, ölçü değil. */
+.kar-noktalar {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 7px; z-index: 2; pointer-events: none;
+}
+.kar-nokta {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(234, 226, 214, .22);
+  transition: background .3s var(--ease-out, ease), transform .3s var(--ease-out, ease);
+}
+.kar-nokta.is-on { background: var(--gold, #F5A623); transform: scale(1.25); }
+.kar-nokta[data-kind="lapis"].is-on { background: var(--lapis-bright, #5A8AD8); }
+.kar-sayfa[data-kar-sayfa="lapis"] .kar-etiket { color: var(--lapis-bright, #5A8AD8); }
+
+/* ── Alt davet: aşağıda birileri var ── */
+/* Davet odanın ANA EYLEMİdir; sönük bir ipucu değil. Metin fildişine yakın
+   durur (okunur), oku ALTINDIR — altın eylemin rengidir (prensip §1) ve iki
+   kutupta da aynı kalır: aşağı inmek her sayfada aynı jesttir. */
+.kar-davet {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: 0; cursor: pointer;
+  padding: 9px 10px;
+  font-family: var(--cinzel, serif); font-size: 9px;
+  letter-spacing: 2.4px; color: rgba(234, 226, 214, .72);
+  -webkit-tap-highlight-color: transparent;
+  transition: color .2s var(--ease-out, ease);
+}
+.kar-davet:hover, .kar-davet:focus-visible { color: var(--text, #EAE2D6); }
+.kar-davet span {
+  color: var(--gold, #F5A623);
+  animation: karDavetNefes 2.6s var(--ease-out, ease) infinite;
+}
+@keyframes karDavetNefes {
+  0%, 100% { transform: translateY(0); opacity: .55; }
+  50%      { transform: translateY(3px); opacity: 1; }
+}
+
+/* ── Kapanış ── */
+.kar-kapat {
+  position: absolute; top: 14px; right: 14px;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  background: rgba(10, 9, 7, .55); color: var(--text-mid, #95897A);
+  border: 1px solid var(--border, #281F16); border-radius: 50%;
+  font-size: 15px; line-height: 1; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+}
+.kar-kapat:hover, .kar-kapat:focus-visible { color: var(--gold, #F5A623); }
+
+@media (prefers-reduced-motion: reduce) {
+  .kar-portal { animation: none; }
+  .kar-davet span { animation: none; }
+  .kar-yatay, .kar-dikey { scroll-behavior: auto; }
+}

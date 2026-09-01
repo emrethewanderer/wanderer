@@ -1,0 +1,149 @@
+/* ═══════════════════════════════════════
+   WANDERER WRAPPED (13j) — Ayın Filmi · story sineması
+═══════════════════════════════════════ */
+.wr-portal { position: fixed; inset: 0; z-index: var(--z-cinematic, 9999); }
+
+.wr-stage {
+  position: absolute; inset: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse 140% 50% at 50% 112%, rgba(255, 178, 120, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 120% 55% at 50% -10%, rgba(86, 74, 140, 0.16) 0%, transparent 55%),
+    linear-gradient(178deg, #0E0C13 0%, #0F0C08 45%, #120D09 100%);
+  animation: wrStageIn .5s ease both;
+}
+.wr-stage--lapis {
+  background:
+    radial-gradient(ellipse 140% 50% at 50% 112%, rgba(45, 95, 168, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 120% 55% at 50% -10%, rgba(86, 74, 140, 0.2) 0%, transparent 55%),
+    linear-gradient(178deg, #0D0D16 0%, #0E0C10 45%, #0F0D12 100%);
+}
+@keyframes wrStageIn { from { opacity: 0; } to { opacity: 1; } }
+.wr-stage::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain-img); background-size: 240px 240px;
+  opacity: .05; mix-blend-mode: overlay;
+}
+
+/* ── story ilerleme çubukları ── */
+.wr-bars {
+  position: absolute; top: calc(var(--safe-t, 0px) + 14px); left: 16px; right: 16px;
+  display: flex; gap: 5px; z-index: 3;
+}
+.wr-bar {
+  flex: 1; height: 2.5px; border-radius: 2px; overflow: hidden;
+  background: rgba(234, 226, 214, 0.16);
+}
+.wr-bar i { display: block; height: 100%; width: 0; background: var(--gold, #F5A623); }
+.wr-bar--done i { width: 100%; }
+.wr-bar--live i { animation: wrBarFill linear both; animation-duration: 5200ms; }
+@keyframes wrBarFill { from { width: 0; } to { width: 100%; } }
+
+.wr-close {
+  position: absolute; top: calc(var(--safe-t, 0px) + 28px); right: 16px; z-index: 4;
+  background: none; border: none; color: rgba(234, 226, 214, 0.55);
+  font-size: 18px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%;
+  transition: color .15s;
+}
+.wr-close:hover { color: var(--text, #EAE2D6); }
+
+/* ── sahne ── */
+.wr-scene {
+  position: relative; z-index: 2; text-align: center;
+  width: min(88vw, 420px); padding: 0 10px;
+  animation: wrSceneIn .65s var(--ease-out, ease) both;
+}
+@keyframes wrSceneIn { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+.wr-kicker {
+  font-size: 10px; letter-spacing: 4px; font-weight: 700;
+  color: var(--gold, #F5A623); text-transform: uppercase; opacity: .9;
+}
+.wr-stage--lapis .wr-kicker { color: var(--lapis-bright, #5A8AD8); }
+.wr-glyph {
+  font-size: 40px; margin-top: 26px; color: var(--gold, #F5A623);
+  text-shadow: 0 0 26px rgba(245, 166, 35, 0.5);
+}
+.wr-stage--lapis .wr-glyph { color: var(--lapis-bright, #5A8AD8); text-shadow: 0 0 26px rgba(90, 138, 216, 0.5); }
+/* TASARIM-MUAF: sahne sayısı (gün/kart adedi) — rakam sıkılaştırılmaz */
+.wr-big {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 96px; line-height: 1; color: var(--text, #EAE2D6); margin-top: 14px;
+  animation: wrBigIn .8s .15s var(--ease-spring, ease) both;
+}
+@keyframes wrBigIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+.wr-label {
+  font-size: 12px; letter-spacing: 4px; font-weight: 700;
+  color: var(--gold, #F5A623); margin-top: 10px; text-transform: uppercase;
+}
+.wr-stage--lapis .wr-label { color: var(--lapis-bright, #5A8AD8); }
+.wr-title {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 40px; color: var(--text, #EAE2D6); letter-spacing: var(--ls-display); margin-top: 16px;
+}
+.wr-lines { margin-top: 18px; }
+.wr-line {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 16.5px; line-height: 1.65; color: var(--text-mid, #95897A);
+  animation: wrSceneIn .7s .3s var(--ease-out, ease) both;
+}
+.wr-line + .wr-line { animation-delay: .55s; }
+
+/* ── dokunma bölgeleri ── */
+.wr-tap { position: absolute; top: 0; bottom: 0; z-index: 2; background: none; border: none; cursor: pointer; }
+.wr-tap--prev { left: 0; width: 32%; }
+.wr-tap--next { right: 0; width: 68%; }
+.wr-hint {
+  position: absolute; bottom: calc(var(--safe-b, 0px) + 22px); left: 0; right: 0;
+  text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: var(--text-dim, #585349); text-transform: uppercase; z-index: 1;
+  animation: wrHint 2.4s ease-in-out infinite;
+}
+@keyframes wrHint { 0%, 100% { opacity: .4; } 50% { opacity: .9; } }
+
+/* ── final eylemleri ── */
+.wr-actions { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
+.wr-share {
+  background: var(--gold, #F5A623); color: var(--gold-ink, #1a1206); border: none;
+  padding: 14px; border-radius: 10px;
+  font-family: var(--cinzel, serif); font-size: 12px; letter-spacing: 2px; font-weight: 700;
+  cursor: pointer; transition: filter .15s, transform .1s;
+}
+.wr-share:hover { filter: brightness(1.08); }
+.wr-share:active { transform: scale(.98); }
+.wr-done {
+  background: transparent; color: var(--text-mid, #95897A);
+  border: 1px solid var(--border-active, #34281B);
+  padding: 12px; border-radius: 10px;
+  font-family: var(--cinzel, serif); font-size: 11px; letter-spacing: 2px; font-weight: 700;
+  cursor: pointer; transition: color .15s, border-color .15s;
+}
+.wr-done:hover { color: var(--text, #EAE2D6); border-color: rgba(245, 166, 35, .4); }
+
+/* ── Bugün daveti ── */
+.wr-invite {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  margin-top: 14px; padding: 13px 15px; border-radius: 16px; text-align: left;
+  background: linear-gradient(165deg, rgba(245, 166, 35, 0.10), rgba(245, 166, 35, 0.03));
+  border: 1px solid rgba(245, 166, 35, 0.35);
+  cursor: pointer; transition: border-color .15s, transform .15s;
+  animation: wrSceneIn .6s var(--ease-out, ease) both;
+}
+.wr-invite:hover { border-color: rgba(245, 166, 35, 0.6); transform: translateY(-1px); }
+.wr-invite-glyph { font-size: 22px; color: var(--gold, #F5A623); text-shadow: 0 0 14px rgba(245, 166, 35, .5); }
+.wr-invite-txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.wr-invite-kick { font-size: 9px; letter-spacing: 2.5px; font-weight: 700; color: var(--gold, #F5A623); }
+.wr-invite-title { font-family: var(--serif, Georgia, serif); font-size: 14px; color: var(--text, #EAE2D6); }
+.wr-invite-cta { font-size: 10px; letter-spacing: 2px; font-weight: 700; color: var(--gold, #F5A623); }
+
+/* ════════════════════════════════════════════════════════════════════
+   prefers-reduced-motion (§5 — zorunlu, istisnasız)
+   Film oynar ama sahne kaymaz. Otomatik ilerlemeyi 13j zaten kapatıyor
+   (13j-wrapped.js:407 — `if (!sc.final && !reduce)`), yani kullanıcı
+   sahneleri kendi dokunuşuyla çevirir; burada yalnız hareket susar.
+   ════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .wr-stage, .wr-scene, .wr-big, .wr-line, .wr-hint, .wr-invite { animation: none !important; }
+  /* Çubuk yarım donmasın: ilerleme durduğuna göre bulunulan sahne dolu görünür. */
+  .wr-bar--live i { animation: none !important; width: 100%; }
+}

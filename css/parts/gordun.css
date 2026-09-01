@@ -1,0 +1,166 @@
+/* ═══════════════════════════════════════════════════════════════════
+   GÖRDÜN (10E) — "Pencereden Bakış"
+   ───────────────────────────────────────────────────────────────────
+   Üç Mühür'ün HAYAL vuruşu. Tek portal (#gor-portal), lapis gece sahne
+   (yolp-scene kalıbı, tw-* saat tonu), tüm kart/halka/buton primitifleri
+   12c'den (ikv-*). Görsel dil → TASARIM-PRENSIPLERI.md.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* z-index 9658: Yol ekranından (#yol-portal 9655) açılabildiği için onun üstünde
+   durmalı; Üç Mühür detayının (#us-portal 9660) altında kalır — gorOpen o yoldan
+   açılırken portal zaten kapanmış olur, çakışma yok. */
+#gor-portal {
+  position: fixed; inset: 0; z-index: var(--z-toren-gordun);
+  opacity: 0; transition: opacity var(--anim-slow, .45s) var(--ease-out, ease);
+}
+#gor-portal.gor-in { opacity: 1; }
+#gor-portal.gor-out { opacity: 0; }
+
+/* Gök base.css'in --sky-scene token'ından gelir (Yol ile TEK kaynak).
+   Buradaki dört tw-* kopyası zamanla ≤0.03 alfa kaymıştı — birleştirildi. */
+.gor-scene {
+  position: absolute; inset: 0; overflow: hidden;
+  background: var(--sky-scene);
+}
+
+.gor-sky {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(2px 2px at 18% 8%, rgba(203, 216, 240, .8), transparent 60%),
+    radial-gradient(1.6px 1.6px at 64% 5%, rgba(203, 216, 240, .6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 82% 12%, rgba(203, 216, 240, .5), transparent 60%),
+    radial-gradient(1.8px 1.8px at 38% 15%, rgba(203, 216, 240, .45), transparent 60%),
+    radial-gradient(1.2px 1.2px at 9% 20%, rgba(203, 216, 240, .35), transparent 60%);
+  animation: gorSkyBreath 6.5s ease-in-out infinite;
+}
+.gor-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain-img); background-size: 240px; opacity: .13;
+}
+.gor-close {
+  position: absolute; top: max(14px, var(--safe-t, 14px)); right: 16px; z-index: 5;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(15, 12, 8, .6); border: 1px solid rgba(234, 226, 214, .18);
+  color: var(--text-mid, #95897A); font-size: 15px; cursor: pointer;
+}
+.gor-close:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+.gor-scroll {
+  position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: max(56px, calc(var(--safe-t, 0px) + 48px)) 20px max(40px, var(--safe-b, 40px));
+}
+.gor-body {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px;
+  width: min(440px, 100%); margin: 0 auto; text-align: center;
+}
+
+.gor-kicker {
+  font-family: var(--cinzel); font-size: 11px; letter-spacing: 5px;
+  color: var(--gold, #F5A623);
+}
+.gor-titleline {
+  font-family: var(--serif-display, 'Fraunces', serif); font-size: 26px;
+  color: var(--text, #EAE2D6);
+}
+.gor-card { width: min(190px, 56%); margin: 2px auto; }
+.gor-card .ikv-card, .gor-card-fallback .ikv-back { transform: rotateY(-6deg) rotateZ(.6deg); }
+.gor-quote {
+  font-family: var(--serif, serif); font-style: italic; font-size: 15px;
+  color: var(--lapis-bright, #5A8AD8); max-width: 34ch;
+}
+.gor-instruction {
+  font-family: var(--serif, serif); font-size: 13px; color: var(--text-mid, #95897A);
+  max-width: 36ch;
+}
+
+/* Günün Penceresi */
+.gor-window {
+  width: 100%; box-sizing: border-box; padding: 16px 18px; border-radius: var(--radius-xl, 24px);
+  background: rgba(90, 138, 216, .06); border: 1px solid rgba(90, 138, 216, .22);
+  position: relative; overflow: hidden;
+}
+.gor-window::after {
+  content: ''; position: absolute; inset: 0; background-image: var(--grain-img);
+  background-size: 240px; opacity: .08; pointer-events: none;
+}
+.gor-window-lbl {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 3px;
+  color: var(--lapis-bright, #5A8AD8); margin-bottom: 8px;
+}
+.gor-window-cat {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 1.5px;
+  /* text-transform YOK — TR'de "i"→"I" kırılması (ölçüm: yol.css .yol-feed) */
+  color: var(--text-dim, #585349); margin-bottom: 4px;
+}
+.gor-window-line {
+  font-family: var(--serif, serif); font-size: 18px; line-height: 1.55;
+  color: var(--text, #EAE2D6);
+}
+.gor-window--empty { text-align: center; }
+.gor-empty-title {
+  font-family: var(--serif-display, 'Fraunces', serif); font-size: 17px;
+  color: var(--text, #EAE2D6); margin-bottom: 6px;
+}
+.gor-empty-body {
+  font-family: var(--serif, serif); font-size: 13px; color: var(--text-mid, #95897A);
+  margin-bottom: 14px;
+}
+
+/* Bakış — nefes halkası + soru + giriş */
+.gor-ring-wrap { margin: 4px auto; }
+.gor-ring-glyph { font-size: 20px; color: var(--lapis-bright, #5A8AD8); }
+.gor-question {
+  font-family: var(--serif, serif); font-size: 17px; color: var(--text, #EAE2D6);
+  max-width: 30ch;
+}
+.gor-input {
+  width: 100%; max-width: 380px; box-sizing: border-box; padding: 12px 16px;
+  border-radius: var(--radius-full, 999px); background: rgba(0, 0, 0, .28);
+  border: 1px solid rgba(234, 226, 214, .18); color: var(--text, #EAE2D6);
+  font-family: var(--serif, serif); font-size: 16px; text-align: center;
+}
+.gor-input::placeholder { color: var(--text-dim, #585349); }
+.gor-input:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.gor-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 4px; }
+
+/* Mühür */
+.gor-seal-stage { position: relative; width: 100px; height: 100px; margin: 6px auto; }
+.gor-seal-stamp {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 74px; height: 74px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: #1A1206;
+  background: radial-gradient(circle at 38% 30%, var(--gold-bright, #F7C744), var(--gold, #F5A623) 58%, #D98F1B);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 0 34px rgba(245, 166, 35, .65), 0 6px 18px rgba(0, 0, 0, .5);
+  animation: gorStamp .7s var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+}
+.gor-seal-line {
+  font-family: var(--serif, serif); font-style: italic; font-size: 16px;
+  color: var(--text, #EAE2D6); max-width: 32ch;
+}
+.gor-milestone {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 4px 0;
+}
+.gor-milestone-thumb { width: 52px; height: 66px; border-radius: 8px; overflow: hidden; opacity: .95; }
+.gor-milestone-thumb svg { width: 100%; height: 100%; display: block; }
+.gor-milestone-label {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 1.5px; color: var(--gold, #F5A623);
+}
+
+/* Zaten yapıldı (recap) */
+.gor-already { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.gor-already-line {
+  font-family: var(--serif, serif); font-size: 15px; color: var(--text-mid, #95897A);
+}
+.gor-already-quote {
+  font-family: var(--serif, serif); font-style: italic; font-size: 17px;
+  color: var(--text, #EAE2D6); max-width: 32ch;
+}
+
+@keyframes gorSkyBreath { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes gorStamp { from { opacity: 0; transform: translate(-50%, -50%) scale(2.4); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gor-sky, .gor-seal-stamp { animation: none; }
+  #gor-portal { transition: none; }
+}

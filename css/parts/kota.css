@@ -1,0 +1,262 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KOTA MOTORU (13m) — kota çemberi + detay kartı
+   Dil: obsidyen taban · altın = 5 saatlik pencere (eylem) ·
+        lapis = haftalık (uzun yol) · --red = tükenmiş eşik
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Mini halka — composer ayağındaki kota çemberi ── */
+.kt-ring-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; padding: 0;
+  background: none; border: none; border-radius: 50%;
+  cursor: pointer; color: var(--gold);
+  transition: color 0.4s var(--ease-out), transform 0.3s var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.kt-ring-btn:active { transform: scale(0.92); }
+.kt-ring-btn .kt-ring-track {
+  fill: none; stroke: rgba(245, 166, 35, 0.14); stroke-width: 2;
+}
+.kt-ring-btn .kt-ring-arc {
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--ease-out), stroke 0.4s ease;
+}
+.kt-ring-btn.kt-low   { color: var(--gold-bright); }
+.kt-ring-btn.kt-empty { color: var(--red); }
+.kt-ring-btn.kt-empty .kt-ring-track { stroke: rgba(192, 57, 43, 0.18); }
+
+/* Armağan modu — pencereler kapalı, Üç Mühür armağanı taşıyor:
+   lapis ark + altın nefes alan ışıma (iki rengin buluştuğu an) */
+.kt-ring-btn.kt-bonus { color: var(--lapis-bright); }
+.kt-ring-btn.kt-bonus .kt-ring-track { stroke: rgba(245, 166, 35, 0.16); }
+.kt-ring-btn.kt-bonus .kt-ring-arc {
+  filter: drop-shadow(0 0 4px var(--gold-dim));
+  animation: ktBonusBreath 2.6s ease-in-out infinite alternate;
+}
+@keyframes ktBonusBreath {
+  from { filter: drop-shadow(0 0 2px var(--gold-dim)); }
+  to   { filter: drop-shadow(0 0 7px var(--lapis-glow)); }
+}
+
+/* ── Premium halka — "sınırsız" çemberi ──
+   Geçmiş Günler etiketinin shimmer dili: sakin --text-dim zemin üzerinde
+   yavaşça gezinen altın ve lapis parıltı (ch-label-shimmer ile aynı ritim).
+   Halka, lineer shimmer gradyanından radial mask ile oyulur. */
+.kt-ring-btn .kt-prem {
+  position: relative; width: 19px; height: 19px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.kt-prem-spin {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: linear-gradient(90deg,
+    var(--text-dim) 0%, var(--text-dim) 18%,
+    var(--gold) 28%,
+    var(--text-dim) 38%, var(--text-dim) 60%,
+    var(--lapis-bright) 70%,
+    var(--text-dim) 80%, var(--text-dim) 100%);
+  background-size: 500% auto;
+  -webkit-mask: radial-gradient(farthest-side, transparent 70%, #000 76%);
+  mask: radial-gradient(farthest-side, transparent 70%, #000 76%);
+  animation: ktShimmer 8s linear infinite;
+}
+/* Merkez yıldız — aynı shimmer, metin üzerinden (Geçmiş Günler ile birebir) */
+.kt-prem-star {
+  position: relative; font-size: 8px; line-height: 1;
+  background: linear-gradient(90deg,
+    var(--text-dim) 0%, var(--text-dim) 18%,
+    var(--gold) 28%,
+    var(--text-dim) 38%, var(--text-dim) 60%,
+    var(--lapis-bright) 70%,
+    var(--text-dim) 80%, var(--text-dim) 100%);
+  background-size: 500% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: ktShimmer 8s linear infinite;
+}
+@keyframes ktShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 100% center; }
+}
+
+/* ── Detay kartı — alttan yükselen eşik kartı ── */
+#kt-sheet {
+  position: fixed; inset: 0; z-index: var(--z-kota-duvari);
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(8, 6, 4, 0.62);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s var(--ease-out);
+}
+#kt-sheet.open { opacity: 1; pointer-events: auto; }
+
+#kt-sheet .kt-card {
+  position: relative; width: 100%; max-width: 430px;
+  margin: 0 10px; margin-bottom: max(14px, env(safe-area-inset-bottom));
+  padding: 26px 22px 22px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(245, 166, 35, 0.05), transparent 55%),
+    var(--bg-raised);
+  border: 1px solid rgba(245, 166, 35, 0.16);
+  border-radius: 20px;
+  transform: translateY(24px);
+  transition: transform 0.45s var(--ease-out);
+}
+#kt-sheet.open .kt-card { transform: translateY(0); }
+
+.kt-close {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: none; cursor: pointer;
+  font-size: 22px; line-height: 1; color: var(--text-dim);
+  padding: 6px;
+}
+
+.kt-head { text-align: center; margin-bottom: 18px; }
+.kt-title {
+  font-size: 11px; letter-spacing: 4px; color: var(--gold);
+  text-transform: uppercase;
+}
+.kt-sub { margin-top: 5px; font-size: 11.5px; color: var(--text-dim); }
+
+.kt-rings { display: flex; justify-content: center; gap: 26px; }
+.kt-ring-block {
+  position: relative; width: 124px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+}
+.kt-big-track { fill: none; stroke: rgba(255, 255, 255, 0.06); stroke-width: 4; }
+.kt-big-arc {
+  fill: none; stroke-width: 4; stroke-linecap: round;
+  transition: stroke-dashoffset 0.9s var(--ease-out), stroke 0.4s ease;
+}
+.kt-arc-5h   { stroke: var(--gold);  filter: drop-shadow(0 0 6px var(--gold-dim)); }
+.kt-arc-week { stroke: var(--lapis-bright); filter: drop-shadow(0 0 6px var(--lapis-dim)); }
+.kt-big-arc.kt-arc-empty { stroke: var(--red); filter: none; }
+
+/* kalan sayı — halkanın merkezine demirli (svg 104px yükseklik) */
+/* TASARIM-MUAF: tabular-nums sayı — display aralığı rakam sütun hizasını bozar */
+.kt-ring-num {
+  position: absolute; top: 52px; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif-display);
+  font-size: 30px; font-weight: 500; color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.kt-ring-label {
+  margin-top: 8px; font-size: 9px; letter-spacing: 2.5px;
+  color: var(--text-mid); text-transform: uppercase;
+}
+.kt-ring-reset {
+  margin-top: 4px; font-size: 10.5px; color: var(--text-dim);
+  min-height: 14px;
+}
+
+/* ── Ultra Armağanı satırı — Üç Mühür günü detay kartında ── */
+.kt-bonus-row {
+  margin: 16px auto 0; max-width: 320px;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 14px; border-radius: 11px;
+  font-size: 10.5px; letter-spacing: 1.8px; color: var(--text-mid);
+  border: 1px solid rgba(245, 166, 35, 0.22);
+  background: linear-gradient(90deg, rgba(245, 166, 35, 0.08), rgba(45, 95, 168, 0.12));
+}
+.kt-bonus-row b {
+  font-weight: 600;
+  background: linear-gradient(90deg, var(--gold), var(--lapis-bright));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.kt-bonus-glyph { color: var(--gold); text-shadow: 0 0 6px var(--gold-dim); }
+
+.kt-note {
+  margin: 18px auto 0; max-width: 320px;
+  font-size: 11.5px; line-height: 1.6; color: var(--text-dim);
+  text-align: center;
+}
+
+.kt-cta-row { display: flex; justify-content: center; margin-top: 18px; }
+.kt-cta {
+  padding: 12px 26px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(245, 166, 35, 0.35);
+  border-radius: 999px;
+  color: var(--gold); font-size: 11px; letter-spacing: 2.5px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s var(--ease-out);
+}
+.kt-cta:active { transform: scale(0.97); }
+
+/* ── Premium detay kartı — "sınırsız" Studio yüzü ── */
+#kt-sheet .kt-card--prem {
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgba(245, 166, 35, 0.06), transparent 55%),
+    radial-gradient(120% 90% at 70% 0%, rgba(45, 95, 168, 0.10), transparent 55%),
+    var(--bg-raised);
+  border-color: rgba(90, 138, 216, 0.22);
+}
+.kt-title--prem {
+  background: linear-gradient(90deg,
+    var(--gold) 0%, var(--gold) 30%,
+    var(--lapis-bright) 50%,
+    var(--gold) 70%, var(--gold) 100%);
+  background-size: 500% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: ktShimmer 8s linear infinite;
+}
+.kt-prem-hero {
+  position: relative; height: 132px;
+  display: flex; align-items: center; justify-content: center;
+}
+.kt-prem-hero-ring {
+  width: 112px; height: 112px; border-radius: 50%;
+  background: linear-gradient(90deg,
+    var(--text-dim) 0%, var(--text-dim) 18%,
+    var(--gold) 28%,
+    var(--text-dim) 38%, var(--text-dim) 60%,
+    var(--lapis-bright) 70%,
+    var(--text-dim) 80%, var(--text-dim) 100%);
+  background-size: 500% auto;
+  -webkit-mask: radial-gradient(farthest-side, transparent 88%, #000 92%);
+  mask: radial-gradient(farthest-side, transparent 88%, #000 92%);
+  animation: ktShimmer 8s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.4));
+}
+/* TASARIM-MUAF: tek glif (∞) — harf aralığı iki harf arasında yaşar, burada ikinci harf yok */
+.kt-prem-hero-inf {
+  position: absolute; font-family: var(--serif-display);
+  font-size: 42px; font-weight: 500;
+  background: linear-gradient(90deg,
+    var(--text) 0%, var(--text) 20%,
+    var(--gold-bright) 32%,
+    var(--text) 44%, var(--text) 58%,
+    var(--lapis-bright) 70%,
+    var(--text) 82%, var(--text) 100%);
+  background-size: 500% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: ktShimmer 8s linear infinite;
+}
+.kt-prem-rows { margin: 6px auto 0; max-width: 300px; }
+.kt-prem-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 4px; font-size: 11.5px; color: var(--text-mid);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.kt-prem-row:last-child { border-bottom: none; }
+.kt-prem-row b {
+  font-weight: 600; letter-spacing: 1.5px; font-size: 11px;
+  background: linear-gradient(90deg, var(--gold), var(--lapis-bright));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* ── Duvar altı kota satırı (06 duvar balonunun altındaki ince bilgi) ── */
+.kt-wall-meta {
+  display: flex; justify-content: center; padding: 4px 0 14px;
+  font-size: 10.5px; letter-spacing: 1px; color: var(--text-dim);
+}
+
+/* Hareket azaltma — shimmer ve nefes animasyonları durur */
+@media (prefers-reduced-motion: reduce) {
+  .kt-prem-spin, .kt-prem-star, .kt-prem-hero-ring, .kt-prem-hero-inf,
+  .kt-title--prem,
+  .kt-ring-btn.kt-bonus .kt-ring-arc { animation: none !important; }
+}

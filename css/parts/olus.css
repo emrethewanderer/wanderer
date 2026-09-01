@@ -1,0 +1,687 @@
+/* ═══════════════════════════════════════════════════════════════════
+   OLUŞ MÜHRÜ · Davet Töreni (10q4)
+   ───────────────────────────────────────────────────────────────────
+   Üç durak, iki renk ekseni (prensip §1: altın = olduğun / lapis = hedef):
+     1-A KAPALI KART — koleksiyonun sırtı; kullanıcı çevirir (§5 flip dili).
+     1-B LAPİS YÜZ   — kart henüz senin değil, eşikte. Soru burada; karta
+                       dokununca YAPRAK açılır (dört boyut + "neden sen").
+     2   MÜHÜR       — kullanıcı basılı tutar (§7 ilerleme=halka), temas
+                       anında kart lapis'ten altına ERİR. Mühür daima altın.
+   Kart yüzü ve sırtı 12c'nin TEK motorundan gelir (ikvCardFace/ikvCardBack)
+   — paralel kart stili yoktur; buradaki iş yalnız sahneyi kurmaktır.
+   Ambalaj/folyo dili bilerek YOK: bu mekânda kart bir ürün değildir (§0).
+   ═══════════════════════════════════════════════════════════════════ */
+
+#olus-portal {
+  font-family: var(--cinzel, 'Cinzel', serif);
+}
+
+/* ── Perde ── */
+.olus-veil {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 42%, rgba(26, 44, 84, .74), rgba(6, 8, 14, .96));
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  animation: olusFade .45s ease both;
+}
+.olus-veil--gold {                              /* perde 2: mühür anı ısınır */
+  background: radial-gradient(ellipse at 50% 42%, rgba(84, 58, 18, .74), rgba(8, 6, 4, .96));
+}
+/* §2 — sahne saatle yaşar. Obsidyen taban sabit kalır; yalnız üstündeki ışık
+   kayar: sabah serin indigo, gündüz dengeli, akşam kehribara ısınır (ocağın
+   başı), gece derinleşir. Eşik perdesi lapis eksende, mühür perdesi altın. */
+.tw-morning .olus-veil { background: radial-gradient(ellipse at 50% 42%, rgba(32, 48, 92, .74), rgba(7, 9, 16, .96)); }
+.tw-day     .olus-veil { background: radial-gradient(ellipse at 50% 42%, rgba(30, 52, 98, .70), rgba(7, 9, 15, .95)); }
+.tw-evening .olus-veil { background: radial-gradient(ellipse at 50% 42%, rgba(46, 44, 78, .76), rgba(9, 7, 10, .96)); }
+.tw-night   .olus-veil { background: radial-gradient(ellipse at 50% 42%, rgba(18, 32, 68, .80), rgba(4, 6, 12, .97)); }
+.tw-morning .olus-veil--gold { background: radial-gradient(ellipse at 50% 42%, rgba(96, 62, 22, .72), rgba(9, 7, 5, .96)); }
+.tw-day     .olus-veil--gold { background: radial-gradient(ellipse at 50% 42%, rgba(92, 64, 20, .70), rgba(9, 7, 5, .95)); }
+.tw-evening .olus-veil--gold { background: radial-gradient(ellipse at 50% 42%, rgba(104, 60, 16, .78), rgba(10, 6, 4, .96)); }
+.tw-night   .olus-veil--gold { background: radial-gradient(ellipse at 50% 42%, rgba(70, 46, 14, .80), rgba(5, 4, 3, .97)); }
+.olus-stars {
+  position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image:
+    radial-gradient(1.4px 1.4px at 18% 24%, rgba(200, 220, 255, .9), transparent),
+    radial-gradient(1.2px 1.2px at 72% 18%, rgba(200, 220, 255, .75), transparent),
+    radial-gradient(1.6px 1.6px at 38% 68%, rgba(200, 220, 255, .8), transparent),
+    radial-gradient(1.2px 1.2px at 84% 62%, rgba(200, 220, 255, .7), transparent),
+    radial-gradient(1.3px 1.3px at 56% 86%, rgba(200, 220, 255, .65), transparent);
+  animation: olusFade .8s ease .25s both;
+}
+
+/* ── Sahne ── */
+.olus-stage {
+  position: relative; z-index: 2;
+  height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  padding: 24px 22px; text-align: center;
+}
+
+.olus-kicker {
+  font-size: 9px; letter-spacing: 3.4px; color: var(--lapis-bright, #5A8AD8);
+  animation: olusIn .5s var(--ease-out, ease) .1s both;
+}
+.olus-kicker--seal { color: var(--gold, #F5A623); animation-delay: 1s; }
+/* Mühür perdesinde kicker beklemez: sahne açılır açılmaz "OLUŞ MÜHRÜ" der,
+   çünkü artık damganın oturmasını değil kullanıcının elini bekliyoruz. */
+.olus-kicker--now { animation-delay: .1s; }
+
+/* Kart — 12c yüzü. `.ikv-card` genişliğini PARENT'tan alır (width:100%,
+   aspect-ratio 5/7), o yüzden ölçüyü sahne verir; Seri Mührü töreninin
+   (.sm-card, 196px) kalibresi. Dar ekranda ölçeklenir, sahne taşmaz. */
+.olus-card {
+  width: 200px; transform-origin: center;
+  animation: olusCardIn .7s var(--ease-spring, cubic-bezier(.34, 1.56, .64, 1)) .15s both;
+}
+.olus-card--seal { animation-duration: .5s; animation-delay: 0s; }
+@media (max-height: 720px) { .olus-card { transform: scale(.82); margin: -14px 0; } }
+@media (max-height: 620px) { .olus-card { transform: scale(.68); margin: -26px 0; } }
+
+.olus-kanit {
+  font-family: var(--serif, Georgia); font-size: 13px; line-height: 1.6;
+  color: var(--text-mid, #95897A); max-width: 34ch;
+  animation: olusIn .55s var(--ease-out, ease) .45s both;
+}
+.olus-soru {
+  font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 17px; line-height: 1.5; color: var(--text, #EAE2D6); max-width: 30ch;
+  animation: olusIn .55s var(--ease-out, ease) .65s both;
+}
+
+/* ── İki mühür ── */
+.olus-actions {
+  display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px;
+  animation: olusIn .55s var(--ease-out, ease) .9s both;
+}
+.olus-btn {
+  min-height: 46px; padding: 0 18px; border-radius: var(--radius-full, 999px);
+  cursor: pointer; font-family: var(--cinzel, serif);
+  font-size: 11px; letter-spacing: 1.6px; line-height: 1.4;
+  transition: transform .18s var(--ease-out, ease), box-shadow .18s ease, color .18s ease;
+}
+.olus-btn:active { transform: scale(.97); }
+.olus-btn--evet {                                /* karar altındır */
+  border: none; color: #1A1206;
+  background: linear-gradient(180deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  box-shadow: 0 0 24px rgba(245, 166, 35, .35), 0 4px 14px rgba(0, 0, 0, .4);
+}
+.olus-btn--evet:hover { box-shadow: 0 0 32px rgba(245, 166, 35, .5), 0 4px 14px rgba(0, 0, 0, .4); }
+.olus-btn--hayir {                               /* ret sessizdir, ceza değil */
+  background: transparent; color: var(--text-dim, #585349);
+  border: 1px solid rgba(148, 140, 128, .28);
+}
+.olus-btn--hayir:hover { color: var(--text-mid, #95897A); border-color: rgba(148, 140, 128, .5); }
+
+/* Mühür perdesinin aksiyonları — damga oturduktan sonra belirir */
+.olus-actions--seal { animation: olusIn .5s var(--ease-out, ease) both; }
+.olus-actions--seal[hidden] { display: none; }
+
+/* ═══ PERDE 1-A · KAPALI KART ═══
+   Ambalaj yok: kartın kapalı hâli koleksiyonun kendi SIRTIDIR (12c
+   ikvCardBack — kafes, çift halka, fener mührü). Açılış §5'in flip diliyle:
+   rotateY, ev eğrisi. Wanderer kapalı kartı uzatır, çeviren kullanıcıdır. */
+.olus-flip {
+  width: 200px; perspective: 1200px; cursor: pointer;
+  padding: 0; border: none; background: none; display: block;
+  -webkit-tap-highlight-color: transparent;
+  animation: olusCardIn .7s var(--ease-spring, cubic-bezier(.34, 1.56, .64, 1)) .15s both;
+}
+.olus-flip-in {
+  position: relative; display: block; transform-style: preserve-3d;
+  transition: transform var(--anim-xslow, .8s) var(--ease-out, cubic-bezier(.16, 1, .3, 1));
+}
+.olus-flip.is-flipped .olus-flip-in { transform: rotateY(180deg); }
+.olus-flip-face { display: block; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.olus-flip-face--front { position: absolute; inset: 0; transform: rotateY(180deg); }
+.olus-flip:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 8px; border-radius: var(--radius-lg, 20px); }
+/* Kapalı kart "canlı" durur: fener mührü yavaş nefes alır (§5 nefes). */
+.olus-flip .ikv-back-glow { animation: olusBreath 4.2s ease-in-out infinite; }
+.olus-flip.is-flipped .ikv-back-glow { animation: none; }
+.olus-sirt-hint {
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 3px;
+  color: var(--text-dim, #585349);
+  animation: olusIn .5s var(--ease-out, ease) .6s both;
+}
+
+/* ═══ PERDE 0 · ÜÇ KAPI ═══
+   Wanderer üç adayı daraltır, açanı kullanıcı seçer. Kapılar KAPALI durur:
+   sırtta yalnız kartın ailesi (kategori glifi) ve nadirlik ışığı vardır —
+   kimin beklediği çevirince görünür. Işık 12f yelpazesinin kardeşidir
+   (orada .kk-fan-card::after); iki yüzeyde de aynı söz: nadirlik flip'ten
+   ÖNCE fısıldar, çevrilince susar. */
+.olus-stage--kapi { gap: 18px; }
+.olus-kapilar {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(10px, 3vw, 20px); perspective: 1400px;
+}
+.olus-kapi {
+  position: relative; width: clamp(88px, 26vw, 150px);
+  padding: 0; border: none; background: none; cursor: pointer; display: block;
+  -webkit-tap-highlight-color: transparent;
+  animation: olusCardIn .7s var(--ease-spring, cubic-bezier(.34, 1.56, .64, 1)) both;
+  animation-delay: calc(.15s + var(--i, 0) * .12s);
+  transition: transform .3s var(--ease-out, ease), opacity .45s var(--ease-out, ease);
+}
+.olus-kapi:hover { transform: translateY(-6px); }
+.olus-kapi:active { transform: scale(.985); }
+.olus-kapi:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 8px; border-radius: var(--radius-lg, 20px); }
+/* z-index:1 — beklenti ışığı kapının ARKASINDA kalsın (::after sonra gelir,
+   verilmezse blur'lu renk kartın yüzünü örter). */
+.olus-kapi-flip {
+  position: relative; z-index: 1; display: block; transform-style: preserve-3d;
+  transition: transform var(--anim-xslow, .8s) var(--ease-out, cubic-bezier(.16, 1, .3, 1));
+}
+.olus-kapi.is-flipped .olus-kapi-flip { transform: rotateY(180deg); }
+.olus-kapi-face { display: block; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.olus-kapi-face--front { position: absolute; inset: 0; transform: rotateY(180deg); }
+.olus-kapi .ikv-back-glow { animation: olusBreath 4.2s ease-in-out infinite; }
+.olus-kapi.is-flipped .ikv-back-glow { animation: none; }
+
+.olus-kapi::after {
+  content: ''; position: absolute; inset: -24%; border-radius: 50%;
+  pointer-events: none; filter: blur(9px); opacity: 0;
+  background: radial-gradient(ellipse at center, var(--rar, transparent) 18%, transparent 72%);
+  transition: opacity .45s var(--ease-out, ease);
+}
+.olus-kapi[data-rarity=nadir]  { --bekle-min: .16; --bekle-max: .38; }
+.olus-kapi[data-rarity=nadide] { --bekle-min: .24; --bekle-max: .58; }
+.olus-kapi[data-rarity=efsane] { --bekle-min: .34; --bekle-max: .8; }
+.olus-kapi[data-rarity=nadir]::after,
+.olus-kapi[data-rarity=nadide]::after { animation: olusBekle 2.4s ease-in-out infinite; }
+.olus-kapi[data-rarity=efsane]::after { animation: olusBekle 1.5s ease-in-out infinite; }
+.olus-kapi.is-flipped::after { animation: none !important; opacity: 0 !important; }
+@keyframes olusBekle {
+  0%, 100% { opacity: var(--bekle-min, 0); transform: scale(.93); }
+  50%      { opacity: var(--bekle-max, 0); transform: scale(1.07); }
+}
+
+/* Ailenin glifi — tek ipucu: kim olduğu değil, nereden geldiği. */
+.olus-kapi-glif {
+  display: block; margin-top: 10px;
+  font-size: 13px; color: var(--text-dim, #585349); opacity: .8;
+}
+
+/* Seçim anı: açılan kapı öne çıkar, açılmayanlar sessizce çekilir —
+   reddedilmediler, yalnız bugün sıra onlarda değil. */
+.olus-kapilar.is-secildi .olus-kapi:not(.is-secili) {
+  opacity: 0; transform: scale(.88); pointer-events: none;
+}
+.olus-kapilar.is-secildi .olus-kapi.is-secili { transform: scale(1.06); }
+
+.olus-kapi-hint {
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 3px;
+  color: var(--text-dim, #585349);
+  animation: olusIn .5s var(--ease-out, ease) .6s both;
+}
+
+/* ═══ PERDE 1-B · karta dokunuş ═══ */
+.olus-card--tap {
+  /* Kart bir düğmeye dönüşür ama düğme GİBİ görünmez: dokunulabilir olduğunu
+     yalnız imleç ve hafif bir yükselme söyler. */
+  padding: 0; border: none; background: none; cursor: pointer;
+  display: block; -webkit-tap-highlight-color: transparent;
+  transition: transform .22s var(--ease-out, ease);
+}
+.olus-card--tap:hover { transform: translateY(-3px); }
+.olus-card--tap:active { transform: scale(.985); }
+.olus-card--tap:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 6px; border-radius: var(--radius-lg, 20px); }
+/* Kart az önce çevrilerek göründü: ikinci kez "süzülerek girmez" (§5 — aynı
+   nesne iki kez doğmaz), yalnız çevresindeki metinler belirir. */
+.olus-card--yerinde { animation: none; }
+
+/* ── YAPRAK — kartın içi (tören terk edilmez) ── */
+.olus-yaprak { position: absolute; inset: 0; z-index: 4; }
+.olus-y-veil {
+  position: absolute; inset: 0; background: rgba(6, 8, 14, .62);
+  opacity: 0; transition: opacity .26s var(--ease-out, ease);
+}
+.olus-yaprak.is-open .olus-y-veil { opacity: 1; }
+.olus-y-sheet {
+  --grain-op: .05;   /* kağıt greni → .wn-grain sarmalı (base.css) */
+  position: absolute; left: 0; right: 0; bottom: 0;
+  /* Kartın bir kısmı üstte GÖRÜNÜR kalır — "tören terk edilmedi" hissini
+     taşıyan şey budur; yaprak tam ekranı yerse ayrı bir sayfaya gitmiş olur. */
+  max-height: 72%; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  outline: none;
+  border-radius: var(--radius-xl, 24px) var(--radius-xl, 24px) 0 0;
+  /* §3 — hiçbir yüzey düz değil: köşelerden sızan atmosfer (lapis üst-sol =
+     eşikteki gelecek, altın üst-sağ = eşiğin çağrısı) + alta oturan obsidyen.
+     Gren AYRI katmanda (::before) düz opacity ile — gren üstünde blend-mode
+     kırılgandır (§3 uyarısı, "Gezgine Mektup" dersi). */
+  background-image:
+    radial-gradient(120% 60% at 8% 0%, rgba(45, 95, 168, .16), transparent 62%),
+    radial-gradient(90% 50% at 96% 2%, rgba(245, 166, 35, .07), transparent 58%),
+    linear-gradient(180deg, #131A2A, #0B0F18);
+  border-top: 1px solid rgba(90, 138, 216, .3);
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, .6);
+  transform: translateY(100%); transition: transform .3s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  text-align: left;
+}
+/* Yastık sarmalda: gren kenar boşluğunu da örtmeli (bkz. .wn-grain) */
+.olus-y-sheet .wn-grain { padding: 22px 20px calc(20px + env(safe-area-inset-bottom, 0px)); }
+.olus-yaprak.is-open .olus-y-sheet { transform: none; }
+.olus-y-close {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  width: 44px; height: 44px; border-radius: 50%; cursor: pointer;   /* §9 — 44px hedef */
+  background: rgba(255, 255, 255, .06); border: 1px solid rgba(148, 140, 128, .22);
+  color: var(--text-mid, #95897A); font-size: 14px; line-height: 1;
+}
+.olus-y-close:hover { color: var(--text, #EAE2D6); }
+.olus-y-close:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.olus-y-kicker {
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 3.4px;
+  color: var(--lapis-bright, #5A8AD8);
+}
+.olus-y-name {
+  font-family: var(--serif-display, 'Fraunces', Georgia); font-size: 21px;
+  color: var(--text, #EAE2D6); line-height: 1.25; margin-top: 6px;
+}
+.olus-y-portre {                                   /* §4 — şiirsel satır italiktir */
+  font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 13.5px; line-height: 1.65;
+  color: var(--text-mid, #95897A); margin-top: 8px;
+}
+.olus-y-dims { margin-top: 18px; display: flex; flex-direction: column; gap: 14px; }
+.olus-y-dim {
+  padding: 12px 14px; border-radius: var(--radius-md, 14px);
+  background: rgba(90, 138, 216, .06); border: 1px solid rgba(90, 138, 216, .16);
+}
+.olus-y-dim-h {
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 2.4px;
+  color: var(--lapis-bright, #5A8AD8);
+}
+.olus-y-dim ul { margin: 8px 0 0; padding-left: 16px; }
+.olus-y-dim li {
+  font-family: var(--serif, Georgia); font-size: 13px; line-height: 1.6;
+  color: var(--text, #EAE2D6);
+}
+.olus-y-gordum {                                  /* Wanderer'ın o alanda gördüğü */
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 12.5px;
+  line-height: 1.6; color: var(--gold-quiet, #C9A66B); margin-top: 9px;
+  padding-top: 9px; border-top: 1px solid rgba(201, 166, 107, .16);
+}
+.olus-y-emre {                                    /* "NEDEN SEN" — Emre konuşur */
+  margin-top: 18px; padding: 14px 16px; border-radius: var(--radius-md, 14px);
+  background: rgba(245, 166, 35, .06); border: 1px solid rgba(245, 166, 35, .2);
+}
+.olus-y-emre-h {
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 3px;
+  color: var(--gold, #F5A623);
+}
+.olus-y-emre-b {
+  font-family: var(--serif, Georgia); font-size: 14px; line-height: 1.65;
+  color: var(--text, #EAE2D6); margin-top: 8px;
+}
+.olus-y-geri { width: 100%; margin-top: 18px; }
+
+/* ═══ PERDE 2 · MÜHÜR BASIMI ═══
+   Mühür kendiliğinden düşmez: havada durur, kullanıcı basılı tutar, halka
+   dolar (--p: 0→1), mühür alçalır ve TEMAS anında kart altına döner. */
+.olus-stage--press { gap: 12px; }
+
+/* Lapis → Altın: anlam ekseninin görünür hâli (§1). Kart mühürlenene kadar
+   LAPİS'tir (olmak istediğin kişi); mühür değdiği an ALTIN olur (olduğun
+   kişi). İki yüz üst üste durur, biri diğerine erir — ani takas bu geçişi
+   kaçırıyordu. Lapis yüz akışta kalır (ölçüyü o verir), altın üstünde. */
+.olus-card--seal { position: relative; }
+.olus-face--gold {
+  position: absolute; inset: 0; opacity: 0;
+  transition: opacity var(--anim-slow, .45s) var(--ease-out, cubic-bezier(.16, 1, .3, 1));
+}
+.olus-face--lapis {
+  transition: opacity var(--anim-slow, .45s) var(--ease-out, cubic-bezier(.16, 1, .3, 1));
+}
+.olus-stage.is-sealed .olus-face--gold { opacity: 1; }
+.olus-stage.is-sealed .olus-face--lapis { opacity: 0; }
+.olus-press {
+  position: relative; margin: -34px 0 0; flex: 0 0 auto;
+  width: 84px; height: 84px; border-radius: 50%; cursor: pointer;
+  border: none; padding: 0; background: none;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent; touch-action: none;
+  transition: transform .2s var(--ease-out, ease), filter .2s ease;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .55));
+}
+.olus-press-face {
+  position: relative; z-index: 2;
+  width: 66px; height: 66px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--cinzel, serif); font-size: 26px; color: #4A2C05;
+  background: radial-gradient(circle at 38% 30%, var(--gold-bright, #F7C744), var(--gold, #F5A623) 58%, #C8850F);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -3px 8px rgba(120, 70, 0, .45),
+              0 0 30px rgba(245, 166, 35, .5);
+}
+/* Halka: basılı tutuldukça dolan yay (ilerleme daima halka dilinde — §7) */
+.olus-press-ring {
+  position: absolute; inset: -7px; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(var(--gold-bright, #F7C744) calc(var(--p, 0) * 360deg), rgba(148, 140, 128, .18) 0);
+  -webkit-mask: radial-gradient(circle, transparent 0 40px, #000 41px);
+          mask: radial-gradient(circle, transparent 0 40px, #000 41px);
+}
+.olus-press.is-pressing { transform: translateY(8px) scale(.94); }
+.olus-press.is-pressing .olus-press-face { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 5px rgba(120,70,0,.6), 0 0 42px rgba(245,166,35,.75); }
+.olus-press.is-sealed {
+  transform: translateY(16px) scale(.86); filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .5));
+  opacity: 0; transition: transform .4s var(--ease-out, ease), opacity .45s ease .15s;
+}
+.olus-press[disabled] { cursor: default; }
+.olus-press-hint {
+  font-family: var(--cinzel, serif); font-size: 10px; letter-spacing: 2.4px;
+  color: var(--gold-quiet, #C9A66B); margin-top: 6px;
+  animation: olusIn .5s var(--ease-out, ease) .5s both;
+}
+/* Mühür oturunca kart "kabul eder": kısa bir yerleşme sarsıntısı */
+.olus-stage.is-sealed .olus-card--seal { animation: olusSeat .5s var(--ease-out, ease) both; }
+.olus-flash.is-on { animation: olusFlash .9s ease-out both; }
+
+/* ── Perde 2: mühür sonrası metinler ──
+   Gecikmeleri KISA: bu satırlar artık perdeyle birlikte değil, kullanıcının
+   temas ettiği anda ([hidden] kalkınca) doğar — beklemenin yeri jestin
+   kendisiydi, sonrası değil. */
+.olus-muhur-line {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 18px;
+  color: var(--text, #EAE2D6); max-width: 30ch; line-height: 1.5;
+  animation: olusIn .5s var(--ease-out, ease) .15s both;
+}
+.olus-muhur-sub {
+  font-family: var(--serif, Georgia); font-size: 13px;
+  color: var(--gold-quiet, #C9A66B); max-width: 34ch; line-height: 1.6;
+  animation: olusIn .5s var(--ease-out, ease) .35s both;
+}
+.olus-muhur-line[hidden], .olus-muhur-sub[hidden] { display: none; }
+.olus-flash {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(60% 50% at 50% 46%, rgba(245, 166, 35, .3), transparent 70%);
+}
+
+/* ── "Henüz değil" — kısa, sessiz, yargısız ── */
+.olus-stage--red { gap: 0; }
+.olus-red-line {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 16px;
+  color: var(--text-mid, #95897A); max-width: 32ch; line-height: 1.6;
+  animation: olusIn .5s var(--ease-out, ease) both;
+}
+
+/* ═══ OLUŞ SINAMASI — dört boyut, .sc-onb perdesinin içinde ═══
+   Kabuk 10D tasarım töreninden gelir (.onb-ritual.sc-onb + .onb-scene);
+   burada yalnız sınamanın kendi tipografisi ve alanları tanımlanır.
+
+   ZEMİN (§2 · KARAR 2026-08-02): sahne artık Yol'un göğünü giyer —
+   --sky-stars + --sky-scene. Sınama bu karardan ÖNCE yazıldığı için düz
+   perdede kalmıştı; oysa Eşik, Yol, Sohbet kabuğu ve Auth çoktan aynı
+   göğün altında. Eşikten geçmek yolun başına çıkmaktır; sınama da bir
+   eşiktir, göğü de o gök olmalı. Degrade kopyalanmaz, token içilir.
+
+   ÖZGÜLLÜK NOTU: seçici `.onb-ritual.olus-sinama`dır, tek sınıf DEĞİL.
+   `.onb-ritual` kendi göğünü (dawn-amber/indigo) aynı özgüllükle basar ve
+   onboarding-ritual.css bu dosyadan SONRA yüklenir — tek sınıfla yazılan
+   kural sessizce kaybediyordu (perde şeffaf kalıyor, arkasındaki ekran
+   görünüyordu). Eşik (.esik-onb) aynı kuralı JS'ten enjekte ettiği için
+   sırayla kazanıyor; dosya-tabanlı stil o şansa güvenemez. */
+.onb-ritual.olus-sinama {
+  background: var(--sky-stars), var(--sky-scene);
+  padding-top: max(24px, var(--safe-t, 0px));
+  padding-bottom: max(24px, var(--safe-b, 0px));
+}
+/* Gren FIXED — .onb-ritual overflow-y:auto'dur; absolute katman kısa ekranda
+   içerikle kayıp dokuyu sahnenin altında bırakırdı (.esik-onb dersi). */
+.olus-sinama::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  z-index: var(--z-chat-bg, 0); background-image: var(--grain-img);
+  background-size: 240px 240px; opacity: .22;
+}
+.olus-sinama > * { position: relative; z-index: var(--z-base, 1); }
+
+/* Sahne dikey ortalanır. `.onb-ritual` flex-start + overflow-y:auto verir
+   (uzun içerik üstten kesilmesin diye); `margin:auto 0` kısa sahneyi ortalar
+   ama taşan sahnede kesilmeye yol açmaz — align-items:center bunu yapardı. */
+.olus-sinama .onb-scene { margin: auto 0; width: 100%; max-width: 460px; }
+.olus-s-scene { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.olus-s-body, .olus-s-soru {
+  font-family: var(--serif, Georgia); color: var(--text, #EAE2D6);
+  line-height: 1.55; max-width: 34ch;
+}
+.olus-s-body { font-size: 14px; color: var(--text-mid, #95897A); }
+.olus-s-soru { font-size: 18px; font-style: italic; }
+
+/* ── İki kutup: "hangi kişiden hangi kişiye" ──
+   Yerleşimin kendisi 02d'nin stil bloğundadır (.esik-cards/.esik-card/
+   .esik-path) — burada yalnız sınamanın ölçü kalibresi var. Sahne dört
+   duraklı olduğu için kartlar Eşik'tekinden bir tık küçüktür: kapıda kart,
+   yol çubuğu, iddia, gövde, şerit ve iki mühür aynı ekranda durur. */
+.olus-s-kutuplar { margin-top: 2px; }
+.olus-sinama .esik-card { max-width: 168px; }
+.olus-s-path { width: 100%; max-width: 300px; margin: 2px 0 0; }
+/* İddia kullanıcının KENDİ cümlesidir — kapıyı açan söz odur, bu yüzden
+   sahnedeki tek altın italik satır. */
+.olus-s-iddia {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 17px;
+  color: var(--gold-quiet, #C9A66B); line-height: 1.5; max-width: 30ch;
+}
+
+/* ── Dört boyut şeridi — sınamanın ilerleme dili (yüzde halkası değil) ──
+   Dört ayrık kapı; geçilen dolar, üstünde durulan altın yanar, gelecek olan
+   sessiz bekler. Okuma sahnesinde aynı şerit kanıtlı/kanıtsız der. */
+.olus-s-serit {
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: clamp(6px, 2.5vw, 14px); width: 100%;
+}
+.olus-s-adim {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  min-width: 0; flex: 0 1 auto;
+  /* Kapı sahnesinde dördü de "henüz gelmedi" hâlindedir; sessiz olmalı ama
+     OKUNMALI — 0.34'te şerit lekeye dönüyordu, dört boyutun adı seçilmiyordu. */
+  opacity: .62; transition: opacity .3s var(--ease-out, ease), color .3s ease;
+}
+.olus-s-adim-g { font-size: 13px; line-height: 1; color: var(--text-mid, #95897A); }
+.olus-s-adim-t {
+  font-family: var(--cinzel, serif); font-size: clamp(7px, 2.2vw, 8.5px);
+  letter-spacing: 1.1px; color: var(--text-mid, #95897A); white-space: nowrap;
+}
+/* Geçilmiş boyut: sessizce ayakta (altın ama bağırmadan) */
+.olus-s-adim.is-dolu { opacity: .85; }
+.olus-s-adim.is-dolu .olus-s-adim-g { color: var(--gold-quiet, #C9A66B); }
+/* Üstünde durulan boyut: sahnenin tek parlak işareti (§5 nefes) */
+.olus-s-adim.is-aktif { opacity: 1; }
+.olus-s-adim.is-aktif .olus-s-adim-g {
+  color: var(--gold, #F5A623); text-shadow: 0 0 12px rgba(245, 166, 35, .55);
+  animation: olusBreath 4.2s ease-in-out infinite;
+}
+.olus-s-adim.is-aktif .olus-s-adim-t { color: var(--gold, #F5A623); }
+/* Okuma sahnesi: kanıtlı boyut altın durur, kanıtsız sessizleşir — ceza
+   değil, yer tarifi (§ton: "burada hâlâ eski kişinin sesi var"). */
+.olus-s-adim.is-kanitli { opacity: 1; }
+.olus-s-adim.is-kanitli .olus-s-adim-g {
+  color: var(--gold, #F5A623); text-shadow: 0 0 10px rgba(245, 166, 35, .45);
+}
+.olus-s-adim.is-kanitli .olus-s-adim-t { color: var(--gold-quiet, #C9A66B); }
+.olus-s-adim.is-bos { opacity: .4; }
+
+/* Soru sahnesinin küçük kartı — "kimin ağzından konuşuyorsun" görünür kalır.
+   Klavye açıkken dikey alan kıymetlidir: kısa ekranda kart sessizce çekilir,
+   soru ve yazı alanı yerinde kalır. */
+.olus-s-mini { width: 96px; }
+@media (max-height: 740px) { .olus-s-mini { display: none; } }
+
+/* Kısa ekranda kapı sahnesi kaydırılarak değil, KÜÇÜLEREK sığar: tören
+   scroll'a düşerse eşik olmaktan çıkar (.olus-card'ın aynı kalibresi). */
+@media (max-height: 780px) {
+  .olus-sinama .esik-card { max-width: 132px; }
+  .olus-s-scene { gap: 11px; }
+}
+@media (max-height: 660px) {
+  .olus-sinama .esik-card { max-width: 108px; }
+  .olus-s-iddia { font-size: 15px; }
+}
+
+.olus-s-ta {
+  width: 100%; max-width: 420px; padding: 12px 14px;
+  border-radius: var(--radius-md, 14px);
+  border: 1px solid rgba(148, 140, 128, .28); background: rgba(10, 12, 18, .5);
+  color: var(--text, #EAE2D6); font-family: var(--serif, Georgia);
+  font-size: 16px;                    /* iOS 16px altı odakta sayfayı zoomlar */
+  line-height: 1.55; resize: vertical;
+}
+.olus-s-ta:focus { outline: none; border-color: rgba(245, 166, 35, .45); }
+
+/* Boş cevap ipucu — kapının kapalı olduğunu SÖYLEYEN satır. Sessiz durur,
+   yazı yazılınca kaybolur; azarlamaz, yer tarif eder. */
+.olus-s-ipucu {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 12px;
+  color: var(--text-dim, #585349); line-height: 1.5;
+}
+.olus-s-ipucu[hidden] { display: none; }
+/* Mühür kapalıyken de mühürdür: söner, kaybolmaz — kullanıcı nereye gideceğini
+   görür. (Genel .ikv-seal-btn'in disabled hâli yok; kural sınamada kalır.) */
+.olus-sinama .ikv-seal-btn[disabled] {
+  opacity: .38; cursor: default; box-shadow: none; filter: grayscale(.35);
+}
+
+/* ── Gözden geçirme — dört cevap bir arada ── */
+.olus-s-liste { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 8px; }
+.olus-s-satir {
+  display: flex; align-items: flex-start; gap: 11px; width: 100%;
+  padding: 11px 13px; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  border: 1px solid rgba(234, 226, 214, .10); border-radius: var(--radius-md, 14px);
+  background: linear-gradient(150deg, rgba(245, 166, 35, .05), rgba(15, 14, 12, .4));
+  transition: border-color .22s var(--ease-out, ease), background .22s var(--ease-out, ease),
+              transform .22s var(--ease-out, ease);
+}
+.olus-s-satir:hover, .olus-s-satir:focus-visible {
+  border-color: rgba(245, 166, 35, .38);
+  background: linear-gradient(150deg, rgba(245, 166, 35, .09), rgba(15, 14, 12, .45));
+  outline: none;
+}
+.olus-s-satir:active { transform: scale(.985); }
+.olus-s-satir-g { flex: none; color: var(--gold, #F5A623); font-size: 13px; line-height: 1.5; width: 16px; text-align: center; }
+.olus-s-satir-m { flex: 1; min-width: 0; }
+.olus-s-satir-h {
+  display: block; font-family: var(--cinzel, serif); font-size: 8px;
+  letter-spacing: 2.2px; color: var(--gold-quiet, #C9A66B);
+}
+.olus-s-satir-c {
+  display: block; font-family: var(--serif, Georgia); font-size: 13px;
+  line-height: 1.55; color: var(--text, #EAE2D6); margin-top: 4px;
+}
+/* Kalem sessiz durur, dokununca konuşur — satırın düzenlenebilir olduğunu
+   söyler, bağırmaz (.esik-act-go emsali). */
+.olus-s-satir-d {
+  flex: none; color: var(--text-dim, #585349); font-size: 12px; opacity: .5;
+  transition: opacity .22s var(--ease-out, ease), color .22s var(--ease-out, ease);
+}
+.olus-s-satir:hover .olus-s-satir-d, .olus-s-satir:focus-visible .olus-s-satir-d {
+  opacity: 1; color: var(--gold, #F5A623);
+}
+
+.olus-s-wait {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 15px;
+  color: var(--text-mid, #95897A); animation: olusPulse 1.8s ease-in-out infinite;
+}
+/* Hükmün tek cümlesi — Emre konuşur. (Eski adı .olus-s-henuz'du: yalnız
+   "henüz değil" dalında kullanılıyordu; artık iki dal da aynı sahnede
+   buluştuğu için ad da hükmü söylüyor — görünen anlam değişince iç ad da
+   değişir, §4.3.) */
+.olus-s-hukum {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 17px;
+  color: var(--text, #EAE2D6); max-width: 32ch; line-height: 1.5;
+}
+
+/* ── OKUMA — dört boyutun gerekçesi ──
+   Kanıtlı boyut altın çerçevede kendi cümlesini taşır (§1: altın = olduğun,
+   şimdi); kanıtsız boyut sessiz kalır ve kartın oradaki maddelerini rota
+   olarak lapisle gösterir (gelecek). Renk burada dekor değil hüküm: hangi
+   boyutta olduğun, hangi boyuta gideceğin. */
+.olus-s-okuma {
+  width: 100%; max-width: 420px; text-align: left;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.olus-s-oku {
+  padding: 12px 14px; border-radius: var(--radius-md, 14px);
+  background: rgba(148, 140, 128, .05); border: 1px solid rgba(148, 140, 128, .14);
+}
+.olus-s-oku.is-kanitli {
+  background: rgba(245, 166, 35, .06); border-color: rgba(245, 166, 35, .22);
+}
+.olus-s-oku-h {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--cinzel, serif); font-size: 9px; letter-spacing: 2.4px;
+  color: var(--text-dim, #585349);
+}
+.olus-s-oku.is-kanitli .olus-s-oku-h { color: var(--gold, #F5A623); }
+.olus-s-oku-g { font-size: 12px; line-height: 1; }
+.olus-s-oku-k {
+  font-family: var(--cinzel, serif); font-size: 8px; letter-spacing: 2px;
+  color: var(--gold-quiet, #C9A66B); margin-top: 10px;
+}
+/* Kullanıcının KENDİ cümlesi — sahnenin en ağır satırı. Alıntı işaretleri
+   HTML'de, metin kaynaktan kesilmiş hâliyle basılır. */
+.olus-s-oku-a {
+  margin: 5px 0 0; font-family: var(--serif, Georgia); font-style: italic;
+  font-size: 13.5px; line-height: 1.6; color: var(--text, #EAE2D6);
+}
+/* Rota başlığı bir cümledir, kicker değil — Cinzel majüskül burada yalan
+   söylerdi (küçük harfli, iki nokta ile biten bir satır). */
+.olus-s-oku-r {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 11.5px;
+  color: var(--lapis-bright, #5A8AD8); margin-top: 10px; opacity: .9;
+}
+.olus-s-oku-l { margin: 5px 0 0; padding-left: 16px; }
+.olus-s-oku-l li {
+  font-family: var(--serif, Georgia); font-size: 12.5px; line-height: 1.6;
+  color: var(--text-mid, #95897A);
+}
+.olus-s-nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+.olus-aph {
+  font-family: var(--serif, Georgia); font-size: 12.5px;
+  color: var(--text-dim, #585349); max-width: 32ch; line-height: 1.6;
+}
+
+@keyframes olusPulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+
+/* ── Keyframe'ler ── */
+@keyframes olusFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes olusIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes olusCardIn { from { opacity: 0; transform: translateY(18px) scale(.94); } to { opacity: 1; transform: none; } }
+/* Kapalı kartın fener mührü nefes alır (§5) — durağan ama canlı. */
+@keyframes olusBreath { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+
+/* Mühür oturunca kartın "kabul edişi" — kısa, ağır bir yerleşme. */
+@keyframes olusSeat {
+  0% { transform: none; } 22% { transform: translateY(5px) scale(.985); }
+  60% { transform: translateY(-2px) scale(1.004); } 100% { transform: none; }
+}
+@keyframes olusFlash { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .olus-veil, .olus-stars, .olus-kicker, .olus-card, .olus-kanit, .olus-soru,
+  .olus-actions, .olus-muhur-line, .olus-muhur-sub, .olus-red-line,
+  .olus-sirt-hint, .olus-press-hint, .olus-flip,
+  .olus-kapi, .olus-kapi-hint {
+    animation: none; opacity: 1; transform: none;
+  }
+  .olus-flip .ikv-back-glow { animation: none; opacity: 1; }
+  .olus-kapi .ikv-back-glow { animation: none; opacity: 1; }
+  .olus-flip-in { transition: none; }
+  .olus-kapi-flip { transition: none; }
+  /* Beklenti ışığı nefes almaz ama SUSMAZ: nabız yerine sabit ışık —
+     nadirlik ipucu hareketsiz kullanıcıdan da esirgenmemeli (12f emsali). */
+  .olus-kapi::after { animation: none !important; transform: none !important; opacity: var(--bekle-max, 0); }
+  /* Seçim geri bildirimi hareketten değil, kalanların çekilmesinden okunur. */
+  .olus-kapilar.is-secildi .olus-kapi:not(.is-secili) { opacity: 0; }
+  .olus-face--gold, .olus-face--lapis { transition: none; }
+  /* animation:none fill-mode'u da siler: açılış durumu animasyonun İÇİNDEyse
+     bitiş durumu ELLE verilmeli, yoksa öğe opacity:0'da donar
+     (kart yağmuru sprintinin gotcha'sı — .kk-fan-card emsali). */
+  .olus-flash, .olus-flash.is-on { animation: none; opacity: 0; }
+  .olus-stage.is-sealed .olus-card--seal { animation: none; transform: none; }
+  .olus-y-sheet, .olus-y-veil { transition: none; }
+  .olus-press { transition: none; }
+  .olus-card--tap { transition: none; }
+  .olus-s-wait { animation: none; opacity: 1; }
+  /* Şeritte nefes durur ama İŞARET SUSMAZ: hangi boyutta olduğun hareketle
+     değil renkle okunur (12f beklenti ışığının aynı dersi). */
+  .olus-s-adim, .olus-s-satir, .olus-s-satir-d { transition: none; }
+  .olus-s-adim.is-aktif .olus-s-adim-g { animation: none; }
+  /* Ölçek kuralları korunur — hareket değil yerleşimdir */
+  @media (max-height: 720px) { .olus-card { transform: scale(.82); } }
+  @media (max-height: 620px) { .olus-card { transform: scale(.68); } }
+}

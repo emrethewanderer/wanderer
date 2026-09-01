@@ -1,0 +1,699 @@
+/* ═══════════════════════════════════════════════════════════════════
+   OLMAK İSTEDİĞİN KİŞİ (10D) 2.0 — "Pencerenin Ardındaki Kişi"
+   ───────────────────────────────────────────────────────────────────
+   Görsel dil → TASARIM-PRENSIPLERI.md. Üç yüzey, tek atmosfer:
+     HUB (in-view)          → lapis gece odası; camın ardında o kişi
+     TASARIM TÖRENİ (.oik-onb) → tam ekran Geçiş Yapısı sahneleri
+     OKUMA PORTALI (#oik-read-portal) → sabah şafağı / gece indigosu
+   Kart-panel-halka-buton çizimi 12c primitiflerinden (ikv-*);
+   burada yalnız sahne + yerleşim. Lapis = o kişi/gelecek,
+   altın = eylem/mühür/şimdi — eşik ışığı DAİMA altın.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── ORTAK SES: kicker ────────────────────────────────────────────── */
+.oik-kicker {
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--lapis-bright, #5A8AD8);
+  text-align: center;
+}
+.oik-kicker--gold { color: var(--gold, #F5A623); }
+
+/* ── ODA: görünüm zemini saatle yaşar (obsidyen sabit, şafak kayar) ── */
+#oik-view {
+  background:
+    radial-gradient(120% 46% at 50% -8%, rgba(24, 46, 92, .42), transparent 62%),
+    radial-gradient(120% 40% at 50% 104%, rgba(245, 166, 35, .10), transparent 58%),
+    linear-gradient(180deg, #0B0F1A 0%, var(--bg, #0F0C08) 58%, #14100A 100%);
+}
+:root.tw-morning #oik-view {
+  background:
+    radial-gradient(120% 46% at 50% -8%, rgba(70, 90, 150, .36), transparent 62%),
+    radial-gradient(120% 40% at 50% 104%, var(--dawn-peach, rgba(255,178,120,.08)), transparent 58%),
+    linear-gradient(180deg, #0E1320 0%, var(--bg, #0F0C08) 58%, #16110A 100%);
+}
+:root.tw-evening #oik-view {
+  background:
+    radial-gradient(120% 46% at 50% -8%, rgba(60, 50, 110, .40), transparent 62%),
+    radial-gradient(120% 40% at 50% 104%, rgba(245, 150, 60, .14), transparent 58%),
+    linear-gradient(180deg, #100B16 0%, var(--bg, #0F0C08) 58%, #1A1209 100%);
+}
+:root.tw-night #oik-view {
+  background:
+    radial-gradient(120% 46% at 50% -8%, rgba(24, 46, 92, .48), transparent 62%),
+    radial-gradient(120% 40% at 50% 104%, rgba(245, 166, 35, .09), transparent 58%),
+    linear-gradient(180deg, #090C16 0%, #0C0A0A 58%, #120F0A 100%);
+}
+
+/* ── SAHNE KATMANLARI ─────────────────────────────────────────────
+   Gök ZEMİNDİR, içeriğin bir parçası değil — bu yüzden `fixed`.
+   Katmanlar `.ws-body` içinde doğar (hub'ın markup'ından) ve eskiden
+   `absolute` idi: `.ws-body--narrow`ın 18px/22px padding'i containing
+   block'u daraltıyordu → gök 375px ekranda 329px kalıyor, sol/sağdan
+   22px ve topbar'ın altındaki 78px sahnenin DIŞINDA kalıyordu; üstelik
+   yüksekliği içerikle birlikte büyüyüp (ölçüldü: 1983px) kaydırınca
+   yukarı kaçıyordu. `fixed` ikisini birden çözer: containing block
+   viewport olur (padding ve `.ws-body`nin overflow'u onu kesmez), gök
+   topbar'ın ardına geçer ve içerik üstünde akarken yerinde durur.
+   `.view` display:none olduğunda fixed çocuklar da gizlenir — sahne
+   yalnız kendi ekranı açıkken yaşar. */
+.oik-stage { position: relative; }
+.oik-sky {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(2px 2px at 16% 3%,  rgba(203, 216, 240, .85), transparent 60%),
+    radial-gradient(1.5px 1.5px at 68% 2%, rgba(203, 216, 240, .6), transparent 60%),
+    radial-gradient(1.8px 1.8px at 84% 7%, rgba(203, 216, 240, .5), transparent 60%),
+    radial-gradient(1.3px 1.3px at 36% 6%, rgba(203, 216, 240, .45), transparent 60%),
+    radial-gradient(1.6px 1.6px at 8% 11%, rgba(203, 216, 240, .4), transparent 60%),
+    radial-gradient(1.2px 1.2px at 55% 9%, rgba(203, 216, 240, .35), transparent 60%);
+  animation: oikSkyBreath 6.5s ease-in-out infinite;
+}
+.oik-grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: var(--grain-img); background-size: 240px; opacity: .12;
+}
+/* Omurga — lapis (üst, o kişi) → altın (alt, şimdiki eylem) tek dikey çizgi.
+   Gökle aynı katman: odanın ekseni sahneye aittir, listeye değil — içerikle
+   kaymaz, ekranın boyunca durur. Ama gökten farkı şu: gök barın ARDINDAN
+   geçer, omurga geçmez — `top` viewport'un değil ÜST BARIN altından ölçülür
+   (68px bar + nefes). Ölçüldü: 40px'te çizgi başlığın tam altından geçiyor,
+   ortadaki metni ikiye bölüyordu. */
+.oik-spine {
+  position: fixed; left: 50%; top: calc(var(--safe-t, 0px) + 84px); bottom: 56px; width: 1px;
+  pointer-events: none; z-index: 0;
+  background: linear-gradient(180deg,
+    transparent,
+    var(--lapis-hairline, rgba(90,138,216,.28)) 16%,
+    var(--lapis-hairline, rgba(90,138,216,.28)) 55%,
+    var(--gold-hairline, rgba(245,166,35,.28)) 86%,
+    transparent);
+}
+
+/* ── HUB ──────────────────────────────────────────────────────────── */
+.oik-hub {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 18px;
+  padding: 14px 4px calc(48px + var(--safe-b, 0px));
+}
+
+/* Hero — pencere: camın ardındaki kart sana döner, ardında nefes alan halo */
+.oik-hero {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: 100%; perspective: 900px;
+}
+.oik-halo {
+  position: absolute; top: 6%; left: 50%; transform: translateX(-50%);
+  width: 84%; max-width: 320px; aspect-ratio: 1; pointer-events: none;
+  background: radial-gradient(circle, rgba(45, 95, 168, .30), rgba(45, 95, 168, .08) 45%, transparent 68%);
+  animation: oikHaloBreath 4.4s ease-in-out infinite;
+}
+.oik-hero-card { position: relative; width: min(250px, 70%); }
+.oik-hero-card .ikv-card {
+  transform: rotateY(-7deg) rotateZ(.7deg);   /* eşik dili — gelecek kartı sana döner */
+}
+.oik-hero-card.oik-pulse .ikv-card { animation: oikCardPulse .9s var(--ease-spring, ease) both; }
+.oik-hero-whisper {
+  font-family: var(--serif, 'EB Garamond', serif); font-style: italic;
+  color: var(--text-mid, #95897A); font-size: 15px; text-align: center;
+  max-width: 34ch;
+}
+
+/* İki okuma vuruşu — SABAH ✦ · günün halkası · GECE ☽ (Üç Mühür kardeşi) */
+.oik-strikes {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  width: 100%;
+}
+.oik-strike {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 76px; min-height: 64px; padding: 8px 12px;
+  background: rgba(45, 95, 168, .07);
+  border: 1px solid var(--lapis-hairline, rgba(90,138,216,.28));
+  border-radius: var(--radius-lg, 20px);
+  cursor: pointer;
+  transition: border-color var(--anim-fast, .15s) ease, background var(--anim-fast, .15s) ease;
+}
+.oik-strike:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.oik-strike-glyph { font-size: 17px; color: var(--text-dim, #585349); line-height: 1; }
+.oik-strike-label {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2.5px;
+  color: var(--text-mid, #95897A);
+}
+.oik-strike.done {
+  background: rgba(245, 166, 35, .08);
+  border-color: rgba(245, 166, 35, .42);
+}
+.oik-strike.done .oik-strike-glyph {
+  color: var(--gold, #F5A623);
+  text-shadow: 0 0 10px rgba(245, 166, 35, .55);
+}
+.oik-strike.done .oik-strike-label { color: var(--gold, #F5A623); }
+.oik-ring-glyph { font-size: 15px; color: var(--lapis-bright, #5A8AD8); }
+.oik-strikes .is-full .oik-ring-glyph { color: var(--gold, #F5A623); text-shadow: 0 0 10px rgba(245,166,35,.5); }
+.oik-streak {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 2px;
+  color: var(--gold-bright, #F7C744); text-align: center;
+}
+.oik-strike-hint {
+  font-family: var(--serif, serif); font-style: italic; font-size: 13px;
+  color: var(--text-dim, #585349); text-align: center; max-width: 38ch;
+}
+
+.oik-read-cta { width: min(320px, 92%); }
+
+/* 4 boyut panelleri — 12c panel dili (gren+radial panelde hazır) */
+.oik-dims { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.oik-dim { padding: 16px 18px 14px; }
+.oik-dim-label {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 3px;
+  color: var(--lapis-bright, #5A8AD8); text-transform: uppercase;
+}
+.oik-dim .ikv-hairline { margin: 10px 0; }
+.oik-dim-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.oik-dim-row {
+  font-family: var(--serif, serif); font-size: 15px; line-height: 1.5;
+  color: var(--text, #EAE2D6);
+  padding-left: 15px; position: relative; text-align: left;
+}
+.oik-dim-row::before { content: '·'; position: absolute; left: 2px; color: var(--gold, #F5A623); }
+
+/* ── Panel bir vitrin: ilk üç madde + "…" ──
+   Madde sayısı etikette durur, devamın işareti listenin sonunda. */
+.oik-dim-count {
+  margin-left: 8px; padding: 1px 7px; border-radius: 999px;
+  font-family: var(--cinzel); font-size: 8.5px; letter-spacing: 1.5px;
+  color: var(--lapis-bright, #5A8AD8); border: 1px solid rgba(90, 138, 216, .34);
+}
+.oik-dim-more { color: var(--text-dim, #585349); letter-spacing: 3px; }
+.oik-dim-more::before { content: ''; }   /* devam işareti madde değil — kurşun nokta almaz */
+
+/* Açma düğmesi paneli kaplar (stretched button) — panel div kalır ki
+   içindeki <ul> geçerli HTML olsun, tıklama ve odak butonun kendisinde. */
+.oik-dim { position: relative; }
+.oik-dim-open {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  border-radius: inherit;
+  transition: box-shadow .22s var(--ease-out, ease), background .22s var(--ease-out, ease);
+}
+.oik-dim-open:hover, .oik-dim-open:focus-visible {
+  outline: none;
+  background: rgba(90, 138, 216, .06);
+  box-shadow: inset 0 0 0 1px rgba(90, 138, 216, .45);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BOYUT PENCERESİ (#oik-dim-portal) — bir boyutun TAMAMI
+   Hub'daki panel vitrindir; defter burada açılır. Eşik köprüsünden (02d)
+   doğrudan bu pencere açılır — sayfada bir yere kaydırmak yerine.
+   ═══════════════════════════════════════════════════════════════════ */
+#oik-dim-portal {
+  position: fixed; inset: 0; z-index: var(--z-ceremony, 9650);
+  display: flex; align-items: center; justify-content: center;
+  padding: max(24px, var(--safe-t)) 18px max(24px, var(--safe-b));
+  opacity: 0; transition: opacity .3s var(--ease-out, ease);
+}
+#oik-dim-portal.oik-dp-in { opacity: 1; }
+#oik-dim-portal.oik-dp-out { opacity: 0; }
+.oik-dp-veil { position: absolute; inset: 0; background: rgba(5, 4, 3, .74); }
+.oik-dp-sheet {
+  position: relative; z-index: 1;
+  width: min(460px, 100%); max-height: 100%; overflow-y: auto;
+  padding: 22px 22px 24px; border-radius: 18px;
+  border: 1px solid rgba(90, 138, 216, .26);
+  background:
+    radial-gradient(120% 60% at 50% -8%, rgba(45, 95, 168, .16), transparent 62%),
+    linear-gradient(180deg, rgba(20, 17, 12, .97), rgba(15, 12, 8, .97));
+  box-shadow: 0 26px 70px rgba(0, 0, 0, .6);
+  animation: oikDpRise .34s var(--ease-out, ease) both;
+}
+@keyframes oikDpRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.oik-dp-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(15, 12, 8, .6); border: 1px solid rgba(234, 226, 214, .18);
+  color: var(--text-mid, #95897A); font-size: 13px; cursor: pointer;
+}
+.oik-dp-kicker {
+  font-family: var(--cinzel); font-size: 8.5px; letter-spacing: 3px;
+  color: var(--text-dim, #585349); text-transform: uppercase;
+}
+.oik-dp-title {
+  font-family: var(--cinzel); font-size: 15px; letter-spacing: 3px; margin-top: 4px;
+  color: var(--lapis-bright, #5A8AD8); text-transform: uppercase;
+}
+.oik-dp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.oik-dp-empty {
+  font-family: var(--serif, Georgia); font-style: italic; font-size: 14px; line-height: 1.6;
+  color: var(--text-mid, #95897A); text-align: center; padding: 6px 0 2px;
+}
+.oik-dp-cta { margin-top: 16px; }
+@media (prefers-reduced-motion: reduce) {
+  #oik-dim-portal { transition: none; }
+  .oik-dp-sheet { animation: none; }
+}
+
+/* Olumlama — altın-aksan panel (geçişin sesi) */
+.oik-affirm { width: 100%; padding: 16px 18px; }
+.oik-affirm-label {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 3px;
+  color: var(--gold, #F5A623); margin-bottom: 8px;
+}
+.oik-affirm-text {
+  font-family: var(--serif, serif); font-size: 16px; line-height: 1.65;
+  color: var(--text, #EAE2D6); text-align: left;
+}
+.oik-affirm-feeling {
+  margin-top: 10px; font-family: var(--serif, serif); font-style: italic;
+  font-size: 14px; color: var(--text-mid, #95897A); text-align: left;
+}
+.oik-affirm-edit {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  background: rgba(0, 0, 0, .22); border: 1px solid rgba(245, 166, 35, .22);
+  border-radius: 12px; padding: 10px 12px; margin-top: 6px;
+  font-family: var(--serif, serif); font-size: 16px; line-height: 1.5;
+  color: var(--text, #EAE2D6);
+}
+.oik-affirm-edit:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 1px; }
+.oik-example {
+  margin-top: 10px; background: none; border: none; cursor: pointer;
+  min-height: 44px; padding: 0 6px;
+  font-family: var(--sans); font-size: 12px; color: var(--lapis-bright, #5A8AD8);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.oik-example:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+.oik-actions-foot { display: flex; gap: 12px; justify-content: center; width: 100%; }
+.oik-versions {
+  font-family: var(--sans); font-size: 11px; letter-spacing: 1px;
+  color: var(--text-dim, #585349); text-align: center;
+}
+.oik-aphorism {
+  font-family: var(--serif, serif); font-style: italic; font-size: 15px;
+  color: var(--text-mid, #95897A); text-align: center; margin-top: 6px;
+}
+
+/* ── BOŞ DURUM — davet: uyuyan kart sırtı + altın eşik ışığı ─────── */
+.oik-empty {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  padding: 40px 20px calc(56px + var(--safe-b, 0px)); text-align: center;
+}
+.oik-empty-back { position: relative; width: min(210px, 58%); perspective: 900px; }
+.oik-empty-back .ikv-back {
+  transform: rotateY(-7deg) rotateZ(.7deg);
+  filter: saturate(.72) brightness(.86);   /* uyuyan deste — henüz çağrılmadı */
+}
+.oik-esik-light {
+  position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%);
+  width: 130%; height: 54px; pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 100%, rgba(245, 166, 35, .34), transparent 70%);
+  animation: oikHaloBreath 4.2s ease-in-out infinite;   /* eşik ışığı hep altın */
+}
+.oik-empty-title {
+  font-family: var(--serif-display, 'Fraunces', serif); font-size: 27px;
+  line-height: 1.2; color: var(--text, #EAE2D6); margin-top: 8px;
+}
+.oik-empty-body {
+  font-family: var(--serif, serif); font-size: 16px; line-height: 1.6;
+  color: var(--text-mid, #95897A); max-width: 40ch;
+}
+
+/* ── 12c yoksa kart fallback (savunmacı) ─────────────────────────── */
+.oik-card-fallback {
+  aspect-ratio: 5 / 7; border-radius: var(--radius-lg, 20px);
+  border: 1px solid rgba(90, 138, 216, .4);
+  background: linear-gradient(160deg, var(--lapis-deep, #182E5C), #0F0C08);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 20px;
+}
+.oik-cf-kicker { font-family: var(--cinzel); font-size: 9px; letter-spacing: 3px; color: var(--gold, #F5A623); }
+.oik-cf-name { font-family: var(--serif-display, serif); font-size: 22px; color: var(--text, #EAE2D6); text-align: center; }
+.oik-cf-whisper { font-family: var(--serif, serif); font-style: italic; font-size: 14px; color: var(--text-mid, #95897A); text-align: center; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   TASARIM TÖRENİ — .oik-onb (onb-ritual tabanı; görünürlük .onb-open)
+   Kendi gökleri: lapis gece + tw-* vakit tonu + yıldız + gren.
+   ═══════════════════════════════════════════════════════════════════ */
+.oik-onb {
+  background:
+    radial-gradient(120% 50% at 50% -6%, rgba(24, 46, 92, .50), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 166, 35, .13), transparent 58%),
+    linear-gradient(180deg, #0B0F1A 0%, #0F0C08 55%, #14100A 100%);
+}
+:root.tw-morning .oik-onb {
+  background:
+    radial-gradient(120% 50% at 50% -6%, rgba(70, 90, 150, .42), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 178, 120, .14), transparent 58%),
+    linear-gradient(180deg, #0E1320 0%, #100D09 55%, #16110A 100%);
+}
+:root.tw-evening .oik-onb {
+  background:
+    radial-gradient(120% 50% at 50% -6%, rgba(60, 50, 110, .44), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 150, 60, .18), transparent 58%),
+    linear-gradient(180deg, #100B16 0%, #120D09 55%, #1A1209 100%);
+}
+:root.tw-night .oik-onb {
+  background:
+    radial-gradient(120% 50% at 50% -6%, rgba(24, 46, 92, .52), transparent 62%),
+    radial-gradient(120% 45% at 50% 106%, rgba(245, 166, 35, .12), transparent 58%),
+    linear-gradient(180deg, #090C16 0%, #0C0A0A 55%, #120F0A 100%);
+}
+.oik-onb::before {           /* yıldız göğü — serin, üst bölge */
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(2px 2px at 18% 8%, rgba(203, 216, 240, .8), transparent 60%),
+    radial-gradient(1.6px 1.6px at 64% 5%, rgba(203, 216, 240, .6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 82% 12%, rgba(203, 216, 240, .5), transparent 60%),
+    radial-gradient(1.8px 1.8px at 38% 14%, rgba(203, 216, 240, .45), transparent 60%),
+    radial-gradient(1.3px 1.3px at 10% 18%, rgba(203, 216, 240, .35), transparent 60%);
+}
+.oik-onb::after {            /* kâğıt greni */
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background-image: var(--grain-img); background-size: 240px; opacity: .14;
+}
+
+.oik-scene {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  width: min(560px, 92vw); margin: 0 auto; padding: 20px 20px 36px;
+}
+.oik-t-ring { display: flex; justify-content: center; }
+.oik-scene-title {
+  font-family: var(--serif-display, 'Fraunces', serif); font-size: 26px;
+  line-height: 1.2; text-align: center; color: var(--text, #EAE2D6);
+}
+.oik-scene-body {
+  font-family: var(--serif, serif); font-size: 16px; line-height: 1.6; text-align: center;
+  color: var(--text-mid, #95897A); max-width: 42ch;
+}
+.oik-aph {
+  font-family: var(--serif, serif); font-style: italic; font-size: 14px;
+  color: var(--lapis-bright, #5A8AD8); text-align: center;
+}
+.oik-gaze {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  background: rgba(0, 0, 0, .25); border: 1px solid rgba(90, 138, 216, .3);
+  border-radius: 14px; padding: 14px; font-family: var(--serif, serif);
+  font-size: 16px; line-height: 1.5; color: var(--text, #EAE2D6);
+}
+.oik-gaze:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+.oik-nav { display: flex; gap: 12px; justify-content: center; width: 100%; margin-top: 8px; }
+
+/* Chip grubu — toplama sahneleri panel içinde */
+.oik-group { width: 100%; box-sizing: border-box; padding: 14px 16px; text-align: left; }
+.oik-group-label {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 3px;
+  color: var(--lapis-bright, #5A8AD8); text-transform: uppercase;
+}
+.oik-group .ikv-hairline { margin: 10px 0; }
+.oik-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.oik-chips:not(:empty) { margin-bottom: 10px; }
+.oik-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: var(--radius-full, 999px);
+  background: rgba(45, 95, 168, .12); border: 1px solid rgba(90, 138, 216, .24);
+  font-family: var(--serif, serif); font-size: 14px; color: var(--text, #EAE2D6);
+}
+.oik-chip-x {
+  background: none; border: none; color: var(--text-dim, #585349); cursor: pointer;
+  font-size: 15px; line-height: 1; padding: 4px 6px; margin: -4px -6px -4px -2px;
+}
+.oik-chip-x:hover { color: var(--red, #C0392B); }
+.oik-chip-x:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 1px; border-radius: 8px; }
+.oik-input-row { display: flex; gap: 8px; }
+.oik-input {
+  flex: 1; min-height: 44px; box-sizing: border-box;
+  background: rgba(0, 0, 0, .25); border: 1px solid rgba(90, 138, 216, .24);
+  border-radius: 12px; padding: 10px 12px;
+  font-family: var(--serif, serif); font-size: 16px; color: var(--text, #EAE2D6);
+}
+.oik-input:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 1px; }
+.oik-add {
+  min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: 12px; cursor: pointer;
+  background: rgba(245, 166, 35, .08); border: 1px solid rgba(245, 166, 35, .4);
+  color: var(--gold, #F5A623); font-family: var(--cinzel); font-size: 10px; letter-spacing: 2px;
+}
+.oik-add:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+/* Yükleme — fener yanar, kıvılcımlar yörüngede: o kişi toplanıyor */
+.oik-scene--load { min-height: 46vh; justify-content: center; }
+.oik-lantern { position: relative; width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; }
+.oik-lantern svg { animation: ikvGlowBreath 2.6s ease-in-out infinite; }
+.oik-lantern-orbit { position: absolute; inset: -14px; animation: oikOrbit 3.6s linear infinite; }
+.oik-lantern-orbit i {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--gold-bright, #F7C744); box-shadow: 0 0 8px rgba(245, 166, 35, .8);
+}
+.oik-lantern-orbit i:nth-child(1) { top: 0; left: 50%; }
+.oik-lantern-orbit i:nth-child(2) { bottom: 12%; left: 8%; background: var(--lapis-bright, #5A8AD8); box-shadow: 0 0 8px rgba(90, 138, 216, .8); }
+.oik-lantern-orbit i:nth-child(3) { bottom: 12%; right: 8%; }
+.oik-load-title { font-size: 21px; }
+
+/* Sunum — kart sırttan yüze döner (flip dili), gerisi süzülür */
+.oik-flip { width: min(250px, 70%); perspective: 1000px; }
+.oik-flip-inner {
+  position: relative; width: 100%; aspect-ratio: 5 / 7;
+  transform-style: preserve-3d;
+  animation: oikFlipIn 1.15s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) .25s both;
+}
+.oik-flip-back, .oik-flip-face { position: absolute; inset: 0; backface-visibility: hidden; }
+.oik-flip-face { transform: rotateY(180deg); }
+.oik-present-verdict {
+  font-family: var(--serif, serif); font-style: italic; font-size: 16px;
+  color: var(--text, #EAE2D6); text-align: center; max-width: 36ch;
+}
+.oik-flip-reveal { opacity: 0; animation: ikvCascIn .55s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) 1.15s both; }
+.oik-present-rest {
+  display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%;
+  animation: ikvCascIn .55s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) 1.05s both;
+}
+.oik-present-sum {
+  list-style: none; margin: 0; padding: 14px 16px; width: 100%; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.oik-present-row {
+  display: flex; gap: 10px; align-items: baseline; text-align: left;
+  font-family: var(--serif, serif); font-size: 14px; color: var(--text-mid, #95897A);
+}
+.oik-present-cat {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2px;
+  color: var(--lapis-bright, #5A8AD8); min-width: 88px; flex: none;
+}
+.oik-present-affirm { width: 100%; box-sizing: border-box; padding: 16px 18px; text-align: left; }
+
+/* Yolunun Nişanı seçici (Alfabe Işık Faz 4) — isteğe bağlı; seçilen nişan
+   kartın sırtına kazınır. Yazılı nişan altın, yazılmamış sönük kontur. */
+.oik-nisan { width: 100%; box-sizing: border-box; padding: 16px 18px; text-align: left; margin-top: 12px; }
+.oik-nisan-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 8px; }
+.oik-nisan-opt {
+  width: 44px; height: 44px; padding: 7px; box-sizing: border-box;
+  background: transparent; border: 1px solid rgba(234, 226, 214, 0.16);
+  border-radius: var(--radius-md, 14px); cursor: pointer;
+  color: var(--text-dim, #585349);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s var(--ease-out, ease);
+}
+.oik-nisan-opt svg { width: 100%; height: 100%; }
+.oik-nisan-opt.is-yazili { color: var(--gold, #F5A623); }
+.oik-nisan-opt.is-sel {
+  border-color: var(--gold, #F5A623); color: var(--gold-bright, #F7C744);
+  box-shadow: 0 0 12px rgba(245, 166, 35, 0.25); transform: scale(1.06);
+}
+.oik-nisan-opt:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.oik-nisan-hint {
+  font-family: var(--serif); font-size: 12.5px; line-height: 1.5;
+  color: var(--text-mid, #95897A);
+}
+@media (prefers-reduced-motion: reduce) {
+  .oik-nisan-opt, .oik-nisan-opt.is-sel { transition: none; transform: none; }
+}
+
+/* Mühür sahnesi — kart üstüne altın mühür damgalanır, halka uyanır */
+.oik-scene--seal { min-height: 60vh; justify-content: center; }
+.oik-seal-stage { position: relative; width: min(240px, 66%); }
+.oik-seal-stamp {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 74px; height: 74px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; color: #1A1206;
+  background: radial-gradient(circle at 38% 30%, var(--gold-bright, #F7C744), var(--gold, #F5A623) 58%, #D98F1B);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 0 34px rgba(245, 166, 35, .65), 0 6px 18px rgba(0, 0, 0, .5);
+  animation: oikStamp .7s var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)) .55s both;
+}
+.oik-seal-flash {
+  position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 50% at 50% 46%, rgba(245, 166, 35, .30), transparent 70%);
+  animation: oikFlash 1s ease-out 1.1s both;
+}
+.oik-seal-line {
+  font-family: var(--serif, serif); font-style: italic; font-size: 17px;
+  color: var(--text, #EAE2D6); text-align: center; max-width: 32ch;
+  animation: ikvCascIn .55s var(--ease-out, ease) 1.25s both;
+}
+.oik-seal-sub {
+  font-family: var(--serif, serif); font-size: 14px;
+  color: var(--text-mid, #95897A); text-align: center; max-width: 36ch;
+  animation: ikvCascIn .55s var(--ease-out, ease) 1.5s both;
+}
+.oik-scene--seal .oik-kicker--gold { animation: ikvCascIn .55s var(--ease-out, ease) 1.25s both; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   OKUMA PORTALI — Geçiş Protokolü (#oik-read-portal)
+   Vakit atmosferi slot'tan: sabah = şafak, gece = derin indigo.
+   ═══════════════════════════════════════════════════════════════════ */
+#oik-read-portal {
+  position: fixed; inset: 0; z-index: var(--z-ceremony, 9650);
+  opacity: 0; transition: opacity var(--anim-slow, .45s) var(--ease-out, ease);
+}
+#oik-read-portal.oik-rp-in { opacity: 1; }
+#oik-read-portal.oik-rp-out { opacity: 0; }
+.oik-rp--sabah {
+  background:
+    radial-gradient(120% 52% at 50% 108%, var(--dawn-rose, rgba(202,102,96,.09)), transparent 60%),
+    radial-gradient(120% 46% at 50% 106%, rgba(245, 166, 35, .20), transparent 58%),
+    radial-gradient(120% 50% at 50% -6%, rgba(70, 90, 150, .38), transparent 62%),
+    linear-gradient(180deg, #0E1320 0%, #100D09 52%, #1A1209 100%);
+}
+.oik-rp--gece {
+  background:
+    radial-gradient(120% 50% at 50% -6%, rgba(24, 46, 92, .55), transparent 64%),
+    radial-gradient(120% 42% at 50% 106%, rgba(245, 166, 35, .10), transparent 58%),
+    linear-gradient(180deg, #090C16 0%, #0C0A0A 55%, #120F0A 100%);
+}
+.oik-rp-sky {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(2px 2px at 18% 8%, rgba(203, 216, 240, .8), transparent 60%),
+    radial-gradient(1.6px 1.6px at 64% 5%, rgba(203, 216, 240, .6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 82% 12%, rgba(203, 216, 240, .5), transparent 60%),
+    radial-gradient(1.8px 1.8px at 38% 15%, rgba(203, 216, 240, .45), transparent 60%),
+    radial-gradient(1.2px 1.2px at 9% 20%, rgba(203, 216, 240, .35), transparent 60%);
+  animation: oikSkyBreath 6.5s ease-in-out infinite;
+}
+.oik-rp--sabah .oik-rp-sky {     /* sabah: yıldızlar sıcak, seyrek — gün ağarıyor */
+  background:
+    radial-gradient(1.8px 1.8px at 22% 7%, rgba(240, 217, 168, .6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 70% 4%, rgba(240, 217, 168, .45), transparent 60%),
+    radial-gradient(1.5px 1.5px at 86% 11%, rgba(240, 217, 168, .35), transparent 60%);
+}
+.oik-rp-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain-img); background-size: 240px; opacity: .14;
+}
+.oik-rp-close {
+  position: absolute; top: max(14px, var(--safe-t, 14px)); right: 16px; z-index: 5;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(15, 12, 8, .6); border: 1px solid rgba(234, 226, 214, .18);
+  color: var(--text-mid, #95897A); font-size: 15px; cursor: pointer;
+}
+.oik-rp-close:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.oik-rp-scroll {
+  position: absolute; inset: 0; overflow-y: auto;
+  padding: max(48px, calc(var(--safe-t, 0px) + 40px)) 20px max(40px, var(--safe-b, 40px));
+  overscroll-behavior: contain;
+}
+.oik-rp-body {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 16px;
+  width: min(560px, 100%); margin: 0 auto;
+}
+.oik-rp-name {
+  font-family: var(--serif-display, 'Fraunces', serif); font-size: 30px; letter-spacing: var(--ls-display);
+  line-height: 1.15; color: var(--text, #EAE2D6); text-align: center;
+}
+/* Epitet — kartın adı artık "Niyet Alınan [Ad]"; LLM'in yazdığı başlık
+   onun altında, kimliğin o günkü yüzü olarak durur (02c'deki sub ikizi). */
+.oik-rp-epitet {
+  margin-top: -8px; font-family: var(--serif, serif); font-style: italic;
+  font-size: 17px; color: var(--lapis-bright, #5A8AD8); opacity: 0.9;
+  max-width: 40ch; text-align: center;
+}
+.oik-rp-epitet:empty { display: none; }
+.oik-rp-emre {
+  font-family: var(--serif, serif); font-style: italic; font-size: 15px;
+  color: var(--lapis-bright, #5A8AD8); max-width: 40ch; text-align: center;
+}
+.oik-rp-lines { width: 100%; box-sizing: border-box; padding: 20px 18px; }
+.oik-read-line {
+  font-family: var(--serif, serif); font-size: 19px; line-height: 1.65;
+  color: var(--text, #EAE2D6); text-align: left;
+}
+.oik-read-line + .oik-read-line { margin-top: 12px; }
+.oik-read-remind {
+  font-family: var(--serif, serif); font-size: 14px; line-height: 1.8;
+  color: var(--text-mid, #95897A); text-align: left;
+}
+.oik-read-remind-cat {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2px;
+  color: var(--lapis-bright, #5A8AD8);
+}
+
+/* Ses — kayıt kandili */
+.oik-rec { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.oik-rec-btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 22px;
+  border-radius: var(--radius-full, 999px); cursor: pointer;
+  background: rgba(192, 57, 43, .08); border: 1px solid rgba(192, 57, 43, .4);
+  color: var(--text, #EAE2D6);
+  font-family: var(--cinzel); font-size: 10.5px; letter-spacing: 2px;
+}
+.oik-rec-btn:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.oik-rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red, #C0392B); }
+.oik-rec-btn.recording .oik-rec-dot { animation: oikPulse 1s ease-in-out infinite; }
+.oik-rec-status {
+  font-family: var(--serif, serif); font-style: italic; font-size: 13px;
+  color: var(--text-mid, #95897A); min-height: 18px; text-align: center;
+}
+.oik-read-play-emre {
+  font-family: var(--serif, serif); font-style: italic; font-size: 13px;
+  color: var(--text-dim, #585349); max-width: 40ch; text-align: center;
+}
+.oik-read-status {
+  display: flex; gap: 14px; align-items: center; justify-content: center;
+  font-family: var(--sans); font-size: 13px; color: var(--text-mid, #95897A);
+}
+.oik-read-status .done { color: var(--gold, #F5A623); }
+
+/* Vuruş anı — mühürde altın flaş; çift okumada günün mührü uyanır */
+.oik-rp-flash {
+  position: absolute; inset: 0; pointer-events: none; z-index: 6;
+  background: radial-gradient(62% 52% at 50% 48%, rgba(245, 166, 35, .32), transparent 70%);
+  animation: oikFlash 1s ease-out both;
+}
+.oik-rp-day {
+  position: absolute; inset: 0; z-index: 7; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  background: rgba(10, 8, 5, .55);
+  animation: oikDayIn .5s var(--ease-out, ease) both;
+}
+.oik-rp-day-text {
+  font-family: var(--serif, serif); font-style: italic; font-size: 17px;
+  color: var(--text, #EAE2D6); text-align: center; max-width: 30ch;
+  animation: ikvCascIn .55s var(--ease-out, ease) .5s both;
+}
+
+/* ── HAREKET ──────────────────────────────────────────────────────── */
+@keyframes oikSkyBreath { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes oikHaloBreath { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+@keyframes oikCardPulse { 0% { transform: rotateY(-7deg) rotateZ(.7deg) scale(1); } 45% { transform: rotateY(-7deg) rotateZ(.7deg) scale(1.045); } 100% { transform: rotateY(-7deg) rotateZ(.7deg) scale(1); } }
+@keyframes oikOrbit { to { transform: rotate(360deg); } }
+@keyframes oikFlipIn { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }
+@keyframes oikStamp { from { opacity: 0; transform: translate(-50%, -50%) scale(2.6); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes oikFlash { from { opacity: 1; } to { opacity: 0; } }
+@keyframes oikDayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes oikPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .oik-sky, .oik-rp-sky, .oik-halo, .oik-esik-light,
+  .oik-lantern svg, .oik-lantern-orbit,
+  .oik-hero-card.oik-pulse .ikv-card,
+  .oik-rec-btn.recording .oik-rec-dot,
+  .oik-rp-flash, .oik-rp-day, .oik-rp-day-text { animation: none; }
+  .oik-flip-inner { animation: none; transform: rotateY(180deg); }
+  .oik-flip-reveal, .oik-seal-stamp, .oik-seal-flash, .oik-seal-line, .oik-seal-sub,
+  .oik-scene--seal .oik-kicker--gold, .oik-present-rest { animation: none; opacity: 1; }
+  #oik-read-portal { transition: none; opacity: 1; }
+}

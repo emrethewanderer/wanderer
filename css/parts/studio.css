@@ -1,0 +1,543 @@
+/* ═══════════════════════════════════════
+   WANDERER STUDIO — Tam ekran atölye
+   Eski sol drawer'ın yerine: hamburger artık stüdyoyu açar.
+   Obsidyen + altın; yavaş dönen usturlap kadranı, yükselen
+   yıldız tozu, kademeli oda girişleri. Markup: _src.html #ws-studio,
+   kontrol: 10-features-w2.js w2OpenDrawer/w2CloseDrawer/w2Nav.
+═══════════════════════════════════════ */
+.ws-studio {
+  position: fixed; inset: 0; z-index: var(--z-drawer);
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(130% 80% at 50% 115%, rgba(245,166,35,0.10), transparent 62%),
+    radial-gradient(120% 70% at 50% -15%, var(--dawn-indigo), transparent 65%),
+    linear-gradient(180deg, #100D09 0%, var(--bg) 55%, #0B0906 100%);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.4s var(--ease-out), visibility 0s linear 0.4s;
+  overflow: hidden;
+}
+.ws-studio.open {
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transition: opacity 0.4s var(--ease-out);
+}
+/* Kâğıt greni (blend-mode kullanma — Safari'de degrade üstünde bozuluyor) */
+.ws-studio::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: var(--grain-img); background-size: 240px;
+  opacity: 0.05; pointer-events: none;
+}
+
+/* ── Usturlap kadranı — başlığın arkasında yavaşça döner ── */
+.ws-st-ring {
+  position: absolute; top: -170px; left: 50%; width: 430px; height: 430px;
+  margin-left: -215px; color: var(--gold);
+  opacity: 0; pointer-events: none;
+}
+.ws-studio.open .ws-st-ring { animation: wsStRingIn 1.6s var(--ease-out) both 0.1s; }
+.ws-studio.open .ws-st-ring-dial {
+  transform-origin: 200px 200px;
+  animation: wsStSpin 140s linear infinite;
+}
+@keyframes wsStRingIn { from { opacity: 0; } to { opacity: 0.11; } }
+@keyframes wsStSpin { to { transform: rotate(360deg); } }
+
+/* ── Yıldız tozu — tabandan yükselen altın zerreler ── */
+.ws-st-dust { position: absolute; inset: 0; pointer-events: none; }
+.ws-st-dust span {
+  position: absolute; left: var(--x, 50%); bottom: -8px;
+  width: var(--s, 2px); height: var(--s, 2px); border-radius: 50%;
+  background: var(--gold-bright);
+  box-shadow: 0 0 6px rgba(245,166,35,0.6);
+  opacity: 0;
+}
+.ws-studio.open .ws-st-dust span {
+  animation: wsStDust var(--d, 18s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes wsStDust {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 0.5; }
+  80%  { opacity: 0.15; }
+  100% { transform: translateY(-104vh) translateX(16px); opacity: 0; }
+}
+
+/* ── Başlık ── */
+.ws-st-head {
+  position: relative; z-index: 2; flex-shrink: 0;
+  text-align: center;
+  padding: calc(var(--safe-t, 0px) + 36px) 24px 6px;
+}
+.ws-st-close {
+  position: absolute; top: calc(var(--safe-t, 0px) + 6px); right: 6px;
+  width: 44px; height: 44px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none;
+  color: var(--text-dim); font-size: 15px; line-height: 1; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s;
+}
+/* Görünür yuvarlak halka pseudo'da dursun: buton kendisi border-radius ile
+   kırpılmadığı için tüm 44×44 kare alan tıklanabilir kalır (köşeler ölü bölge olmaz). */
+.ws-st-close::before {
+  content: ""; position: absolute; inset: 5px;
+  border-radius: 50%; border: 1px solid transparent;
+  pointer-events: none; transition: border-color 0.2s;
+}
+.ws-st-close:hover { color: var(--text); }
+.ws-st-close:hover::before { border-color: var(--border-active); }
+.ws-st-eyebrow {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.ws-st-eyebrow-word {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 7px;
+  margin-right: -7px; /* tracking'in son harf boşluğunu optik merkezle */
+  color: var(--text-mid); font-weight: 600;
+}
+.ws-st-title {
+  font-family: var(--serif-display); font-style: italic; font-weight: 500;
+  font-size: 46px; line-height: 1.08; letter-spacing: var(--ls-display); margin-top: 4px;
+  background: linear-gradient(115deg, #C9A64C 0%, #F3D27E 30%, #9A7A30 55%, #EFC967 80%, #C9A64C 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: wsStTitleShimmer 9s ease-in-out infinite alternate;
+}
+@keyframes wsStTitleShimmer {
+  from { background-position: 0% center; }
+  to   { background-position: 100% center; }
+}
+.ws-st-tagline {
+  font-family: var(--serif); font-style: italic; font-size: 12.5px;
+  color: var(--text-mid); margin-top: 7px;
+}
+.ws-studio.open .ws-st-eyebrow { animation: wsStRise 0.7s var(--ease-out) both 0.05s; }
+.ws-studio.open .ws-st-title   { animation: wsStRise 0.8s var(--ease-out) both 0.12s; }
+.ws-studio.open .ws-st-tagline { animation: wsStRise 0.8s var(--ease-out) both 0.20s; }
+@keyframes wsStRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Gövde — kaydırılabilir kanatlar ── */
+.ws-st-body {
+  position: relative; z-index: 2; flex: 1;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 4px 0 calc(var(--safe-b, 0px) + 32px);
+}
+
+/* Kanat ayracı */
+.ws-st-sec {
+  display: flex; align-items: center; gap: 12px;
+  padding: 24px 20px 12px;
+  max-width: 860px; margin: 0 auto; box-sizing: border-box;
+}
+.ws-st-sec::before, .ws-st-sec::after { content: ''; flex: 1; height: 1px; }
+.ws-st-sec::before { background: linear-gradient(90deg, transparent, var(--border-active)); }
+.ws-st-sec::after  { background: linear-gradient(90deg, var(--border-active), transparent); }
+.ws-st-sec-label {
+  font-family: var(--cinzel); font-size: 8.5px; letter-spacing: 4px;
+  color: var(--gold); opacity: 0.85; font-weight: 600; white-space: nowrap;
+}
+.ws-studio.open .ws-st-sec {
+  animation: wsStFade 0.9s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms + 160ms);
+}
+@keyframes wsStFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Oda ızgarası */
+.ws-st-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  padding: 0 16px; max-width: 860px; margin: 0 auto; box-sizing: border-box;
+}
+@media (min-width: 700px) {
+  .ws-st-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Oda kartı */
+.ws-st-room {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  text-align: center; gap: 4px;
+  padding: 20px 12px 16px;
+  background: linear-gradient(165deg, var(--bg-raised) 0%, var(--surface) 100%);
+  border: 1px solid var(--border-active); border-radius: var(--radius-lg);
+  cursor: pointer; color: inherit; font: inherit;
+  transition: border-color 0.25s ease, transform 0.18s var(--ease-out), box-shadow 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Odanın mum ışığı — üstten süzülen sıcak parıltı */
+.ws-st-room::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(85% 65% at 50% 0%, rgba(245,166,35,0.08), transparent 70%);
+  opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+}
+.ws-st-room:hover::before, .ws-st-room.active::before { opacity: 1; }
+.ws-st-room:hover { border-color: rgba(245,166,35,0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+.ws-st-room:active { transform: scale(0.965); }
+.ws-st-room.active { border-color: var(--gold); }
+.ws-st-room > .ws-sigil,
+.ws-st-room > .dn-flame--mini {
+  position: relative; width: 30px; height: 30px; margin-bottom: 6px;
+  color: var(--text-mid);
+  transition: color 0.25s ease, filter 0.25s ease;
+}
+.ws-st-room:hover > .ws-sigil, .ws-st-room.active > .ws-sigil {
+  color: var(--gold);
+  filter: drop-shadow(0 0 7px var(--gold-glow));
+}
+.ws-st-room-label {
+  position: relative;
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 2.5px;
+  font-weight: 600; color: var(--text); line-height: 1.55;
+}
+.ws-st-room.active .ws-st-room-label { color: var(--gold); }
+.ws-st-room-sub {
+  position: relative;
+  font-family: var(--serif); font-style: italic; font-size: 10.5px;
+  color: var(--text-dim); line-height: 1.45;
+}
+.ws-studio.open .ws-st-room {
+  animation: wsStRoomIn 0.75s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms + 180ms);
+}
+@keyframes wsStRoomIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Geniş oda (Ayın Filmi · Dinlenme · Admin) — yatay düzen */
+.ws-st-room--wide {
+  grid-column: 1 / -1;
+  flex-direction: row; align-items: center; text-align: left; gap: 14px;
+  padding: 16px 18px;
+}
+.ws-st-room--wide > .ws-sigil,
+.ws-st-room--wide > .dn-flame--mini { margin-bottom: 0; }
+.ws-st-room--wide .ws-st-room-col { position: relative; flex: 1; min-width: 0; }
+.ws-st-room--wide::after {
+  content: '›'; position: relative; flex: 0 0 auto;
+  color: var(--text-dim); font-size: 18px; line-height: 1;
+}
+@media (min-width: 700px) {
+  .ws-st-room--wide { grid-column: span 2; }
+}
+
+/* Pazar pulse'ı (Hayattaki Sen) — oda köşesinde */
+.ws-st-room .ws-hs-pulse { position: absolute; top: 12px; right: 12px; }
+
+/* ── Günün Düşüncesi — duvar plaketi ── */
+.ws-st-thought {
+  position: relative; text-align: center;
+  margin: 30px auto 0; width: calc(100% - 32px); max-width: 860px;
+  padding: 20px 22px 18px; box-sizing: border-box;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(245,166,35,0.04), transparent 60%), var(--bg-raised);
+}
+.ws-st-thought-mark {
+  display: block; font-family: var(--fell); font-size: 26px; line-height: 0.6;
+  color: var(--gold); opacity: 0.5; margin-bottom: 8px;
+}
+.ws-st-thought-label {
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 3px;
+  color: var(--text-dim); font-weight: 600;
+}
+.ws-st-thought-text {
+  font-family: var(--serif); font-style: italic; font-size: 13.5px;
+  color: var(--text-mid); line-height: 1.65; margin-top: 8px;
+}
+.ws-studio.open .ws-st-thought {
+  animation: wsStRoomIn 0.8s var(--ease-out) both 0.8s;
+}
+
+/* ═══════════════════════════════════════
+   YÖNETİM · GÖMÜLÜ STÜDYO  (#admin-home.ws-studio--admin)
+   Aynı stüdyo deneyimi — sabit tam-ekran overlay yerine #admin-view içine,
+   üst barın altına gömülüdür. .open sınıfı markup'ta kalıcıdır → kadran/toz/
+   sahne girişleri çalışır; adminShowHome() her dönüşte open'ı yeniden tetikler.
+═══════════════════════════════════════ */
+.ws-studio.ws-studio--admin {
+  position: relative; inset: auto; z-index: 0;
+  flex: 1 1 auto; min-height: 0;          /* üst barın altını doldurur; gövde içeride kayar */
+  transition: none;
+}
+/* Üst bar kaldırıldı → güvenli alan boşluğunu başlık verir. */
+.ws-studio--admin .ws-st-head { padding-top: calc(var(--safe-t) + 30px); }
+@media (max-width: 640px) {
+  .ws-studio--admin .ws-st-title { font-size: 38px; }
+}
+
+/* ── ÇIKIŞ KARTI (#admin-exit-card) ──
+   Ana kabuğun ✦ FAB'ıyla (#flip-fab) aynı mini-kart görseli (.ff-* sınıfları
+   llm-shell.css'te); buradaki tek fark konum + Yönetim'e özgü görünürlük.
+   Yalnız #admin-view etkinken render olur (kapsayan .view display:none ise
+   position:fixed çocuk da gizlenir). */
+#admin-exit-card {
+  position: fixed;
+  right: 16px; bottom: calc(var(--safe-b, 0px) + 18px);
+  width: 56px; height: 76px;
+  padding: 0; background: transparent; border: none;
+  cursor: pointer; z-index: var(--z-fab);
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
+  transition: transform .2s;
+}
+#admin-exit-card:hover  { transform: translateY(-2px) scale(1.05); }
+#admin-exit-card:active { transform: scale(.94); }
+
+/* ── GÖREV SAYFASI GERİ ÇİPİ (.admin-back-chip) ──
+   Eski top-nav'ın "‹ Yönetim · <görev>" işlevi; #admin-pages başında yaşar,
+   yalnız bir görev açıkken görünür (kap home'dayken display:none). */
+.admin-back-chip {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  margin-bottom: 26px; padding: 8px 4px;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--sans); -webkit-tap-highlight-color: transparent;
+  transition: opacity .2s;
+}
+.admin-back-chip:hover { opacity: .8; }
+.admin-back-chip .abc-arrow { color: var(--gold); font-size: 18px; line-height: 1; }
+.admin-back-chip .abc-home {
+  font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.admin-back-chip .abc-sep  { color: var(--text-dim); opacity: .5; }
+.admin-back-chip .abc-page {
+  font-family: var(--serif); font-size: 16px; color: var(--text);
+}
+
+/* ── OTURUMU KAPAT — stüdyo gövdesi alt linki (eski top-nav "Çıkış") ── */
+.ws-st-logout {
+  display: none;                              /* ayrı yönetim sayfasında JS açar */
+  margin: 30px auto 8px; padding: 8px 14px;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--sans); font-size: 10px;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--text-dim); transition: color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ws-st-logout:hover { color: var(--gold); }
+
+/* ═══════════════════════════════════════
+   BUGÜN — Stüdyo atmosferi  (#bugun-view)
+   "Drawer" (.ws-studio) arka planı butonsuz olarak Bugün ekranına taşındı:
+   aynı gradient + kâğıt greni + yavaş dönen usturlap kadranı + yükselen
+   yıldız tozu. Halka/toz markup'ı #bugun-view içinde .ws-st-ring/.ws-st-dust
+   olarak yaşar (markup _src.html); orada .ws-studio.open tetikleyicisi geçmez,
+   bu yüzden aktivasyon kuralları Bugün'e özgü olarak burada tekrar verilir.
+   Halka #app-screen'e tutunur (Bugün başlığının arkasında); odalar/butonlar yok.
+═══════════════════════════════════════ */
+#bugun-view {
+  background:
+    radial-gradient(130% 80% at 50% 115%, rgba(245,166,35,0.10), transparent 62%),
+    radial-gradient(120% 70% at 50% -15%, var(--dawn-indigo), transparent 65%),
+    linear-gradient(180deg, #100D09 0%, var(--bg) 55%, #0B0906 100%);
+}
+/* Kâğıt greni — Drawer'ın .ws-studio::after greniyle birebir: blend-mode YOK
+   (Safari'de degrade üstünde bozulur) + düşük opaklık. Global .ws-grain'in
+   overlay blend'i yalnız Bugün'de iptal edilir; diğer ekranlar etkilenmez. */
+#bugun-view .ws-grain { mix-blend-mode: normal; opacity: 0.05; }
+#bugun-view .ws-st-ring {
+  animation: wsStRingIn 1.6s var(--ease-out) both 0.1s;
+}
+#bugun-view .ws-st-ring-dial {
+  transform-origin: 200px 200px;
+  animation: wsStSpin 140s linear infinite;
+}
+#bugun-view .ws-st-dust span {
+  animation: wsStDust var(--d, 18s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@media (prefers-reduced-motion: reduce) {
+  #bugun-view .ws-st-ring,
+  #bugun-view .ws-st-ring-dial,
+  #bugun-view .ws-st-dust span,
+  #bugun-view.casc .ws-topbar--hero .ws-st-eyebrow,
+  #bugun-view.casc .ws-topbar--hero .ws-st-title,
+  #bugun-view.casc .ws-topbar--hero .ws-st-tagline,
+  #bugun-view.casc .ws-body > * { animation: none; }
+  #bugun-view .ws-st-ring { opacity: 0.11; }
+}
+
+/* ── Bugün üst barı — Drawer'ın büyük başlık dili (.ws-st-head) ──
+   Slim WanderTopBar yerine: WANDERER eyebrow + shimmer "Bugün" başlığı +
+   tagline, atmosfer halkasının önünde ortalı. .ws-topbar elementi korunur
+   (gün-kapandı barı 05-closure-parts onu hedefler); --hero onu büyük başlığa
+   çevirir: degrade/blur kaldırılır → başlık doğrudan stüdyo atmosferinin
+   üstünde durur (Drawer gibi). Menü solda, seri çemberi sağda (köşe ✕ konumu).
+   gl-elmas-bar (app-screen'e absolute, safe-t+15 / right:58) seriyle hizalı kalır. */
+.ws-topbar--hero {
+  display: block; text-align: center;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  /* Bugün artık uzun bir tek sayfa (STÜDYO bölgesi): scroll eden içerik fixed
+     başlığın arkasından geçerken erisin — blur değil, eriyen obsidyen perde.
+     (Atmosfer halkası düşük opaklıkta arkada yaşamaya devam eder.)
+     Çok-duraklı "ease-out" yaklaşımı: iki noktalı düz alfa geçişi (58%→78%→100%)
+     gözde "dolu duruyor, sonra aniden kesiliyor" gibi algılanıyordu — burada
+     erime daha erken başlayıp daha uzun bir kuyrukla yumuşuyor. */
+  background: linear-gradient(180deg,
+    var(--bg) 0%,
+    var(--bg) 38%,
+    rgba(15, 12, 8, 0.92) 50%,
+    rgba(15, 12, 8, 0.74) 62%,
+    rgba(15, 12, 8, 0.48) 74%,
+    rgba(15, 12, 8, 0.24) 86%,
+    rgba(15, 12, 8, 0.06) 95%,
+    transparent 100%);
+  padding: calc(var(--safe-t, 0px) + 36px) 24px 6px;   /* .ws-st-head ile birebir */
+}
+/* NOT: .ws-topbar--hero .ws-topbar-menu kuralı kaldırıldı — Bugün'ün
+   hamburger'ı emekli (Studio tek sayfa); slim topbar'lardaki geri oku
+   kendi .ws-topbar düzeninde yaşıyor. */
+.ws-topbar--hero .ws-topbar-vesper {
+  position: absolute; top: calc(var(--safe-t, 0px) + 15px); right: 16px;
+}
+.ws-topbar--hero .ws-st-title { font-size: 46px; margin-top: 4px; }   /* Drawer .ws-st-title ile birebir */
+
+/* NOT: Maybach tavanı (.ws-topbar-stars) artık Bugün'e özgü DEĞİL — katman
+   her ekranın üst barında yaşıyor, bu yüzden stili `.ws-topbar`'ın evine
+   (sentez.css) taşındı; deseni 00g serper. Burada yalnız Bugün'ün hero
+   barına özgü ayarlar kalır. */
+
+/* Büyük başlık altına gövdeyi indir (slim barın safe-t+60'ı yerine). */
+#bugun-view .ws-body { top: calc(var(--safe-t, 0px) + 132px); }
+
+/* ── Bugün'e giriş — Drawer'ın oda kademelenmesi ──
+   Drawer açılınca odalar nasıl yukarıdan aşağı süzülerek geliyorsa (.ws-studio.open
+   → wsStRise + wsStRoomIn, kademeli gecikme), Bugün'e her geçişte de başlık bloğu ve
+   gövde kartları aynı koreografiyle iner. Keyframe'ler Drawer'la ORTAK (wsStRise /
+   wsStRoomIn / wsStTitleShimmer) — tekrar tanımlanmaz.
+
+   ZAMANLAMA — cascade .casc sınıfıyla JS'ten tetiklenir (10y _wsCascade), display
+   değişimiyle DEĞİL. Çünkü Bugün'e flip ile gelindiğinde "Wanderer Studio" perdesi
+   (#ws-flip-title, ~1.15s) ekranı kaplar; cascade perde ardında boşa akmasın diye
+   --casc-base gecikmesi perde kalkana dek bekletilir. backwards (both) fill gecikme
+   boyunca unsurları from-durumunda (opacity 0) TUTAR → flash yok. JS base'i bağlama
+   göre verir: flip ~0.8s (perde sonrası), perdesiz gezinme ~0.04s (anında). */
+
+/* Büyük başlık — eyebrow → başlık → tagline sırayla yükselir (Drawer .ws-st-head'i).
+   Başlığın shimmer'ı korunur: tek-sefer rise + sonsuz shimmer iki ayrı animasyon
+   olarak birlikte koşar (transform/opacity ile background-position çakışmaz). */
+#bugun-view.casc .ws-topbar--hero .ws-st-eyebrow {
+  animation: wsStRise 0.7s var(--ease-out) both;
+  animation-delay: calc(var(--casc-base, 0.04s) + 0.05s);
+}
+#bugun-view.casc .ws-topbar--hero .ws-st-title {
+  animation: wsStRise 0.8s var(--ease-out) both,
+             wsStTitleShimmer 9s ease-in-out infinite alternate;
+  animation-delay: calc(var(--casc-base, 0.04s) + 0.12s), 0s;
+}
+#bugun-view.casc .ws-topbar--hero .ws-st-tagline {
+  animation: wsStRise 0.8s var(--ease-out) both;
+  animation-delay: calc(var(--casc-base, 0.04s) + 0.20s);
+}
+
+/* Gövde kartları — Drawer odaları gibi kademeli iniş (wsStRoomIn). Drawer'la birebir
+   tempo: başlangıç 180ms, her kart 40ms arayla. 60ms stagger kartlar arasında
+   duraklama bırakıyordu (sert); 40ms ile şelale gibi akıyor (yumuşak). */
+#bugun-view.casc .ws-body > * {
+  animation: wsStRoomIn 0.75s var(--ease-out) both;
+  animation-delay: calc(var(--casc-base, 0.04s) + 0.18s);
+}
+#bugun-view.casc .ws-body > *:nth-child(2) { animation-delay: calc(var(--casc-base, 0.04s) + 0.22s); }
+#bugun-view.casc .ws-body > *:nth-child(3) { animation-delay: calc(var(--casc-base, 0.04s) + 0.26s); }
+#bugun-view.casc .ws-body > *:nth-child(4) { animation-delay: calc(var(--casc-base, 0.04s) + 0.30s); }
+#bugun-view.casc .ws-body > *:nth-child(5) { animation-delay: calc(var(--casc-base, 0.04s) + 0.34s); }
+/* STÜDYO bölgesi çocukları (ayraç + 4 bölüm) — koreografi aşağı doğru sürer */
+#bugun-view.casc .ws-body > *:nth-child(6)  { animation-delay: calc(var(--casc-base, 0.04s) + 0.38s); }
+#bugun-view.casc .ws-body > *:nth-child(7)  { animation-delay: calc(var(--casc-base, 0.04s) + 0.42s); }
+#bugun-view.casc .ws-body > *:nth-child(8)  { animation-delay: calc(var(--casc-base, 0.04s) + 0.46s); }
+#bugun-view.casc .ws-body > *:nth-child(9)  { animation-delay: calc(var(--casc-base, 0.04s) + 0.50s); }
+#bugun-view.casc .ws-body > *:nth-child(10) { animation-delay: calc(var(--casc-base, 0.04s) + 0.54s); }
+
+/* ── STÜDYO bölgesi — Bugün'ün kalıcı alt yarısı ──
+   Tam ekran Drawer (#ws-studio) emekli; odalar Bugün gövdesinde bölümler
+   hâlinde yaşıyor. Oda/bölüm dili Drawer'la ORTAK (.ws-st-sec/.ws-st-room,
+   yukarıda) — burada yalnız ayraç, raf ve yerleşim tanımlı. */
+.ws-studio-divider {
+  position: relative;
+  margin: 46px 0 4px;
+  padding-top: 26px;
+  text-align: center;
+}
+/* Eşik çizgisi: altından (şimdi) lapise (gelecek) akan eriyen kıl */
+.ws-studio-divider::before {
+  content: '';
+  position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 38%, var(--lapis-bright) 62%, transparent);
+  opacity: 0.55;
+}
+.ws-studio-divider-word {
+  font-family: var(--cinzel);
+  font-size: 13px; letter-spacing: 7px; font-weight: 600;
+  color: var(--gold);
+}
+.ws-studio-divider-sub {
+  font-family: var(--serif); font-style: italic;
+  font-size: 13px; color: var(--text-mid); margin-top: 4px;
+}
+
+.ws-home-sec { margin-top: 10px; }
+
+/* Kart rafı — Kişilerim'in son kartları (12c mini yüzler), yatay süzülme */
+.gal-shelf {
+  display: flex; gap: 12px;
+  overflow-x: auto; overflow-y: hidden;
+  padding: 4px 2px 14px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  /* Raf kadraja çarpmaz, karanlığa girer — §3'ün içerik hâli (base.css). */
+  -webkit-mask-image: var(--mask-fade-x); mask-image: var(--mask-fade-x);
+}
+.gal-shelf::-webkit-scrollbar { display: none; }
+.gal-shelf-card {
+  flex: 0 0 auto; width: 96px;
+  scroll-snap-align: start;
+  background: none; border: none; padding: 0;
+  cursor: pointer;
+  transition: transform var(--anim-normal, 0.3s) var(--ease-out);
+  /* Raf dinamik dolar (wsSyncStudio) — kartlar Drawer odalarının diliyle,
+     soldan sağa kademeli süzülür (--gi inline verilir). */
+  animation: wsStRoomIn 0.6s var(--ease-out) both;
+  animation-delay: calc(var(--gi, 0) * 0.06s);
+}
+.gal-shelf-card:active { transform: scale(0.95); }
+.gal-shelf-more {
+  animation: wsStRoomIn 0.6s var(--ease-out) both;
+  animation-delay: calc(var(--gi, 0) * 0.06s);
+}
+/* Raf sonu kapısı — "hepsini gör" */
+.gal-shelf-more {
+  flex: 0 0 auto; width: 96px; aspect-ratio: 5 / 7;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  border: 1px dashed rgba(245, 166, 35, 0.35);
+  border-radius: 10px;
+  background: rgba(245, 166, 35, 0.04);
+  color: var(--gold);
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2px;
+  cursor: pointer;
+  transition: border-color var(--anim-normal, 0.3s) var(--ease-out);
+}
+.gal-shelf-more:hover { border-color: rgba(245, 166, 35, 0.6); }
+.gal-empty {
+  font-family: var(--serif); font-style: italic;
+  font-size: 13.5px; color: var(--text-mid);
+  text-align: center; padding: 8px 20px 16px;
+}
+
+/* ── Hareket azaltma — büyü kapanır, içerik kalır ── */
+@media (prefers-reduced-motion: reduce) {
+  .ws-studio, .ws-studio.open { transition: none; }
+  .ws-studio.open .ws-st-ring,
+  .ws-studio.open .ws-st-ring-dial,
+  .ws-studio.open .ws-st-dust span,
+  .ws-studio.open .ws-st-eyebrow,
+  .ws-studio.open .ws-st-title,
+  .ws-studio.open .ws-st-tagline,
+  .ws-studio.open .ws-st-sec,
+  .ws-studio.open .ws-st-room,
+  .ws-studio.open .ws-st-thought { animation: none; }
+  .ws-studio.open .ws-st-ring { opacity: 0.11; }
+  .ws-st-title { animation: none; }
+  .gal-shelf-card, .gal-shelf-more { animation: none; }
+  .gal-shelf { scroll-behavior: auto; }
+}

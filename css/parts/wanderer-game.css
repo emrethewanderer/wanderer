@@ -1,0 +1,676 @@
+/* ═══════════════════════════════════════════════════════════
+   WANDERER OYUNU — Stil (10g)
+   Ayna Kartı · Vasıta Banner · Davranış Kanıtı · Elmas
+═══════════════════════════════════════════════════════════ */
+
+/* ── AYNA KARTI ─────────────────────────────────────────── */
+.ws-ayna-card {
+  position: relative;
+  margin: 14px 0;
+  padding: 18px 16px 14px;
+  background: linear-gradient(180deg, rgba(184,149,60,0.06) 0%, rgba(10,10,10,0.55) 100%);
+  border: 1px solid rgba(184,149,60,0.22);
+  border-radius: 4px;
+  color: var(--text-mid, #8A887F);
+}
+
+.ws-ayna-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--gold, #B8953C);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.ws-ayna-eyebrow-label { flex: 1; }
+
+.ws-ayna-mirror-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: stretch;
+  gap: 12px;
+  margin: 8px 0 14px;
+}
+
+.ws-ayna-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 8px;
+  border-radius: 3px;
+  min-height: 64px;
+}
+.ws-ayna-side--current {
+  border-left: 1px solid rgba(184,149,60,0.25);
+  text-align: left;
+}
+.ws-ayna-side--desired {
+  border-right: 1px solid rgba(184,149,60,0.4);
+  text-align: right;
+}
+
+.ws-ayna-label {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(184,149,60,0.7);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.ws-ayna-text {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-bright, #E8E6E0);
+}
+
+.ws-ayna-side--current .ws-ayna-text { color: var(--text-mid, #8A887F); }
+
+.ws-ayna-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 20px;
+  color: var(--gold, #B8953C);
+  opacity: 0.7;
+}
+
+/* Geçiş metresi */
+.ws-ayna-meter-wrap {
+  margin: 10px 0 14px;
+}
+.ws-ayna-meter {
+  position: relative;
+  height: 3px;
+  background: rgba(184,149,60,0.12);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.ws-ayna-meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, rgba(184,149,60,0.5), var(--gold, #B8953C));
+  transition: width 600ms ease;
+}
+.ws-ayna-meter-label {
+  margin-top: 6px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 8px;
+  letter-spacing: 2.5px;
+  color: rgba(184,149,60,0.55);
+}
+
+/* Footer: Elmas + butonlar */
+.ws-ayna-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.ws-elmas-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid rgba(184,149,60,0.32);
+  background: rgba(184,149,60,0.05);
+  border-radius: 2px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--gold, #B8953C);
+}
+.ws-elmas-glyph {
+  font-size: 10px;
+  color: var(--gold-bright, #D4A745);
+}
+.ws-elmas-label {
+  font-size: 8px;
+  letter-spacing: 2px;
+  opacity: 0.65;
+}
+
+.elmas-pulse {
+  animation: elmasPulse 800ms ease;
+}
+@keyframes elmasPulse {
+  0%   { transform: scale(1);   text-shadow: 0 0 0 rgba(212,167,69,0); }
+  40%  { transform: scale(1.4); text-shadow: 0 0 10px rgba(212,167,69,0.8); }
+  100% { transform: scale(1);   text-shadow: 0 0 0 rgba(212,167,69,0); }
+}
+
+.ws-ayna-btn {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border-radius: 2px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.ws-ayna-btn--ghost {
+  background: transparent;
+  border: 1px solid rgba(184,149,60,0.25);
+  color: var(--text-mid, #8A887F);
+}
+.ws-ayna-btn--ghost:hover {
+  border-color: rgba(184,149,60,0.55);
+  color: var(--gold, #B8953C);
+}
+.ws-ayna-btn--gold {
+  background: rgba(184,149,60,0.14);
+  border: 1px solid rgba(184,149,60,0.55);
+  color: var(--gold-bright, #D4A745);
+  margin-left: auto;
+}
+.ws-ayna-btn--gold:hover {
+  background: rgba(184,149,60,0.25);
+  border-color: var(--gold-bright, #D4A745);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DUYURU ALT-SAYFASI (#announce-sheet-portal) — Emre'nin manuel duyurusu.
+   Eski inline band emekli; duyuru artık Kitaplık alt-sayfası gibi alttan
+   kayan bir portal: hangi ekrandaysa (Bugün / Wanderer) onun üstüne biner.
+   Kitaplık ile akraba mekanik (aynı keyframes), ayrı kimlik: tek mesaj +
+   ✦ mühür + "EMRE'DEN" + altın "Anladım". (libSheetIn/Out/libVeilIn paylaşılır.)
+═══════════════════════════════════════════════════════════════ */
+.announce-sheet-portal {
+  position: fixed; inset: 0;
+  z-index: var(--z-modal, 700);
+  display: flex; align-items: flex-end;
+}
+.announce-sheet-veil {
+  position: absolute; inset: 0;
+  background: var(--veil, rgba(8, 6, 4, 0.74));
+  backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+  animation: libVeilIn .35s var(--ease-out, ease) both;
+}
+.announce-sheet {
+  --grain-op: .14; --grain-size: 240px;   /* kağıt greni → .wn-grain sarmalı (base.css) */
+  position: relative; z-index: 1;
+  width: 100%; max-height: 86dvh; overflow-y: auto;
+  
+  border-radius: var(--radius-xl, 24px) var(--radius-xl, 24px) 0 0;
+  /* iki kutuplu atmosfer: tepeden altın "şimdi", köşeden lapis "derinlik",
+     alta ısıtılmış obsidyen oturur (Prensip 1 + 3) */
+  background:
+    radial-gradient(150% 62% at 50% 0%, var(--gold-dim, rgba(245,166,35,0.12)) 0%, transparent 58%),
+    radial-gradient(120% 80% at 8% 102%, var(--lapis-dim, rgba(45,95,168,0.12)) 0%, transparent 55%),
+    linear-gradient(178deg, var(--bg-raised, #16110C) 0%, var(--bg, #0F0C08) 60%, #0C0906 100%);
+  border: 1px solid rgba(245,166,35,0.18);
+  border-bottom: none;
+  box-shadow: 0 -22px 64px rgba(0,0,0,0.6), 0 0 50px rgba(245,166,35,0.06);
+  text-align: center;
+  animation: libSheetIn var(--anim-slow, .45s) var(--ease-out, cubic-bezier(0.16,1,0.3,1)) both;
+}
+/* Yastık sarmalda: gren kenar boşluğunu da örtmeli (bkz. .wn-grain) */
+.announce-sheet .wn-grain { padding: 0 24px calc(28px + env(safe-area-inset-bottom, 0px)); }
+.announce-sheet--out { animation: libSheetOut .34s var(--ease-out, ease) both; }
+/* zaman: akşam ocak gibi ısınır, gece lapis derinleşir (Prensip 2) */
+html.tw-evening .announce-sheet {
+  background:
+    radial-gradient(150% 62% at 50% 0%, rgba(245,166,35,0.16) 0%, transparent 58%),
+    radial-gradient(120% 80% at 8% 102%, var(--lapis-dim, rgba(45,95,168,0.12)) 0%, transparent 55%),
+    linear-gradient(178deg, #1A130B 0%, var(--bg, #0F0C08) 60%, #0C0906 100%);
+}
+html.tw-night .announce-sheet {
+  background:
+    radial-gradient(150% 62% at 50% 0%, var(--gold-dim, rgba(245,166,35,0.12)) 0%, transparent 58%),
+    radial-gradient(120% 86% at 8% 102%, rgba(45,95,168,0.18) 0%, transparent 58%),
+    linear-gradient(178deg, #120E0C 0%, var(--bg, #0F0C08) 60%, #0A0806 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .announce-sheet, .announce-sheet-veil, .announce-sheet-seal,
+  .announce-sheet-kicker, .announce-sheet-text,
+  .announce-sheet-sign, .announce-sheet-cta { animation: none; }
+}
+/* tepe altın ışık şeridi — mühürlü zarfın kapağı */
+.announce-sheet::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 72px; height: 4px; border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, var(--gold, #F5A623), transparent);
+  opacity: .85; z-index: 2;
+}
+/* uçlarda eriyen kıl tutamaç (Prensip 3 — düz border yok) */
+.announce-sheet-grip {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-glow, rgba(245,166,35,0.4)), transparent);
+  margin: 14px auto 2px;
+}
+/* 44×44 dokunma hedefi (Prensip 9) */
+.announce-sheet-close {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  background: none; border: none; cursor: pointer;
+  width: 44px; height: 44px; border-radius: 50%;
+  color: var(--gold-edge, rgba(245,166,35,.55)); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: color .15s, background .15s;
+}
+.announce-sheet-close:hover,
+.announce-sheet-close:focus-visible { color: var(--gold, #F5A623); background: var(--gold-dim, rgba(245,166,35,.1)); }
+/* mühür portresi — Wanderer↔Studio geçişindeki "Emre oval" çerçevesi
+   (.wns-portrait dili: dikdörtgen + radius:50% = oval, mühür altını kenar) +
+   yavaş nefes alan altın halka (Prensip 5 nefes) */
+.announce-sheet-seal {
+  display: block;
+  width: 64px; height: 80px; margin: 18px auto 0;   /* 0.8 oran ≈ wns-portrait 104×132 */
+  border-radius: 50%;                                /* dikdörtgen + %50 = oval */
+  object-fit: cover;
+  border: 1.5px solid var(--gold-edge, rgba(245,166,35,0.55));  /* mühür altını çerçeve */
+  animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) .10s both,
+             announceSealBreath 4.5s ease-in-out 1.2s infinite;
+}
+@keyframes announceSealBreath {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(245,166,35,0.06), 0 0 18px rgba(245,166,35,0.16); }
+  50%      { box-shadow: 0 0 0 7px rgba(245,166,35,0.10), 0 0 30px rgba(245,166,35,0.30); }
+}
+/* kademeli süzülme — öğeler sırayla belirir (Prensip 5) */
+.announce-sheet-kicker,
+.announce-sheet-text,
+.announce-sheet-sign,
+.announce-sheet-cta { animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) both; }
+.announce-sheet-kicker { animation-delay: .16s; }
+.announce-sheet-text   { animation-delay: .22s; }
+.announce-sheet-sign   { animation-delay: .30s; }
+.announce-sheet-cta    { animation-delay: .38s; }
+@keyframes announceRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.announce-sheet-kicker {
+  font-family: var(--cinzel, serif);
+  font-size: 10px; letter-spacing: 4px; font-weight: 700;
+  color: var(--gold, #F5A623); text-transform: uppercase; opacity: .92;
+  margin-top: 13px;
+}
+.announce-sheet-text {
+  font-family: var(--serif-display, Fraunces, Georgia, serif);
+  font-size: 22px; font-weight: 400; line-height: 1.5; letter-spacing: .2px;
+  color: var(--text, #EAE2D6);
+  margin: 13px auto 0; max-width: 30ch;
+}
+/* italik imza — dört sesli koronun EB Garamond sesi; mektubu kapatır (Prensip 4) */
+.announce-sheet-sign {
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-style: italic; font-size: 14px; color: var(--text-mid, #95897A);
+  margin: 14px auto 0; padding-top: 14px; max-width: 28ch; position: relative;
+}
+.announce-sheet-sign::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-hairline, rgba(245,166,35,0.28)), transparent);
+}
+/* CTA — dövülmüş altın mühür: üstten ışık, dıştan glow, basınca çöker (Prensip 3 + 6) */
+.announce-sheet-cta {
+  width: 100%; margin-top: 24px;
+  background: linear-gradient(165deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  color: var(--gold-ink, #1A1206); border: 1px solid var(--gold, #F5A623);
+  padding: 15px; border-radius: 14px;
+  font-family: var(--cinzel, serif); font-size: 12px; letter-spacing: 2.5px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 6px 20px rgba(245,166,35,0.22);
+  transition: filter .15s, transform .1s, box-shadow .15s;
+}
+.announce-sheet-cta:hover { filter: brightness(1.06); }
+.announce-sheet-cta:active { transform: scale(.93); box-shadow: inset 0 1px 0 rgba(255,255,255,0.30), 0 2px 8px rgba(245,166,35,0.18); }
+
+/* ═══════════════════════════════════════════════════════════════
+   GÜNÜN ALINTISI (#lib-gunun-btn) — Kitaplık okurunun ÜSTÜNDE, yazıların
+   önünde duran şerit. Emre'nin kararı (2026-08-12): ayrı bir ayraç ya da
+   alt-sayfa değil — alıntı kitabın kendi yüzeyiyle birleşir.
+
+   DERİN METAFOR: KAP (§0.1 — Kitaplık zaten Kap'tır). İçeri alan çerçeve,
+   ocak ışığı gibi tepeden inen sıcaklık, kapalı ve sıcak yüzey. Yolculuğun
+   aciliyeti burada BAĞIRMAZ: şerit bir davet değil, açık bırakılmış bir
+   sayfadır. Bu yüzden dolu altın CTA yok, ok işareti soluk durur.
+
+   Renk: altın — eşik ışığı daima altındır (§1). Lapis yalnız alt köşeden
+   sızan derinlik olarak var; şerit "gelecek" demiyor, "şimdi burada bir
+   cümle var" diyor.
+═══════════════════════════════════════════════════════════════ */
+.lib-gunun {
+  display: block; width: 100%;
+  max-width: 560px; margin: 14px auto 0;
+  padding: 15px 20px 13px;
+  border-radius: var(--radius-lg, 20px);
+  cursor: pointer; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  /* Köşe-radial atmosfer (§3): tepeden altın ocak ışığı, alt köşeden lapis
+     derinlik, alta ısıtılmış obsidyen. Düz zemin yok. */
+  background:
+    radial-gradient(130% 90% at 50% 0%, var(--gold-dim, rgba(245,166,35,0.10)) 0%, transparent 62%),
+    radial-gradient(120% 100% at 6% 104%, var(--lapis-dim, rgba(45,95,168,0.08)) 0%, transparent 58%),
+    linear-gradient(178deg, rgba(255,255,255,0.022), rgba(255,255,255,0.006));
+  border: 1px solid var(--gold-hairline, rgba(245,166,35,0.28));
+  /* Fiziksel obje (§3): üstten ışık, alttan gölge */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 22px rgba(0,0,0,0.32);
+  transition: border-color .25s var(--ease-out), transform .2s var(--ease-out),
+    box-shadow .25s var(--ease-out);
+  animation: announceRise var(--anim-slow, .45s) var(--ease-out, ease) .12s both;
+}
+.lib-gunun:hover, .lib-gunun:focus-visible {
+  border-color: rgba(245, 166, 35, 0.5);
+  outline: none; transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07),
+    0 10px 30px rgba(0,0,0,0.4), 0 0 26px rgba(245,166,35,0.08);
+}
+.lib-gunun:active { transform: scale(.988); }
+/* Cinzel kicker (§4) — metin sözlükte gerçek Türkçe majüsküllerle yazılı,
+   CSS transform YOK (İ/I tuzağı). */
+.lib-gunun-kicker {
+  display: block;
+  font-family: var(--cinzel, serif);
+  font-size: 9px; letter-spacing: 3.4px; font-weight: 700;
+  color: var(--gold, #F5A623); opacity: .9;
+}
+/* Alıntı — EB Garamond italik: "şiirsel italik satırlar" onun sesidir (§4).
+   Fraunces başlıkların sesidir, bir cümlenin değil. */
+.lib-gunun-text {
+  display: block; margin-top: 10px;
+  font-family: var(--serif, 'EB Garamond', Georgia, serif);
+  font-style: italic; font-size: 17px; font-weight: 400;
+  line-height: 1.55; color: var(--text, #EAE2D6);
+}
+/* Kaynak — uçlarda eriyen kıl ayraç (§3: düz border yok) */
+.lib-gunun-kaynak {
+  display: inline-flex; align-items: center; gap: 6px;
+  position: relative; margin-top: 11px; padding-top: 10px;
+  font-family: var(--cinzel, serif);
+  font-size: 9px; letter-spacing: 2px; font-weight: 700;
+  color: var(--gold-edge, rgba(245,166,35,0.55));
+  transition: color .25s;
+}
+.lib-gunun-kaynak::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 96px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-hairline, rgba(245,166,35,0.28)), transparent);
+}
+.lib-gunun:hover .lib-gunun-kaynak,
+.lib-gunun:focus-visible .lib-gunun-kaynak { color: var(--gold, #F5A623); }
+/* Zaman (§2): akşam ocak ısınır, gece lapis derinleşir */
+html.tw-evening .lib-gunun {
+  background:
+    radial-gradient(130% 90% at 50% 0%, rgba(245,166,35,0.14) 0%, transparent 62%),
+    radial-gradient(120% 100% at 6% 104%, var(--lapis-dim, rgba(45,95,168,0.08)) 0%, transparent 58%),
+    linear-gradient(178deg, rgba(255,255,255,0.026), rgba(255,255,255,0.006));
+}
+html.tw-night .lib-gunun {
+  background:
+    radial-gradient(130% 90% at 50% 0%, var(--gold-dim, rgba(245,166,35,0.10)) 0%, transparent 62%),
+    radial-gradient(120% 100% at 6% 104%, rgba(45,95,168,0.14) 0%, transparent 62%),
+    linear-gradient(178deg, rgba(255,255,255,0.018), rgba(255,255,255,0.004));
+}
+@media (prefers-reduced-motion: reduce) {
+  .lib-gunun { animation: none; transition: none; }
+  .lib-gunun:hover, .lib-gunun:focus-visible { transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   KİTAPLIK ALT-SAYFASI — yeni içerik eklenince OTOMATİK belirir.
+   Akşam Kapanışı (aksam.css) ile akraba (alttan kayan sayfa) ama
+   KENDİ KİMLİĞİ: altın/kitap ekseni (Akşam = lapis/ay).
+═══════════════════════════════════════════════════════════════ */
+.lib-sheet-portal {
+  position: fixed; inset: 0;
+  z-index: var(--z-modal, 700);
+  display: flex; align-items: flex-end;
+}
+.lib-sheet-veil {
+  position: absolute; inset: 0;
+  background: var(--veil, rgba(8, 6, 4, 0.74));
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: libVeilIn .35s ease both;
+}
+@keyframes libVeilIn { from { opacity: 0; } to { opacity: 1; } }
+.lib-sheet {
+  position: relative; z-index: 1;
+  width: 100%; max-height: 82dvh; overflow-y: auto;
+  padding: 0 22px calc(26px + env(safe-area-inset-bottom, 0px));
+  border-radius: 24px 24px 0 0;
+  background:
+    radial-gradient(140% 60% at 50% 0%, var(--gold-dim, rgba(245,166,35,0.10)) 0%, transparent 60%),
+    linear-gradient(178deg, #1A140C 0%, #120E09 50%, #0E0B07 100%);
+  border: 1px solid rgba(245,166,35,0.18);
+  border-bottom: none;
+  box-shadow: 0 -22px 64px rgba(0,0,0,0.6), 0 0 50px rgba(245,166,35,0.06);
+  text-align: center;
+  animation: libSheetIn .5s cubic-bezier(.22,.9,.32,1) both;
+}
+.lib-sheet--out { animation: libSheetOut .34s ease both; }
+@keyframes libSheetIn  { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes libSheetOut { to   { transform: translateY(100%); } }
+@media (prefers-reduced-motion: reduce) { .lib-sheet, .lib-sheet-veil { animation: none; } }
+/* tepe altın ışık şeridi — kitap kenarı hissi */
+.lib-sheet::before {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 64px; height: 4px; border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, var(--gold, #F5A623), transparent);
+  opacity: .85;
+}
+.lib-sheet-grip {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: rgba(245,166,35,0.3);
+  margin: 14px auto 2px;
+}
+.lib-sheet-close {
+  position: absolute; top: 14px; right: 16px; z-index: 2;
+  background: none; border: none; cursor: pointer;
+  width: 30px; height: 30px; border-radius: 50%;
+  color: rgba(245,166,35,.45); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: color .15s, background .15s;
+}
+.lib-sheet-close:hover { color: var(--gold, #F5A623); background: var(--gold-dim, rgba(245,166,35,.1)); }
+.lib-sheet-kicker {
+  font-family: var(--cinzel, serif);
+  font-size: 9px; letter-spacing: 3px; font-weight: 700;
+  color: var(--gold, #F5A623); text-transform: uppercase; opacity: .9;
+  margin-top: 10px;
+}
+.lib-sheet-icon {
+  color: var(--gold-bright, #F7C744);
+  display: flex; justify-content: center; margin: 14px 0 2px;
+  filter: drop-shadow(0 0 14px rgba(245,166,35,.35));
+}
+.lib-sheet-title {
+  font-family: var(--serif-display, Fraunces, Georgia, serif);
+  font-size: 25px; font-weight: 400; letter-spacing: .2px;
+  color: var(--text, #EAE2D6); margin: 4px 0 4px;
+}
+.lib-sheet-sub {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 13.5px; line-height: 1.6; color: var(--text-mid, #95897A);
+  max-width: 300px; margin: 0 auto;
+}
+.lib-sheet-items { display: flex; flex-direction: column; gap: 9px; margin: 18px 0 4px; }
+.lib-sheet-item {
+  display: flex; align-items: center; gap: 12px; text-align: left;
+  padding: 12px 14px; border-radius: 13px;
+  background: rgba(255,255,255,.022);
+  border: 1px solid var(--border, #281F16);
+}
+.lib-sheet-item-spine {
+  flex: none; width: 3px; align-self: stretch; min-height: 22px;
+  border-radius: 2px;
+  background: linear-gradient(var(--gold, #F5A623), var(--gold-dim, rgba(245,166,35,.3)));
+}
+.lib-sheet-item-t {
+  flex: 1; font-family: var(--serif, Georgia, serif);
+  font-size: 14px; line-height: 1.4; color: var(--text, #EAE2D6);
+}
+.lib-sheet-cta {
+  width: 100%; margin-top: 20px;
+  background: linear-gradient(165deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  color: var(--gold-ink, #1A1206); border: 1px solid var(--gold, #F5A623);
+  padding: 14px; border-radius: 13px;
+  font-family: var(--cinzel, serif); font-size: 12px; letter-spacing: 2px; font-weight: 700;
+  cursor: pointer; transition: filter .15s, transform .1s;
+}
+.lib-sheet-cta:hover { filter: brightness(1.07); }
+.lib-sheet-cta:active { transform: scale(.98); }
+
+/* ── DAVRANIŞ KANITI OVERLAY ────────────────────────────── */
+.ws-kanit-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: var(--z-cinematic);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.ws-kanit-overlay.open { display: flex; }
+
+.ws-kanit-panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 22px 20px;
+  background: linear-gradient(180deg, #141413 0%, #0a0a0a 100%);
+  border: 1px solid rgba(184,149,60,0.35);
+  border-radius: 4px;
+}
+
+.ws-kanit-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--gold, #B8953C);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.ws-kanit-close {
+  background: transparent;
+  border: none;
+  color: var(--text-mid, #8A887F);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.ws-kanit-close:hover { color: var(--gold, #B8953C); }
+
+.ws-kanit-title {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--text-bright, #E8E6E0);
+  margin-bottom: 6px;
+}
+.ws-kanit-title em { color: var(--gold, #B8953C); font-style: italic; }
+
+.ws-kanit-hint {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-mid, #8A887F);
+  margin-bottom: 14px;
+}
+
+.ws-kanit-input {
+  width: 100%;
+  min-height: 90px;
+  padding: 12px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(184,149,60,0.25);
+  border-radius: 3px;
+  color: var(--text-bright, #E8E6E0);
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 180ms ease;
+}
+.ws-kanit-input:focus {
+  border-color: rgba(184,149,60,0.65);
+}
+
+.ws-kanit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin: 14px 0 18px;
+}
+
+.ws-kanit-gecmis {
+  border-top: 1px solid rgba(184,149,60,0.15);
+  padding-top: 14px;
+}
+.ws-kanit-gecmis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.ws-kanit-gecmis-count {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-mid, #8A887F);
+}
+.ws-kanit-gecmis-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.kanit-empty {
+  text-align: center;
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-mid, #8A887F);
+  padding: 12px 0;
+}
+.kanit-item {
+  padding: 8px 10px;
+  background: rgba(184,149,60,0.04);
+  border-left: 2px solid rgba(184,149,60,0.4);
+  border-radius: 2px;
+}
+.kanit-item-date {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--gold, #B8953C);
+  margin-bottom: 3px;
+}
+.kanit-item-text {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-bright, #E8E6E0);
+}
+
+/* Mobil */
+@media (max-width: 380px) {
+  .ws-ayna-mirror-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .ws-ayna-arrow { transform: rotate(90deg); }
+  .ws-ayna-side--current,
+  .ws-ayna-side--desired {
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid rgba(184,149,60,0.18);
+    padding-top: 8px;
+    text-align: left;
+  }
+}

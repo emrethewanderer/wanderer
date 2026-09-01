@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wanderer widget düzeni — obsidyen zemin, altın seri, söz satırı -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="12dp"
+    android:background="#0F0C08">
+
+    <TextView
+        android:id="@+id/widget_streak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="#EAE2D6"
+        android:fontFamily="serif" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GÜN"
+        android:textSize="9sp"
+        android:letterSpacing="0.3"
+        android:textColor="#95897A" />
+
+    <TextView
+        android:id="@+id/widget_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textSize="11sp"
+        android:textColor="#F5A623" />
+
+    <!-- Üç Mühür gün durumu: ◆ GELDİN · ◆ GÖRDÜN · ◆ YAPTIN -->
+    <TextView
+        android:id="@+id/widget_muhurler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="9sp"
+        android:letterSpacing="0.15"
+        android:textColor="#C9A24B" />
+
+    <TextView
+        android:id="@+id/widget_soz"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textSize="11sp"
+        android:textStyle="italic"
+        android:textColor="#C9BFAF"
+        android:fontFamily="serif" />
+</LinearLayout>

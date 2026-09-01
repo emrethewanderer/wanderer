@@ -1,0 +1,11 @@
+{
+  "appId": "com.emretransformation.wanderer",
+  "appName": "Wanderer",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

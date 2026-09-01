@@ -1,0 +1,158 @@
+/* ═══════════════════════════════════════
+   HISTORY / SUMMARIES
+═══════════════════════════════════════ */
+.history-list { padding: 0 20px 40px; display: flex; flex-direction: column; }
+@media (max-width: 640px) {
+  .history-list { padding: 0 16px 40px; }
+  .history-item { padding: 22px 0; }
+  .h-title { font-size: 17px; }
+}
+.history-item {
+  padding: 28px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: opacity 0.3s;
+}
+.history-item:hover { opacity: 0.65; }
+.h-date { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+.h-title { font-family: var(--serif); font-size: 19px; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
+.h-preview { font-size: 13px; color: var(--text-dim); font-weight: 300; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.empty-state { color: var(--text-dim); padding: 32px 0; font-size: 13px; font-style: italic; }
+
+/* Not Defteri stilleri llm-shell.css'e taşındı (.nb-*) — ön yüz: Wanderer LLM. */
+
+/* ── GLOBAL MOBILE-FIRST ── */
+@media (max-width: 640px) {
+  /* Chat area — padding burada tanımlı, üstteki blokta tekrar edilmez */
+
+  /* History items */
+  .h-title { font-size: 17px; }
+  .h-preview { font-size: 12px; }
+
+  /* Settings */
+  .settings-group { margin-bottom: 36px; }
+  .settings-title { font-size: 19px; margin-bottom: 20px; }
+
+  /* Knowledge base */
+  .kb-item-title { font-size: 14px; }
+
+  /* Admin */
+  .admin-stat-row { flex-direction: column; gap: 16px; }
+  .admin-tab { margin-right: 18px; font-size: 9px; }
+
+  /* Premium */
+  .sub-feature { padding: 12px 14px; gap: 12px; }
+  .sub-feature-desc { font-size: 12px; }
+
+  /* Transformation cards grid */
+  .tx-cards-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+
+  /* w2-summary padding */
+
+  /* Modals */
+  #share-card-overlay .modal { padding: 24px 16px; }
+
+  /* w3 özet katmanları */
+  .w3-layer-label { font-size: 8px; letter-spacing: 2px; }
+  .w3-layer-text { font-size: 15px; }
+  .w3-quote { font-size: 14px; padding: 8px 12px; }
+  .w3-emre-note { padding: 16px 14px; }
+  .w3-emre-note-text { font-size: 15px; }
+
+  /* Quick reply chips */
+  .qr-chip { font-size: 12px; padding: 8px 12px; min-height: 40px; }
+
+  /* Chat opener card */
+  .chat-opener-card { margin: 0 0 20px; }
+
+  /* Topbar streak — mobile padding ile topbar inner ile hizalı */
+  .w2-topbar-streak { padding: 0 14px; }
+  .w2-topbar-inner  { padding: calc(var(--safe-t) + 12px) 14px 12px; }
+}
+
+/* Eski sınıflar — diğer yerlerde kullanılıyor, korunuyor */
+.stat-block { flex: 1; padding: 24px 20px; border-right: 1px solid var(--border); }
+.stat-block:last-child { border-right: none; }
+.stat-num { font-family: var(--serif); font-size: 40px; color: var(--gold); line-height: 1; margin-bottom: 8px; }
+.stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); }
+.section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.chart-wrap { height: 180px; margin-bottom: 40px; }
+
+/* ═══════════════════════════════════════
+   MİCRO-ANİMASYONLAR
+═══════════════════════════════════════ */
+
+/* 1 — Send butonu nefes alır (beklerken) */
+@keyframes maBreath {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+.send-btn.breathing {
+  animation: maBreath 2.2s ease-in-out infinite;
+  color: var(--gold);
+}
+
+/* 2 — Send butonu gönderim nabzı */
+@keyframes maSendPulse {
+  0%   { transform: scale(1);    opacity: 1; }
+  40%  { transform: scale(0.88); opacity: 0.6; }
+  80%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.send-btn.sending { animation: maSendPulse 0.5s ease forwards; }
+
+/* 3 — Emre mesajı belirir: kelime-kelime akış hissi */
+@keyframes maWordReveal {
+  from { opacity: 0; filter: blur(3px); transform: translateY(4px); }
+  to   { opacity: 1; filter: blur(0);   transform: translateY(0); }
+}
+.message.emre.ma-reveal .msg-content {
+  animation: maWordReveal 0.7s ease forwards;
+}
+
+/* 4 — Gold pulse: yeni mesaj gelince input alanı çerçevesi */
+@keyframes maInputGold {
+  0%   { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+  40%  { box-shadow: 0 0 0 3px rgba(245,166,35,0.25); }
+  100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+}
+.input-row.ma-gold-pulse {
+  animation: maInputGold 1.2s ease forwards;
+}
+
+/* 6 — Journey bölümü açılışı: sayfa aşağı uzar */
+/* (max-height zaten var, ek bir fade ekleyelim içeriye) */
+.w3-chapter-days-wrap .w3-chapter-days {
+  opacity: 0;
+  transition: opacity 0.3s ease 0.15s;
+}
+.w3-chapter.open .w3-chapter-days-wrap .w3-chapter-days {
+  opacity: 1;
+}
+
+/* 7 — View geçişi: ekran sola kayarak girer — SADECE desktop */
+@keyframes maViewIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@media (min-width: 641px) {
+  .view.active { animation: maViewIn 0.35s ease forwards; }
+}
+
+/* Mobilede feedback butonları her zaman görünür */
+@media (max-width: 640px) {
+  .msg-feedback { opacity: 0.75; }
+  .send-btn { min-width: 44px; min-height: 44px; padding: 0 8px; justify-content: center; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   prefers-reduced-motion (§5 — zorunlu, istisnasız)
+   Nefes, gönderme vuruşu ve kelime süzülmesi susar; yüzey aynı yerde ve
+   aynı okunurlukta kalır. Hiçbiri opaklığını animasyondan almıyor, bu
+   yüzden yalnız hareketi kesmek yeterli.
+   ════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .send-btn.breathing, .send-btn.sending,
+  .message.emre.ma-reveal .msg-content,
+  .input-row.ma-gold-pulse,
+  .view.active { animation: none !important; }
+}

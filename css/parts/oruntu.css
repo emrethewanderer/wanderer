@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════════════
+   ÖRÜNTÜ AYNASI (09d) — İÇ DÜNYA odası + panel
+   Altın = olan (örüntü/teşhis) · lapis = yol (çözüm/ritüel).
+   Panel, tören portalı DEĞİL (--z-ceremony kullanılmaz) — hs-overlay
+   (13-extras) kalıbıyla aynı katman: modal, z-index 750.
+═══════════════════════════════════════════════════════════════ */
+
+/* Oda köşesindeki taze-nokta — .ws-hs-pulse (sentez.css) ile aynı dil */
+.ws-st-room .ws-om-pulse { position: absolute; top: 12px; right: 12px; }
+.ws-om-pulse {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0; opacity: 0; transition: opacity 0.4s;
+}
+.ws-om-pulse.active { opacity: 1; animation: wsOmPulse 2.8s ease-in-out infinite; }
+@keyframes wsOmPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ws-om-pulse.active { animation: none; opacity: 0.85; }
+}
+
+/* ── Panel ── */
+.om-modal {
+  max-width: 460px; max-height: 88vh; padding: 0; text-align: left;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.om-head { padding: 24px 22px 4px; flex-shrink: 0; }
+.om-kicker {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 10px;
+}
+.om-title { font-family: var(--serif-display); font-size: 24px; color: var(--text); line-height: 1.25; }
+.om-epigraf {
+  font-family: var(--serif); font-style: italic; font-size: 13px;
+  color: var(--text-mid); margin-top: 8px; line-height: 1.5;
+}
+.om-scroll { flex: 1; overflow-y: auto; padding: 16px 22px 6px; min-height: 120px; -webkit-overflow-scrolling: touch; }
+.om-foot {
+  display: flex; gap: 10px; padding: 14px 22px calc(var(--safe-b, 0px) + 16px);
+  border-top: 1px solid var(--border-active); flex-shrink: 0;
+}
+
+/* ── Örüntü kartı (premium) ── */
+.om-pattern {
+  border: 1px solid var(--border-active); border-radius: var(--radius-lg);
+  background: linear-gradient(165deg, var(--bg-raised) 0%, var(--surface) 100%);
+  padding: 16px 16px 14px; margin-bottom: 14px;
+}
+.om-pattern-tip {
+  display: flex; align-items: baseline; gap: 8px;
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
+}
+/* Tekrar rozeti — ≥2 haftadır süren örüntünün ağırlığı (altın=olan) */
+.om-tekrar {
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 1.5px;
+  color: var(--gold); border: 1px solid var(--gold-hairline);
+  border-radius: 999px; padding: 2px 8px; white-space: nowrap;
+}
+.om-pattern-title {
+  font-family: var(--serif-display); font-size: 16px; color: var(--text);
+  margin-bottom: 8px; line-height: 1.3;
+}
+.om-kanit {
+  font-family: var(--serif); font-style: italic; font-size: 13.5px;
+  color: var(--text-mid); line-height: 1.55; border-left: 2px solid var(--gold-quiet);
+  background: var(--gold-quiet-dim); padding: 8px 10px; margin-bottom: 10px;
+}
+.om-teshis {
+  display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+  font-size: 12px; color: var(--gold); margin-bottom: 10px;
+}
+.om-teshis-fw {
+  font-family: var(--cinzel); font-size: 8.5px; letter-spacing: 1.5px;
+  text-transform: uppercase; opacity: 0.85;
+}
+.om-teshis-panzehir { color: var(--text-mid); font-size: 12px; }
+.om-cozum { border-top: 1px solid var(--border-active); padding-top: 10px; }
+.om-cozum-neden { font-size: 12px; color: var(--text-mid); line-height: 1.5; margin-bottom: 10px; }
+.om-cozum-btn {
+  min-height: 44px; width: 100%; padding: 0 14px;
+  background: transparent; border: 1px solid var(--lapis-edge); border-radius: var(--radius-lg);
+  color: var(--lapis-bright); font-family: var(--cinzel); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease;
+}
+.om-cozum-btn:hover { background: var(--lapis-dim); border-color: var(--lapis-bright); }
+.om-cozum-btn:focus-visible { outline: 2px solid var(--lapis-bright); outline-offset: 2px; }
+
+.om-empty {
+  text-align: center; padding: 36px 12px; color: var(--text-dim);
+  font-size: 13px; line-height: 1.6;
+}
+
+/* ── Sönen örüntüler — kapanan yaranın izi (lapis=yol/ilerleme) ── */
+.om-sonen {
+  border: 1px solid var(--lapis-hairline); border-radius: var(--radius-lg);
+  background: linear-gradient(170deg, var(--lapis-dim), transparent 65%);
+  padding: 14px 16px; margin: 4px 0 14px;
+}
+.om-sonen-tag {
+  font-family: var(--cinzel); font-size: 8px; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--lapis-bright); margin-bottom: 8px;
+}
+.om-sonen-row { display: flex; gap: 8px; align-items: baseline; margin-bottom: 6px; }
+.om-sonen-row:last-child { margin-bottom: 0; }
+.om-sonen-glyph { color: var(--lapis-bright); font-size: 11px; flex: none; }
+.om-sonen-txt {
+  font-family: var(--serif); font-size: 13px; font-style: italic;
+  color: var(--text-mid); line-height: 1.5;
+}
+
+/* ── Ücretsiz teaser ── */
+.om-teaser { text-align: center; padding: 28px 12px 8px; }
+/* TASARIM-MUAF: sayı yüzeyi — display aralığı kelimeye uygulanır, rakama değil */
+.om-teaser-num {
+  font-family: var(--serif-display); font-size: 52px; color: var(--gold);
+  line-height: 1; margin-bottom: 4px;
+}
+.om-teaser-lock { font-size: 18px; color: var(--text-dim); margin-bottom: 14px; }
+.om-teaser-text {
+  font-family: var(--serif); font-size: 14px; color: var(--text-mid);
+  line-height: 1.55; margin-bottom: 22px;
+}
+.om-teaser-cta {
+  min-height: 44px; padding: 0 22px;
+  background: var(--gold); border: none; border-radius: var(--radius-lg);
+  color: var(--gold-ink); font-family: var(--cinzel); font-size: 10.5px;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+}
+.om-teaser-cta:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ── Alfabe Işık çıpası (12e Faz 3) — örüntüye yankılanan nişan ──
+   Yazılı nişan: altın hakikat mührü. Yazılmamış: sönük kontur + davet. */
+.om-isik {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  min-height: 44px; margin: 10px 0 2px; padding: 10px 14px;
+  background: linear-gradient(170deg, rgba(245,166,35,0.05), transparent 70%);
+  border: 1px solid rgba(245,166,35,0.18); border-radius: var(--radius-lg);
+  cursor: pointer; text-align: left;
+  transition: border-color 0.2s ease;
+}
+.om-isik:hover { border-color: rgba(245,166,35,0.45); }
+.om-isik:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.om-isik-icon { width: 34px; height: 34px; flex: none; color: var(--text-dim); }
+.om-isik--yazili .om-isik-icon { color: var(--gold); filter: drop-shadow(0 0 5px rgba(245,166,35,0.4)); }
+.om-isik-icon svg { width: 100%; height: 100%; }
+.om-isik-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.om-isik-kicker {
+  font-family: var(--cinzel); font-size: 8.5px; letter-spacing: 2.5px;
+  color: var(--gold); opacity: 0.85;
+}
+.om-isik-line {
+  font-family: var(--serif); font-style: italic; font-size: 13px;
+  color: var(--text-mid); line-height: 1.45;
+}
+.om-isik--yazili .om-isik-line { color: var(--text); }
+
+@media (max-width: 380px) {
+  .om-modal { max-width: 100%; }
+  .om-title { font-size: 21px; }
+}

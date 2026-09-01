@@ -1,0 +1,379 @@
+/* ═══════════════════════════════════════════════════════════════════
+   imge.css — İmge Kapısı (13z): 12 arketip ızgarası + "neden sen?" +
+   basılı-tut mühür + Bugün davet şeridi.
+
+   TASARIM (TASARIM-PRENSIPLERI.md uyumu):
+     §0.1 Metafor: KAP — içine girilen, kapanan bir yer. Sahne yolculuk
+          gibi yanlamasına akmaz; merkeze toplanır (ızgara → tek imge →
+          mühür). Bu yüzden giriş hareketi "yaklaşma"dır, kaydırma değil.
+     §1 Renk:  imge = ŞİMDİ/olduğun → ALTIN. Lapis burada YOK; imge bir
+          hedef değil, şu anki kendilik. Mühür daima altın.
+     §2 Zaman: sahne --dawn-* token'larıyla saatle yaşar (aksam.css emsali).
+     §3 Doku:  kâğıt greni (::before) + köşe-radial atmosfer + dövülmüş
+          mühür CTA (üst ışık + altın glow + basınca scale).
+     §4 Tipo:  Cinzel kicker → Fraunces başlık → EB Garamond italik alt.
+     §5 Hareket: --ease-out giriş; mühür dolumu --p değişkeniyle sürülür.
+     §7 Tören: toast değil, sahnelenmiş eşik.  §9: 44px hedef,
+          focus-visible, 16px input (iOS zoom engeli).
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── PORTAL & SAHNE ── */
+.ig-portal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-ceremony, 9650);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--safe-t, 0px) + 16px) 16px calc(var(--safe-b, 0px) + 16px);
+}
+.ig-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 6, 4, .82);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  animation: igVeilIn .35s var(--ease-out, cubic-bezier(.16, 1, .3, 1)) both;
+}
+@keyframes igVeilIn { from { opacity: 0; } to { opacity: 1; } }
+
+.ig-modal {
+  --grain-op: .16;   /* kağıt greni → .wn-grain sarmalı (base.css) */
+  position: relative;
+  width: min(460px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  border-radius: var(--radius-xl, 24px);
+  border: 1px solid var(--border, #281F16);
+  isolation: isolate;
+  text-align: center;
+  /* Köşe-radial atmosfer + saatle kayan şafak tabanı (§2, §3) */
+  background:
+    radial-gradient(120% 80% at 12% 0%, rgba(245, 166, 35, .09), transparent 58%),
+    radial-gradient(100% 70% at 88% 4%, var(--dawn-amber, rgba(245, 166, 35, .05)), transparent 60%),
+    linear-gradient(180deg, var(--surface, #1D1712), var(--bg, #0F0C08));
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .6);
+  animation: igModalIn .45s var(--ease-out, cubic-bezier(.16, 1, .3, 1)) both;
+}
+/* Yastık sarmalda: gren kenar boşluğunu da örtmeli (bkz. .wn-grain) */
+.ig-modal .wn-grain { padding: 26px 22px 24px; }
+@keyframes igModalIn {
+  from { opacity: 0; transform: translateY(14px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── BAŞLIK KOROSU (§4) ── */
+.ig-kicker {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 4.5px;
+  color: var(--gold, #F5A623);
+  opacity: .9;
+  margin-bottom: 10px;
+}
+.ig-baslik, .ig-neden-q {
+  font-family: var(--serif-display, 'Fraunces', serif);
+  font-size: 23px;
+  line-height: 1.28;
+  color: var(--text, #EAE2D6);
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+.ig-alt {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-mid, #95897A);
+  margin: 0 0 18px;
+}
+
+/* ── KAPAT / GERİ (§9: 44px hedef) ── */
+.ig-x, .ig-geri {
+  position: absolute;
+  top: 10px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-dim, #585349);
+  font-size: 17px;
+  cursor: pointer;
+  border-radius: var(--radius-full, 999px);
+  transition: color .2s var(--ease-out, ease);
+  z-index: 2;
+}
+.ig-x { right: 8px; }
+.ig-geri { left: 8px; }
+.ig-x:hover, .ig-geri:hover { color: var(--text, #EAE2D6); }
+.ig-x:focus-visible, .ig-geri:focus-visible {
+  outline: 2px solid var(--gold, #F5A623);
+  outline-offset: 2px;
+}
+
+/* ── IZGARA — 12 arketip ── */
+.ig-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.ig-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px 10px;
+  min-height: 44px;
+  background: rgba(255, 255, 255, .015);
+  border: 1px solid var(--border, #281F16);
+  border-radius: var(--radius-lg, 20px);
+  cursor: pointer;
+  transition:
+    border-color .28s var(--ease-out, ease),
+    background .28s var(--ease-out, ease),
+    transform .28s var(--ease-out, ease);
+}
+.ig-cell:hover {
+  border-color: var(--gold-edge, rgba(245, 166, 35, .55));
+  background: rgba(245, 166, 35, .05);
+  transform: translateY(-2px);
+}
+.ig-cell:active { transform: scale(.96); }
+.ig-cell:focus-visible {
+  outline: 2px solid var(--gold, #F5A623);
+  outline-offset: 2px;
+}
+.ig-cell-ad {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9.5px;
+  letter-spacing: 1.6px;
+  color: var(--text-mid, #95897A);
+}
+.ig-cell:hover .ig-cell-ad { color: var(--gold, #F5A623); }
+.ig-sigil { display: block; overflow: visible; }
+
+/* ── DURAK 2: seçilen imge + neden ── */
+.ig-secili {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 6px;
+  filter: drop-shadow(0 0 14px rgba(245, 166, 35, .28));
+}
+/* Mühür anında imge "nefes alır" (§5) */
+.ig-secili--muhur { animation: igBreath 4.2s ease-in-out infinite; }
+@keyframes igBreath {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(245, 166, 35, .24)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(245, 166, 35, .46)); }
+}
+.ig-secili-ad {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 12px;
+  letter-spacing: 3.4px;
+  color: var(--gold, #F5A623);
+  margin-bottom: 14px;
+}
+.ig-neden-in {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 16px; /* §9 — iOS zoom engeli */
+  line-height: 1.5;
+  color: var(--text, #EAE2D6);
+  background: rgba(0, 0, 0, .28);
+  border: 1px solid var(--border, #281F16);
+  border-radius: var(--radius-lg, 20px);
+  resize: none;
+}
+.ig-neden-in::placeholder { color: var(--text-dim, #585349); font-style: italic; }
+.ig-neden-in:focus {
+  outline: none;
+  border-color: var(--gold-edge, rgba(245, 166, 35, .55));
+}
+
+/* ── DÖVÜLMÜŞ ALTIN MÜHÜR (§3) ── */
+.ig-press {
+  position: relative;
+  width: 100%;
+  min-height: 52px;
+  overflow: hidden;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 13px;
+  letter-spacing: 3.2px;
+  color: var(--bg, #0F0C08);
+  background: linear-gradient(180deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  border: none;
+  border-radius: var(--radius-full, 999px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .38),
+    0 0 18px rgba(245, 166, 35, .32);
+  cursor: pointer;
+  transition: transform .18s var(--ease-out, ease), opacity .25s ease;
+  touch-action: none; /* basılı tutarken sayfa kaymasın */
+  user-select: none;
+}
+.ig-press:disabled {
+  opacity: .34;
+  cursor: not-allowed;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+.ig-press.is-pressing { transform: scale(.965); }
+.ig-press:focus-visible { outline: 2px solid var(--gold-bright, #F7C744); outline-offset: 3px; }
+/* Dolum — JS `--p` (0→1) sürer; mühür "dolarak" basılır */
+.ig-press-fill {
+  position: absolute;
+  inset: 0;
+  transform: scaleX(var(--p, 0));
+  transform-origin: left center;
+  background: rgba(255, 255, 255, .3);
+  pointer-events: none;
+}
+.ig-press-txt { position: relative; z-index: 1; }
+.ig-press-hint {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-dim, #585349);
+  margin: 10px 0 0;
+}
+
+/* ── MÜHÜR ANI ── */
+.ig-muhur-son {
+  font-family: var(--serif-display, 'Fraunces', serif);
+  font-size: 20px;
+  color: var(--text, #EAE2D6);
+  margin: 4px 0 20px;
+}
+/* Merdiven köprüsü (FAZ 4) — birincil eylem: dövülmüş altın mühür dili.
+   "Şimdilik yeter" onun altında ikincil kalır: derinleşmek davet, çıkmak
+   da eşit derecede meşru — ama davet önce durur. */
+.ig-derin {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: 10px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 12px;
+  letter-spacing: 2.8px;
+  color: var(--bg, #0F0C08);
+  background: linear-gradient(180deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  border: none;
+  border-radius: var(--radius-full, 999px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .38),
+    0 0 16px rgba(245, 166, 35, .3);
+  cursor: pointer;
+  transition: transform .18s var(--ease-out, ease);
+}
+.ig-derin:active { transform: scale(.965); }
+.ig-derin:focus-visible { outline: 2px solid var(--gold-bright, #F7C744); outline-offset: 3px; }
+
+.ig-bitir {
+  min-height: 44px;
+  padding: 12px 32px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--gold, #F5A623);
+  background: none;
+  border: 1px solid var(--gold-edge, rgba(245, 166, 35, .55));
+  border-radius: var(--radius-full, 999px);
+  cursor: pointer;
+  transition: background .25s var(--ease-out, ease);
+}
+.ig-bitir:hover { background: rgba(245, 166, 35, .1); }
+.ig-bitir:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+/* ── BUGÜN DAVET ŞERİDİ (13j .wr-invite kardeşi) ── */
+.ig-invite {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 14px 0 0;
+  padding: 13px 15px;
+  text-align: left;
+  background:
+    radial-gradient(90% 120% at 0% 50%, rgba(245, 166, 35, .09), transparent 62%),
+    var(--surface, #1D1712);
+  border: 1px solid var(--border, #281F16);
+  border-radius: var(--radius-lg, 20px);
+  cursor: pointer;
+  transition: border-color .3s var(--ease-out, ease), transform .3s var(--ease-out, ease);
+}
+.ig-invite:hover {
+  border-color: var(--gold-edge, rgba(245, 166, 35, .55));
+  transform: translateY(-1px);
+}
+.ig-invite:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+.ig-invite-glyph { flex-shrink: 0; display: flex; opacity: .9; }
+.ig-invite-txt { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.ig-invite-kick {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 2.4px;
+  color: var(--gold, #F5A623);
+}
+.ig-invite-title {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--text, #EAE2D6);
+}
+.ig-invite-cta {
+  flex-shrink: 0;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold, #F5A623);
+}
+
+/* ── EŞİK FİLİGRANI (02d) — priming ──
+   Stil burada durur, onboarding-ritual.css'te değil: imge nereye giderse
+   dili onunla gider. Filigran ALTIN kartın (olduğun kişi) köşesinde,
+   fısıltı dozunda — kartın kendi yüzünü bastırmaz, ona eşlik eder. */
+.esik-imge {
+  position: absolute;
+  top: 22px;
+  right: -4px;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+  opacity: .5;
+  filter: drop-shadow(0 0 6px rgba(245, 166, 35, .35));
+}
+/* Kendi giriş animasyonu YOK — bilinçli. Filigran altın kartın çocuğudur ve
+   kartın kendi giriş hareketiyle (esikFromLeft) birlikte gelir. Ayrı bir
+   `animation: … both` denendi ve kaldırıldı (2026-08-04): backwards fill,
+   animasyon herhangi bir sebeple koşmazsa (arka plan sekmesi, throttle)
+   filigranı opacity:0'da KİLİTLİYORDU — süs uğruna görünmezlik riski. */
+
+/* ── DAR EKRAN ── */
+@media (max-width: 380px) {
+  .ig-grid { gap: 8px; }
+  .ig-modal .wn-grain { padding: 22px 16px 20px; }
+  .ig-baslik, .ig-neden-q { font-size: 21px; }
+}
+
+/* 🔒 §5 — istisnasız reduced-motion bloğu */
+@media (prefers-reduced-motion: reduce) {
+  .ig-veil,
+  .ig-modal,
+  .ig-secili--muhur {
+    animation: none;
+  }
+  .ig-cell,
+  .ig-press,
+  .ig-invite,
+  .ig-x,
+  .ig-geri,
+  .ig-bitir,
+  .ig-derin {
+    transition: none;
+  }
+  .ig-cell:hover, .ig-invite:hover { transform: none; }
+}

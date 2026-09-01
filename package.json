@@ -1,0 +1,47 @@
+{
+  "name": "emre-the-wanderer",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "NODE_ENV=production vite build",
+    "build:dev": "vite build",
+    "preview": "vite preview",
+    "preview:temiz": "bash scripts/preview-baslat.sh",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "typecheck:strict": "tsc --noEmit -p tsconfig.strict.json || true",
+    "deploy": "bash build.sh",
+    "size": "du -sh assets/ dist/ 2>/dev/null || true",
+    "size:check": "node scripts/check-bundle-size.mjs",
+    "audit:innerhtml": "node scripts/audit-innerhtml.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.4.0",
+    "@capacitor/keyboard": "^8.0.5",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/push-notifications": "^8.1.1",
+    "@capacitor/share": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "@revenuecat/purchases-capacitor": "^13.1.5",
+    "@supabase/supabase-js": "^2.49.1",
+    "chart.js": "^4.4.7",
+    "dompurify": "^3.1.6",
+    "marked": "^14.1.4"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "jsdom": "^29.1.1",
+    "typescript": "^6.0.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.1.4"
+  }
+}

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!-- GEÇİCİ TEST SAYFASI — İç Meclis 2.0 önizlemesi (build'e girmez)
+     Bare npm importları import-map ile stub'lanır; gerçek modüller kaynaktan yüklenir. -->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>İç Meclis 2.0 Testi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Barlow:wght@300;400;500&family=Cinzel:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/parts/base.css">
+<style>
+  body{margin:0;background:var(--bg,#0F0C08);color:var(--text,#EAE2D6);font-family:var(--sans,Barlow,sans-serif);padding:24px 0 120px;}
+  .view{display:block!important;position:relative!important;inset:auto!important;opacity:1!important;transform:none!important;}
+  h2.probe{font-family:var(--cinzel);font-size:13px;letter-spacing:4px;color:var(--gold);margin:38px auto 14px;max-width:720px;padding:0 14px;}
+  .probe-btns{display:flex;gap:10px;margin:20px auto;max-width:720px;padding:0 14px;flex-wrap:wrap;}
+  .probe-btns button{padding:10px 16px;background:#222;border:1px solid #555;color:#ddd;cursor:pointer;border-radius:8px;}
+  #hasimlar-view{max-width:720px;margin:0 auto;padding:0 14px;}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "@supabase/supabase-js": "data:text/javascript,const h={get:(t,p)=>{if(p==='then')return(res)=>res({data:null,error:null});return(...a)=>new Proxy(function(){},h)},apply:(t,th,a)=>new Proxy(function(){},h)};export const createClient=()=>new Proxy(function(){},h);",
+    "marked": "data:text/javascript,export const marked=Object.assign((s)=>String(s),{setOptions(){},parse:(s)=>String(s),use(){}});",
+    "dompurify": "data:text/javascript,const d={sanitize:(x)=>x,addHook(){},removeHook(){}};export default d;",
+    "chart.js": "data:text/javascript,export class Chart{static register(){}constructor(){}update(){}destroy(){}};const o={};export const LineController=o,BarController=o,DoughnutController=o,LineElement=o,BarElement=o,ArcElement=o,PointElement=o,LinearScale=o,CategoryScale=o,Tooltip=o,Legend=o,Filler=o,Title=o;"
+  }
+}
+</script>
+</head>
+<body>
+<h2 class="probe">İÇ MECLİS — DİVAN</h2>
+<div class="view active" id="hasimlar-view">
+  <div id="hasimlar-stats" style="display:flex;gap:16px;padding:0 0 10px;font-size:11px;color:var(--text-dim);">
+    <span>Sezilen <b class="ws-stat-val">0</b></span>
+    <span>Tanındı <b class="ws-stat-val">0</b></span>
+    <span>Dönüştü <b class="ws-stat-val">0</b></span>
+    <span>Elmas <b class="ws-stat-val">0</b></span>
+  </div>
+  <div id="hasimlar-content"></div>
+</div>
+
+<div class="probe-btns">
+  <button id="btn-sezilen">Sezilen kartı aç</button>
+  <button id="btn-adlandi">Adlanmış kartı aç (flip)</button>
+  <button id="btn-butunlesti">Dönüşmüş kartı aç (flip)</button>
+  <button id="btn-elle">Elle seziş modalı</button>
+  <button id="btn-reduced">Reduced-motion aç/kapa</button>
+</div>
+
+<script type="module">
+import { S } from './js/state.js';
+import { kumEnsureSpec } from './js/parts/12d-kart-uretim.js';
+import * as meclis from './js/parts/10p-w2-meclis.js';
+const {
+  renderMeclisSalonu, openSuretCard, meclisOpenElleSezis, loadMeclisView,
+} = meclis;
+
+S.currentUser = { id: 'test-user', name: 'Emre' };
+S._currentLang = 'tr';
+
+// main.js'in Object.assign(window,...) adımının küçük bir taklidi — modülün
+// kendi ürettiği onclick="fonksiyonAdı(...)" dizeleri window'dan okur.
+Object.assign(window, meclis);
+
+// Gerçek modüller (02c/10D/00f) yüklü değil bu izole harness'te — TDZ-güvenli
+// window.* köprülerini gözlemlenebilir sahte verilerle stub'luyoruz.
+window.benlikCardName = () => 'Şu Anki Sakin Gezgin';
+window.benlikGetContext = () => '◈ Şu Anki Sakin Gezgin — v3';
+window.oikGetDesired = () => ({ name: 'Kararlı ve Sakin Biri' });
+window.oikAddMadde = (kat, text) => { console.log('[test] oikAddMadde', kat, text); return 'test-card:' + kat + ':0'; };
+window.kumEnsureSpec = kumEnsureSpec;
+window.wtOverlayOpen = (n) => console.log('[wt] open', n);
+window.wtOverlayClose = (n) => console.log('[wt] close', n);
+window.engOpen = () => console.log('[test] engOpen çağrıldı');
+window.switchView = (v) => console.log('[test] switchView', v);
+
+// loadMeclisView yalnızca _injectStyle()'ı (private) tetiklemek için bir kez
+// çağrılır (kendi DB/profil hidrasyonu boş sonuç verir, zararsız) — ardından
+// sabit test verisiyle gerçek çizim yapılır.
+await loadMeclisView().catch(() => {});
+S._suretler = [
+  { slug: 'erteleyen', ad: '', unvan: 'Acıyı yarına atan', hal: 'sezilen',
+    koken_oruntu: 'İşleri son ana bırakır', ses: 'Yarın daha hazır olacağım',
+    niyet: 'Başarısızlık acısından korur', korku: 'Yetersiz görünmek',
+    kor_nokta: 'Ertelemenin de bir seçim olduğu', zirh: 'Bahaneler',
+    kokler: ['oz_guven'], ayna: 'Anında başlayan biri', kaynak: 'yp' },
+  { slug: 'onay-dilenci', ad: 'Yarıncı', unvan: 'Başkasının gözünden var olan', hal: 'adlandi',
+    bag_seviyesi: 45, ayna: 'Hayır diyebilen', kokler: ['oz_saygi'],
+    niyet: 'Reddedilmekten korur', korku: 'Dışlanmak', koken_oruntu: 'Onay arar',
+    kor_nokta: 'Kendi onayının yettiği', ses: 'Beni sevsinler yeter',
+    sefer_gun: 9, sefer_baslangic: new Date().toISOString(), sefer_son_muhur: null,
+    engel_id: 'herkesi-memnun', kaynak: 'profil' },
+  { slug: 'kiyaslayan', ad: 'Hep-Az', unvan: 'Herkesle ölçen', hal: 'butunlesti',
+    ayna: 'Kendi yoluna güvenen', kokler: ['oz_deger', 'layik'],
+    butunlesti_at: new Date().toISOString(), oik_madde_id: null, kaynak: 'ap', ap_confirmed: true },
+];
+S._suretDrafts = [];
+renderMeclisSalonu(S._suretler);
+
+document.getElementById('btn-sezilen').onclick = () => openSuretCard('erteleyen');
+document.getElementById('btn-adlandi').onclick = () => openSuretCard('onay-dilenci');
+document.getElementById('btn-butunlesti').onclick = () => openSuretCard('kiyaslayan');
+document.getElementById('btn-elle').onclick = () => meclisOpenElleSezis();
+document.getElementById('btn-reduced').onclick = () => {
+  document.documentElement.style.setProperty('--force-reduced', '');
+  const on = document.body.classList.toggle('force-reduced-motion');
+  let style = document.getElementById('reduced-motion-force');
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'reduced-motion-force';
+    document.head.appendChild(style);
+  }
+  style.textContent = on ? '*{animation:none!important;transition:none!important;}' : '';
+};
+window._harnessReady = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+/* Wanderer AI — PORTRE (Kendi Kartını Oluştur)
+   Onboarding overlay sc-* sınıfları onb-ritual tabanını miras alır
+   (onboarding-ritual.css). Görünüm portre-* sınıfları portre-view içindir. */
+
+/* Base token'larla (--gold-glow=.4, --gold-edge=.55, --gold-hairline=.28)
+   birebir eşleşmeyen iki alfa değeri — davranış aynı kalır, yalnız merkezileşir. */
+:root {
+  --sc-gold-45: rgba(245,166,35,.45);
+  --sc-gold-30: rgba(245,166,35,.30);
+}
+
+/* ════════ ONBOARDING — taslak kurtarma notu ════════ */
+.sc-draft-note {
+  font-size: 12px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md, 8px);
+  padding: 8px 14px;
+  margin: -10px auto 18px;
+  max-width: 380px;
+  letter-spacing: .5px;
+}
+
+/* ════════ ONBOARDING — kategori ilerleme dotları ════════ */
+.sc-progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.sc-progress-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  border: 1px solid var(--border-active);
+  transition: all var(--anim-fast, .15s);
+}
+.sc-pdot-done  { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 6px var(--gold-glow); }
+.sc-pdot-current { background: transparent; border-color: var(--gold); border-width: 2px; }
+
+/* ════════ ONBOARDING — kategori toplama ════════ */
+.sc-cat-sigil {
+  font-size: 30px;
+  color: var(--gold);
+  margin-bottom: 14px;
+  filter: drop-shadow(0 0 12px var(--gold-glow));
+  animation: onbPulse 3.4s ease-in-out infinite;
+}
+
+.sc-diff {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md, 8px);
+  padding: 9px 12px;
+  margin: 0 auto 18px;
+  max-width: 380px;
+}
+
+.sc-spark {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  padding: 13px 15px;
+  margin-bottom: 14px;
+  background: radial-gradient(120% 140% at 0% 0%, var(--lapis-dim, rgba(40,70,140,.16)), transparent 70%), var(--surface);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--lapis, #2D5FA8);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: border-color var(--anim-fast, .15s), transform var(--anim-fast, .15s);
+}
+.sc-spark:hover { border-left-color: var(--gold); transform: translateY(-1px); }
+.sc-spark-q {
+  font-family: var(--serif, serif);
+  font-size: 14.5px;
+  color: var(--text);
+  line-height: 1.4;
+}
+.sc-spark-hint {
+  flex-shrink: 0;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sc-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.sc-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text);
+  font-family: var(--sans, sans-serif);
+  font-size: 14px;
+  padding: 13px 14px;
+  transition: border-color var(--anim-fast, .15s);
+}
+.sc-input:focus { outline: none; border-color: var(--gold); }
+.sc-input::placeholder { color: var(--text-dim); }
+.sc-input-shake { animation: scShake .4s; border-color: var(--red) !important; }
+@keyframes scShake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-6px); }
+  40%,80% { transform: translateX(6px); }
+}
+.sc-add {
+  flex-shrink: 0;
+  width: 48px;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--bg);
+  background: var(--gold);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: transform var(--anim-fast, .15s), box-shadow var(--anim-fast, .15s);
+  box-shadow: 0 4px 16px var(--gold-glow);
+}
+.sc-add:hover { transform: translateY(-2px); box-shadow: 0 7px 22px var(--gold-glow); }
+.sc-add:active { transform: translateY(0); }
+
+.sc-counter {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-align: left;
+  margin-bottom: 12px;
+}
+.sc-counter-num { color: var(--text-mid); font-variant-numeric: tabular-nums; font-weight: 600; }
+.sc-counter-done { color: var(--gold); }
+.sc-counter-done .sc-counter-num { color: var(--gold); }
+
+.sc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  text-align: left;
+  min-height: 20px;
+}
+.sc-chips-empty { font-size: 12px; color: var(--text-dim); font-style: italic; }
+.sc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 8px 10px 8px 13px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-full, 9999px);
+  animation: scChipIn .28s var(--ease-smooth, ease) both;
+}
+@keyframes scChipIn {
+  from { opacity: 0; transform: scale(.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.sc-chip-txt {
+  font-size: 13px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+}
+.sc-chip-x {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; line-height: 1;
+  color: var(--gold);
+  background: rgba(0,0,0,.12);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.sc-chip-x:hover { color: var(--bg); background: var(--gold); }
+
+/* ════════ ONBOARDING — işleme (sentez bekleme) ════════ */
+.sc-scene-proc { padding-top: 24px; }
+.sc-orbit {
+  position: relative;
+  width: 120px; height: 120px;
+  margin: 0 auto 32px;
+}
+.sc-orbit-core {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; color: var(--gold);
+  filter: drop-shadow(0 0 16px var(--gold-glow));
+  animation: onbPulse 2.4s ease-in-out infinite;
+}
+.sc-orbit-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  opacity: .35;
+}
+.sc-orbit-r1 { animation: scSpin 3.2s linear infinite; border-style: dashed; }
+.sc-orbit-r2 { inset: 14px; border-color: var(--lapis, #2D5FA8); animation: scSpin 4.6s linear infinite reverse; }
+.sc-orbit-r3 { inset: 28px; border-style: dotted; animation: scSpin 6s linear infinite; }
+@keyframes scSpin { to { transform: rotate(360deg); } }
+.sc-proc-line { animation: scFade 2s ease-in-out infinite; }
+@keyframes scFade { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+
+/* ════════ ONBOARDING — DOĞUŞ (Olunan [Ad] kartı sırtından döner) ════════ */
+.sc-birth {
+  width: min(56vw, 200px);
+  margin: 4px auto 14px;
+  perspective: 1000px;
+}
+.sc-birth-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .9s cubic-bezier(.2, .7, .2, 1);
+}
+.sc-birth.is-flipped .sc-birth-inner { transform: rotateY(180deg); }
+.sc-birth-face {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.sc-birth-front { transform: rotateY(180deg); }
+.sc-birth-back { position: absolute; inset: 0; }
+.sc-birth-back > * { height: 100%; }
+.sc-birth-name { margin-bottom: 2px; }
+.sc-birth-epitet {
+  font-family: var(--serif-display, var(--serif, serif));
+  font-style: italic;
+  font-size: 15px;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* flip yerine kart doğrudan görünür (çapraz-solma onb-open geçişinden gelir) */
+  .sc-birth-inner { transition: none; transform: none !important; }
+  .sc-birth-back { display: none; }
+  .sc-birth-front { transform: none; }
+}
+
+/* ════════ ONBOARDING — karar (Olduğun Kişi) ════════ */
+.sc-portrait {
+  font-family: var(--serif, serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text-mid);
+  max-width: 400px;
+}
+.sc-decide-card {
+  text-align: left;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-lg, 16px);
+  background: radial-gradient(130% 130% at 50% 0%, var(--gold-dim), transparent 72%);
+  padding: 6px 18px;
+  margin: 8px auto 18px;
+  max-width: 400px;
+}
+.sc-decide-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.sc-decide-row:last-child { border-bottom: none; }
+.sc-decide-cat {
+  font-family: var(--cinzel, serif);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 5px;
+}
+.sc-decide-val {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.sc-oneri {
+  text-align: left;
+  font-size: 13.5px;
+  color: var(--text-mid);
+  line-height: 1.55;
+  border-left: 2px solid var(--lapis, #2D5FA8);
+  padding: 4px 0 4px 14px;
+  margin: 0 auto 22px;
+  max-width: 400px;
+}
+.sc-oneri-lbl {
+  display: block;
+  font-family: var(--cinzel, serif);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--lapis, #2D5FA8);
+  margin-bottom: 4px;
+}
+.sc-decide-q {
+  font-family: var(--serif, serif);
+  font-size: 18px;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+@media (max-width: 380px) {
+  .sc-chip-txt { max-width: 180px; }
+}
+
+/* ════════ GÖRÜNÜM — Portrem ════════ */
+.portre-empty { text-align: center; padding: 60px 24px; }
+.portre-empty-sigil {
+  font-size: 36px; color: var(--gold);
+  margin-bottom: 18px; filter: drop-shadow(0 0 14px var(--gold-glow));
+  animation: porBreath 4.4s ease-in-out infinite; /* fener gibi nefes alır */
+}
+@keyframes porBreath {
+  0%, 100% { filter: drop-shadow(0 0 6px var(--gold-glow)); }
+  50% { filter: drop-shadow(0 0 18px var(--gold-glow)); }
+}
+.portre-empty-title {
+  font-family: var(--serif-display, var(--serif, serif)); font-size: 21px; color: var(--text); margin-bottom: 10px;
+}
+.portre-empty-desc {
+  font-family: var(--serif, serif); font-style: italic;
+  font-size: 13.5px; color: var(--text-mid); line-height: 1.7; max-width: 360px; margin: 0 auto 20px;
+}
+.portre-empty-cta {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+  font-family: var(--cinzel, serif);
+  font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 700;
+  color: #1A1206;
+  background: linear-gradient(180deg, var(--gold-bright, #F7C744), var(--gold, #F5A623) 55%, #D98F1B);
+  border: none; border-radius: var(--radius-full, 999px);
+  padding: 0 26px; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 6px 18px var(--gold-glow), 0 2px 6px rgba(0,0,0,.4);
+  transition: transform var(--anim-fast, .15s) var(--ease-out, ease);
+}
+.portre-empty-cta:hover { transform: translateY(-2px); }
+.portre-empty-cta:active { transform: scale(.95); }
+.portre-empty-cta:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Portre alt-sınıfları — .portre-hero-side içinde canlı kullanılır (bkz. aşağı) */
+.portre-portrait-badge {
+  font-family: var(--cinzel, serif);
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 12px;
+}
+.portre-portrait-title {
+  font-family: var(--serif-display, var(--serif, serif)); font-style: italic;
+  font-size: 26px; color: var(--text); margin-bottom: 12px; line-height: 1.2;
+}
+.portre-portrait-text {
+  font-family: var(--serif, serif); font-style: italic;
+  font-size: 14px; color: var(--text-mid); line-height: 1.65; max-width: 420px; margin: 0 auto 10px;
+}
+.portre-portrait-meta {
+  font-size: 10px; color: var(--text-dim); letter-spacing: 1px;
+  margin-top: 6px; display: flex; justify-content: center; gap: 8px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PORTRE 2.0 · "Olunan [Ad]" — hero kart + nabız + evrim şeridi
+   FELSEFE: kart artık portrenin resmi değil, yaşayan bir 12c kartı.
+   Kazandığın her kişi ona işlenir; şerit bu evrimin görünür tarihidir.
+════════════════════════════════════════════════════════════ */
+.portre-hero {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 22px;
+  border: 1px solid var(--sc-gold-45);
+  border-radius: var(--radius-xl, 24px);
+  background:
+    radial-gradient(130% 120% at 50% 0%, var(--gold-dim), transparent 70%),
+    radial-gradient(120% 90% at 100% 100%, rgba(45,95,168,.08), transparent 55%),
+    linear-gradient(170deg, #1D1712, #120E09);
+  padding: 22px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.portre-hero::after {
+  content: ''; position: absolute; inset: 0; background-image: var(--grain-img);
+  background-size: 240px; opacity: .10; pointer-events: none;
+}
+.portre-hero > * { position: relative; z-index: 1; }
+.portre-hero-card { flex: 0 0 172px; max-width: 192px; }
+.portre-hero-card .ikv-card { width: 100%; }
+.portre-hero-side {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  text-align: left;
+}
+.portre-hero-side .portre-portrait-text { margin: 0 0 10px; max-width: none; }
+.portre-hero-side .portre-portrait-meta { justify-content: flex-start; }
+@media (max-width: 560px) {
+  .portre-hero { flex-direction: column; text-align: center; }
+  .portre-hero-card { flex-basis: auto; width: min(62vw, 200px); }
+  .portre-hero-side { text-align: center; align-items: center; }
+  .portre-hero-side .portre-portrait-meta { justify-content: center; }
+}
+
+/* Nabız — yeni evrim ilk kez görülüyor (sessiz, tek satır, bir kez süzülür) */
+.portre-pulse {
+  font-family: var(--serif, serif); font-style: italic;
+  font-size: 13px; color: var(--gold); text-align: center;
+  padding: 10px 14px; margin-bottom: 14px;
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-lg, 20px);
+  background: radial-gradient(120% 140% at 50% 0%, var(--gold-dim), transparent 70%);
+  animation: porPulseIn 900ms var(--ease-out, ease-out) both;
+}
+@keyframes porPulseIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Evrim şeridi — kartın yolu */
+/* ── Geçmiş-işleme daveti (İç Çalışma 06 rev.2 · FAZ 6) ──
+   Altın çünkü işlenen şey "olduğun"dur — geçmişte karşılaşılmış kişilerin
+   izi, hayal değil yaşanmış olan. Evrim şeridinin hemen üstünde durur:
+   kartın nasıl değiştiğini anlatan bölümün girişinde, kartın hâlâ
+   değişebileceğini söyler. Tören kesmez — sayfanın kendi akışındadır. ── */
+.portre-backfill {
+  border: 1px solid var(--gold-hairline);
+  border-radius: var(--radius-lg, 20px);
+  background:
+    radial-gradient(130% 120% at 50% 0%, var(--gold-dim), transparent 68%),
+    var(--surface);
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  animation: porBackfillIn 700ms var(--ease-out, ease-out) both;
+}
+.portre-backfill-title {
+  font-size: 15px; color: var(--gold); margin-bottom: 6px; letter-spacing: .2px;
+}
+.portre-backfill-body {
+  font-size: 13px; line-height: 1.62; color: var(--text-soft, rgba(234,226,214,.78));
+  margin-bottom: 14px;
+}
+.portre-backfill-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.portre-backfill-yes, .portre-backfill-no {
+  font-family: inherit; font-size: 12.5px; letter-spacing: .3px;
+  padding: 9px 18px; border-radius: 999px; cursor: pointer;
+  transition: background var(--dur-2, .22s) var(--ease-out, ease-out),
+              border-color var(--dur-2, .22s) var(--ease-out, ease-out);
+}
+.portre-backfill-yes {
+  border: 1px solid var(--gold); color: var(--obsidian, #0B0B0F);
+  background: var(--gold);
+}
+.portre-backfill-yes:hover:not(:disabled) { background: var(--gold-bright, var(--gold)); }
+.portre-backfill-yes:disabled { opacity: .6; cursor: default; }
+.portre-backfill-no {
+  border: 1px solid rgba(234,226,214,.18); color: var(--text-soft, rgba(234,226,214,.72));
+  background: transparent;
+}
+.portre-backfill-no:hover { border-color: rgba(234,226,214,.34); }
+@keyframes porBackfillIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portre-backfill { animation: none; }
+}
+
+.portre-evrim {
+  border: 1px solid rgba(234,226,214,.12);
+  border-radius: var(--radius-lg, 20px);
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(245,166,35,.05), transparent 60%),
+    var(--surface);
+  padding: 14px 16px 10px;
+  margin-bottom: 18px;
+}
+.portre-evrim-head {
+  font-family: var(--cinzel, serif);
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px; position: relative; padding-bottom: 8px;
+}
+.portre-evrim-head::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, rgba(245,166,35,.30), transparent);
+}
+.portre-evrim-row {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; min-height: 44px; padding: 6px 4px;
+  background: none; border: none; cursor: pointer;
+  text-align: left; color: inherit; font: inherit;
+  border-radius: var(--radius-md, 8px);
+  transition: background var(--anim-fast, .15s);
+}
+.portre-evrim-row:hover { background: rgba(245,166,35,.05); }
+.portre-evrim-row:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.portre-evrim-v {
+  flex-shrink: 0;
+  font-family: var(--cinzel, serif);
+  font-size: 10px; letter-spacing: 1px; color: var(--gold);
+  background: var(--gold-dim); border-radius: var(--radius-full, 9999px);
+  padding: 3px 9px; min-width: 34px; text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.portre-evrim-what {
+  flex: 1; min-width: 0;
+  font-size: 12.5px; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.portre-evrim-when { flex-shrink: 0; font-size: 10.5px; color: var(--text-dim); letter-spacing: .5px; }
+.portre-evrim-row.is-open .portre-evrim-v { color: var(--bg); background: var(--gold); }
+.portre-evrim-detail {
+  padding: 4px 8px 12px 48px;
+}
+.portre-evrim-epitet {
+  font-family: var(--serif-display, var(--serif, serif)); font-style: italic;
+  font-size: 15px; color: var(--gold); margin-bottom: 4px;
+}
+.portre-evrim-portrait {
+  font-family: var(--serif, serif); font-style: italic;
+  font-size: 12.5px; color: var(--text-mid); line-height: 1.6;
+}
+
+/* Kart-kaynaklı madde rozetleri */
+.portre-src-kart {
+  color: var(--gold); background: var(--gold-dim);
+  border: 1px solid var(--sc-gold-30);
+  max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.portre-sec-kart-badge {
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); background: var(--gold-dim);
+  border-radius: var(--radius-full, 9999px); padding: 2px 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portre-pulse { animation: none; }
+}
+
+.portre-secs { display: flex; flex-direction: column; gap: 18px; }
+.portre-sec {
+  border: 1px solid rgba(234,226,214,.12);
+  border-radius: var(--radius-lg, 20px);
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(245,166,35,.05), transparent 60%),
+    var(--surface);
+  padding: 16px 16px 14px;
+}
+.portre-sec-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px; padding-bottom: 10px;
+  position: relative;
+}
+.portre-sec-head::after { /* eriyen ayraç */
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, rgba(245,166,35,.30), transparent);
+}
+.portre-sec-sigil { font-size: 18px; color: var(--gold); }
+.portre-sec-title {
+  flex: 1;
+  font-family: var(--cinzel, serif);
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--text);
+}
+.portre-sec-count {
+  font-size: 12px; color: var(--gold); font-variant-numeric: tabular-nums;
+  background: var(--gold-dim); border-radius: var(--radius-full, 9999px);
+  padding: 2px 9px; min-width: 24px; text-align: center;
+}
+.portre-sec-emre-badge {
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--lapis, #2D5FA8); background: var(--lapis-dim, rgba(45,95,168,.12));
+  border-radius: var(--radius-full, 9999px); padding: 2px 8px;
+}
+.portre-items { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+.portre-sec-empty { font-size: 12px; color: var(--text-dim); font-style: italic; padding: 4px 0; }
+.portre-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 8px);
+}
+.portre-item-txt { flex: 1; font-size: 13.5px; color: var(--text); line-height: 1.45; }
+.portre-item-src {
+  flex-shrink: 0;
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: var(--radius-full, 9999px);
+}
+.portre-src-user { color: var(--gold); background: var(--gold-dim); }
+.portre-src-emre { color: var(--lapis, #2D5FA8); background: var(--lapis-dim, rgba(40,70,140,.16)); }
+.portre-item-x {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; line-height: 1;
+  color: var(--text-dim); background: none; border: none; cursor: pointer;
+  border-radius: 50%;
+}
+.portre-item-x:hover { color: var(--red); background: rgba(192,57,43,.12); }
+
+.portre-add-row { display: flex; gap: 7px; }
+.portre-add-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text);
+  font-family: var(--sans, sans-serif);
+  font-size: 13px;
+  padding: 10px 12px;
+}
+.portre-add-input:focus { outline: none; border-color: var(--gold); }
+.portre-add-input::placeholder { color: var(--text-dim); }
+.portre-add-btn {
+  flex-shrink: 0;
+  font-family: var(--cinzel, serif);
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); background: none;
+  border: 1px solid var(--gold); border-radius: var(--radius-md, 8px);
+  padding: 0 16px; cursor: pointer;
+  transition: background var(--anim-fast, .15s), color var(--anim-fast, .15s);
+}
+.portre-add-btn:hover { background: var(--gold); color: var(--bg); }

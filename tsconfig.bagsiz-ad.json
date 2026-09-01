@@ -1,0 +1,15 @@
+{
+  /* BAĞSIZ AD KAPISI — bkz. scripts/bagsiz-ad-denetci.mjs
+     checkJs yalnız burada açıktır: ana tsconfig'in `checkJs: false` duruşu
+     korunur (tip denetimi ayrı bir iştir), bu profil SADECE "bu ad bu modülde
+     çözülüyor mu" sorusunu sorar. */
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true
+  },
+  "include": ["js/**/*.js", "types/**/*.d.ts"]
+}

@@ -1,0 +1,359 @@
+/* ═══════════════════════════════════════
+   AKŞAM KAPANIŞ TÖRENİ (13h) — gece lapis kapanışı
+   Sabah ritüeli (gunluk.css) altın açar; akşam lapis kapatır.
+   Tasarım Planı uyumu: sahne saatle yaşar (--dawn-* tw-evening→night),
+   kâğıt greni (::before), CTA altın dövülmüş mühür, ay nefesi,
+   prefers-reduced-motion, 44px dokunma hedefi, altın :focus-visible.
+═══════════════════════════════════════ */
+.at-portal { position: fixed; inset: 0; z-index: var(--z-modal, 700); }
+
+.at-veil {
+  position: absolute; inset: 0;
+  background: rgba(6, 6, 12, 0.78);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: atVeilIn .4s ease both;
+}
+@keyframes atVeilIn { from { opacity: 0; } to { opacity: 1; } }
+
+.at-modal {
+  --grain-op: .12;   /* kağıt greni → .wn-grain sarmalı (base.css) */
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 400px); max-height: 86dvh; overflow-y: auto;
+  border-radius: var(--radius-lg, 20px);
+  /* Sahne saatle yaşar (tasarım §2): lapis hayal kutbu üstte sabit; köşelerden
+     altın (ocak başı) + indigo (gece) --dawn-* token'larıyla sızar → akşam→gece
+     OTOMATİK kayar (base.css html.tw-evening/night --dawn-* değerlerini değiştirir).
+     Obsidyen taban sabit, asla saf siyah değil (tasarım §1). */
+  background:
+    radial-gradient(125% 65% at 50% -10%, var(--lapis-dim, rgba(45,95,168,0.12)) 0%, transparent 60%),
+    radial-gradient(90% 70% at 6% 108%, var(--dawn-amber, rgba(245,166,35,0.11)) 0%, transparent 62%),
+    radial-gradient(85% 65% at 104% -4%, var(--dawn-indigo, rgba(86,74,140,0.10)) 0%, transparent 58%),
+    linear-gradient(170deg, #15121E 0%, var(--bg, #0F0C08) 55%, #0E0B07 100%);
+  border: 1px solid rgba(90, 138, 216, 0.28);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 44px rgba(45, 95, 168, 0.10);
+  text-align: center; isolation: isolate;
+  animation: atModalIn .5s var(--ease-out, ease) both;
+}
+/* Yastık sarmalda: gren kenar boşluğunu da örtmeli (bkz. .wn-grain) */
+.at-modal .wn-grain { padding: 26px 22px 22px; }
+/* Kâğıt greni (tasarım §3 — her büyük yüzeyde var). ::before z-index:-1, isolation
+   sayesinde degradelerin ÜSTÜNDE / metnin ALTINDA oturur; mix-blend yok (kırılgan). */
+@keyframes atModalIn { from { opacity: 0; transform: translate(-50%, -46%) scale(.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.at-modal--out { animation: atModalOut .4s var(--ease-out, ease) both; }
+@keyframes atModalOut { to { opacity: 0; transform: translate(-50%, -54%) scale(.97); } }
+
+.at-close {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  display: grid; place-items: center;            /* 44px dokunma hedefi (tasarım §9) */
+  background: none; border: none; color: var(--text-dim, #585349); font-size: 16px; cursor: pointer;
+  width: 44px; height: 44px; border-radius: 50%; transition: color .15s, background .15s;
+}
+.at-close:hover { color: var(--lapis-bright, #5A8AD8); background: rgba(90, 138, 216, .1); }
+.at-close:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 2px; }
+
+/* Kicker = Cinzel (tasarım §4). Lapis renk akşam sahnesinin anlamlı istisnası.
+   text-transform yok — içerik HTML'de gerçek TR büyük harfle yazılı (İ tuzağı §4). */
+.at-kicker {
+  font-family: var(--cinzel, serif);
+  font-size: 9px; letter-spacing: 3px; color: var(--lapis-bright, #5A8AD8);
+  font-weight: 700; opacity: .85;
+}
+.at-moon { color: var(--lapis-bright, #5A8AD8); margin: 16px 0 4px; opacity: .9; }
+/* Ay nefes alır (tasarım §5 — durağan ama canlı öğe sürekli nabız atar) */
+.at-moon svg {
+  filter: drop-shadow(0 0 14px rgba(90, 138, 216, .45));
+  animation: atMoonBreath 4.5s ease-in-out infinite;
+}
+@keyframes atMoonBreath {
+  0%, 100% { filter: drop-shadow(0 0 11px rgba(90, 138, 216, .33)); opacity: .82; }
+  50%      { filter: drop-shadow(0 0 20px rgba(90, 138, 216, .60)); opacity: 1; }
+}
+
+.at-title {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 26px; color: var(--text, #EAE2D6); margin-top: 6px;
+}
+.at-body {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 14px; line-height: 1.65; color: var(--text-mid, #95897A);
+  margin: 10px auto 0; max-width: 300px;
+}
+
+/* ── Gün özeti satırları ── */
+.at-rows { margin: 18px 0 6px; display: flex; flex-direction: column; gap: 8px; }
+.at-row {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 11px 13px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border, #281F16);
+  font-size: 12.5px; line-height: 1.45; color: var(--text-mid, #95897A);
+}
+.at-row-g { flex: none; font-size: 15px; color: var(--gold, #F5A623); }
+.at-row-t { flex: 1; }
+.at-row-t b { color: var(--text, #EAE2D6); font-weight: 600; }
+/* ZİRVE SATIRI (13z FAZ 5) — günün en yüklü cümlesi, kullanıcının kendi
+   ağzından. Üç Mühür satırları "ne yaptın"ı sayar; bu satır "ne dedin"i
+   geri verir, o yüzden alıntı EB Garamond italik: uygulamanın sesi değil,
+   kullanıcının sesi. Altın kenar mühür dilinden gelir (§1). */
+.at-row--zirve { border-color: rgba(245, 166, 35, .28); }
+.at-zirve-q {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text, #EAE2D6);
+}
+.at-row--done { border-color: rgba(245, 166, 35, .25); }
+.at-row--done .at-row-t { color: var(--text, #EAE2D6); }
+.at-row--dim .at-row-g { color: var(--text-dim, #585349); }
+.at-row--cta { cursor: pointer; transition: border-color .15s, background .15s; }
+.at-row--cta:hover { border-color: rgba(245, 166, 35, .45); background: rgba(245, 166, 35, .05); }
+.at-row-act {
+  flex: none; font-size: 10px; letter-spacing: 1.5px; font-weight: 700;
+  color: var(--gold, #F5A623); text-transform: uppercase;
+}
+/* Üç mühür kimliği — GELDİN / GÖRDÜN / YAPTIN (10f/10u dili) */
+.at-row-v {
+  font-family: var(--cinzel, serif); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.4px;                         /* içerik HTML'de gerçek büyük harf (§4) */
+  color: var(--gold, #F5A623); margin-right: 8px;
+}
+/* HAYAL = içsel/hayal ekseni → lapis (altın eylem/mühür; lapis hayal) */
+.at-row--hayal .at-row-g { color: var(--lapis-bright, #5A8AD8); }
+.at-row--hayal .at-row-v { color: var(--lapis-bright, #5A8AD8); }
+
+/* ── Yarına niyet ── */
+.at-intent { margin: 16px 0 4px; text-align: left; }
+.at-intent-q {
+  display: block; font-size: 10px; letter-spacing: 2px; font-weight: 700;
+  color: var(--lapis-bright, #5A8AD8); margin-bottom: 8px;
+}
+.at-intent-q span { color: var(--text-dim, #585349); letter-spacing: .4px; font-weight: 500; text-transform: none; }
+.at-intent-input {
+  width: 100%; padding: 12px 14px; border-radius: 12px;
+  background: rgba(45, 95, 168, 0.07);
+  border: 1px solid rgba(90, 138, 216, 0.3);
+  color: var(--text, #EAE2D6);
+  font-family: var(--serif, Georgia, serif); font-size: 16px !important;
+  outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.at-intent-input:focus { border-color: var(--lapis-bright, #5A8AD8); box-shadow: 0 0 0 3px rgba(90, 138, 216, .12); }
+.at-intent-input::placeholder { color: var(--text-dim, #585349); font-style: italic; }
+.at-intent-hint { font-size: 10.5px; color: var(--text-dim, #585349); margin-top: 7px; line-height: 1.5; }
+/* ── Bilgi "i" — Gün Özeti notu (tıkla-aç) ── */
+.at-info {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 17px; height: 17px; min-height: 0; margin-left: 7px; vertical-align: middle;
+  border-radius: 50%; padding: 0; cursor: pointer; flex: none;
+  border: 1px solid rgba(90, 138, 216, .5);
+  background: rgba(45, 95, 168, .12); color: var(--lapis-bright, #5A8AD8);
+  font-family: var(--serif, Georgia, serif); font-size: 11px; font-style: italic; font-weight: 700;
+  line-height: 1; transition: background .15s, border-color .15s, color .15s;
+}
+.at-info:hover { background: rgba(45, 95, 168, .22); border-color: var(--lapis-bright, #5A8AD8); }
+.at-info[aria-expanded="true"] { background: var(--lapis, #2D5FA8); color: #EAF0FB; }
+.at-info-pop {
+  margin: 10px auto 0; max-width: 300px; padding: 10px 12px;
+  font-size: 11px; line-height: 1.55; color: var(--text-mid, #8A887F);
+  border: 1px solid rgba(90, 138, 216, .28);
+  background: rgba(45, 95, 168, .08); border-radius: 8px;
+  text-align: center;
+  animation: atInfoIn .25s var(--ease-out, ease) both;
+}
+.at-info-pop[hidden] { display: none; }
+@keyframes atInfoIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── CTA = günü mühürleyen eylem → ALTIN dövülmüş mühür ──
+   Tasarım §1: eşik/mühür DAİMA altındır; lapis gece sahnede bile davet/kapı
+   altın kalır ("şimdi"nin çağrısı). §3: fiziksel obje = üstten ışık, alttan gölge.
+   Lapis sahnede parlayan altın mühür = bu dilin ders kitabı uygulaması. */
+.at-cta {
+  width: 100%; margin-top: 18px;
+  background: linear-gradient(165deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  color: var(--gold-ink, #1A1206); border: 1px solid var(--gold, #F5A623);
+  padding: 14px; border-radius: 14px;
+  font-family: var(--cinzel, serif); font-size: 12px; letter-spacing: 2.5px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), 0 6px 20px rgba(245, 166, 35, .22);
+  transition: filter .15s, transform .1s var(--ease-out, ease), box-shadow .2s;
+}
+.at-cta:hover { filter: brightness(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 26px rgba(245, 166, 35, .32); }
+.at-cta:active { transform: scale(.93); }   /* mühür basıncı (tasarım §3) */
+.at-cta:focus-visible { outline: 2px solid var(--gold, #F5A623); outline-offset: 3px; }
+
+/* Klavye odağı — altın :focus-visible (tasarım §9, istisnasız) */
+.at-row--cta:focus-visible,
+.at-info:focus-visible,
+.at-intent-input:focus-visible {
+  outline: 2px solid var(--gold, #F5A623); outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   GÜN KAPANIŞI — Ruh → Beden → Özet (05-closure-parts)
+   Akşam Kapanış Töreni'ndeki "Günü Kapat" köprüsünden açılır. Eski
+   altın/.modal görünümü, törenin lapis-gece diline (at-modal) re-skin
+   edilir. Tüm ID/markup korunur; yalnız .closure-ritual altında stil.
+   Eksen: zemin lapis (içsel derinlik) · seçim/mühür altın (eylem).
+═══════════════════════════════════════════════════════════════════ */
+.closure-ritual {
+  background: rgba(6, 6, 12, 0.82);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.closure-ritual .modal {
+  --grain-op: .12;
+  /* Yastık sarmala geçti; genel .modal kuralının yastığı burada sıfırlanır. */
+  padding: 0;   /* kağıt greni → .wn-grain sarmalı (base.css) */
+  position: relative;
+  width: min(92vw, 380px);
+  max-height: 88dvh; overflow-y: auto;
+  border-radius: var(--radius-lg, 20px);
+  /* Akşam Kapanışı'nın derin devamı → birebir aynı saatle-yaşayan gece zemini
+     (tasarım §2/§3): lapis kutbu + altın/indigo köşe sızıntısı (--dawn-*). */
+  background:
+    radial-gradient(125% 65% at 50% -10%, var(--lapis-dim, rgba(45,95,168,0.12)) 0%, transparent 60%),
+    radial-gradient(90% 70% at 6% 108%, var(--dawn-amber, rgba(245,166,35,0.11)) 0%, transparent 62%),
+    radial-gradient(85% 65% at 104% -4%, var(--dawn-indigo, rgba(86,74,140,0.10)) 0%, transparent 58%),
+    linear-gradient(170deg, #15121E 0%, var(--bg, #0F0C08) 55%, #0E0B07 100%);
+  border: 1px solid rgba(90, 138, 216, 0.28);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 44px rgba(45, 95, 168, 0.10);
+  isolation: isolate;
+  /* NOT: atModalIn KULLANMA — bitiş hâli translate(-50%,-50%) içerir, yalnız
+     position:absolute ile ortalanan .at-modal içindir. Bu modal flex ile
+     ortalanır; kendi (kayma yapmayan) giriş animasyonunu kullanır. */
+  animation: kpModalIn .5s var(--ease-out, ease) both;
+}
+/* Yastık sarmalda: gren kenar boşluğunu da örtmeli (bkz. .wn-grain) */
+.closure-ritual .modal .wn-grain { padding: 26px 22px 22px; }
+@keyframes kpModalIn {
+  from { opacity: 0; transform: translateY(10px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Başlık: kicker + ay + serif-display ── */
+.closure-ritual .kp-kicker {
+  font-size: 9px; letter-spacing: 3px; color: var(--lapis-bright, #5A8AD8);
+  text-transform: uppercase; font-weight: 700; opacity: .85; text-align: center;
+}
+.closure-ritual .kp-moon {
+  color: var(--lapis-bright, #5A8AD8); margin: 14px 0 2px;
+  display: flex; justify-content: center; opacity: .9;
+}
+.closure-ritual .kp-moon svg { filter: drop-shadow(0 0 14px rgba(90, 138, 216, .45)); }
+.closure-ritual .modal-title {
+  font-family: var(--serif-display, Georgia, serif);
+  font-size: 26px; color: var(--text, #EAE2D6);
+  margin: 4px 0 0; text-align: center;
+}
+.closure-ritual .modal-desc {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 14px; line-height: 1.6; color: var(--text-mid, #95897A);
+  margin: 14px auto 22px; max-width: 300px; font-weight: 400;
+}
+.closure-ritual .closure-confirm-text {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 13.5px; line-height: 1.7; color: var(--text-mid, #95897A);
+  margin: 16px 0 22px; text-align: left;
+}
+.closure-ritual .closure-confirm-text strong { color: var(--text, #EAE2D6); font-weight: 600; }
+
+/* ── İlerleme rayı: lapis adımlar, altın aktif ── */
+.closure-ritual .closure-progress { margin: 16px 0 22px; gap: 8px; }
+.closure-ritual .closure-progress-step { color: var(--text-dim, #585349); font-weight: 600; }
+.closure-ritual .closure-progress-step.active { color: var(--gold, #F5A623); }
+.closure-ritual .closure-progress-step.done { color: var(--lapis-bright, #5A8AD8); }
+.closure-ritual .closure-progress-sep { color: var(--border-active, #34281B); }
+
+/* ── 1 · RUH (mood) ── */
+.closure-ritual .mood-grid { gap: 9px; margin-bottom: 26px; }
+.closure-ritual .mood-btn {
+  border: 1px solid rgba(90, 138, 216, 0.22); border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text-mid, #95897A); font-family: var(--serif-display, Georgia, serif);
+  transition: border-color .18s, color .18s, background .18s, transform .1s;
+}
+.closure-ritual .mood-btn:hover { border-color: var(--gold, #F5A623); color: var(--gold, #F5A623); }
+.closure-ritual .mood-btn.active {
+  border-color: var(--gold, #F5A623); color: var(--gold-ink, #1A1206);
+  background: linear-gradient(165deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  box-shadow: 0 0 18px var(--gold-hairline, rgba(245, 166, 35, .28)); transform: translateY(-1px);
+}
+
+/* ── 2 · BEDEN (somatik) ── */
+.closure-ritual .somatic-step-label {
+  font-family: var(--cinzel, serif); letter-spacing: .22em; font-size: 10px;
+  color: var(--lapis-bright, #5A8AD8); opacity: .85; margin-bottom: 10px;
+}
+.closure-ritual .body-map-outline { stroke: rgba(90, 138, 216, 0.32); }
+.closure-ritual .body-map [data-region] { stroke: rgba(90, 138, 216, 0.34); }
+.closure-ritual .body-map [data-region]:hover { stroke: var(--gold, #F5A623); }
+.closure-ritual .body-map [data-region].active {
+  fill: var(--gold-dim, rgba(245,166,35,0.12)); stroke: var(--gold, #F5A623); stroke-width: 1.6;
+}
+.closure-ritual .region-name { font-family: var(--serif-display, Georgia, serif); color: var(--text, #EAE2D6); }
+.closure-ritual .region-name:empty::before { color: var(--text-dim, #585349); }
+.closure-ritual .sensation-btn {
+  border: 1px solid rgba(90, 138, 216, 0.22); border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025); color: var(--text-mid, #95897A);
+  font-family: var(--serif, Georgia, serif); transition: all .15s;
+}
+.closure-ritual .sensation-btn:hover { color: var(--gold, #F5A623); border-color: var(--gold, #F5A623); }
+.closure-ritual .sensation-btn.active {
+  background: var(--gold-dim, rgba(245,166,35,0.12));
+  border-color: var(--gold, #F5A623); color: var(--gold, #F5A623);
+}
+.closure-ritual .intensity-dot {
+  border: 1px solid rgba(90, 138, 216, 0.28); color: var(--text-dim, #585349);
+  font-family: var(--serif-display, Georgia, serif); transition: all .15s;
+}
+.closure-ritual .intensity-dot:hover { border-color: var(--gold, #F5A623); color: var(--gold, #F5A623); }
+.closure-ritual .intensity-dot.active {
+  background: var(--gold, #F5A623); border-color: var(--gold, #F5A623); color: var(--gold-ink, #1A1206);
+  box-shadow: 0 0 16px rgba(245, 166, 35, .3);
+}
+
+/* ── 3 · ÖZET (geçiş sorusu → derin özet) ── */
+.closure-ritual .closure-transition-icon { filter: drop-shadow(0 0 16px rgba(90, 138, 216, .4)); }
+.closure-ritual .closure-transition-btn {
+  border: 1px solid rgba(90, 138, 216, 0.24); border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025); color: var(--text-mid, #95897A);
+  transition: all .15s;
+}
+.closure-ritual .closure-transition-btn:hover {
+  border-color: var(--gold, #F5A623); color: var(--gold, #F5A623);
+  background: var(--gold-dim, rgba(245,166,35,0.06));
+}
+
+/* ── Mühür/eylem butonları: altın dolu (Hazırım · Kaydet) ── */
+.closure-ritual .btn-outline-gold {
+  border: 1px solid var(--gold, #F5A623); border-radius: 11px;
+  background: linear-gradient(165deg, var(--gold-bright, #F7C744), var(--gold, #F5A623));
+  color: var(--gold-ink, #1A1206); font-family: var(--cinzel, serif);
+  letter-spacing: 1.5px; font-weight: 700; padding: 13px;
+  transition: filter .15s, transform .1s, opacity .15s;
+}
+.closure-ritual .btn-outline-gold:hover:not(:disabled) { filter: brightness(1.08); background: linear-gradient(165deg, var(--gold-bright, #F7C744), var(--gold, #F5A623)); border-color: var(--gold, #F5A623); }
+.closure-ritual .btn-outline-gold:active:not(:disabled) { transform: scale(.98); }
+.closure-ritual #closure-save-btn:disabled { opacity: .32; }
+.closure-ritual .modal-skip { color: var(--text-dim, #585349); }
+.closure-ritual .modal-skip:hover { color: var(--lapis-bright, #5A8AD8); }
+/* NOT: Kitaplık alt-sayfası (.lib-sheet-*) artık wanderer-game.css'te —
+   kendi altın/kitap kimliğine kavuştu (Akşam Kapanışı'ndan ayrıldı). */
+
+/* ════════════════════════════════════════════════════════════════════
+   prefers-reduced-motion (tasarım §5 — zorunlu, istisnasız)
+   Tören canlı kalır ama hareket susar: perde/modal anında belirir, ay
+   nefesi ve mühür basıncı durur.
+═══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .at-veil,
+  .at-modal,
+  .at-modal--out,
+  .at-info-pop,
+  .at-moon svg,
+  .closure-ritual .modal { animation: none !important; }
+  .at-cta { transition: filter .15s, box-shadow .2s; }
+  .at-cta:active { transform: none; }
+}

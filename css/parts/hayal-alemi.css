@@ -1,0 +1,615 @@
+/* ═══════════════════════════════════════════════════════════
+   HAYAL ALEMİ — Stil (10i)
+   Seans Overlay · Harita · Kavram Grid · Sahne Kartları
+═══════════════════════════════════════════════════════════ */
+
+/* ── CTA satırı (Bugün view) ──────────────────────────── */
+.ws-hayal-cta-row {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.ws-hayal-cta {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(60,40,90,0.18) 0%, rgba(184,149,60,0.10) 100%);
+  border: 1px solid rgba(184,149,60,0.35);
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-bright, #E8E6E0);
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+.ws-hayal-cta:hover {
+  border-color: var(--gold, #B8953C);
+  transform: translateY(-1px);
+}
+.ws-hayal-cta-glyph {
+  font-size: 22px;
+  color: var(--lapis-bright, #5A8AD8);
+  flex-shrink: 0;
+}
+.ws-hayal-cta-text { flex: 1; }
+.ws-hayal-cta-title {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--lapis-bright, #5A8AD8);
+  font-weight: 600;
+}
+.ws-hayal-cta-sub {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-mid, #8A887F);
+  margin-top: 2px;
+}
+.ws-hayal-cta-arrow {
+  font-size: 22px;
+  color: var(--lapis-bright, #5A8AD8);
+  opacity: 0.6;
+}
+
+.ws-hayal-harita-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid rgba(184,149,60,0.25);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--gold, #B8953C);
+  min-width: 56px;
+}
+.ws-hayal-harita-btn:hover { border-color: rgba(184,149,60,0.55); }
+.ws-hayal-harita-count {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-mid, #8A887F);
+}
+
+/* ── Seans overlay ─────────────────────────────────────── */
+.hayal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.80);
+  z-index: var(--z-kapi);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(6px);
+}
+.hayal-overlay.open { display: flex; }
+
+.hayal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 22px 20px;
+  background: linear-gradient(180deg, #15131a 0%, #08070a 100%);
+  border: 1px solid rgba(184,149,60,0.35);
+  border-radius: 4px;
+}
+
+.hayal-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--lapis-bright, #5A8AD8);
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(184,149,60,0.15);
+}
+.hayal-head-label { flex: 0 0 auto; }
+.hayal-step-counter {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-mid, #8A887F);
+}
+.hayal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-mid, #8A887F);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  margin-left: 6px;
+}
+.hayal-close:hover { color: var(--gold, #B8953C); }
+
+.hayal-step-title {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--text-bright, #E8E6E0);
+  margin-bottom: 6px;
+}
+.hayal-step-hint {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-mid, #8A887F);
+  margin-bottom: 14px;
+}
+
+/* Kavram grid */
+.hayal-kavram-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.hayal-kavram-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 12px 10px;
+  background: rgba(184,149,60,0.04);
+  border: 1px solid rgba(184,149,60,0.20);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--text-bright, #E8E6E0);
+  text-align: left;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+.hayal-kavram-btn:hover {
+  border-color: var(--gold, #B8953C);
+  background: rgba(184,149,60,0.10);
+}
+.hayal-kavram-glyph {
+  font-size: 18px;
+  color: var(--lapis-bright, #5A8AD8);
+}
+.hayal-kavram-label {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-bright, #E8E6E0);
+  font-weight: 500;
+}
+.hayal-kavram-meta {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--text-mid, #8A887F);
+}
+
+/* LLM prompt kutusu */
+.hayal-prompt-box {
+  padding: 14px 14px;
+  background: rgba(184,149,60,0.06);
+  border-left: 2px solid var(--gold, #B8953C);
+  border-radius: 2px;
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-bright, #E8E6E0);
+  margin-bottom: 16px;
+  min-height: 60px;
+}
+
+.hayal-prompt-reminder {
+  padding: 8px 10px;
+  background: rgba(184,149,60,0.04);
+  border-left: 2px solid rgba(184,149,60,0.4);
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-mid, #8A887F);
+  margin-bottom: 10px;
+  border-radius: 2px;
+}
+
+.hayal-scene-input {
+  width: 100%;
+  min-height: 160px;
+  padding: 12px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(184,149,60,0.25);
+  border-radius: 3px;
+  color: var(--text-bright, #E8E6E0);
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  transition: border-color 180ms ease;
+}
+.hayal-scene-input:focus { border-color: rgba(184,149,60,0.65); }
+
+.hayal-step-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* AŞAMA 4 — Mühürlendi */
+.hayal-step-success {
+  text-align: center;
+  padding: 24px 12px 8px;
+}
+.hayal-success-glyph {
+  font-size: 56px;
+  color: var(--gold, #B8953C);
+  margin-bottom: 8px;
+  animation: hayalGlow 1800ms ease-out;
+}
+@keyframes hayalGlow {
+  0%   { transform: scale(0.5); opacity: 0; text-shadow: 0 0 0 rgba(212,167,69,0); }
+  50%  { transform: scale(1.15); opacity: 1; text-shadow: 0 0 24px rgba(212,167,69,0.8); }
+  100% { transform: scale(1); opacity: 1; text-shadow: 0 0 8px rgba(212,167,69,0.3); }
+}
+.hayal-success-title {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 14px;
+  letter-spacing: 5px;
+  color: var(--gold, #B8953C);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.hayal-success-elmas {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--gold-bright, #D4A745);
+  font-weight: 600;
+  margin: 8px 0;
+}
+.hayal-success-count {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text-mid, #8A887F);
+  margin-bottom: 18px;
+}
+.hayal-success-quote {
+  padding: 12px;
+  border-top: 1px solid rgba(184,149,60,0.15);
+  border-bottom: 1px solid rgba(184,149,60,0.15);
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-mid, #8A887F);
+  margin: 12px 0 20px;
+}
+.hayal-success-quote-by {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold, #B8953C);
+  font-style: normal;
+}
+
+/* ── Harita Overlay ────────────────────────────────────── */
+.hayal-harita-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #0a0810 0%, #050308 100%);
+  z-index: var(--z-perde-ust);
+  overflow: hidden;
+}
+.hayal-harita-overlay.open { display: block; }
+
+.hayal-harita-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.hayal-harita-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(184,149,60,0.18);
+  background: rgba(0,0,0,0.4);
+}
+.hayal-harita-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-mid, #8A887F);
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.hayal-harita-back:hover { color: var(--gold, #B8953C); }
+.hayal-harita-title-wrap {
+  flex: 1;
+  text-align: center;
+}
+.hayal-harita-title {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 12px;
+  letter-spacing: 6px;
+  color: var(--lapis-bright, #5A8AD8);
+  font-weight: 600;
+}
+.hayal-harita-sub {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--text-mid, #8A887F);
+  margin-top: 2px;
+}
+.hayal-harita-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-mid, #8A887F);
+}
+.hayal-harita-yansima {
+  color: var(--gold, #B8953C);
+  font-weight: 600;
+}
+
+.hayal-harita-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+}
+.hayal-harita-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.hayal-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-mid, #8A887F);
+}
+.hayal-empty-glyph {
+  font-size: 56px;
+  color: var(--gold, #B8953C);
+  opacity: 0.4;
+  margin-bottom: 12px;
+}
+.hayal-empty-text {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.hayal-sahne-card {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(184,149,60,0.04) 0%, rgba(10,10,10,0.4) 100%);
+  border: 1px solid rgba(184,149,60,0.18);
+  border-left: 3px solid var(--gold, #B8953C);
+  border-radius: 3px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+.hayal-sahne-card:hover {
+  border-color: rgba(184,149,60,0.5);
+  transform: translateY(-1px);
+}
+.hayal-sahne-thumb {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.hayal-sahne-body {
+  flex: 1;
+  min-width: 0;
+}
+.hayal-sahne-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.hayal-sahne-glyph {
+  font-size: 14px;
+  color: var(--lapis-bright, #5A8AD8);
+}
+.hayal-sahne-kavram {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--lapis-bright, #5A8AD8);
+  font-weight: 600;
+}
+.hayal-sahne-date {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-mid, #8A887F);
+}
+.hayal-sahne-text {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-bright, #E8E6E0);
+}
+
+/* ── ÜRETKEN HAYAL KARTI ──────────────────────────────── */
+.hayal-dream-card {
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(110,90,180,0.14) 0%, rgba(20,17,30,0) 60%),
+    linear-gradient(180deg, #15131f 0%, #0a0810 100%);
+  border: 1.2px solid rgba(184,149,60,0.4);
+  box-shadow:
+    0 8px 30px rgba(0,0,0,0.55),
+    0 0 22px rgba(110,90,180,0.18),
+    inset 0 0 0 1px rgba(184,149,60,0.12);
+}
+
+/* Görsel animasyonları */
+.hayal-art-twinkle {
+  animation: hayalArtTwinkle var(--t, 3.4s) ease-in-out var(--d, 0s) infinite;
+}
+@keyframes hayalArtTwinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.12); }
+}
+.hayal-art-breathe {
+  animation: hayalArtBreathe 5.5s ease-in-out infinite;
+  transform-origin: 100px 100px;
+}
+@keyframes hayalArtBreathe {
+  0%, 100% { opacity: 0.8;  transform: scale(0.96); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+.hayal-art-motif {
+  transform-origin: 100px 100px;
+  animation: hayalArtMotif 6s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px rgba(212,167,69,0.45));
+}
+@keyframes hayalArtMotif {
+  0%, 100% { opacity: 0.92; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hayal-art-twinkle, .hayal-art-breathe, .hayal-art-motif { animation: none; }
+}
+
+/* Aşama 4 — mühürlenen kartın gösterimi */
+.hayal-step4-art {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  animation: hayalGlow 1800ms ease-out;
+}
+
+/* ── Kart detay overlay ────────────────────────────────── */
+.hayal-kart-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #0a0810 0%, #050308 100%);
+  z-index: var(--z-cinematic);
+  overflow: hidden;
+}
+.hayal-kart-overlay.open { display: block; }
+.hayal-kart-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.hayal-kart-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(184,149,60,0.18);
+  background: rgba(0,0,0,0.4);
+}
+.hayal-kart-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hayal-kart-card-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.hayal-kart-detail {
+  width: 100%;
+  max-width: 540px;
+}
+.hayal-kart-prompt {
+  padding: 12px 14px;
+  background: rgba(110,90,180,0.08);
+  border-left: 2px solid var(--gold, #B8953C);
+  border-radius: 2px;
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-mid, #8A887F);
+  margin-bottom: 18px;
+}
+.hayal-kart-words-label {
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold, #B8953C);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.hayal-kart-words {
+  font-family: var(--serif, 'EB Garamond', serif);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-bright, #E8E6E0);
+  white-space: pre-wrap;
+}
+.hayal-kart-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(184,149,60,0.15);
+  font-family: var(--cinzel, 'Cinzel', serif);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--gold, #B8953C);
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .hayal-kavram-grid { grid-template-columns: 1fr; }
+  .hayal-panel { padding: 18px 14px; }
+  .hayal-step-title { font-size: 16px; }
+}
+
+/* ── HAYALİNİ RESMET (10i + hayal-gorsel edge fn) ── */
+.hayal-resmet-btn {
+  display: flex; align-items: center; gap: 12px;
+  width: min(100%, 320px); margin: 14px auto 4px; padding: 12px 16px;
+  background: linear-gradient(165deg, rgba(45, 95, 168, 0.12), rgba(45, 95, 168, 0.04));
+  border: 1px solid rgba(90, 138, 216, 0.4); border-radius: 14px;
+  cursor: pointer; text-align: left;
+  transition: border-color .15s, transform .15s, opacity .15s;
+}
+.hayal-resmet-btn:hover { border-color: rgba(90, 138, 216, 0.7); transform: translateY(-1px); }
+.hayal-resmet-btn--busy { opacity: .6; pointer-events: none; }
+.hayal-resmet-btn--busy .hayal-resmet-ic { animation: haResmetSpin 1.2s linear infinite; }
+@keyframes haResmetSpin { to { transform: rotate(360deg); } }
+.hayal-resmet-ic { font-size: 18px; color: var(--lapis-bright, #5A8AD8); text-shadow: 0 0 12px rgba(90, 138, 216, .5); }
+.hayal-resmet-txt { display: flex; flex-direction: column; gap: 2px; }
+.hayal-resmet-title { font-family: var(--cinzel, serif); font-size: 11px; letter-spacing: 2px; font-weight: 700; color: var(--lapis-bright, #5A8AD8); }
+.hayal-resmet-sub { font-size: 10.5px; color: var(--text-dim, #585349); }

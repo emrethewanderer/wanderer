@@ -1,0 +1,309 @@
+/* ═══════════════════════════════════════════════════════
+   MANİFESTO OKUMA RİTÜELİ — 10v-w2-manifesto-reader.js
+═══════════════════════════════════════════════════════ */
+
+/* Portal kap */
+.mr-portal {
+  position: fixed; inset: 0; z-index: var(--z-okuyucu);
+  display: flex; align-items: center; justify-content: center;
+  animation: mrFadeIn 0.28s var(--ease-out) both;
+}
+.mr-portal--out { animation: mrFadeOut 0.28s var(--ease-out) both; }
+
+@keyframes mrFadeIn  { from { opacity:0; } to { opacity:1; } }
+@keyframes mrFadeOut { from { opacity:1; } to { opacity:0; } }
+
+/* Sahne */
+.mr-scene {
+  position: absolute; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 20px 28px;
+  overflow: hidden;
+}
+.mr-scene--in { animation: mrSlideIn 0.22s var(--ease-out) both; }
+@keyframes mrSlideIn { from { opacity:0; transform:translateX(18px); } to { opacity:1; transform:none; } }
+
+/* Grain dokusu */
+.mr-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.55;
+}
+
+/* Kapatma butonu */
+.mr-close {
+  position: absolute; top: 16px; right: 16px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-dim); font-size: 18px; line-height: 1;
+  padding: 8px; z-index: 10;
+  transition: color 0.15s;
+}
+.mr-close:hover { color: var(--text); }
+
+/* Kicker */
+.mr-kicker {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 3px;
+  color: var(--gold); opacity: 0.75;
+  margin-top: 52px; margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Ana kart */
+.mr-card {
+  position: relative; flex: 1;
+  display: flex; flex-direction: column; justify-content: center;
+  width: 100%; max-width: 400px;
+  padding: 32px 28px;
+  border: 1px solid rgba(245,166,35,0.15);
+  background: rgba(245,166,35,0.025);
+  overflow: hidden;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.mr-card--out  { opacity: 0; transform: translateX(-16px); }
+.mr-card--in   { animation: mrCardIn 0.22s var(--ease-out) both; }
+@keyframes mrCardIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:none; } }
+
+/* Süsleme çizgisi üstte */
+.mr-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245,166,35,0.4), transparent);
+}
+
+/* Arkaplan sigil */
+.mr-sigil-bg {
+  position: absolute; right: 16px; top: 16px;
+  opacity: 0.12; pointer-events: none;
+}
+
+/* Roman rakamı */
+.mr-roman {
+  font-family: var(--cinzel); font-size: 36px; font-weight: 600;
+  color: var(--gold); opacity: 0.9;
+  line-height: 1; margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+
+/* Başlık */
+.mr-title {
+  font-family: var(--cinzel); font-size: 17px; font-weight: 500;
+  color: var(--text); letter-spacing: 1px;
+  line-height: 1.3; margin-bottom: 14px;
+}
+
+/* Altın çizgi bölücü */
+.mr-divider {
+  width: 36px; height: 1px;
+  background: rgba(245,166,35,0.45);
+  margin-bottom: 16px;
+}
+
+/* Özet */
+.mr-summary {
+  font-family: var(--serif); font-size: 15px; font-style: italic;
+  color: var(--text-mid); line-height: 1.7;
+}
+
+/* İlerleme noktaları */
+.mr-dots {
+  display: flex; gap: 6px; align-items: center;
+  margin-top: 18px; flex-wrap: wrap; justify-content: center;
+}
+.mr-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-dim); opacity: 0.3;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.mr-dot--done {
+  background: var(--gold); opacity: 0.55;
+}
+.mr-dot--cur {
+  width: 18px; border-radius: 3px;
+  background: var(--gold); opacity: 1;
+}
+
+/* Aksiyon alanı */
+.mr-actions {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; width: 100%; max-width: 400px;
+  margin-top: 16px;
+}
+
+/* Ana buton */
+.mr-cta {
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--gold); color: #0d0d0d;
+  font-family: var(--cinzel); font-size: 11px; letter-spacing: 3px;
+  font-weight: 600; border: none; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.mr-cta:active { opacity: 0.85; transform: scale(0.98); }
+.mr-cta--seal {
+  background: linear-gradient(135deg, var(--gold) 0%, #e8a020 100%);
+  box-shadow: 0 0 24px rgba(245,166,35,0.25);
+}
+
+/* Alt link butonu */
+.mr-link {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2px;
+  color: var(--text-dim); padding: 6px 4px;
+  transition: color 0.15s;
+}
+.mr-link:hover { color: var(--gold); }
+
+/* ── Mühür Detay — kart içi ek elemanlar ── */
+.mr-name-label {
+  font-family: var(--cinzel); font-size: 10px; letter-spacing: 3px;
+  color: var(--gold); opacity: 0.6; margin-bottom: 6px; margin-top: -4px;
+  text-transform: uppercase;
+}
+.mr-detail-seal-row {
+  margin-top: 18px; display: flex; justify-content: flex-start;
+}
+.mr-detail-badge {
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2px;
+  color: var(--gold); opacity: 0.75;
+  border: 1px solid rgba(245,166,35,0.3);
+  padding: 3px 8px;
+}
+.mr-detail-badge--open {
+  color: var(--text-dim); border-color: var(--border); opacity: 0.5;
+}
+
+/* ── Kitaplık Okur — 12 Mühür iç tasarımının kitap varyantı ── */
+.mr-card--lib {
+  overflow: auto;
+  /* NEDEN: .mr-card justify-content:center; kısa manifesto kartı için doğru ama
+     uzun bir yazıda içeriği dikey ortalar → başlık + ilk paragraflar kartın
+     üstünden TAŞAR ve scrollTop 0 olduğu için ULAŞILAMAZ. Kitap okuru tepeden
+     başlamalı, tüm yazı doğal kaysın. */
+  justify-content: flex-start;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245,166,35,0.3) transparent;
+  padding-top: 30px;
+  padding-bottom: 28px;
+  /* Cömert köşe (tasarım-prensibi 6) + atmosfer: düz altın dolgu yerine bir
+     köşeden altın (şimdi), karşı köşeden lapis (derinlik) sızar (prensip 3). */
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(78% 56% at 100% 0%, rgba(245,166,35,0.075), transparent 60%),
+    radial-gradient(82% 64% at 0% 100%, rgba(45,95,168,0.08), transparent 62%),
+    rgba(245,166,35,0.022);
+}
+.mr-card--lib::-webkit-scrollbar { width: 4px; }
+.mr-card--lib::-webkit-scrollbar-thumb { background: rgba(245,166,35,0.3); }
+
+/* Kitaplık başlığı — Cinzel yazıt değil, KİTAP başlığı: alt-sayfayla (lib-sheet)
+   aynı serif-display kimliği. Cinzel'in zorunlu büyük-harf kapitalleri uzun
+   düz-yazı başlıklarını ağırlaştırıyor ve kartla uyumsuz görünüyordu. */
+.mr-card--lib .mr-title {
+  font-family: var(--serif-display, Fraunces, Georgia, serif);
+  font-size: 23px; font-weight: 400;
+  letter-spacing: 0.2px; text-transform: none;
+  line-height: 1.26; margin-bottom: 13px;
+}
+/* Tarih etiketi: CSS uppercase YOK — Türkçe noktasız-ı tuzağı (tasarım-prensibi 4).
+   Büyük harfe çevirme JS'te tr-TR locale ile yapılır (NİSAN/MAYIS doğru çıkar). */
+.mr-card--lib .mr-name-label { margin-top: 0; margin-bottom: 8px; text-transform: none; }
+.mr-card--lib .mr-divider { margin-bottom: 18px; }
+
+.mr-summary--lib {
+  font-style: normal;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.78;
+}
+.mr-summary--lib p { margin: 0 0 14px; }
+.mr-summary--lib p:last-child { margin-bottom: 0; }
+
+/* Yazı içi paylaş düğmesi — yazının doğal kapanışında, ince altın hairline
+   davet (kapı/davet DAİMA altın · tasarım-prensibi 1). Yazıyla rekabet
+   etmesin diye sessiz; dokunulduğunda hafif ısınır. */
+.lib-share-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  align-self: center;                        /* mr-card flex-column içinde yatayda merkez */
+  margin: 22px auto 0;
+  padding: 9px 18px;
+  background: transparent;
+  border: 1px solid rgba(245,166,35,0.32);
+  border-radius: 999px;
+  color: var(--gold);
+  font-family: var(--cinzel, Cinzel, serif);
+  font-size: 10px; letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-out, ease-out),
+              border-color 0.18s var(--ease-out, ease-out),
+              transform 0.12s var(--ease-out, ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+.lib-share-btn svg { display: block; }
+.lib-share-btn:hover, .lib-share-btn:focus-visible {
+  background: rgba(245,166,35,0.07);
+  border-color: rgba(245,166,35,0.55);
+  transform: translateY(-1px);
+  outline: none;
+}
+.lib-share-btn:active { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .lib-share-btn { transition: background 0.15s, border-color 0.15s; }
+  .lib-share-btn:hover, .lib-share-btn:focus-visible { transform: none; }
+}
+
+/* ── Kitaplık SAHNESİ — atmosfer & mekanik disiplin ──────────────
+   Kitaplık okuru tam ekran bir "mekân"dır, düz panel değil. Sahneye
+   kalıcı sıcak ufuk parıltısı (ambient mood = gün doğumu / ocağın başı,
+   tasarım-prensibi 2) + bir köşeden lapis derinlik (prensip 3) iner;
+   obsidyen taban sabit kalır. */
+.mr-scene--lib {
+  background:
+    radial-gradient(125% 78% at 50% 118%, rgba(245,166,35,0.10), transparent 60%),
+    radial-gradient(88% 66% at 6% 2%, rgba(45,95,168,0.09), transparent 55%),
+    var(--bg);
+}
+/* Dokunma hedefleri 44×44 + pill köşe (tasarım-prensibi 6 & 9). Yalnızca
+   Kitaplık kapsamı; manifesto okuru etkilenmez. */
+.mr-scene--lib .mr-nav-btn { min-height: 44px; border-radius: var(--radius-full); }
+.mr-scene--lib .mr-close {
+  width: 44px; height: 44px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* 🔒 prefers-reduced-motion — tasarım-prensibi 5 ("istisnasız").
+   Bu dosyada hiç yoktu; Kitaplık + manifesto okurunun tüm giriş/kayma
+   hareketleri hareket azaltma tercihinde sönümlenir. */
+@media (prefers-reduced-motion: reduce) {
+  .mr-portal, .mr-portal--out,
+  .mr-scene--in, .mr-card, .mr-card--in {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Mühür Detay — prev/next navigasyon ── */
+.mr-detail-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; max-width: 400px;
+  margin-top: 16px; gap: 8px;
+}
+.mr-nav-btn {
+  background: none;
+  border: 1px solid rgba(245,166,35,0.25);
+  font-family: var(--cinzel); font-size: 9px; letter-spacing: 2px;
+  color: var(--gold); cursor: pointer; padding: 10px 14px;
+  transition: border-color 0.15s, opacity 0.15s;
+  flex: 1; text-align: center;
+}
+.mr-nav-btn:hover { border-color: var(--gold); }
+.mr-nav-btn--disabled {
+  opacity: 0.2; cursor: default; pointer-events: none;
+}
+.mr-nav-pos {
+  font-family: var(--cinzel); font-size: 18px; font-weight: 600;
+  color: var(--gold); opacity: 0.45; letter-spacing: 2px;
+  min-width: 36px; text-align: center;
+}

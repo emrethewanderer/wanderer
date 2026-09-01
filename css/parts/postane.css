@@ -1,0 +1,94 @@
+/* ═══════════════════════════════════════════════════════
+   POSTANE (pst-) — Bülten + Posta Akışları admin yüzeyi
+   ───────────────────────────────────────────────────────
+   Yeni bir görsel dil İCAT EDİLMEZ: panel iskeleti .field-input/
+   .field-textarea/.section-label/.btn-outline-gold/.btn-primary ve
+   document.css'in doc-* primitifleridir (doc-tablebox/doc-pill/doc-*
+   önizleme). Burada yalnız bu iki modülün KENDİNE özgü ihtiyaçları
+   durur: 9 sayılık kadran ızgarası, kampanya/akış kartları, kilit notu.
+   Üç renk (TASARIM-PRENSIPLERI.md): obsidyen zemin · altın=eylem+mühür ·
+   lapis=hayal+hedef — "adres bırakmamış" davettir, altın değil lapisle
+   işaretlenir (§6.10: eksiklik sıfır değil davettir).
+═══════════════════════════════════════════════════════ */
+
+/* ── Kadran — 9 sayı, admin-stat-row'un ızgaraya dökülmüş hâli ── */
+.pst-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.pst-stat { background: var(--bg-raised); padding: 18px 14px; }
+.pst-stat-num { font-family: var(--serif); font-size: 26px; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+.pst-stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--text-dim); }
+/* Eksiklik davettir, hata değil — lapis (hayal/hedef ekseni). */
+.pst-stat--invite .pst-stat-num { color: var(--lapis-bright); }
+/* Sekme kalkanının gerçek riski — tek yerde ölçülü bir uyarı tonu. */
+.pst-stat--warn .pst-stat-num { color: var(--red); }
+
+/* ── Form yardımcıları ── */
+.pst-form-meta { display: flex; align-items: center; gap: 14px; margin: -6px 0 18px; }
+.pst-link-btn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--gold-quiet); font-size: 11px; letter-spacing: 0.06em;
+  text-decoration: underline; text-underline-offset: 3px; font-family: var(--sans);
+}
+.pst-btn-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+.pst-btn-row .btn-outline-gold { width: auto; min-width: 180px; }
+.pst-hint { font-size: 11.5px; color: var(--text-dim); }
+
+/* Anında önizleme — doc-* primitifleri burada bir kart içine alınır ki
+   formdan görsel olarak ayrışsın (e-posta gövdesinin kendisi değil, onun
+   bu paneldeki bir yansıması). */
+.pst-onizle {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin: 4px 0 24px;
+  background: rgba(0,0,0,0.12);
+}
+
+/* ── Geçmiş sayılar — kampanya kartları ── */
+.pst-camp-card {
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 16px 18px; margin-bottom: 10px;
+  background: rgba(255,255,255,0.015); cursor: pointer;
+  transition: border-color 0.25s;
+}
+.pst-camp-card:hover { border-color: var(--gold-quiet, rgba(245,166,35,.35)); }
+.pst-camp-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.pst-camp-title { font-family: var(--serif); font-size: 15px; color: var(--text); }
+.pst-camp-meta { font-size: 11.5px; color: var(--text-dim); }
+
+/* ── Posta Akışları — akış kartları ── */
+.pst-akis-not {
+  font-size: 12px; color: var(--text-mid); line-height: 1.6;
+  border-left: 2px solid var(--gold-quiet);
+  background: var(--gold-quiet-dim);
+  padding: 10px 16px; margin-bottom: 22px;
+}
+.pst-akis-card {
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 20px; margin-bottom: 20px;
+}
+.pst-akis-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.pst-akis-name { font-family: var(--serif); font-size: 17px; color: var(--text); margin-bottom: 4px; }
+.pst-akis-desc { font-size: 12px; color: var(--text-mid); line-height: 1.55; max-width: 46ch; }
+.pst-akis-locked { font-size: 11.5px; color: var(--text-dim); font-style: italic; margin-top: 10px; }
+.pst-toggle {
+  display: flex; align-items: center; gap: 8px; flex: none;
+  font-size: 12px; color: var(--text-mid); cursor: pointer; white-space: nowrap;
+}
+.pst-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--gold); }
+
+/* ── Boş durum ── */
+.pst-empty { font-size: 13px; color: var(--text-dim); font-style: italic; padding: 14px 0; }
+
+@media (max-width: 640px) {
+  .pst-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .pst-akis-head { flex-direction: column; }
+}
