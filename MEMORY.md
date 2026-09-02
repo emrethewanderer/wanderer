@@ -32,3 +32,7 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   (ajanlar, hafızalar, kancalar, launch girdileri) aylarca yalnız lokal
   makinede kalmış, repoya hiç girmemişti; uzak oturum klondan kurar, commit
   edilmemiş olan YOKTUR — uzak oturumda devir denenemez bile
+- [[artifact-galerisi]] — İç Çalışma Atlası ve 18 oda raporu claude.ai
+  galerisinde yaşar, ne diskte ne repoda; kaybolmuş görünmelerinin sebebi
+  iki odanın numarasız adla yayımlanmış olmasıydı — adres tablosu
+  `.claude/artifacts.md`
