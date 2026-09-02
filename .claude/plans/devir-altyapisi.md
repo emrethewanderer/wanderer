@@ -456,3 +456,38 @@ Nabız başarısız çağrıları saymamalı. Sprintin öğrendikleri hafızaya 
 gerektirmez.
 **Değişen:** `scripts/devir-notu.sh`, `tests/devir-nabzi.test.js`, `MEMORY.md`
 **Yeni:** sprint hafızası
+
+
+### FAZ 7a ✅ — **Opus yazdı**, Sonnet denetliyor
+`PROTOKOL-FABLE.md` §10 (ortam ayrımı, beş alt bölüm) + üç çapraz referans +
+`CLAUDE.md` 9. madde. Kapı bu turda **parent'ı yakaladı**: dikiş notunda
+referans biçimini anlatırken verilen örnek gerçek referans sayıldı ve test
+kırıldı. Kaçırıldı; kapının şablon eleme mantığı ayrıca genişletilmeli.
+
+### FAZ 7b ✅ — **Sonnet yazdı**, Opus denetledi
+Nabız düzeltildi, testi genişletildi, sprint hafızası yazıldı. **Bulgu yok.**
+
+**Sapma — ajan rate limit'e takıldı.** Sonnet oturum limiti (09:50 UTC reset)
+her iki ajanı da vurdu: FAZ 7b'nin raporu ve FAZ 7a'nın denetimi yarıda kesildi.
+FAZ 7b'nin **işi diskte tamamdı** (ajanın son sözü: "build yeşil, iki hedefli
+süit yeşil 13/13"), yalnız rapor yazılamadı — `## Duraklar` listesi bu yüzden
+yok. Denetimi parent diff'ten yaptı; kapılar bağımsız koşturuldu: 13/13 yeşil,
+build exit 0.
+
+**Nabız kanıtı:** düzeltme öncesi nabız `2` basıyordu (ikisi de başarısız
+`uygulayici` denemesi); sonrası **`0`** — yani artık yapılmayanı saymıyor.
+Koşu süresi 0.5s, kancanın 15s timeout'u için sorunsuz. Nabzın "0" demesi
+**doğru**: bu sprintte gerçek `uygulayici` çağrısı sıfırdı, beş devir
+`general-purpose` ile yürütüldü çünkü ad tanınmıyordu.
+
+## ✅ FAZ 1'in KAPISI GEÇTİ — ajan adları tanınıyor
+
+Sprint boyunca `subagent_type: 'uygulayici'` ve `'denetci'` "not found"
+veriyordu; §10.4'e *"o oturumda yazılan bir ajan dosyası aynı oturumda
+tanınmaz"* diye yazılmıştı. **Bu yanlışlandı:** adlar yazıldıktan ~2 saat
+sonra, oturum içinde tanınır hâle geldi. Kanıt: FAZ 7a'nın denetimi gerçek
+`Agent({ subagent_type: 'denetci', model: 'sonnet' })` çağrısıyla açıldı ve
+hata vermedi.
+
+Yani devir altyapısı artık **uçtan uca çalışıyor** — ve §10.4'ün o satırı
+düzeltilmeli (denetçinin bulgularına dahil edildi).

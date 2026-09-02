@@ -19,3 +19,10 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   düzleştirdiği için build'in kendisi yakalamadığı "bundle'da çalışan,
   kaynakta olmayan ad" sınıfını `tsc` scope analiziyle yakalar; sınırı
   `window.foo?.()` köprülerini görmemesi, onu kardeş denetçi sorar
+
+## Ortam / altyapı
+- [[claude-altyapisi-commit-disi]] — `.claude/` altındaki çalışma altyapısı
+  (ajanlar, hafızalar, kancalar, launch girdileri) aylarca yalnız lokal
+  makinede kalmış, repoya hiç girmemişti; uzak oturum klondan kurar, commit
+  edilmemiş olan YOKTUR — §4.4 devir kapısının 29 gün ölü kalmasının kök
+  sebebi buydu

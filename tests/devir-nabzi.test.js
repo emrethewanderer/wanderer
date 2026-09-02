@@ -71,6 +71,50 @@ function cagriYaz(ev, repo, tarihler) {
   fs.writeFileSync(path.join(dizin, 'oturum.jsonl'), satirlar.join('\n') + '\n');
 }
 
+/**
+ * Gerçek transkript biçimini taklit eder: her çağrının bir `id`'si ve
+ * ardından gelen bir `tool_result`'ı vardır. `basarisizSayisi` kadar çağrı
+ * "Agent type 'uygulayici' not found" hatasıyla döner (`is_error:true`) —
+ * bu sprintte gerçekte olan tam olarak buydu.
+ */
+function karisikCagriYaz(ev, repo, { basarili = 0, basarisiz = 0 } = {}) {
+  const dizin = path.join(ev, '.claude', 'projects', slugla(repo));
+  fs.mkdirSync(dizin, { recursive: true });
+  const simdi = new Date().toISOString();
+  const satirlar = [];
+  for (let i = 0; i < basarili; i++) {
+    const id = `toolu_basarili${i}`;
+    satirlar.push(JSON.stringify({
+      timestamp: simdi,
+      message: { role: 'assistant', content: [
+        { type: 'tool_use', id, name: 'Agent', input: { subagent_type: 'uygulayici' } },
+      ] },
+    }));
+    satirlar.push(JSON.stringify({
+      timestamp: simdi,
+      message: { role: 'user', content: [
+        { type: 'tool_result', tool_use_id: id, content: [{ type: 'text', text: 'hazır' }] },
+      ] },
+    }));
+  }
+  for (let i = 0; i < basarisiz; i++) {
+    const id = `toolu_basarisiz${i}`;
+    satirlar.push(JSON.stringify({
+      timestamp: simdi,
+      message: { role: 'assistant', content: [
+        { type: 'tool_use', id, name: 'Agent', input: { subagent_type: 'uygulayici' } },
+      ] },
+    }));
+    satirlar.push(JSON.stringify({
+      timestamp: simdi,
+      message: { role: 'user', content: [
+        { type: 'tool_result', tool_use_id: id, content: "Agent type 'uygulayici' not found.", is_error: true },
+      ] },
+    }));
+  }
+  fs.writeFileSync(path.join(dizin, 'oturum.jsonl'), satirlar.join('\n') + '\n');
+}
+
 function kostur({ repo, ev }) {
   execFileSync('bash', [path.join(repo, 'scripts', 'devir-notu.sh')], {
     env: { ...process.env, HOME: ev },
@@ -110,6 +154,16 @@ describe('devir nabzı — sayaç', () => {
     planYaz(kok.repo, 7);
     cagriYaz(kok.ev, kok.repo, [0]);
     expect(kostur(kok)).toMatch(/\*\*🅢 faz: 7\*\*/);
+  });
+
+  it('başarısız (hata dönen) çağrıyı saymaz — transkripte yazılmış olmak yetmez', () => {
+    // Bu sprintte gerçekte olan: 2 çağrı denendi, ikisi de
+    // "Agent type 'uygulayici' not found" ile döndü. Eski sayaç ikisini de
+    // "devir yapıldı" sayıyordu çünkü yalnız satırın varlığına bakıyordu.
+    planYaz(kok.repo, 5);
+    karisikCagriYaz(kok.ev, kok.repo, { basarili: 1, basarisiz: 2 });
+    const cikti = kostur(kok);
+    expect(cikti).toMatch(/`uygulayici` çağrısı: \*\*1\*\*/);
   });
 });
 

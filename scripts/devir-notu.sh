@@ -90,10 +90,49 @@ PLAN="$(ls -t "$REPO"/.claude/plans/*.md 2>/dev/null | head -1)"
     # çağrıyı taşıyan dosya bugün dokunulduğunda nabzı şişirir ve uyarı hiç
     # basmaz — ölçüm yine körleşirdi.
     CUTOFF="$(date -v-14d '+%Y-%m-%d' 2>/dev/null || date -d '14 days ago' '+%Y-%m-%d' 2>/dev/null)"
-    CAGRI=$(find "$JSONL_DIR" -name '*.jsonl' -mtime -14 -exec grep -h '"subagent_type":"uygulayici"' {} + 2>/dev/null \
-      | grep -o '"timestamp":"[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' \
-      | sed 's/.*"//' \
-      | awk -v c="${CUTOFF:-0000-00-00}" '$0 >= c' | wc -l | tr -d ' ')
+    # GOTCHA (2026-09-02): bir Agent çağrısı hata dönse bile (ör. "Agent type
+    # 'uygulayici' not found") istek transkripte YAZILIR — yalnız satır grep'i
+    # bu denemeyi de "devir yapıldı" sayardı. Bu sprintte tam bu oldu: nabız
+    # 2 çağrı bastı, ikisi de başarısız denemeydi. Ayırt edici imza: harness
+    # başarısız çağrının tool_result'ına `"is_error":true` basıyor — id
+    # eşleşmesiyle o çağrılar dışlanır. Node'la ayrıştırıyoruz çünkü proje
+    # zaten node'a bağımlı (build.sh, vitest — yeni bağımlılık değil); id'yi
+    # regex'le eşleştirmek tool çıktısının içinde tesadüfen geçen bir
+    # "is_error":true alıntısına yakalanabilirdi.
+    CAGRI=$(find "$JSONL_DIR" -name '*.jsonl' -mtime -14 2>/dev/null \
+      | NABIZ_CUTOFF="$CUTOFF" node -e '
+          const fs = require("fs");
+          const cutoff = process.env.NABIZ_CUTOFF || "0000-00-00";
+          const dosyalar = fs.readFileSync(0, "utf8").split("\n").filter(Boolean);
+          const basarisiz = new Set();
+          const cagrilar = [];
+          for (const dosya of dosyalar) {
+            let icerik;
+            try { icerik = fs.readFileSync(dosya, "utf8"); } catch (_) { continue; }
+            for (const satir of icerik.split("\n")) {
+              if (!satir) continue;
+              let obj;
+              try { obj = JSON.parse(satir); } catch (_) { continue; }
+              const parcalar = obj && obj.message && obj.message.content;
+              if (!Array.isArray(parcalar)) continue;
+              for (const p of parcalar) {
+                if (!p || typeof p !== "object") continue;
+                if (p.type === "tool_result" && p.is_error === true && p.tool_use_id) {
+                  basarisiz.add(p.tool_use_id);
+                }
+                if (p.type === "tool_use" && p.input && p.input.subagent_type === "uygulayici") {
+                  cagrilar.push({ id: p.id, tarih: String(obj.timestamp || "").slice(0, 10) });
+                }
+              }
+            }
+          }
+          let n = 0;
+          for (const c of cagrilar) {
+            if (c.tarih >= cutoff && !basarisiz.has(c.id)) n++;
+          }
+          process.stdout.write(String(n));
+        ' 2>/dev/null)
+    CAGRI="${CAGRI:-0}"
   fi
 
   echo "Son 14 gün — planlarda yazılan **🅢 faz: ${S_FAZ}** · \`uygulayici\` çağrısı: **${CAGRI}**"
