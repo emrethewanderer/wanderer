@@ -71,9 +71,12 @@ migration'dır (§6.5) ve geri alması pahalıdır.
 
 ## 2 · Yeni kolon eklerken 42703 desenini KOPYALA
 
-Bu şemanın imza deseni, üç kolonun yorumunda üç kez tekrarlanıyor
-(`hedefler`, `yapi`, `esik`): *"Kolon YOKKEN client 42703'ü yakalar ve bu
-veri cihaz-yerel (IndexedDB) yaşamaya devam eder — hiçbir akış kırılmaz."*
+Bu şemanın imza deseni **iki** kolonun yorumunda birebir tekrarlanıyor —
+`yapi` (satır 635) ve `esik` (satır 646): *"Kolon YOKKEN client 42703'ü
+yakalar ve bu veri cihaz-yerel (IndexedDB) yaşamaya devam eder — hiçbir akış
+kırılmaz."* Deseni **kuran** taraf `hedefler`'dir (ikisi de ona "hedefler
+kolonunun deseni" diye geri referans verir), ama `hedefler`in kendi SQL
+yorumu (satır 626-627) ifadeyi taşımaz — yalnız veri şeklini anlatır.
 Kod tarafındaki hâli `10q:1167-1176`'daki **kademeli seçim zinciri**dir:
 önce `history,hedefler,yapi,esik` denenir, hata gelirse `…,yapi`, sonra
 `…,hedefler`, en sonda yalnız `history`. Yani migration uygulanmadan da

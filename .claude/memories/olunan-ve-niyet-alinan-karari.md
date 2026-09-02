@@ -43,7 +43,7 @@ kazanılmışsa o kişi OLUNMUŞTUR, hedef değildir"* (`10q:3087`). Bu yüzden
 mezuniyette kendiliğinden düşer.
 
 **Ve dersin kendisi SIRA hakkındadır.** `kkMuhurle` içinde
-(`10q-w2-kisi-karti.js:894-902`) iki adım art arda koşar:
+(`10q-w2-kisi-karti.js:895-904`) iki adım art arda koşar:
 
 ```js
 // SIRA KRİTİK: mezuniyetten (hedefler'den silmeden) ÖNCE

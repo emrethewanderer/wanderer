@@ -80,7 +80,7 @@ kapılma — bu törende geri çevirmek ertelemektir.
 
 ## 3 · Aynı karar SÖZ töreninde de geçerli
 
-`js/parts/13A-derin-calisma.js:511-519` (Ko-Zo sütunları) bunun ikizidir:
+`js/parts/13A-derin-calisma.js:510-518` (Ko-Zo sütunları) bunun ikizidir:
 madde **otomatik olarak söze YAZILMAZ**, yalnız DAVET edilir
 (`window.glGiveSozNow?.(madde.metin)` → `10s-w2-gunluk-ritus.js:523`).
 Yorumun gerekçesi iki katlı: dışarıdan `pledges`'e yazmak hem 10s'in

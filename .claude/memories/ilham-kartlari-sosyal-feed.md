@@ -49,7 +49,8 @@ meta'da yaşar."* Yani bir kartın sohbetten mi Atölye'den mi doğduğu artık
   kaybolur, sayfada anlık sorgulanır."* State'te yalnız "ben neyi beğendim /
   aldım" cache'i durur, o da UI'ın çift istek atmaması için.
 
-**Ve aynı ailenin ikinci Emre kararı — 3.0 (2026-08-02):** *"DAVET, ANCAK
+**Ve aynı ailenin ikinci Emre kararı — 3.0 (2026-08-02,
+`10B-ilham-karti.js:37-44`):** *"DAVET, ANCAK
 DEMİR TUTTUYSA GELİR."* Altın CTA chip'i kaldırıldı; kart artık mesaj biter
 bitmez **arka planda sessizce** tasarlanır ve tasarım kurulamazsa kullanıcı
 **hiçbir şey görmez**. Gerekçe §6.2'dir: uygulama tutamayacağı sözü vermez —
