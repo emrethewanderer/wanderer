@@ -406,3 +406,53 @@ Sprintte tek tek "eksik" diye bulduğum her şey bunun türevi:
 dizini commit edilmeden 26 hafıza geri gelmez — içerikleri uydurulamaz
 (§6.2, K3). Kapı bu borcu TABAN'da donduruyor: büyümesi yasak, ödenmesi
 serbest.
+
+
+## FAZ 6b ✅ — Dikiş turu + tam süit (parent'ta)
+
+**Tam süit — sprintin tek koşusu:** `npx vitest run` → **159 dosya, 3650 test,
+sıfır kırık.** §3.5 madde 2'nin pazarlıksız kapısı geçildi.
+
+### Dikiş bulgusu 1 — FAZ 4 ↔ FAZ 6a (düzeltildi, `a9a1de4`)
+İki mimari belgesi `.claude/plans/` altına yazıldı, ama üç dosya onları
+`[[hafıza]]` bağı olarak arıyordu. Kapı bunları TABAN'da tuttuğu için test
+yeşildi — kırık görünmüyordu. Referans biçimi hedefin gerçek yerini
+göstermeli: `[[ad]]` hafızadır, plan değil. Üçü de plan yoluna çevrildi,
+TABAN 35 → 33'e indi.
+
+### Dikiş bulgusu 2 — devir nabzı yanlış ölçüyor (FAZ 7b'ye)
+`scripts/devir-notu.sh` içinde bir **devir nabzı** varmış (kapısı:
+`tests/devir-nabzi.test.js`) — transkriptlerde `"subagent_type":"uygulayici"`
+sayıp §4.4'ün ölmesini engellemek için kurulmuş. Bu sprintte kanca bağlanınca
+ilk kez koştu ve şunu bastı:
+
+> ⚠️ Devir kapısı kapalı. **15 🅢 faza karşı 2 çağrı.**
+
+**Oysa bu sprintte beş faz devredildi.** Nabız onları göremiyor çünkü ad
+tanınmadığından `general-purpose` kullanıldı; saydığı "2" ise büyük olasılıkla
+**başarısız** `uygulayici` denemeleri — çağrı hata verse de transkripte yazılıyor.
+Alet yapılmayanı sayıp yapılanı görmüyor. Kendi testinin uyarısı birebir
+gerçekleşmiş: *"Ölçen aletin kendisi ölçülmezse ölçüm bir teselli olur."*
+
+İki ayrı kırık var ve ayrılmalı:
+1. **Ortam kırığı** (ad tanınmıyor) → ajanlar artık commit'te, sonraki oturumda
+   kapanır; nabız o zaman doğru sayar.
+2. **Aletin kendi kırığı** (başarısız çağrı da sayılıyor) → ortamdan bağımsız,
+   düzeltilmeli. FAZ 7b.
+
+## FAZ 7 ikiye bölündü — Emre'nin ölçüsüyle
+
+Sınav: *"Sonnet bunu yapabilir mi?"*
+
+### FAZ 7a — Protokole ortam ayrımı · 🅞 · parent'ta
+Devir: 🅞 — hangi kuralın lokal varsayım olduğu, hangisinin evrensel olduğu ve
+yerine ne yazılacağı kural metni yargısıdır; üstelik `PROTOKOL-FABLE.md`
+Emre'nin anayasasıdır.
+**Değişen:** `PROTOKOL-FABLE.md`, `CLAUDE.md` yedek çekirdeği
+
+### FAZ 7b — Nabız düzeltmesi + sprint hafızası · 🅢 · devredilir
+Nabız başarısız çağrıları saymamalı. Sprintin öğrendikleri hafızaya yazılmalı —
+**Sonnet yapabilir**: her şey plana ve commit mesajlarına yazılı, uydurma
+gerektirmez.
+**Değişen:** `scripts/devir-notu.sh`, `tests/devir-nabzi.test.js`, `MEMORY.md`
+**Yeni:** sprint hafızası
