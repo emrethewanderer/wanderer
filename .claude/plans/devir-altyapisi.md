@@ -524,3 +524,61 @@ FAZ 7a'yı **gerçek `denetci` ajanı** denetledi (adlar artık tanınıyor) ve
 **Bu, çapraz denetimin bu sprintteki en güçlü kanıtıdır.** Bulgu 2 kod değil
 **anlatı** hatasıydı: build yeşil, testler yeşil, kapılar yeşilken yaşayan bir
 kırık. Yazan model onu göremezdi — kendi kurduğu nedenselliğin içindeydi.
+
+
+---
+
+## KAPANIŞ — 2026-09-02
+
+Sorunun cevabı ölçüldü: **paylaştırma başta çalışmıyordu, şimdi uçtan uca
+çalışıyor.**
+
+### Devir tablosu — sekiz faz, her ikisi de her iki rolde
+
+| Faz | Yazan | Denetleyen | Denetim sonucu |
+|---|---|---|---|
+| 1 — ajan sözleşmeleri | Opus | **Sonnet** | 3 bulgu → düzeltildi |
+| 2+3 — kanca, preview | **Sonnet** | Opus | bulgu yok, 1 Durak karara bağlandı |
+| 4 — iki mimari belge | **Sonnet** | Opus | bulgu yok (14/14 iddia doğrulandı) |
+| 5 — hafıza, kör noktalar | **Sonnet** | Opus | bulgu yok |
+| 6a — referans kapısı | **Sonnet** | Opus | bulgu yok (kırmızı→yeşil kanıtlı) |
+| 6b — dikiş + tam süit | Opus | — | 2 dikiş bulgusu |
+| 7a — protokol §10 | Opus | **Sonnet** | **3 bulgu → düzeltildi** |
+| 7b — nabız + hafıza | **Sonnet** | Opus | bulgu yok |
+| 7c — denetim düzeltmeleri | Opus | — | (7a'nın bulguları) |
+| 7d — kapı elemesi | **Sonnet** (gerçek `uygulayici`) | Opus | bulgu yok |
+
+### Nabız zinciri — aletin kendisi de ölçüldü
+
+`2` (yalan: başarısız denemeler) → `0` (dürüst, devir yok) → **`1`** (dürüst,
+gerçek devir sayıldı).
+
+### Öz-denetim — parent'ın kendi hataları
+
+1. **FAZ 1 yanlış etiketlendi.** 🅞 damgalandı; Emre'nin ölçüsüyle (*"Sonnet
+   yapabilir mi?"*) yanlış — yasak listesi §4.4'te sayılıydı, plandan
+   okunabilirdi. Karışık faz bölünmeliydi (§4.4), bölünmedi.
+2. **Uydurulmuş nedensellik** (§10.2) — çapraz denetim yakaladı. Kod değil
+   **anlatı** hatasıydı: bütün kapılar yeşilken yaşıyordu.
+3. **Doğrulanmamış sayı taşındı** ("26" → gerçek 23) — ara ölçüm yeniden
+   ölçülmeden protokole geçirildi.
+4. **Kapı parent'ı yakaladı** — şablon örneği gerçek referans sayıldı; FAZ 7a'da
+   kaçınıldı, FAZ 7d'de gerçekten düzeltildi.
+
+### Doğrulama
+
+| Kontrol | Durum |
+|---|---|
+| `bash build.sh` | ✅ exit 0 |
+| Tam süit (`npx vitest run`) | ✅ 159 dosya / 3651 test |
+| `tests/referans-butunlugu.test.js` | ✅ 5/5 (yeni kapı) |
+| `tests/devir-nabzi.test.js` | ✅ 8/8 |
+| Stop kancası canlı | ✅ `.claude/DEVIR.md` tur sonunda kendi yazıldı |
+| Ajan adları (`uygulayici`/`denetci`) | ✅ tanınıyor, gerçek devir yapıldı |
+| Preview | ❌ araç bu oturumda yok — `launch.json` **sınanmadı** |
+
+### İlk hamle (sonraki oturum)
+
+Emre lokal `.claude/memories/` dizinini commit ederse: `npx vitest run
+tests/referans-butunlugu.test.js` koş, TABAN'dan ödenen adları çıkar (küçülmek
+serbest). Commit edilmezse TABAN olduğu gibi kalır — borç dondurulmuş durumda.
