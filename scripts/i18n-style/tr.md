@@ -15,7 +15,7 @@ Wanderer bir insanın kalbini ölçemez. Saydığı günü, okuduğu cümleyi, b
 bilir — bunlar kesin konuşulur. Bunlardan çıkardığı anlam bir **yorumdur** ve yorumun
 sahibi kullanıcıdır. Son sözü uygulama söylemez.
 
-Bu, [[gerceklik-mimarisi]]'nin dil katmanıdır: orada kanıtsız **sayı** yasaklandı,
+Bu, `.claude/plans/gerceklik-mimarisi.md`'nin dil katmanıdır: orada kanıtsız **sayı** yasaklandı,
 burada kanıtsız **kesinlik**. Aynı tez: *Mesele Sensin.*
 
 ---

@@ -21,7 +21,7 @@
  * (recursive). Hariç: node_modules, dist, coverage, assets, android, ios.
  *
  * TABAN (kalıp `xss-taban.json` / `tasarim-taban.json` ile aynı — bkz.
- * [[xss-kapisi]]): bu tarama ilk koşulduğunda (2026-09-02) repoda otuz beş
+ * [[xss-kapisi]]): bu tarama ilk koşulduğunda (2026-09-02) repoda otuz üç
  * ADI ayrı kırık referans zaten vardı — MEMORY.md'nin kendi notu bunu
  * doğrular: hafıza dizini bir "genel denetim turunda" sıfırdan başlatıldı,
  * ondan ÖNCEKİ oturumların `js/`/`tests/` içine yazdığı hafıza bağları
@@ -149,9 +149,9 @@ function tara(kok) {
 
 function anahtar(b) { return `${b.tip}:${b.ad}`; }
 
-/* ─── 2. TABAN — 2026-09-02 ölçümü, otuz beş ayrı ad ───
+/* ─── 2. TABAN — 2026-09-02 ölçümü, otuz üç ayrı ad ───
    Ölçüm yöntemi: `tara(ROOT)` bu tarih itibariyle 82 kırık referans örneği,
-   36 ayrı ad buldu. Otuz beşi devraldığımız borç (bu turdan önce vardı),
+   36 ayrı ad buldu. Otuz üçü devraldığımız borç (bu turdan önce vardı),
    biri (`hafiza:bagsiz-ad-kapisi`) bu FAZ'ın kapattığı hedeftir — bilerek
    TABAN'da DEĞİL, testin kırmızı-yeşil geçişini kanıtlasın diye. */
 const TABAN = new Set([
@@ -159,12 +159,10 @@ const TABAN = new Set([
   'hafiza:belge-katmani-doc-primitifleri',
   'hafiza:boot-nabzi',
   'hafiza:buyuk-harf-dil-kapisi',
-  'hafiza:gerceklik-mimarisi',
   'hafiza:guvenlik-emniyet-katmani',
   'hafiza:i18n-bundle-bolme',
   'hafiza:ihtimalsel-dil-devrimi',
   'hafiza:ilham-kartlari-sosyal-feed',
-  'hafiza:kesin-alinti-mimarisi',
   'hafiza:kisi-kartlari',
   'hafiza:kisilerim-kart-motoru',
   'hafiza:kod-kapisi-ve-posta',
