@@ -35,7 +35,7 @@
 
 import { S } from '../state.js';
 import { sb } from '../config.js';
-import { SafeStorage, EventBus, getActivityDays, zamanAgirligi } from './00a-infrastructure.js';
+import { SafeStorage, EventBus, getActivityDays, zamanAgirligi, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { p } from './16-i18n-prompts.js';
 import { kkComputeSignals, kkMatchCard, kkRenderCard3D, kkOpenDetail, kkBindTilt } from './10q-w2-kisi-karti.js';
@@ -47,7 +47,9 @@ import { dfGetBeliefStats } from './09b-depth-foundations.js';
 const num = (v, d = 0) => (typeof v === 'number' && isFinite(v) ? v : d);
 const clamp = (x, a = 0, b = 100) => Math.max(a, Math.min(b, x));
 const _rarLabel = (r) => r?.id ? t(`deck.rarity.${r.id}`, r.label) : ''; // K7 köprüsü (12b RARITIES)
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HALF_LIFE_MS = 7 * DAY_MS;     // erdem vektörü yarı ömrü — "şu an" ≈ son hafta

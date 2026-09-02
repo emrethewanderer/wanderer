@@ -788,9 +788,18 @@ export function seededRng(seed) {
 }
 
 /* ── 13. INPUT SANITIZATION ── */
+/* Tip güvenli olmak ZORUNDA: HTML'e giren değer her zaman string değildir —
+   sayaç, gün sayısı, seri, boolean, hatta bir nesne de gelir. Eski hâli iki
+   yerden kırıktı: `!str` guard'ı `0` ve `false`'u boş stringe çeviriyordu
+   (ekranda sayı yok oluyordu), ve string olmayan bir değerde `str.replace`
+   yok olduğu için TypeError ile ÇÖKÜYORDU. O kırılganlık yüzünden 20 modül
+   kendi `esc` ikizini yazmıştı — üstelik altısı tek tırnağı hiç kaçırmıyordu,
+   yani tek-tırnaklı attribute bağlamında açık bırakıyordu (denetim C1).
+   Tek kaynak artık o ikizlerin hepsini karşılar; ikizler buraya delege eder. */
 export function escapeHTML(str) {
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 /* ── 13b. HOOK REGISTRY — modüller arası before/after hook pattern ──

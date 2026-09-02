@@ -2,7 +2,7 @@
 // CACHE adı her deploy'da değişmelidir; build.sh bu satırı bundle hash'iyle
 // otomatik damgalar (const CACHE = 'etw-<bundlehash>'). Elle düzenlemeye gerek yok.
 // Stale-while-revalidate stratejisi: önce cache'ten ver, arkada güncelle.
-const CACHE = 'etw-CUyScgB6';
+const CACHE = 'etw-Dk8NGOU6';
 
 // HTML her zaman fresh: navigate isteklerinde network-first.
 const NAV_TIMEOUT_MS = 3000;

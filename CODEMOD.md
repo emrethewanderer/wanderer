@@ -1,124 +1,85 @@
-# innerHTML Codemod — Migrating to setHTML
+# XSS Yüzeyi — Ölçüm, Kapı ve Yol Haritası
 
-## Mevcut Durum (Faz 1.1 + Phase B)
-- Helper hazır: `js/parts/00c-html-safe.js` → `setHTML(el, html)`, `safeHTML(html)`, `safeMarkdownHTML(html)`, `setText(el, str)`
-- Window globals: `window.setHTML`, `window.safeHTML`, `window.setText`, `window.safeMarkdownHTML`
-- Audit script: `node scripts/audit-innerhtml.mjs`
+> **2026-09-02 · Bu belge baştan yazıldı.** Önceki hâli "165 innerHTML, 48
+> risky" ve "CI'da audit script çalışır + threshold check (şu an aktif)"
+> diyordu. Denetim ölçtü: gerçek sayılar 379/105'ti ve script **hiçbir yerde
+> koşmuyordu** — ne CI vardı, ne bir test onu çağırıyordu (bulgu B2/D2).
+> Belge, koda karşı doğrulanmadan gerçek sayılmaz.
 
-## Audit Snapshot
-- **Total:** 165 `.innerHTML =` çağrısı
-- **Safe** (static template, no user data): 94
-- **Escaped** (`escapeHTML` ile sanitize): 20
-- **Sanitized** (DOMPurify/sanitizeMarkdown): 3
-- **Risky** (manual review): 48
+## Katmanlar
 
-### Risky kategorisi yanıltıcı olabilir
-Audit script satır-bazlı context'e bakar; multi-line template literal'ların içindeki `escapeHTML` çağrılarını her zaman yakalamaz. Gerçek risky sayısı muhtemelen 10-15 civarı.
+| Katman | Dosya | Durum |
+|---|---|---|
+| Kaçış (tek kaynak) | `js/parts/00a-infrastructure.js` → `escapeHTML` | ✅ canlı, 600+ çağrı |
+| Sanitize | `js/parts/00c-html-safe.js` → `safeHTML`/`setHTML`/`safeMarkdownHTML`/`setText` | ⚠️ **sıfır tüketici** |
+| Ölçüm | `scripts/audit-innerhtml.mjs` | ✅ kapıya bağlı |
+| Kapı | `tests/xss-kapisi.test.js` | ✅ vitest içinde |
+| Taban | `scripts/xss-taban.json` | 950 kayıt |
 
-## Codemod Yol Haritası
+## `escapeHTML` — tek kaynak (2026-09-02)
 
-### 1. Auto-safe noktalar (94)
-**Yapılacak yok.** Statik string template — XSS riski yok.
+Eskiden merkezî helper tip-güvensizdi: `!str` guard'ı `0` ve `false`'u yutuyor,
+string olmayan bir değerde `str.replace is not a function` ile **çöküyordu**.
+Sonucu 22 modülün kendi `esc`/`_esc` ikizini yazması oldu — üstelik altısı
+tek tırnağı hiç kaçırmıyordu, yani tek-tırnaklı attribute bağlamında açık
+bırakıyordu. Helper tip-güvenli yapıldı; bütün ikizler ona delege ediyor.
 
-### 2. Escaped noktalar (20)
-**Opsiyonel:** `setHTML` ile geçirmek defense-in-depth sağlar ama mevcut `escapeHTML` zaten yeterli.
+Kapı: `tests/00a-infrastructure.test.js` içindeki "Tip güvenliği" bloğu —
+sayı, `0`/`false`, nesne, tek tırnak ve `null` vakaları. Bu vakalar düşerse
+ikizler geri gelir.
 
-```js
-// Önce
-el.innerHTML = `<div>${escapeHTML(userInput)}</div>`;
+**`10g-w2-wanderer-game.js`'teki `esc`** bir HTML kaçışı değil, regex
+kaçışıdır (`_libHlRegex`). Ona dokunulmadı; denetçi de `&amp;` üretmediği
+için onu ayırt eder.
 
-// Sonra (opsiyonel)
-setHTML(el, `<div>${escapeHTML(userInput)}</div>`);
-```
+## Ölçüm motoru — neyi sayar
 
-### 3. Sanitized noktalar (3)
-**Yapılacak yok.** Markdown LLM çıktısı zaten DOMPurify'dan geçiyor.
+Motor **satır değil ifade** tarar ve yalnız `innerHTML` atamalarını değil,
+**HTML üreten her template'i** kapsar. Gerekçe: bu repoda HTML çoğunlukla
+`innerHTML` satırında değil, HTML döndüren yardımcı fonksiyonlarda kurulur
+(`${_atlRing(1)}`, `${kkRenderCard3D(kart)}`). Eski motor `.innerHTML =`
+satırının ±2 satırlık penceresine bakıyordu; bu hem çok satırlı `map`
+bloklarındaki kaçışı göremiyor (temiz kodu "riskli" sayıyor), hem komşu
+satırdaki alakasız bir `escapeHTML` yüzünden gerçekten korumasız bir atamayı
+"kaçışlı" damgalıyordu — ikincisi tehlikeliydi.
 
-### 4. Risky noktalar (48)
-**Yapılacak:** Her birini incele, hangi kategoriye ait belirle.
+Bir interpolasyon **güvenli** sayılır:
 
-Tipik düzeltme pattern'leri:
+- `escapeHTML(...)` / `esc(...)` / `safeHTML(...)` ile sarılıysa
+- i18n getter'ıysa (`t(...)`, `p(...)`) — sözlük statiktir
+- salt literal, aritmetik ya da `UPPER_SNAKE` sabitse
+- fonksiyon çağrısıysa — **o fonksiyonun gövdesi ayrıca taranır**, bu yüzden
+  çağrı yerinde yapısal sayılır
+- elle yazılmış kaçış zinciri içeriyorsa (`.replace(/</g,'&lt;')`)
 
-```js
-// PATTERN A — user/DB content interpolation
-// ÖNCE: list.innerHTML = items.map(it => `<div>${it.title}</div>`).join('');
-// SONRA:
-list.innerHTML = items.map(it => `<div>${escapeHTML(it.title)}</div>`).join('');
+Aksi hâlde ham veri erişimidir ve tabana kaydedilir.
 
-// PATTERN B — LLM/external HTML
-// ÖNCE: el.innerHTML = aiResponseHtml;
-// SONRA:
-setHTML(el, aiResponseHtml); // safeHTML default config'i koruyor
+## Kapı nasıl çalışır
 
-// PATTERN C — static SVG / constant icon
-// ÖNCE: btn.innerHTML = ICONS.check;
-// SONRA: (değişiklik gereksiz — ICONS modul-local constant)
-```
+`scripts/xss-taban.json` bugünkü kayıtları dondurur. Denetçi listenin
+**büyümesini** yasaklar — listeden düşmek (kaçış eklemek) serbesttir ve
+`--taban-yaz` ile kayda geçer. Liste boşaldığında kapı kendiliğinden sert
+kapıya döner.
 
-## Yaygın Risky Noktalar (manual review listesi)
-
-Audit script çıktısından kategorize edilmiş başlıklar:
-
-### Yüksek öncelikli (user data interpolation):
-- `02-features-onboarding.js:57,338,601` — items/filtered/milestones map (yer yer escapeHTML var)
-- `06-summary-chat.js:240,616` — session summary list, message render
-- `07-settings-knowledge.js:281,568` — knowledge items, notes (escapeHTML kullanıyor — false positive)
-
-### Düşük öncelikli (DOM constant/icon):
-- `03-auth-shell.js:157` — `pso-icon` SVG string (PREMIUM_FEATURES constant)
-- `04-llm-hero-history.js:221,229` — `_heroHTML()` çıktısı (modül-local üretim)
-
-## Komutlar
 ```bash
-node scripts/audit-innerhtml.mjs   # full audit
+node scripts/audit-innerhtml.mjs             # denetle (ihlalde exit 1)
+node scripts/audit-innerhtml.mjs --liste     # tüm kayıtları dök
+node scripts/audit-innerhtml.mjs --taban-yaz # tabanı bugüne çek
 ```
 
-## Kabul Kriterleri
-- `risky` sayısı < 10
-- Hiçbir kullanıcı/LLM content noktası unprotected değil
-- CI'da audit script çalışır + threshold check (`exit 1` if risky > 30 — şu an aktif)
+Bilinçli istisna, satıra ya da hemen üstündeki yoruma yazılır:
+`/* XSS-MUAF: gerekçe */`. Gerekçesiz muafiyet de ihlaldir.
 
----
+## Bekleyen iş — `safeHTML` katmanı
 
-# EMEKLİLİK — Geçiş Alanı (10j) + Arketip View (12a) → Olmak İstediğin Kişi (10D)
+`00c-html-safe.js` yazılmış, `main.js` import edip window'a açmış, ama
+**hiçbir modül kullanmıyor**. 2026-09-02'de katmanın kendisi onarıldı:
+`ALLOWED_URI_REGEXP` override'ı `ADD_URI_SAFE_ATTR` olmadan URI **olmayan**
+değerlere de uygulanıyordu, bu yüzden `target`, `tabindex` ve tüm `data-*`
+allowlist'te olmalarına rağmen sessizce siliniyordu — ve `target="_blank" →
+rel="noopener"` hook'u hiç çalışmıyordu. Katman artık doğru davranır ve
+`tests/00c-html-safe-gercek.test.js` bunu gerçek DOMPurify ile sınar.
 
-**Tarih:** 2026-07-03. **Neden:** "Olmak İstediğin Kişi" ekranı sil-baştan yeniden
-tasarlandı. Eski iki yüzey (statik 12 arketip destesi + Geçiş Alanı) tek bir kaynağa
-birleşti: kullanıcının kendi tasarladığı hedef kimlik (Yeni Bir Kişiye Geçiş Yapısı) +
-Geçiş Protokolü ritüeli. Modül: `js/parts/10D-olmak-istedigin.js` (önek `oik`, tablo
-`oik_kartlari` mig 029). Bkz plan: `.claude/plans/cosmic-prancing-spring.md`.
-
-## Silinenler (geri getirmek için: bu commit öncesi git ref)
-- **`js/parts/10j-w2-gecis-alani.js`** — TAM DOSYA silindi. İçeriği 10D'ye taşındı
-  (okuma ritüeli, ses kaydı, kristal eşikleri, `oikCompleteReading` = eski
-  `gaCompleteReading` ikizi). `etw_gecis_alani_v1_{uid}` KV'si kullanıcı diskinde
-  KALIR — `oikInit` bir kez ondan göç eder (idempotent, `migratedFromGecis`).
-- **`css/parts/gecis-alani.css`** — silindi (kurallar `oik-` önekiyle `oik.css`'e).
-- **`_src.html`** — `#gecis-view` (hub + editör + okuma bölümleri) ve `#arketip-view`
-  blokları çıkarıldı. Giriş butonları (`w2-profile-action`, `ws-drawer-identity`)
-  `switchView('oik')`.
-- **`js/parts/12a-archetypes.js`** — `loadArketipView` (route yüzeyi) SİLİNDİ.
-  Zincirindeki yardımcılar (`wsArchCard`/`wsArchTraitsHTML`/`_openTraitPopup`/
-  `_getStreak`/`_getUserAdds`/`TRAIT_FIELDS`/`TRAIT_SCALE`) artık çağrılmıyor —
-  ölü kod olarak bırakıldı (birbirine bağlı küme; ayrı temizlik turunda sökülebilir).
-  **KORUNAN (canlı importlar):** `ARKETIPLER_DATA`, `getArchetypeById`,
-  `getAllArchetypeData`, `getSuggestedArchetype`, `initArchetypes`, `_getDeck`,
-  `wsArchFigure`, `wsArchFigureBody`, `EMRE_ONERI`, `_saveArchetypeProgress`.
-- **i18n `ga.*`** (72 anahtar × TR+EN) — silindi; okuma/kristal metinleri `oik.*`'e
-  devşirildi (parite 2625=2625).
-
-## Route köprüsü (kalıcı — eski derin-linkler kırılmasın)
-`switchView('arketip')` ve `switchView('gecis')` → `'oik'` (03-auth-shell `switchView`
-başı). PWA shortcut `?view=arketip` da alias'lanır.
-
-## Tek kaynak (tüm tüketiciler 10D'den beslenir)
-`window.oikGetDesired()` / `oikGetContext()` / `oikGetStats()` / `oikGetCard()` /
-`oikSeedDraft()`. Geriye uyum: `S._personTransition.desired.description` +
-`S._affirmation` "ayna" olarak yazılmaya devam eder (`_syncLegacyMirror`).
-Geçiş dönemi guard'ları: 13l sayaçları ve 10u `_gecisDone` hem `S._oik` hem eski
-`S._gecisAlani`'yi `max`/`OR` ile onurlandırır (hiçbir okuma kaybolmaz).
-
-## ELLE ADIMLAR (Emre)
-1. `migrations/000_wanderer_schema.sql` → Supabase SQL editöründe uygula.
-2. `reset-user` + `delete-user` edge fn'leri (`oik_kartlari` eklendi) → yeniden deploy.
-3. (Ops.) Admin "Emre'nin Sesi" → `prompt.oik.design` yönlendirmesini gözden geçir.
+Bağlanacağı gün seçim şudur: LLM/markdown çıktısı `safeMarkdownHTML`'den,
+kullanıcı verisi `escapeHTML`'den geçer. `setHTML`, HTML'i **kendi üretmediğin**
+yerler içindir — kendi template'ini sanitize etmek gereksiz maliyettir.

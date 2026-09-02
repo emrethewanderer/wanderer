@@ -1,7 +1,7 @@
 {
   "name": "Emre the Wanderer",
   "short_name": "Wanderer",
-  "description": "Psikolojik dönüşüm koçluğu sistemi. Kaçmayı bırak.",
+  "description": "Emre ile psikolojik dönüşüm sistemi. Kaçmayı bırak.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",

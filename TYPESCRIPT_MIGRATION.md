@@ -1,40 +1,57 @@
-# TypeScript Migration Roadmap
+# TypeScript Yol Haritası
 
-## Mevcut Durum (Faz 3.2)
-- `tsconfig.json`: `allowJs:true`, `checkJs:false` (lenient — IntelliSense aktif, hata raporu yok)
-- `tsconfig.strict.json`: `checkJs:true` (446 hata; bunlar known baseline)
-- `npm run typecheck` → exit 0 (CI passes)
-- `npm run typecheck:strict` → tam tip raporu (`|| true` ile CI failure önlenir)
-- `types/wanderer.d.ts` → window global ambient declarations
+> **2026-09-02 · sayılar ölçülerek güncellendi.** Önceki hâli "446 hata" ve
+> "TS2304 = 100 gerçek bug" diyordu. Gerçek: **3.758 hata**, ve TS2304
+> (`Cannot find name`) **sıfır** — o iş bir noktada bitmiş, belge
+> güncellenmemişti (denetim D2).
 
-## checkJs:true Hata Dağılımı (baseline)
-| Kod | Sayı | Açıklama |
+## Bugünkü durum
+
+| | |
+|---|---|
+| `tsconfig.json` | `allowJs:true`, **`checkJs:false`** — IntelliSense açık, hata raporu yok |
+| `tsconfig.strict.json` | `checkJs:true` → 3.758 hata (bilinen taban) |
+| `npm run typecheck` | exit 0 — CI'da koşar (`.github/workflows/kapi.yml`) |
+| `npm run typecheck:strict` | tam rapor, `\|\| true` ile maskeli |
+| `types/wanderer.d.ts` · `types/globals.d.ts` | window global bildirimleri |
+
+### Dürüst uyarı: bu kapı bugün boş koşuyor
+
+`checkJs:false` olduğu için `npm run typecheck` 85 bin satır JS'e **hiç
+bakmaz** — repo'da 2 `.d.ts` dışında TypeScript dosyası yoktur, yani komut
+her hâlükârda exit 0 verir. CI adımı olarak durması ücretsizdir ve
+`checkJs` açıldığı gün kendiliğinden sertleşir; ama bugün bir kapı değil,
+bir yer tutucudur. Bunu bilerek taşıyoruz.
+
+## `checkJs:true` hata dağılımı (ölçüm: 2026-09-02)
+
+| Kod | Sayı | Ne demek |
 |---|---|---|
-| TS2339 | 242 | `Property 'style' does not exist on type 'Element'` — `querySelector` HTMLElement değil Element döndürür. Çözüm: `as HTMLElement` cast veya `getElementById`. |
-| TS2304 | 100 | `Cannot find name 'X'` — **GERÇEK BUG'lar**: eksik import'lar. |
-| TS2322 | 28 | Type mismatch — değer ataması uyumsuz. |
-| TS2363/2362 | 46 | Math operations on non-number — `parseInt|String` cast eksik. |
-| Diğer | 30 | |
+| TS2339 | 3.421 | `Property 'style' does not exist on type 'Element'` — `querySelector` `Element` döndürür, `HTMLElement` değil. Çözüm: `as HTMLElement` ya da bir `qs<T>()` yardımcısı. |
+| TS2551 | 50 | Yakın ad önerisiyle bulunamayan özellik. |
+| TS2322 | 50 | Tip uyuşmazlığı. |
+| TS2362/2363 | 85 | Sayı olmayan değerle aritmetik — `Number(...)` eksik. |
+| TS2698 | 37 | Spread edilen değerin tipi belirsiz. |
+| Diğer | ~115 | |
+| **TS2304** | **0** | Eskiden 100 idi ("eksik import" = gerçek bug). **Bitti.** |
+| **TS1127** | **0** | JSDoc'ta `@param {T} [ad] — açıklama` biçimindeki em-dash çözümleyiciyi kırıyordu; 2026-09-02'de üç satırda ayırıcı `-` yapıldı (denetim E4). |
 
-## Gerçek Bug'lar (TS2304 — Cannot find name)
-ESM'de import edilmemiş semboller. Vite IIFE bundle'da aynı scope sayesinde runtime'da çalışıyor ama strict ESM uyumsuz:
-- `SecureStorage` (11) — bazı modüllerde import eksik
-- `getAllMessages` (9)
-- `COACH_IMG` (8) — config.js'ten import edilmeli (zaten 10b'de düzeltildi)
-- `getSessionLastActivity` (7)
-- `p` (6) — i18n prompts import eksik
-- `_currentLang` (4) — `S._currentLang` olmalı (10b'de düzeltildi)
-- `w2ExtractToneFromSummary`, `openDailyClosure`, `applySessionPartDots`, `_activeHomework`, `WHATSAPP_COMMUNITY_URL` …
+TS2339'un baskınlığı bir kalite sorunu değil, bir **tipleme boşluğu**dur:
+DOM sorgularının dönüş tipi daraltılmadan kullanılıyor. Tek bir yardımcı
+bu sayının çoğunu eritir.
 
-## Sıradaki Adımlar (öncelik sırası)
-1. **TS2304 hatalarını gerçek import'larla çöz** — bu gerçek bug'lar, runtime'da gizli hatalara yol açabilir.
-2. **state.js'i tiplemek** — `S` object için interface tanımı (Faz 2.3 split sonrası).
-3. **`querySelector` cast'leri** — utility fonksiyonu: `qs<T extends HTMLElement>(sel: string): T | null`.
-4. **Yeni dosyaları `.ts` olarak yaz** — gradüel migration.
-5. **`checkJs:true`'yu varsayılan yap** — TS2304 = 0 ve TS2339 < 50 olduğunda.
+## Sıradaki adımlar (öncelik sırası)
 
-## Komutlar
+1. **`qs<T extends HTMLElement>(sel): T | null` yardımcısı** — TS2339'un
+   büyük kısmını tek noktadan kapatır.
+2. **`S` (merkezî state) için arayüz** — `js/state/` bölünmesi bitti, tipleme
+   artık dosya başına yapılabilir.
+3. **Aritmetik dönüşümleri** (TS2362/2363) — 85 nokta, mekanik.
+4. **Yeni dosyaları `.ts` yaz** — kademeli göç.
+5. **`checkJs:true`'yu varsayılan yap** — ölçü: TS2339 < 50. O gün
+   `npm run typecheck` gerçek bir kapıya döner.
+
 ```bash
-npm run typecheck          # CI uyumlu (lenient)
-npm run typecheck:strict   # tam rapor (development)
+npm run typecheck          # CI uyumlu (bugün boş koşar — yukarı bkz.)
+npm run typecheck:strict   # tam rapor
 ```

@@ -47,14 +47,17 @@ mv "$TMP/_src.html" "$TMP/index.html"
 
 # IIFE format: type="module" ve crossorigin attribute'larını strip et.
 # Bu olmazsa file:// protokolünde ESM yükleme CORS ile reddedilir, app boot olmaz.
-sed -i '' 's/<script type="module" crossorigin/<script/' "$TMP/index.html"
+# NOT: `-i ''` yerine `-i.bak` — BSD (macOS) sed boş uzantıyı ayrı argüman
+# olarak ister, GNU sed ise onu DOSYA ADI sanıp exit 2 ile ölür (denetim A1).
+# `-i.bak` her ikisinde de yedek üretir; yedeği hemen siliyoruz.
+sed -i.bak 's/<script type="module" crossorigin/<script/' "$TMP/index.html" && rm -f "$TMP/index.html.bak"
 
 # Aynı gerekçe stylesheet için: cssCodeSplit:false ile CSS artık ayrı asset
 # (assets/style-<hash>.css) ve vite link'e crossorigin basıyor. file://'da
 # crossorigin'li stylesheet CORS'a takılıp STİLSİZ ekran bırakır — native
 # kabuk (Capacitor webDir=dist) tam bu yolda çalışır. Google Fonts link'i
 # farklı biçimde (href önce, rel sonra) olduğundan bu desen ona dokunmaz.
-sed -i '' 's/<link rel="stylesheet" crossorigin href=/<link rel="stylesheet" href=/' "$TMP/index.html"
+sed -i.bak 's/<link rel="stylesheet" crossorigin href=/<link rel="stylesheet" href=/' "$TMP/index.html" && rm -f "$TMP/index.html.bak"
 
 # Sessiz başarısızlık kapısı: yukarıdaki iki sed desene bağlıdır — vite çıktı
 # biçimini değiştirirse ikisi de sessizce BOŞA düşer, build yeşil görünür ve
@@ -80,7 +83,19 @@ sed 's#<title>[^<]*</title>#<title>Wanderer Studio · Yönetim</title>#' "$TMP/i
 if [ -f sw.js ]; then
   bundle_hash="$(grep -oE 'assets/_src-[A-Za-z0-9_-]+\.js' "$TMP/index.html" | head -1 | sed -E 's#.*_src-([A-Za-z0-9_-]+)\.js#\1#')"
   if [ -n "$bundle_hash" ]; then
-    sed -i '' -E "s/const CACHE = '[^']*';/const CACHE = 'etw-${bundle_hash}';/" sw.js
+    sed -i.bak -E "s/const CACHE = '[^']*';/const CACHE = 'etw-${bundle_hash}';/" sw.js && rm -f sw.js.bak
+    # Sessiz başarısızlık kapısı — index.html'deki kardeşinin (yukarısı) SW
+    # tarafındaki eşi. sed hiçbir şey değiştirmezse de 0 döner: `const CACHE`
+    # satırının biçimi bir gün değişirse (örn. boşluksuz `const CACHE='x';`)
+    # damga sessizce boşa düşer, build YEŞİL görünür ama Service Worker eski
+    # hash'te kalır — kullanıcı yeni bundle'ı almaz. Damganın gerçekten
+    # oturduğunu doğrulamak bu yüzden kapıdır, tören değil.
+    if ! grep -q "const CACHE = 'etw-${bundle_hash}';" sw.js; then
+      echo "✗ sw.js damgası oturmadı — 'const CACHE' satırının biçimi sed desenine uymuyor."
+      echo "  beklenen: const CACHE = 'etw-${bundle_hash}';"
+      echo "  bulunan : $(grep -n "^const CACHE" sw.js | head -1)"
+      exit 1
+    fi
   fi
 fi
 
@@ -160,3 +175,19 @@ for f in dist/assets/style-*.css; do
   [ -e "$f" ] || continue
   echo "  stylesheet $(basename "$f"): $(( $(gzip -c "$f" | wc -c) / 1024 ))KB gzip (bütçe dışı)"
 done
+
+# ---- NATİF KABUK SENKRONU ----
+# Denetim D1: android/ ve ios/ altındaki web varlıkları dist'ten 283 KB ve bir
+# bundle hash geride kalmıştı — `cap copy` elle koşulan bir adımdı ve bir gün
+# koşulmamıştı. Kopyalar repo'da commit'li olduğu için fark sessizce taşınıyor,
+# mağazaya giden uygulama web'den geri kalıyordu. Build artık kendi senkronunu
+# yapar: türetilmiş çıktı elle senkronlanmaz.
+# Kabuk yoksa (yalnız web dağıtımı) adım sessizce atlanır.
+if [ -d android ] || [ -d ios ]; then
+  if npx --no-install cap copy >/dev/null 2>&1; then
+    echo "  natif kabuklar senkronlandı (cap copy)"
+  else
+    echo "  ⚠ cap copy koşturulamadı — natif kabuklar dist'ten geride kalmış olabilir."
+    echo "    Elle: npx cap copy   (kapı: tests/native-senkron-kapisi.test.js)"
+  fi
+fi

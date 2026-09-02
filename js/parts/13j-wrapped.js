@@ -22,7 +22,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, getActivityDays } from './00a-infrastructure.js';
+import { SafeStorage, getActivityDays, escapeHTML } from './00a-infrastructure.js';
 import { computeButunluk } from './10p-w2-meclis.js';
 import { t } from './15-i18n.js';
 
@@ -39,8 +39,9 @@ function _smName(day) {
 // Dil-güvenli yüzde: TR '%50' / EN '50%'
 const _pct = (n) => (S._currentLang === 'tr') ? `%${n}` : `${n}%`;
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 function _userName() {
   const u = S.currentUser;

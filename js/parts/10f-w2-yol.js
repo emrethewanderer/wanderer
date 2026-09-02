@@ -33,13 +33,14 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { getActivityDays, localDayKey, localISODate } from './00a-infrastructure.js';
+import { getActivityDays, localDayKey, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { ikvCardFace, ikvMilestoneScene, ikvEnsureStyles } from './12c-kart-gorsel.js';
 import { getCardById } from './12b-kart-destesi.js';
 import { t } from './15-i18n.js';
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* Dile duyarlı locale (toLocaleX için) */
 const _locale = () => (S._currentLang === 'tr' ? 'tr-TR' : 'en-US');

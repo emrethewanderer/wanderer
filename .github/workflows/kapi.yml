@@ -1,0 +1,65 @@
+# Wanderer AI — KAPI
+#
+# 2026-09-02'ye kadar bu repoda hiçbir otomatik tetikleyici yoktu (denetim B1):
+# 3.608 test, altı denetçi ve build zinciri yazılıydı ama hepsinin tetiği tek
+# bir yerdeydi — geliştiricinin elle yazdığı `npx vitest run`. Kapısı olmayan
+# kural zamanla tavsiyeye döner; tetikleyicisi olmayan kapı da öyle.
+#
+# Bu workflow o boşluğu kapatır. Sıra bilinçlidir: önce ucuz ve hızlı olan
+# (build), sonra pahalı olan (tam süit) — kırık bir build'de 2.800 test
+# koşturmak kimseye bilgi vermez.
+
+name: Kapı
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # Aynı dalda arka arkaya push'lar birikmesin; yalnız sonuncusu koşsun.
+  group: kapi-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kapi:
+    name: build · süit · denetçiler
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Build
+        # build.sh 2026-09-02'ye kadar Linux'ta hiç koşmamıştı: üç `sed -i ''`
+        # çağrısı BSD sözdizimindeydi ve GNU sed onları exit 2 ile öldürüyordu
+        # (denetim A1). Bu adım o kırığın geri gelmesini imkânsız kılar.
+        run: ./build.sh
+
+      - name: Tip kontrolü
+        # NOT: tsconfig.json `checkJs:false` taşır, yani bu adım bugün yalnız
+        # .d.ts dosyalarını görür (denetim B3). Kapı olarak zayıftır ama
+        # ücretsizdir; checkJs açıldığı gün burası kendiliğinden sertleşir.
+        run: npm run typecheck
+
+      - name: Tam süit
+        # 153 dosya / 3.600+ test. Denetçi kapıları (gerçeklik, tasarım,
+        # bağsız-ad, yetim-köprü, eksen, ihtimalsel, XSS, bundle) bu süitin
+        # İÇİNDE koşar — ayrı adım gerekmez, hepsi tests/*-kapisi.test.js.
+        run: npx vitest run
+
+      - name: Bağımlılık açıkları
+        # Üretim bağımlılıkları temiz olmalı. Bu adım kırmızıya dönerse
+        # bir üçüncü taraf paketinde yeni bir danışma yayınlanmış demektir —
+        # susturulacak bir gürültü değil, bakılacak bir haber.
+        run: npm audit --omit=dev --audit-level=high

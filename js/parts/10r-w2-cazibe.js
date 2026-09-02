@@ -27,7 +27,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, stableHash, seededRng, localISODate } from './00a-infrastructure.js';
+import { SafeStorage, stableHash, seededRng, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { kokenKayitVar } from './13y-koken.js';
 import { awardElmas, getElmasSayisi } from './10g-w2-wanderer-game.js';
 import { t } from './15-i18n.js';
@@ -37,8 +37,9 @@ const STORAGE_KEY = 'etw_cazibe_v1';
 /* Dile duyarlı locale (toLocaleX için) */
 const _locale = () => (S._currentLang === 'tr' ? 'tr-TR' : 'en-US');
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ── Günün anahtarı (yerel) + deterministik tohum (aynı gün = aynı sonuç) ──
    Anahtar 00a'nın `localISODate`'idir; yerel ad çağrı yerlerinin okunurluğu

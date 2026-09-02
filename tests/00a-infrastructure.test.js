@@ -346,6 +346,37 @@ describe('escapeHTML', () => {
     expect(() => escapeHTML(null)).not.toThrow();
     expect(() => escapeHTML(undefined)).not.toThrow();
   });
+
+  // ─── Tip güvenliği (denetim C1) ─────────────────────────────────────────
+  // Bu blok, 22 modülün kendi `esc` ikizini yazmasına yol açan kırığın
+  // bekçisidir. Eski hâl sayıda ÇÖKÜYOR, 0 ve false'u yutuyordu; ikizler
+  // tam da bu yüzden vardı. Tek kaynak onları karşılayamazsa ikizler geri
+  // gelir — o yüzden bu vakalar kapıdır, tören değil.
+  it('sayıyı çökmeden kaçırır — eski hâli TypeError atıyordu', () => {
+    expect(() => escapeHTML(123)).not.toThrow();
+    expect(escapeHTML(123)).toBe('123');
+  });
+
+  it('0 ve false yok olmaz — falsy ama boş değiller', () => {
+    expect(escapeHTML(0)).toBe('0');
+    expect(escapeHTML(false)).toBe('false');
+  });
+
+  it('nesne ve dizi de çökmez', () => {
+    expect(() => escapeHTML({ a: 1 })).not.toThrow();
+    expect(escapeHTML([1, 2])).toBe('1,2');
+  });
+
+  it('tek tırnağı da kaçırır — tek-tırnaklı attribute bağlamı', () => {
+    // Altı ikiz bunu yapmıyordu: title='...' içinde çıkış mümkündü.
+    expect(escapeHTML("' onmouseover='alert(1)"))
+      .toBe('&#39; onmouseover=&#39;alert(1)');
+  });
+
+  it('null ve undefined boş string döner', () => {
+    expect(escapeHTML(null)).toBe('');
+    expect(escapeHTML(undefined)).toBe('');
+  });
 });
 
 // ─── STORAGE_KEYS ─────────────────────────────────────────────────────────────

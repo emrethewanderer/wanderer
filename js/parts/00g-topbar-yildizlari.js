@@ -65,7 +65,7 @@ function _katman() {
 /**
  * Yıldız katmanı olmayan her `.ws-topbar`'a onu serper.
  * Tekrar çağrılabilir (idempotent): katmanı olan bar atlanır.
- * @param {ParentNode} [kok=document] — taranacak kök
+ * @param {ParentNode} [kok=document] - taranacak kök
  * @returns {number} yeni katman takılan bar sayısı
  */
 export function wsTopbarStars(kok) {

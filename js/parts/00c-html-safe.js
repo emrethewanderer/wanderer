@@ -17,12 +17,25 @@ const DEFAULT_CONFIG = Object.freeze({
     'href','target','rel','class','style','src','alt','title',
     'aria-label','aria-hidden','aria-live','aria-atomic','role',
     'data-id','data-key','data-type','data-mode','data-state','data-day','data-month','data-year',
-    'id','tabindex','onclick','onkeydown',
+    'id','tabindex',
     // SVG
     'viewBox','d','width','height','cx','cy','r','x','y','x1','y1','x2','y2',
     'fill','stroke','stroke-width','transform','opacity','offset','stop-color','gradientUnits'
   ],
   ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|tel:|#|\/|data:image\/)/i,
+  /* ADD_URI_SAFE_ATTR olmadan bu regex URI OLMAYAN değerlere de uygulanır:
+     DOMPurify, URI_SAFE_ATTRIBUTES listesinde bulunmayan HER attribute'ın
+     değerini bu desene sokar. Sonuç ölçüldü — `target="_blank"`, `tabindex="0"`
+     ve tüm `data-*` değerleri desene uymadığı için SESSİZCE siliniyordu; yani
+     aşağıdaki `target` hook'u hiçbir zaman çalışamıyordu. Bunlar URI değildir,
+     URI süzgecinden muaf tutulurlar. */
+  ADD_URI_SAFE_ATTR: [
+    'target','tabindex','rel',
+    'data-id','data-key','data-type','data-mode','data-state','data-day','data-month','data-year',
+    'aria-label','aria-hidden','aria-live','aria-atomic',
+    'viewBox','d','cx','cy','r','x','y','x1','y1','x2','y2',
+    'fill','stroke','stroke-width','transform','opacity','offset','stop-color','gradientUnits'
+  ],
   FORBID_TAGS: ['script','iframe','object','embed','form','input','textarea','select'],
   FORBID_ATTR: [
     'onerror','onload','onmouseover','onmouseout','onfocus','onblur','onsubmit','onreset','oninput','onchange'
@@ -30,8 +43,14 @@ const DEFAULT_CONFIG = Object.freeze({
   ADD_ATTR: ['target']
 });
 
-// onclick'i tamamen yasaklamıyoruz çünkü HTML template'leri yaygın olarak onclick="fnName()" kullanıyor.
-// Ancak target="_blank" otomatik rel="noopener" eklensin.
+/* Olay işleyicileri (onclick/onkeydown) allowlist'te DEĞİLDİR. Eskiden
+   listedeydiler ve yorum "template'ler onclick kullanıyor, yasaklamıyoruz"
+   diyordu — oysa ölçüldüğünde onclick zaten ALLOWED_URI_REGEXP'e takılıp
+   siliniyordu (yukarı bkz.). Yani liste yanlış bir güven veriyordu: sanitize
+   edilmiş HTML'de olay işleyicisi hiçbir zaman hayatta kalmıyordu. Doğru olan
+   da budur — bu katmandan geçen HTML dinamik içeriktir; davranış, DOM'da
+   addEventListener ile bağlanır, string'e gömülmez.
+   target="_blank" ise artık gerçekten hayatta kalır, bu yüzden rel eklenir. */
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.tagName === 'A' && node.getAttribute('target') === '_blank') {
     node.setAttribute('rel', 'noopener noreferrer');

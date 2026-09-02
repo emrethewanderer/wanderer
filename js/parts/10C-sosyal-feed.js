@@ -35,16 +35,14 @@
 
 import { S }                       from '../state.js';
 import { sb }                      from '../config.js';
-import { showToast }               from './00a-infrastructure.js';
+import { showToast, escapeHTML }               from './00a-infrastructure.js';
 import { t }                       from './15-i18n.js';
 
 const PAGE_SIZE = 24;
 
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ── 12c motoruyla paylaşım kartı yüzü ─────────────────────────
    snapshot şeması: {baslik, whisper, glyph, virtue, dusunceler...} */

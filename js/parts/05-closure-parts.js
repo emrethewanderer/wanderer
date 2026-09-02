@@ -106,9 +106,9 @@ export function updateClosureChip() {
 }
 
 /**
- * @param {boolean} [force]     — saat penceresini (21:00) atla. Akşam Kapanış
+ * @param {boolean} [force]     - saat penceresini (21:00) atla. Akşam Kapanış
  *   Töreni (13h) zaten 20:00 kapısını geçtiği için oradan force=true gelir.
- * @param {number}  [startStep] — açılış adımı (varsayılan 0=onay). Tören
+ * @param {number}  [startStep] - açılış adımı (varsayılan 0=onay). Tören
  *   köprüsü onayı atlayıp doğrudan Ruh adımına (1) iner.
  */
 export function openDailyClosure(force, startStep) {

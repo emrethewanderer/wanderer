@@ -27,7 +27,7 @@
 
 import { S } from '../state.js';
 import { sb, EMRE_IMG } from '../config.js';
-import { SafeStorage, showToast, recordActivityDay, localISODate } from './00a-infrastructure.js';
+import { SafeStorage, showToast, recordActivityDay, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { dfGetActiveFoundationTarget } from './09b-depth-foundations.js';
 
@@ -160,8 +160,8 @@ export function computeTransitionScore() {
    (Vasıta uyarısı prompt katmanında — 09b/16b — ayrıca korunur.)
 ══════════════════════════════════════════════════════════════ */
 
-const _libEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c =>
-  ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a) — bu modülün kendi ikizi vardı. */
+const _libEsc = escapeHTML;
 
 /* ── A) DUYURU ALT-SAYFASI — Emre'nin manuel mesajı, alttan kayan sayfa ──
    Eski inline bandlar (#announce-banner / #llm-announce) emekli; duyuru artık

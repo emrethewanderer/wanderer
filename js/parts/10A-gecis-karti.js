@@ -91,7 +91,7 @@
 
 import { S } from '../state.js';
 import { SUMMARY_MODEL, sb } from '../config.js';
-import { SafeStorage, showToast, recordActivityDay } from './00a-infrastructure.js';
+import { SafeStorage, showToast, recordActivityDay, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { p } from './16-i18n-prompts.js';
 import { callLLM } from './04-llm-hero-history.js';
@@ -125,11 +125,9 @@ const _gkOldKeys = () => _OLD_STORAGE_KEYS.map(k => `${k}_${S.currentUser?.id ||
 const NOW = () => new Date().toISOString();
 const NEWID = () => 'gk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ══════════════════════════════════════════════════════════════
    KALICILIK — çift yazım: KV ayna (hep) + gecis_kartlarim satırı (kirli olan)

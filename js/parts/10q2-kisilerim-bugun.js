@@ -35,6 +35,7 @@
 ═══════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
+import { escapeHTML } from './00a-infrastructure.js';
 import { getCardById } from './12b-kart-destesi.js';
 import { ikvCardFace, ikvCardBack, ikvEnsureStyles } from './12c-kart-gorsel.js';
 import { t } from './15-i18n.js';
@@ -50,11 +51,9 @@ const KINDS = ['altin', 'lapis'];
 const _idx = { altin: 0, lapis: 0 };
 const _lastLen = { altin: -1, lapis: -1 };
 
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ─── 2. DESTE KAYNAKLARI ─── */
 

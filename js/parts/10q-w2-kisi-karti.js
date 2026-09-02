@@ -15,7 +15,7 @@
 
 import { S } from '../state.js';
 import { sb } from '../config.js';
-import { showToast, localISODate } from './00a-infrastructure.js';
+import { showToast, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { switchViewHooks } from './03-auth-shell.js';
 import { getFullDeck, getCardById, getCardsByCategory, getDeckStats, RARITIES, CATEGORIES } from './12b-kart-destesi.js';
 import { EMRE_ONERI, _saveArchetypeProgress } from './12a-archetypes.js';   // wsArchFigure nudge'la birlikte emekli oldu
@@ -51,7 +51,9 @@ const num = (v, d = 0) => (typeof v === 'number' && isFinite(v) ? v : d);
    hazirlik = 0; kkMatchCard üç kapının EN ZAYIF halkasını alır, kanıt ve
    eylem kapıları sıfırdadır. 50 bir sayıya değil boş bir eksene karşılıktır. */
 const sc = (o) => (o && typeof o.score === 'number' ? o.score : 50);
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 function haptic(ms) {
   // His Motoru (13e) varsa native haptiğe yönlendir (iOS dahil); yoksa eski web titreşimi
   try {

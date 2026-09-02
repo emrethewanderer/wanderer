@@ -19,14 +19,15 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage } from './00a-infrastructure.js';
+import { SafeStorage, escapeHTML } from './00a-infrastructure.js';
 import { computeButunluk } from './10p-w2-meclis.js';
 import { t } from './15-i18n.js';
 
 const STORAGE_KEY = 'etw_meclis_toplanti_v1';
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 // Dil-güvenli yüzde: TR '%50' / EN '50%'
 const _pct = (n) => (S._currentLang === 'tr') ? `%${n}` : `${n}%`;
 

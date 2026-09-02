@@ -17,13 +17,14 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, showToast, localISODate } from './00a-infrastructure.js';
+import { SafeStorage, showToast, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 
 const MR_KEY = 'etw_manifesto_reader_v1';
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 function mrDayKey() {
   return localISODate();

@@ -25,6 +25,7 @@
 ═══════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
+import { escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 
 /* ─── 1. SABİTLER ─── */
@@ -240,8 +241,9 @@ function _davetMetni(kind) {
 
 /* ─── 9. ÇİZİM ─── */
 
-const _esc = (x) => String(x == null ? '' : x)
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı ve
+   tek tırnağı hiç kaçırmıyordu — tek-tırnaklı attribute'ta açık bırakırdı. */
+const _esc = escapeHTML;
 
 function _katHTML(entry, kind, i, toplam) {
   const coz = karGirdiCoz(entry, kind);

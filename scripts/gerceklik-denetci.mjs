@@ -184,7 +184,8 @@ function jsDosyalari(dir) {
   try { girisler = readdirSync(tam); } catch (_) { return out; }
   for (const ad of girisler) {
     const p = join(tam, ad);
-    if (statSync(p).isDirectory()) { out.push(...jsDosyalari(join(dir, ad))); continue; }
+    let st; try { st = statSync(p); } catch (_) { continue; }   // tarama yarışı (bkz. aşağı)
+    if (st.isDirectory()) { out.push(...jsDosyalari(join(dir, ad))); continue; }
     if (ad.endsWith('.js')) out.push(p);
   }
   return out;
@@ -192,7 +193,11 @@ function jsDosyalari(dir) {
 
 function denetle(dosyaYolu) {
   const rel = relative(ROOT, dosyaYolu);
-  const icerik = readFileSync(dosyaYolu, 'utf8');
+// Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
+// paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
+// yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  let icerik;
+  try { icerik = readFileSync(dosyaYolu, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return []; throw e; }
   const satirlar = icerik.split('\n');
   const stateDosyasi = rel.includes('js/state/') || /(^|\/)state[/\\]/.test(rel);
   const baslik = satirlar.slice(0, 40).join('\n');
