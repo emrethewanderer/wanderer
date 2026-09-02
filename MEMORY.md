@@ -36,3 +36,11 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   galerisinde yaşar, ne diskte ne repoda; kaybolmuş görünmelerinin sebebi
   iki odanın numarasız adla yayımlanmış olmasıydı — adres tablosu
   `.claude/artifacts.md`
+
+## Motorlar ve tuzaklar
+- [[boot-nabzi]] — boot'un darboğazı bundle boyutu DEĞİL sıralı ağ turlarıdır
+  (kayıtlı zincir 1331→905 ms); `iife`+`inlineDynamicImports` yüzünden dinamik
+  import byte kazandırmaz, ağ turu kazandırır. Motor `js/parts/00h-boot-nabzi.js`
+  (saf yaprak, idempotent DEĞİL, asla bloklamaz), paralellik sözleşmesi
+  `tests/boot-nabzi.test.js` ile kilitli. **Koddan yeniden keşifle yazıldı** —
+  özgün dosya repoya hiç girmemişti, ham ölçüm oturumu kayıp
