@@ -193,9 +193,9 @@ function jsDosyalari(dir) {
 
 function denetle(dosyaYolu) {
   const rel = relative(ROOT, dosyaYolu);
-// Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
-// paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
-// yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+// Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (editör,
+// git checkout, paralel bir araç). Var olmayan dosya repo'nun kalıcı
+// parçası değildir — sessizce atlanır; susturma değil, doğru semantik.
   let icerik;
   try { icerik = readFileSync(dosyaYolu, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return []; throw e; }
   const satirlar = icerik.split('\n');

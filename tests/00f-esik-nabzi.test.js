@@ -152,16 +152,23 @@ describe('wtLogEsik — sözleşme', () => {
    okuyup iki tarafı yüzleştirir. */
 describe('küme aynası — çağrı yerleri ile _ESIK_OLAY/_ESIK_PREV örtüşür', () => {
   const kok = resolve(dirname(fileURLToPath(import.meta.url)), '../js/parts');
-  const src00f = readFileSync(`${kok}/00f-kullanim-nabzi.js`, 'utf-8');
-  const kume = (re) => new Set(
-    [...src00f.match(re)[1].matchAll(/'([a-z0-9-]+)'/g)].map(x => x[1]));
+  // Bu dosya tarama anında silinmiş olabilir (paralel koşu) — describe
+  // gövdesi collect aşamasında çalışır, burada patlarsa TÜM dosya çöker.
+  let src00f;
+  try { src00f = readFileSync(`${kok}/00f-kullanim-nabzi.js`, 'utf-8'); } catch (e) { if (e && e.code === 'ENOENT') src00f = ''; else throw e; }
+  const kume = (re) => {
+    const m = src00f.match(re);
+    return new Set(m ? [...m[1].matchAll(/'([a-z0-9-]+)'/g)].map(x => x[1]) : []);
+  };
 
   const OLAY = kume(/const _ESIK_OLAY = new Set\(\[([\s\S]*?)\]\)/);
   const PREV = kume(/const _ESIK_PREV = new Set\(\[([\s\S]*?)\]\)/);
 
   const tumKaynak = readdirSync(kok)
     .filter(f => f.endsWith('.js'))
-    .map(f => readFileSync(`${kok}/${f}`, 'utf-8'))
+    .map(f => {
+      try { return readFileSync(`${kok}/${f}`, 'utf-8'); } catch (e) { if (e && e.code === 'ENOENT') return ''; throw e; }
+    })
     .join('\n');
 
   it('her çağrının olay adı kapalı kümededir — sessizce düşen satır yok', () => {

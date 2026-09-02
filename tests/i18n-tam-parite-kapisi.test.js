@@ -18,10 +18,28 @@ import { I18N_EN } from '../js/parts/15e-i18n-dict-en.js';
 const trAnahtarlar = Object.keys(I18N_CORE.tr);
 const enAnahtarlar = Object.keys(I18N_EN);
 
+/* ─── Saf karşılaştırma mantığı — gerçek sözlükten ayrı, iki kez çağrılır ───
+ * Bugüne dek TR/EN 3.520=3.520 olduğu için kapı hep yeşildi; mantığın
+ * GERÇEKTEN bir kırığı yakalayabildiği hiç kanıtlanmamıştı (bkz.
+ * .claude/plans/kapi-saglamlastirma.md FAZ 4c). Fonksiyonları sözlükten
+ * ayırmak, aşağıdaki "kapının kendisi" bloğunun sentetik (eksik/tam)
+ * sözlüklerle aynı mantığı sınamasını sağlar — gerçek sözlük karşılaştırması
+ * (aşağıdaki ilk describe) davranışça değişmez, yalnız çağrı biçimi değişti. */
+function eksikAnahtarlar(kaynakAnahtarlar, hedefKume) {
+  return kaynakAnahtarlar.filter(k => !hedefKume.has(k));
+}
+
+function bosCeviriler(anahtarlar, sozluk) {
+  return anahtarlar.filter(k => {
+    const v = sozluk[k];
+    return typeof v === 'string' && v.trim() === '';
+  });
+}
+
 describe('i18n tam parite — TR ve EN sözlükleri aynı anahtar kümesini taşır', () => {
   it('EN sözlüğünde eksik anahtar yok', () => {
     const enKume = new Set(enAnahtarlar);
-    const eksik = trAnahtarlar.filter(k => !enKume.has(k));
+    const eksik = eksikAnahtarlar(trAnahtarlar, enKume);
     if (eksik.length) {
       throw new Error(
         `EN sözlüğünde ${eksik.length} anahtar eksik — yeni string eklerken ikisine birden yazılmalı:\n` +
@@ -34,7 +52,7 @@ describe('i18n tam parite — TR ve EN sözlükleri aynı anahtar kümesini taş
 
   it('TR sözlüğünde karşılığı olmayan EN anahtarı yok', () => {
     const trKume = new Set(trAnahtarlar);
-    const fazla = enAnahtarlar.filter(k => !trKume.has(k));
+    const fazla = eksikAnahtarlar(enAnahtarlar, trKume);
     if (fazla.length) {
       throw new Error(
         `EN'de olup TR'de olmayan ${fazla.length} anahtar — ya TR'ye eklenmeli ya EN'den kaldırılmalı:\n` +
@@ -45,15 +63,38 @@ describe('i18n tam parite — TR ve EN sözlükleri aynı anahtar kümesini taş
   });
 
   it('boş çeviri yok — anahtar var ama metin yoksa kullanıcı boşluk görür', () => {
-    const bos = enAnahtarlar.filter(k => {
-      const v = I18N_EN[k];
-      return typeof v === 'string' && v.trim() === '';
-    });
+    const bos = bosCeviriler(enAnahtarlar, I18N_EN);
     expect(bos).toEqual([]);
   });
 
   it('sözlükler boş değil — kapı gerçekten bir şey ölçüyor', () => {
     expect(trAnahtarlar.length).toBeGreaterThan(3000);
     expect(enAnahtarlar.length).toBe(trAnahtarlar.length);
+  });
+});
+
+describe('i18n tam parite kapısı — kapının kendisi çalışıyor (sentetik sözlükler)', () => {
+  it('eksik anahtarlı sentetik hedefte kırığı yakalar', () => {
+    const kaynak = ['a', 'b', 'c'];
+    const hedefKume = new Set(['a', 'c']); // 'b' hedefte yok
+    expect(eksikAnahtarlar(kaynak, hedefKume)).toEqual(['b']);
+  });
+
+  it('tam sentetik hedefte kırık üretmez', () => {
+    const kaynak = ['a', 'b', 'c'];
+    const hedefKume = new Set(['a', 'b', 'c']);
+    expect(eksikAnahtarlar(kaynak, hedefKume)).toEqual([]);
+  });
+
+  it('boş çevirili sentetik sözlükte kırığı yakalar', () => {
+    const anahtarlar = ['x', 'y'];
+    const sozluk = { x: 'değer', y: '   ' }; // yalnız boşluktan ibaret çeviri
+    expect(bosCeviriler(anahtarlar, sozluk)).toEqual(['y']);
+  });
+
+  it('dolu sentetik sözlükte boş çeviri üretmez', () => {
+    const anahtarlar = ['x', 'y'];
+    const sozluk = { x: 'değer', y: 'diğer değer' };
+    expect(bosCeviriler(anahtarlar, sozluk)).toEqual([]);
   });
 });

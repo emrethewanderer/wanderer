@@ -52,7 +52,21 @@ PLAN="$(ls -t "$REPO"/.claude/plans/*.md 2>/dev/null | head -1)"
   if [ -n "$PLAN" ]; then
     echo "## En son dokunulan plan"
     echo
-    echo "\`${PLAN#$REPO/}\` — $(date -r "$PLAN" '+%Y-%m-%d %H:%M' 2>/dev/null)"
+    # GOTCHA: `date -r` iki kabukta ayrı şey ister — GNU'da DOSYA (mtime basar),
+    # BSD/macOS'ta EPOCH (dosya verilirse hata verir; `2>/dev/null` onu yutuyordu
+    # ve satır sessizce tarihsiz kalıyordu). Tek-sözdizimli ortak bir form yok
+    # (`sed -i.bak`ta olduğu gibi — denetim A1), o yüzden `||` zinciri.
+    #
+    # SIRA GNU-ÖNCE, ve bu bilinçli: GNU'da ilk dal doğrudan tutar, BSD komutu
+    # hiç koşmaz. Ters sıra ölçüldü (2026-09-02) ve çalışıyordu ama kırılgandı —
+    # GNU'da `stat -f %m` önce koşup stdout'una başka bir şey basıyor, o metin
+    # `date`'e besleniyordu; bugün hata verip düşüyor, yarın kazara ayrıştırılsa
+    # SESSİZCE yanlış tarih basardı. Zincir, yanlış cevabı hiç üretemeyeceği
+    # sırada dizilir.
+    #
+    # DOĞRULANMAMIŞ: BSD dalı bu ortamda (Linux) koşturulamadı — `date -r <dosya>`nın
+    # macOS'ta gerçekten hata verip `||`yi tetiklediği varsayımdır, ölçüm değil.
+    echo "\`${PLAN#$REPO/}\` — $(date -r "$PLAN" '+%Y-%m-%d %H:%M' 2>/dev/null || date -r "$(stat -f %m "$PLAN" 2>/dev/null)" '+%Y-%m-%d %H:%M' 2>/dev/null)"
     echo
     echo '```'
     grep -n '^### FAZ' "$PLAN" 2>/dev/null | head -20

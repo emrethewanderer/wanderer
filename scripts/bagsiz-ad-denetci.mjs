@@ -67,14 +67,42 @@ function denetle() {
     cikti = (e.stdout || '') + (e.stderr || '');
   }
   const bulgular = [];
+  const taninmayan = [];
   for (const satir of cikti.split('\n')) {
-    const m = DESEN.exec(satir.trim());
-    if (m) bulgular.push({ dosya: m[1], satir: +m[2], ad: m[5] });
+    const t = satir.trim();
+    if (!t) continue;
+    const m = DESEN.exec(t);
+    if (m) { bulgular.push({ dosya: m[1], satir: +m[2], ad: m[5] }); continue; }
+    /* GOTCHA (ölçüldü, 2026-09-02): tsc'nin TARAMASI bozulduğunda da hata
+       basar ve o satır DESEN'e uymaz — ör. TS18003 "No inputs were found"
+       (ölçüldü: `tsc` bunu basıp **exit 0** döner) ya da TS6053/TS6504,
+       include glob genişledikten sonra bir dosya silinir/taşınırsa. Bunlar
+       sessizce atlanırsa denetçi hiçbir dosyayı okumamışken "✓ Bağsız ad
+       yok" basar: kırığı değil, kırığı GÖRME YETENEĞİNİ kaybederiz.
+
+       Sınır kategoriktir ve dar tutulur: yalnız TS6xxx (dosya/girdi) ve
+       TS18xxx (yapılandırma) — yani taramanın KENDİSİNE dair olanlar.
+       TS2xxx (semantik) BİLEREK dışarıda: bu tsconfig bugün 2.208 semantik
+       hata üretiyor (2.042'si TS2339), hepsi bilinen ve bu denetçinin
+       konusu değil. Onları da saymak kapıyı her koşuda kırar — ölçüldü.
+       Yeni bir kod eklenecekse önce ÖLÇÜLÜR (§6.10): spekülatif genişletme
+       kapıyı kırar, spekülatif daraltma körleştirir. */
+    if (/error TS(6\d{3}|18\d{3})\b/.test(t)) taninmayan.push(t);
   }
-  return bulgular;
+  return { bulgular, taninmayan };
 }
 
-const bulgular = denetle();
+const { bulgular, taninmayan } = denetle();
+
+if (taninmayan.length) {
+  console.log(`✗ tsc bağsız-ad deseni DIŞINDA ${taninmayan.length} hata verdi — tarama güvenilmez:\n`);
+  for (const s of taninmayan) console.log(`  ${s}`);
+  console.log(`
+  Bu, denetçinin kendi taramasının yarıda kesildiği anlamına gelir (ör.
+  TS6053: bir dosya glob genişledikten sonra silinmiş/taşınmış). "Bağsız ad
+  yok" burada YALAN olur — önce bu hatayı çöz ya da taramayı tekrar çalıştır.`);
+  process.exit(1);
+}
 
 if (!bulgular.length) {
   console.log('✓ Bağsız ad yok — her çağrı kendi modülünde bir bağa oturuyor.');

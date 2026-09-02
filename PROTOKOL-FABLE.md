@@ -280,6 +280,23 @@ kapanır — atlanmaz, Emre'nin tekrar istemesine gerek yoktur:
    Faz kapıları hedefli süitle geçilir (§3.3); bütünün yeşil olduğu
    BURADA kanıtlanır ve burada pazarlıksızdır. Kırmızı bir testle sprint
    kapanmaz — düzeltilir, sonra kapanır.
+
+   **Koşulan ağaç, commit'lenen ağaç olmalıdır** (Emre'nin kuralı,
+   2026-09-02). Süit koşulduktan SONRA çalışma ağacına dokunulduysa — bir
+   plan satırı, bir belge cümlesi, bir yorum bile — süit yeniden koşulur.
+   "Yeşil" bir ağacın değil bir KOŞUNUN sıfatıdır; koşu ile commit arasına
+   giren her düzenleme o sıfatı devretmez.
+
+   Bedeli ölçüldü. `65eceae` commit'i *"Sprintin tek tam süit koşusu: sıfır
+   kırık"* diyerek kapandı ve CI aynı commit'te kırmızı bastı. Kıran satır
+   `.claude/plans/devir-altyapisi.md:420`'deki bir `[[ad]]` örneğiydi ve
+   `git log -S'[[ad]]'` onun tam da o commit'te doğduğunu gösteriyor: süit
+   dürüst koştu, yalnız başka bir ağaçta. Bu bir yalan değil bir SIRA
+   hatasıydı — ve sıra hatası, yalanla aynı sonucu üretir (§6.2).
+
+   Pratik ölçü: commit'ten hemen önce `git status --short` boş değilse ve
+   son süit koşusundan sonra bir dosya değiştiyse, süit borçludur. Ucuz
+   kaçış yolu, düzenlemeyi süitten ÖNCE bitirmektir.
 3. Ölü kod temizliği — ama sözleşmeleri koruyarak (bkz. §5.2).
 4. §2.5 kapanış şablonuyla raporla (öz-denetimde ne bulunup düzeltildiği de
    rapora girer).
@@ -886,12 +903,16 @@ eğilimleri protokolle şöyle dengelenir:
       senaryolarını preview'da koştur), bul→düzelt. Faz denetimleri
       yapıldıysa dosyaları yeniden OKUMA; devredilmemiş sprintte bu tur
       §3.5'in tam öz-denetimidir (kapsam `git diff`)
-- [ ] **Tam süit** — sprintin tek `npx vitest run` koşusu, yeşil
+- [ ] **Tam süit** — sprintin tek `npx vitest run` koşusu, yeşil — ve
+      koşudan SONRA ağaca dokunulduysa **yeniden** koşuldu (§3.5 madde 2:
+      koşulan ağaç, commit'lenen ağaç olmalı)
 - [ ] Kapanış şablonu: verdict + yapılanlar + ad senkronu (§4.3) +
       ELLE adımlar + doğrulama tablosu
 - [ ] Hafızaya yaz + MEMORY.md indeksi
 - [ ] Ölü kod / artık temizliği (kanıtla)
 - [ ] `git status`/`diff` gözden geçir + **commit** (push değil)
+- [ ] Uzak oturumsa: push sonrası **Kapı koşusu izlendi** — kırmızıysa
+      tur bitmez, kırık düzeltilir (§10.4)
 
 ---
 
@@ -957,6 +978,7 @@ yoksa bir komut mu üretti?* İnsan yazdıysa commit edilir.
 
 | Madde | Lokalde | Uzak oturumda |
 |---|---|---|
+| **§3.5/2 tam süit** | süit senin makinende koşar; kırmızıyı ekranda görür, turu orada durdurursun | süit **CI'da da koşar** (`.github/workflows/kapi.yml`) ve sonucu e-postayla gelir. Kırmızı Kapı bir bildirim değil **iştir**: görüldüğü an fazın devamı durur, kırık düzeltilir, sonra devam edilir. Ölçü 2026-09-02'nin iki kırmızı koşusudur ve ikisi zıt yönü gösterir: birincisinde kapı OKUNDU — `58b645a` başlığı bunu yazar ("CI'ın ilk koşusunun bulduğu kırık") ve kırık 10 dakikada kapandı. İkincisinde okunmadı: kırmızı 09:21'de düştü (Actions koşu #15'in tamamlanma damgası) ama düzeltme zaten 09:01'de açılmış bir fazın (`6242fd3`) yan ürünü olarak geldi, önce cümleyi yeniden yazan bir KAÇINMAYLA (`9c636bd`), gerçek düzeltme 10:08'de (`8ab08a0`). Aradaki fark 10 dakika ile 50 dakika değil yalnız; biri kapıyı bir iş sayar, öteki bir bildirim |
 | **§3.5/6 commit** | "commit at, **push YOK**" — iş diskte güvende, push ayrı onay ister | kap geçicidir: **commit edilmeyen iş oturumla birlikte ölür.** Belirlenmiş dala push, kaydın kendisidir; onayı oturumun görev tanımı verir |
 | **§3.3 preview** | tek origin `:3030`, `preview_start` ile canlı DOM/konsol doğrulama | preview aracı yüklü olmayabilir. O zaman kapı **atlanmaz, ortamı adlandırılır**: "preview bu oturumda yok, X sınanamadı" — sahte "doğruladım" yasak (§6.2) |
 | **§4.4 devir** | `.claude/agents/` diskte, adlar hep yüklü | ajan dosyasını yazmak yetmez, **commit edilmelidir** — ve tanınması ânında olmayabilir: 2026-09-02'de commit'ten ~1,5 saat sonra, aynı oturum içinde etkinleşti. Ad henüz tanınmıyorken devir gerekiyorsa sözleşmeyi çağrının prompt'una elle yükle ve bunu **sapma olarak raporla**; tanınıyorsa gerçek adı kullan (nabız yalnız gerçek adı sayar, §10.5) |

@@ -20,6 +20,18 @@
  * `.js` (recursive), `tests` altı `.js` (recursive), `scripts` altı `.mjs`
  * (recursive). Hariç: node_modules, dist, coverage, assets, android, ios.
  *
+ * MUAFİYET: bilinçli istisna, ihlalin geçtiği satırda ya da en fazla altı
+ * satır yukarıdaki yorumda beyan edilir — emsal `TASARIM-MUAF`
+ * (scripts/tasarim-denetci.mjs) ve `KOKEN-MUAF` (scripts/gerceklik-denetci.mjs)
+ * ile aynı biçim:
+ *     /* REFERANS-MUAF: gerekçe *​/
+ * Gerekçesiz muafiyet de ihlaldir (§6.10) — sekiz karakterden kısa gerekçe
+ * muafiyet SAYILMAZ, altındaki kırık referans yine yakalanır. `SABLON_ADLAR`
+ * denylist'i bunun YERİNE değil YANINA gelir: biri bilinen jenerik kelimeleri
+ * (`name`, `ad`) kapalı ve küçük bir kümede tutar, öteki öngörülemeyen her
+ * yeni vakayı satır satır karşılar — yeni bir vaka artık kod değişikliği
+ * değil, bir satırlık beyan gerektirir.
+ *
  * TABAN (kalıp `xss-taban.json` / `tasarim-taban.json` ile aynı — bkz.
  * [[xss-kapisi]]): bu tarama ilk koşulduğunda (2026-09-02) repoda otuz üç
  * ADI ayrı kırık referans zaten vardı — MEMORY.md'nin kendi notu bunu
@@ -54,10 +66,10 @@ const HARIC_DIZIN = new Set(['node_modules', 'dist', 'coverage', 'assets', 'andr
 
 /** Bir dizini uzantıya göre recursive toplar. Kalıp `scripts/audit-innerhtml.mjs`nin
  *  gez()'i ile aynıdır: readdirSync + ayrı statSync, ikisi de try/catch'li.
- *  [[kapi-tarama-yarisi]] — vitest paralel koşarken tasarim-kapisi testi T7
- *  için js/parts/ altına geçici bir modül yazıp siliyor; bu tarama js/ altını
- *  gezdiği için araya girebilir. Listelenmiş ama tarama anında silinmiş bir
- *  girdi repo'nun kalıcı parçası değildir — sessizce atlanır. */
+ *  [[kapi-tarama-yarisi]] — listelenmiş ama tarama anında silinmiş bir girdi
+ *  repo'nun kalıcı parçası değildir, sessizce atlanır. Kökendeki T7 sınavı
+ *  artık repoya yazmıyor (kendi fixture'ında koşar, 2026-09-02); katman
+ *  genel bir savunma olarak kaldı. */
 function gez(dizin, uzanti) {
   const out = [];
   let dosyalar;
@@ -131,31 +143,51 @@ const DESEN_HAFIZA = /\[\[([A-Za-z0-9_-]+)\]\]/g;
 const DESEN_PLAN = /\.claude\/plans\/([A-Za-z0-9_-]+\.md)/g;
 const DESEN_AGENT = /\.claude\/agents\/([A-Za-z0-9_-]+\.md)/g;
 
-/** Tek dosyayı tarar, kırık referansları `sonuc`a ekler. */
+/* ─── Muafiyet — TASARIM-MUAF/KOKEN-MUAF ile aynı biçim (bkz. üstteki banner) ───
+   Gerekçe çok satırlı olabilir — kapanış `*​/` aynı satırda aranmaz.
+   Pencere dar tutulur (emsal: 6 satır) — uzaktaki bir muafiyet, alakasız bir
+   kırık referansı sessizce örtmesin. */
+const MUAF_RE = /\/\*\s*REFERANS-MUAF:\s*(.+)/;
+const MUAF_PENCERE = 6;
+function muaf(satirlar, i) {
+  for (let j = Math.max(0, i - MUAF_PENCERE); j <= i; j++) {
+    const m = (satirlar[j] || '').match(MUAF_RE);
+    if (m && m[1] && m[1].replace(/\*\/\s*$/, '').trim().length >= 8) return true;
+  }
+  return false;
+}
+
+/** Tek dosyayı tarar, kırık referansları `sonuc`a ekler. Satır satır çalışır
+ *  — muafiyet SATIR düzeyinde beyan edildiği için hangi satırda olduğunu
+ *  bilmek gerekir; `[[…]]`/plan/agent desenleri tek satırı aşmadığı için
+ *  bölme, hangi eşleşmenin bulunduğunu değiştirmez. */
 function taraDosya(dosya, kok, sonuc) {
   const src = oku(dosya);
   if (src === null) return;
   const rel = relative(kok, dosya);
+  const satirlar = src.split('\n');
 
-  for (const m of src.matchAll(DESEN_HAFIZA)) {
-    const ad = m[1];
-    if (SABLON_ADLAR.has(ad)) continue;
-    if (!existsSync(join(kok, '.claude/memories', `${ad}.md`))) {
+  satirlar.forEach((satir, i) => {
+    for (const m of satir.matchAll(DESEN_HAFIZA)) {
+      const ad = m[1];
+      if (SABLON_ADLAR.has(ad)) continue;
+      if (existsSync(join(kok, '.claude/memories', `${ad}.md`))) continue;
+      if (muaf(satirlar, i)) continue;
       sonuc.push({ tip: 'hafiza', ad, dosya: rel });
     }
-  }
-  for (const m of src.matchAll(DESEN_PLAN)) {
-    const ad = m[1];
-    if (!existsSync(join(kok, '.claude/plans', ad))) {
+    for (const m of satir.matchAll(DESEN_PLAN)) {
+      const ad = m[1];
+      if (existsSync(join(kok, '.claude/plans', ad))) continue;
+      if (muaf(satirlar, i)) continue;
       sonuc.push({ tip: 'plan', ad, dosya: rel });
     }
-  }
-  for (const m of src.matchAll(DESEN_AGENT)) {
-    const ad = m[1];
-    if (!existsSync(join(kok, '.claude/agents', ad))) {
+    for (const m of satir.matchAll(DESEN_AGENT)) {
+      const ad = m[1];
+      if (existsSync(join(kok, '.claude/agents', ad))) continue;
+      if (muaf(satirlar, i)) continue;
       sonuc.push({ tip: 'agent', ad, dosya: rel });
     }
-  }
+  });
 }
 
 /** Verilen kökten repo yapısını tarar, kırık referans listesini döndürür. */
@@ -315,6 +347,42 @@ describe('referans bütünlüğü kapısı — kapının kendisi çalışıyor',
       // açı-parantezli `<slug>.md` örneği karakter sınıfına hiç uymaz — hiçbir
       // `plan:` anahtarı üretmemeli (üretseydi regex'in kendisi bozuk demektir).
       expect([...anahtarlar].some((k) => k.startsWith('plan:') && k.includes('<'))).toBe(false);
+    } finally {
+      rmSync(dizin, { recursive: true, force: true });
+    }
+  });
+
+  it('REFERANS-MUAF gerekçeliyse susturur, beyansız/gerekçesiz susturmaz', () => {
+    // Kendi fixture'ı: üsttekiyle karışmasın, üç hâl aynı dosyada yan yana
+    // dursun — beyanlı+gerekçeli, beyansız, beyanlı+gerekçesiz. Aralarına
+    // MUAF_PENCERE'den (6 satır) daha kalın dolgu konur — yoksa birinci
+    // hâlin gerçek beyanı, penceresi içine düşen ikinci hâli de susturur.
+    const dizin = mkdtempSync(join(tmpdir(), 'referans-muaf-'));
+    try {
+      mkdirSync(join(dizin, 'js/parts'), { recursive: true });
+      const muafliBag = `${AC}zz-sinav-muafiyetli${KA}`;
+      const muafsizBag = `${AC}zz-sinav-muafsiz${KA}`;
+      const bosGerekceBag = `${AC}zz-sinav-bos-gerekce${KA}`;
+      const dolgu = (n) => `// dolgu ${n} — pencereyi aşmak için`;
+      writeFileSync(
+        join(dizin, 'js/parts/muafiyet.js'),
+        [
+          `// beyanlı, gerekçeli: ${muafliBag} /* REFERANS-MUAF: bilinçli örnek, hedef kasıtlı yok */`,
+          ...Array.from({ length: 8 }, (_, n) => dolgu(n + 1)),
+          `// beyansız: ${muafsizBag}`,
+          ...Array.from({ length: 8 }, (_, n) => dolgu(n + 9)),
+          `// beyanlı ama gerekçesiz: ${bosGerekceBag} /* REFERANS-MUAF: */`,
+          'export const y = 1;',
+          '',
+        ].join('\n')
+      );
+
+      const bulgular = tara(dizin);
+      const anahtarlar = new Set(bulgular.map(anahtar));
+
+      expect(anahtarlar.has('hafiza:zz-sinav-muafiyetli')).toBe(false); // gerekçeli beyan susturdu
+      expect(anahtarlar.has('hafiza:zz-sinav-muafsiz')).toBe(true); // beyansız hâlâ yakalanıyor
+      expect(anahtarlar.has('hafiza:zz-sinav-bos-gerekce')).toBe(true); // gerekçesiz beyan muafiyet SAYILMADI
     } finally {
       rmSync(dizin, { recursive: true, force: true });
     }

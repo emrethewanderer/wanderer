@@ -175,12 +175,13 @@ const say = { toplam: 0, guvenli: 0, kacisli: 0, riskli: 0, muaf: 0 };
 const kayitlar = [];
 
 for (const dosya of gez(TARAMA_KOKU)) {
-  /* Dosya listesi alındıktan SONRA silinmiş olabilir: vitest paralel
-     koşarken tasarim-kapisi testi T7 sınavı için repo'ya geçici bir modül
-     (js/parts/zz-t7-sinav-gecici.js) yazıp siliyor. Bu denetçi js/ altını
-     gezdiği için araya girer ve okumaya kalkarsa ENOENT ile çöker — ilk CI
-     koşusunda tam da bu oldu. Tarama anında var olmayan dosya zaten repo'nun
-     kalıcı parçası değildir: sessizce atlanır. */
+  /* Dosya listesi alındıktan SONRA silinmiş olabilir (editör, git checkout,
+     paralel bir araç). Tarama anında var olmayan dosya zaten repo'nun kalıcı
+     parçası değildir: sessizce atlanır.
+     Kökeni öğreticidir — ilk CI koşusu tam burada ENOENT ile çöktü, çünkü
+     tasarım kapısının T7 sınavı repo'ya geçici bir modül yazıyordu. O KAYNAK
+     2026-09-02'de kurutuldu (sınav artık kendi fixture'ında koşar); bu katman
+     yarışın sonucuna karşı genel bir savunma olarak kalır. */
   let src;
   try {
     src = readFileSync(dosya, 'utf8');

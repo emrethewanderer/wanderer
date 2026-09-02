@@ -209,7 +209,13 @@ describe('12g · tazeleme listesi bayrak listesiyle eş', () => {
 
   const bayrakli = readdirSync(PARTS)
     .filter(f => f.endsWith('.js') && f !== '12g-yuz-cizgisi.js')
-    .filter(f => bayrakTakili(readFileSync(join(PARTS, f), 'utf8')));
+    .filter(f => {
+      // Liste alındıktan SONRA dosya silinmiş olabilir (paralel koşu) —
+      // silinmiş dosya bayrak taşımıyor sayılır, tarama çökmez.
+      let src;
+      try { src = readFileSync(join(PARTS, f), 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return false; throw e; }
+      return bayrakTakili(src);
+    });
 
   /** Expose iki yoldan olur: modülün kendi `window.x =` bloğu ya da
    *  main.js'in `Object.assign(window, {…})` hub'ı (02c/10D bu yoldan

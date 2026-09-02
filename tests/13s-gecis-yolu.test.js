@@ -180,7 +180,11 @@ function _partsWindowAdlari() {
   const adlar = new Set();
   for (const f of readdirSync(dir)) {
     if (!f.endsWith('.js')) continue;
-    const src = _yorumsuz(readFileSync(join(dir, f), 'utf8'));
+    // Liste alındıktan SONRA dosya silinmiş olabilir (paralel koşu) —
+    // o dosya window.* isim taşımıyor sayılır, tarama çökmez.
+    let ham;
+    try { ham = readFileSync(join(dir, f), 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
+    const src = _yorumsuz(ham);
     for (const m of src.matchAll(/window\.([A-Za-z_$][\w$]*)\s*=[^=]/g)) adlar.add(m[1]);
   }
   return adlar;

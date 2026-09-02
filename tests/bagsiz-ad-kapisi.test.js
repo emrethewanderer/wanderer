@@ -74,4 +74,33 @@ describe('kapının kendisi — ihlali gerçekten yakalıyor mu', () => {
       rmSync(dizin, { recursive: true, force: true });
     }
   }, SURE);
+
+  /* Kapının ikinci görevi: kırığı göremediğini FARK ETMEK. tsc taraması
+     bozulduğunda (girdi bulunamadı, dosya silinmiş) bulgu listesi boş döner
+     ve denetçi eskiden "✓ Bağsız ad yok" basardı — yani sessizce geçerdi.
+     Ölçüm (2026-09-02): TS18003 bu durumda **exit 0** ile gelir, yani tsc'nin
+     çıkış kodu da uyarmaz. Kırığı görme yeteneğinin kaybı, kırığın kendisi
+     kadar tehlikelidir. */
+  it('tarama hiç girdi bulamazsa sessizce geçmez — exit 1 ve gerekçe basar', () => {
+    const dizin = mkdtempSync(join(tmpdir(), 'bagsiz-ad-bos-'));
+    try {
+      writeFileSync(join(dizin, 'tsconfig.json'), JSON.stringify({
+        compilerOptions: {
+          allowJs: true, checkJs: true, noEmit: true, strict: false,
+          target: 'ES2020', module: 'ESNext', moduleResolution: 'Bundler',
+          skipLibCheck: true, types: [],
+        },
+        include: ['yok-boyle-dizin/**/*.js'],
+      }));
+
+      const r = kostur(['--config', join(dizin, 'tsconfig.json')]);
+      expect(r.status).toBe(1);
+      expect(r.stdout).toMatch(/tarama güvenilmez/);
+      expect(r.stdout).toContain('TS18003');
+      /* Ve asla yanlış güvence vermemeli. */
+      expect(r.stdout).not.toContain('Bağsız ad yok');
+    } finally {
+      rmSync(dizin, { recursive: true, force: true });
+    }
+  }, SURE);
 });
