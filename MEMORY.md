@@ -24,5 +24,4 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
 - [[claude-altyapisi-commit-disi]] — `.claude/` altındaki çalışma altyapısı
   (ajanlar, hafızalar, kancalar, launch girdileri) aylarca yalnız lokal
   makinede kalmış, repoya hiç girmemişti; uzak oturum klondan kurar, commit
-  edilmemiş olan YOKTUR — §4.4 devir kapısının 29 gün ölü kalmasının kök
-  sebebi buydu
+  edilmemiş olan YOKTUR — uzak oturumda devir denenemez bile

@@ -30,7 +30,7 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
    **İlk hamle**, ELLE bekleyenler, okunacak hafıza.
 8. **Uzak oturum (GitHub) diski değil REPOYU görür** — `.claude/` altındaki
    her şey (ajanlar, planlar, hafıza, `settings.json`, `launch.json`) commit
-   edilir, yoksa uzakta YOKTUR: devir kapısı 29 gün tam bu yüzden ölü kaldı.
+   edilir, yoksa uzakta YOKTUR — devir orada denenemez bile.
    Tek istisna üretilmiş olan `.claude/DEVIR.md` (gitignore'da). Uzakta kap
    geçicidir — commit edilmeyen iş oturumla ölür, o yüzden push kaydın
    kendisidir. Ayrıntı: `PROTOKOL-FABLE.md` §10.

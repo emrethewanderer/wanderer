@@ -34,9 +34,18 @@ gösteriyor; bellek **hiç commit edilmemiş** — lokal diskte kaldı, uzak
 oturum onu hiç görmedi.
 
 Sonucu tek bir semptom değil, aynı sprint içinde tekrar eden bir örüntüydü:
-§4.4'ün devir kapısı 29 gün ölü kaldı çünkü `uygulayici` adı harness'a hiç
-ulaşmadı (`Agent({ subagent_type: 'uygulayici' })` → "Agent type 'uygulayici'
-not found") — ajan dosyası diskte vardı, repoda yoktu. Aynı sprintte
+Uzak oturumda §4.4'ün devir kapısı **denenemedi bile**: `uygulayici` adı
+harness'a hiç ulaşmadı (`Agent({ subagent_type: 'uygulayici' })` → "Agent type
+'uygulayici' not found") — ajan dosyası diskte vardı, repoda yoktu.
+
+> **Karıştırma uyarısı (çapraz denetim bulgusu, 2026-09-02):** bu, §4.4'ün
+> kendi **29 günlük** düşük-uyum ölçümüyle (149 🅢 faza 11 çağrı) AYNI OLGU
+> DEĞİLDİR. O ölçüm lokaldi ve o pencerede ad vardı — kapı 11 kez açıldı;
+> §4.4'ün teşhisi de yokluk değil, kuralın şartlı yazılışıydı. Uzak oturum
+> 2026-09-02'de başladı, 29 günlük pencere 07-27'de: biri ötekinin sebebi
+> olamaz. İki ölçümü tek cümleye sıkıştırmak uydurulmuş bir nedenselliktir.
+
+Aynı sprintte
 `.claude/settings.json` (iki Stop kancası), `.claude/launch.json` (preview
 attach girdisi) ve iki mimari plan belgesi de aynı sebeple eksik çıktı.
 

@@ -344,7 +344,7 @@ koştu ve en az dört madde çarptı:
 |---|---|---|---|
 | §3.5/6 | *"push YOK, yalnız commit"* | container geçici — commit edilmeyen iş oturumla ölür | her fazda push edildi, sapma olarak raporlandı |
 | §3.3 | preview tek origin `:3030`, canlı DOM doğrulama | preview aracı oturumda yüklü değil | `launch.json` yazıldı ama **sınanamadı** |
-| §4.4 | `.claude/agents/` diskte durur, hep yüklüdür | repo klondan kurulur — commit edilmemişse ajan YOKTUR | devir kapısı 29 gün ölüydü; kök sebep buydu |
+| §4.4 | `.claude/agents/` diskte durur, hep yüklüdür | repo klondan kurulur — commit edilmemişse ajan YOKTUR | uzakta devir denenemedi bile; adlar harness'a ulaşmıyordu |
 | §3.6 | `.claude/DEVIR.md` diskte kalır | klonla gelmez; ama commit edilirse her tur diff üretir | gitignore'a alındı, gerekçe yazıldı |
 
 **Görev:** bu maddeleri ölç, sonra protokolü gerçeğe çek — sapmaları tek tek
@@ -396,8 +396,8 @@ Sprintte tek tek "eksik" diye bulduğum her şey bunun türevi:
 
 | Eksik | Sonucu |
 |---|---|
-| `.claude/agents/` (2 dosya) | devir kapısı 29 gün ölü — §4.4 uygulanamıyordu |
-| `.claude/memories/` (~26 dosya) | §7 hafıza disiplini uzakta işlevsiz; 26 kırık bağ |
+| `.claude/agents/` (2 dosya) | uzakta devir denenemez bile — adlar harness'a ulaşmıyor |
+| `.claude/memories/` | §7 hafıza disiplini uzakta işlevsiz; **23** hedefsiz bağ |
 | `.claude/settings.json` | iki kanca script'i diskte ölü duruyordu |
 | `.claude/launch.json` | preview attach girdisi yok |
 | `.claude/plans/` (birkaç plan) | §6.10'un işaret ettiği belgeler yok |
@@ -491,3 +491,36 @@ hata vermedi.
 
 Yani devir altyapısı artık **uçtan uca çalışıyor** — ve §10.4'ün o satırı
 düzeltilmeli (denetçinin bulgularına dahil edildi).
+
+
+## FAZ 7c — Çapraz denetimin yakaladığı nedensellik hatası (düzeltildi)
+
+FAZ 7a'yı **gerçek `denetci` ajanı** denetledi (adlar artık tanınıyor) ve
+"faz geçmedi" verdicti verdi. Üç bulgu, üçü de haklı:
+
+1. **§10.4'ün devir satırı kendi kendini yanlışlamıştı** — *"o oturumda
+   yazılan bir ajan dosyası aynı oturumda tanınmaz"* diyordu, oysa denetçinin
+   kendisi o satırın aksine aynı oturumda `denetci` adıyla açılmıştı. Satır
+   gerçek sınırı yazacak hâle getirildi: yazmak yetmez, **commit** gerekir; ve
+   tanınma ânında olmayabilir (bu oturumda ~1,5 saat sürdü).
+
+2. **En ciddi bulgu — uydurulmuş nedensellik.** §10.2 *"devir kapısı 29 gün
+   ölü — `uygulayici` adı uzakta fiziksel olarak yoktu"* diyordu. Denetçi iki
+   ayrı olgunun tek zincire sıkıştırıldığını gösterdi:
+   - §4.4'ün **29 günlük** ölçümü (149 🅢 faza 11 çağrı) **lokaldi** ve o
+     pencerede ad **vardı** — kapı 11 kez açıldı. §4.4'ün kendi teşhisi de
+     yokluk değil, kuralın şartlı yazılışıydı.
+   - Uzak oturum **2026-09-02'de** başladı; 29 günlük pencere 07-27'de.
+     Sonraki bir olgu, önceki bir ölümün sebebi olamaz.
+
+   Bu §6.10 ihlaliydi: *"kanıtı olmayan değer yoktur"* — uydurulmuş bir
+   nedensellik de kanıtsız bir değerdir. Sprintin anlatısı boyunca (protokol,
+   CLAUDE.md, hafıza, MEMORY indeksi, plan) beş yerde tekrarlanmıştı; beşi de
+   düzeltildi.
+
+3. **"26 kırık bağ" güncel değildi** — dikiş turunda üçü ödenmişti, gerçek
+   sayı **23**. Ara ölçüm yeniden doğrulanmadan protokole taşınmış. Düzeltildi.
+
+**Bu, çapraz denetimin bu sprintteki en güçlü kanıtıdır.** Bulgu 2 kod değil
+**anlatı** hatasıydı: build yeşil, testler yeşil, kapılar yeşilken yaşayan bir
+kırık. Yazan model onu göremezdi — kendi kurduğu nedenselliğin içindeydi.

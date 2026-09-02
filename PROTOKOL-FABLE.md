@@ -918,16 +918,27 @@ edilmemiş hiçbir şey geri dönmez. Lokalde "dosya duruyor ya" diyebildiğin h
 
 | Eksik | Sonucu |
 |---|---|
-| `.claude/agents/` | §4.4'ün devir kapısı **29 gün ölü** — `uygulayici` adı uzakta fiziksel olarak yoktu |
-| `.claude/memories/` (~26 dosya) | §7 hafıza disiplini işlevsiz; 26 kırık `[[bağ]]` |
+| `.claude/agents/` | `uygulayici`/`denetci` adları uzakta YOK — devir mekanik olarak imkânsız |
+| `.claude/memories/` | §7 hafıza disiplini işlevsiz; **23** hedefsiz `[[bağ]]` |
 | `.claude/settings.json` | `auto-build.sh` ve `devir-notu.sh` diskte ölü duruyordu |
 | `.claude/launch.json` | §3.3'ün preview attach girdisi yok |
 | `.claude/plans/` (birkaç plan) | §6.10'un "Ayrıntı:" dediği belgeler yok |
 
-**En önemli ders burada:** devir kuralının ölmesi bir disiplin sorunu sanıldı
-ve §4.4'e "kapı" olarak üç kez uyarı yazıldı. Kök sebep disiplin değildi —
-**altyapı repoda yoktu.** Kural doğruydu, uygulanması imkânsızdı. Bir kuralın
-ölmesini açıklarken önce onun mekanik olarak MÜMKÜN olup olmadığına bak.
+**İki ölçüm birbirine karıştırılmamalı** — ilk yazımında karıştırıldı ve
+çapraz denetim yakaladı (2026-09-02):
+
+- §4.4'ün **29 günlük** düşük-uyum ölçümü (149 🅢 faza 11 çağrı) **lokal** bir
+  bulgudur. O pencerede ajan adları vardı ve kullanılıyordu — kapı 11 kez
+  açıldı. §4.4'ün kendi teşhisi de yokluk değil, **kapının yeriydi**: kural
+  "Faz devredildiyse…" diye başlayan şartlı bir cümleydi.
+- Yukarıdaki tablo **ayrı** bir bulgudur ve bugünündür: uzak oturumda
+  `.claude/agents/` repoda hiç yok, yani devir orada denenemezdi bile.
+
+İkisini tek nedensellik zincirine bağlamak zaman açısından da imkânsızdır:
+uzak oturum 2026-09-02'de başladı, 29 günlük pencere ise 07-27'de. **Ders:**
+bir kuralın uygulanmadığını görünce disipline yormadan önce o ortamda mekanik
+olarak MÜMKÜN olup olmadığına bak — ama iki ortamın bulgusunu tek rakama
+sıkıştırma (§6.10: kanıtı olmayan değer yoktur, uydurulmuş nedensellik dahil).
 
 ### 10.3 Kural: `.claude/` altındaki her şey commit edilir
 
@@ -948,7 +959,7 @@ yoksa bir komut mu üretti?* İnsan yazdıysa commit edilir.
 |---|---|---|
 | **§3.5/6 commit** | "commit at, **push YOK**" — iş diskte güvende, push ayrı onay ister | kap geçicidir: **commit edilmeyen iş oturumla birlikte ölür.** Belirlenmiş dala push, kaydın kendisidir; onayı oturumun görev tanımı verir |
 | **§3.3 preview** | tek origin `:3030`, `preview_start` ile canlı DOM/konsol doğrulama | preview aracı yüklü olmayabilir. O zaman kapı **atlanmaz, ortamı adlandırılır**: "preview bu oturumda yok, X sınanamadı" — sahte "doğruladım" yasak (§6.2) |
-| **§4.4 devir** | `.claude/agents/` diskte, adlar hep yüklü | ajan adları **oturum açılışında** taranır: o oturumda yazılan bir ajan dosyası aynı oturumda tanınmaz. Yazdıysan sonraki oturumda etkinleşir; o oturumda devir gerekiyorsa sözleşmeyi çağrının prompt'una elle yükle ve bunu **sapma olarak raporla** |
+| **§4.4 devir** | `.claude/agents/` diskte, adlar hep yüklü | ajan dosyasını yazmak yetmez, **commit edilmelidir** — ve tanınması ânında olmayabilir: 2026-09-02'de commit'ten ~1,5 saat sonra, aynı oturum içinde etkinleşti. Ad henüz tanınmıyorken devir gerekiyorsa sözleşmeyi çağrının prompt'una elle yükle ve bunu **sapma olarak raporla**; tanınıyorsa gerçek adı kullan (nabız yalnız gerçek adı sayar, §10.5) |
 | **§3.6 DEVIR.md** | kanca yazar, dosya diskte kalır, sonraki oturum okur | klonla gelmez. Kalıcı kayıt noktası **plan dosyasıdır** — "İlk hamle" satırı oraya yazılır (zaten kuralın kendisi budur) |
 | **§7 hafıza** | `.claude/memories/` diskte birikir | commit edilmemiş hafıza uzakta yoktur. Hafıza yazmak, **commit etmekle** tamamlanır |
 | **§6.5 ELLE işler** | Supabase deploy vb. | değişmez — ama listeye bir kalem daha girer: *lokalde durup commit edilmemiş dosyalar*. Onların içeriği **uydurulamaz** (§6.2, gerçeklik kuralı) |
