@@ -3,3 +3,8 @@ node_modules/
 .env
 .env.*
 *.keystore
+
+# Stop kancasının her tur yeniden yazdığı mekanik fotoğraf (scripts/devir-notu.sh).
+# İçeriği git log/status ile türetilebilir; yargı taşıyan "İlk hamle" satırı
+# plan dosyasına yazılır (PROTOKOL-FABLE.md §3.6). Takip edilse her tur diff üretir.
+.claude/DEVIR.md
