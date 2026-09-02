@@ -12,3 +12,6 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   template'i tarar; kaçış tek kaynağı `escapeHTML`, taban `scripts/xss-taban.json`
 - [[kapi-tarama-yarisi]] — `js/` gezen denetçiler tasarım kapısının T7 geçici
   dosyası yüzünden ENOENT ile çökebilir; okuma yarışa dayanıklı yazılır
+- [[olu-kod-temizlikleri]] — ekran/özellik silmeden önce dört sözleşme
+  yüzeyini (window köprüsü, DOM id, storage anahtarı, i18n anahtarı) tara;
+  tarihsel KORUNANLAR listesi kayıp, dosya onun yerine prosedür yazar

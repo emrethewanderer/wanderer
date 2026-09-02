@@ -266,3 +266,36 @@ geçen tarihler koddan alıntıdır" ayrımını da yapıyorlar.
 o da yok. Plan-dışı olduğu için yazmamış (sözleşmesi gereği doğru davranış).
 **Karar: FAZ 5'in kapsamına alınıyor** — FAZ 5 zaten kırık referans kapatma
 işidir (§6.9'un `olu-kod-temizlikleri` hafızası), ikisi aynı cinsten.
+
+
+### FAZ 5 ✅ — **Sonnet yazdı**, Opus denetledi
+`olu-kod-temizlikleri.md` (150 satır, hafıza) + `koken-kor-noktalar.md`
+(201 satır, kapsama alınan üçüncü kırık referans) + `MEMORY.md` indeksi.
+**Bulgu yok.** Frontmatter §7'ye uyuyor (name/description/type + Why/How to
+apply + `[[bağ]]`), emsal iki hafıza dosyasının kalıbında; satır iddiaları
+örneklem doğrulandı (2/2). Ajan kendi ilk taslağındaki dört satır numarası
+hatasını bulup düzeltmiş — sözleşmenin §3.4 öz-inceleme maddesi işlemiş.
+
+K3 dürüstlüğü korundu: tarihsel KORUNANLAR listesi uydurulmadı, "Kayıp liste"
+bölümü kasıtlı boş bırakıldı ve nedeni yazıldı (`git log --all --
+.claude/memories/` boş dönüyor — liste hiç commit edilmemiş).
+
+## FAZ 6 bölündü — kırık referans bir örüntü çıktı
+
+Sprint boyunca **dört** kırık referans bulundu; üçü kapatıldı, dördüncüsü
+FAZ 5'in Durak'ında rapor edildi (`tests/bagsiz-ad-kapisi.test.js:17` →
+`[[bagsiz-ad-kapisi]]`, hafıza dizininde yok).
+
+Dördüncüsünü de tek tek kapatmak §6.6'nın kendi uyarısına düşer: *"Kapısı
+olmayan kural, zamanla tavsiyeye döner."* Referans bütünlüğü de öyle — beşinci
+kırık referans, altıncı, yarın yine oluşur. Bu yüzden FAZ 6 ikiye bölündü:
+
+### FAZ 6a — Referans bütünlüğü kapısı · 🅢 · ~1 oturum
+`[[hafıza]]` bağları ve `.claude/plans/*.md` işaretleri repoda gerçekten var
+mı — bunu sınayan bir kapı testi. Bir de dördüncü eksik dosya.
+**Yeni:** `tests/referans-butunlugu.test.js`,
+`.claude/memories/bagsiz-ad-kapisi.md`
+
+### FAZ 6b — Dikiş turu + kapanış · parent'ta
+§4.4: *"Dikiş turu her hâlde planı yazandadır."* Fazlar arası bağ, tam süit
+(sprintin tek koşusu), kapanış raporu, hafıza, commit.
