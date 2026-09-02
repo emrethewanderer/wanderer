@@ -59,6 +59,17 @@ function bytesToB64(bytes: Uint8Array): string {
   return btoa(bin);
 }
 
+/* Sabit zamanlı karşılaştırma — `===` ilk farklı bayta gelince döner ve
+   sızdırdığı süre farkı sırrı bayt bayt tahmin etmeye yarayabilir.
+   İkizi bulten-cikis/index.ts:61'dedir; aynı işi iki yerde ayrı yazmak
+   yerine aynı kalıp kullanıldı. */
+function safeEq(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 async function svixDogrula(id: string, timestamp: string, signatureHeader: string, gövde: string): Promise<boolean> {
   if (!RESEND_WEBHOOK_SECRET || !id || !timestamp || !signatureHeader) return false;
 
@@ -79,7 +90,7 @@ async function svixDogrula(id: string, timestamp: string, signatureHeader: strin
 
   // "v1,<b64>" biçiminde bir ya da birden çok değer (boşlukla ayrılmış).
   const adaylar = signatureHeader.split(' ').map(s => s.split(',')[1]).filter(Boolean);
-  return adaylar.some(a => a === beklenen);
+  return adaylar.some(a => safeEq(a, beklenen));
 }
 
 /* ─── 2. OLAY YARDIMCILARI ─── */

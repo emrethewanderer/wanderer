@@ -1,0 +1,19 @@
+# Wanderer AI — HTTP güvenlik başlıkları
+#
+# Netlify / Cloudflare Pages bu dosyayı doğrudan okur (vite `public/` içeriğini
+# dist'e kopyalar). BAŞKA bir hosting kullanılıyorsa bu dosya SESSİZCE ETKİSİZDİR
+# — aynı başlıklar orada elle tanımlanmalıdır; bkz. SETUP-GUVENLIK-BASLIKLARI.md.
+#
+# Neden burada: `frame-ancestors` ve `X-Frame-Options` <meta> ile TESLİM
+# EDİLEMEZ — tarayıcılar meta üzerinden geleni yok sayar. _src.html:27 bunu
+# doğru biliyor ve "hosting katmanında verilir" diyordu; ama repo'da o katmanı
+# gösteren tek bir satır yoktu, yani clickjacking koruması yalnız bir yorumda
+# yaşıyordu (denetim C8). Bu dosya o cümleyi yapılandırmaya çevirir.
+
+/*
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

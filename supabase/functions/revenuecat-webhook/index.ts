@@ -74,6 +74,17 @@ function resolveEntitlements(event: Record<string, unknown>): { hasPro: boolean;
   return { hasPro, hasMax };
 }
 
+/* Sabit zamanlı karşılaştırma — `===` ilk farklı bayta gelince döner ve
+   sızdırdığı süre farkı sırrı bayt bayt tahmin etmeye yarayabilir.
+   İkizi bulten-cikis/index.ts:61'dedir; aynı işi iki yerde ayrı yazmak
+   yerine aynı kalıp kullanıldı. */
+function safeEq(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
@@ -81,7 +92,7 @@ Deno.serve(async (req) => {
 
   // ── Secret doğrulama ──
   const auth = req.headers.get('Authorization') || '';
-  if (!WEBHOOK_SECRET || (auth !== WEBHOOK_SECRET && auth !== `Bearer ${WEBHOOK_SECRET}`)) {
+  if (!WEBHOOK_SECRET || (!safeEq(auth, WEBHOOK_SECRET) && !safeEq(auth, `Bearer ${WEBHOOK_SECRET}`))) {
     return new Response('Unauthorized', { status: 401 });
   }
 

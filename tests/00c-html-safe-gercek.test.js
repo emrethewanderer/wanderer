@@ -109,3 +109,41 @@ describe('setHTML / setText — DOM yazarken de koruma sürüyor', () => {
     expect(el.textContent).toBe('<script>alert(1)</script>');
   });
 });
+
+describe('DEFAULT_CONFIG — izin verilen öznitelik gerçekten hayatta kalır', () => {
+  /* Bu blok, çapraz denetimin (Sonnet, 2026-09-02) bulduğu sessiz kırığın
+     bekçisidir: ALLOWED_URI_REGEXP override'ı, ADD_URI_SAFE_ATTR olmadan
+     URI OLMAYAN değerlere de uygulanıyordu. Sonuç: `target`, `tabindex` ve
+     tüm `data-*` allowlist'te olmalarına RAĞMEN sessizce siliniyordu — ve
+     `target="_blank" → rel="noopener"` hook'u hiçbir zaman çalışmıyordu.
+     Konfigürasyon "izin verdim" derken ürün "sildim" diyordu. */
+
+  it('target ve rel korunur — _blank bağlantısı noopener kazanır', () => {
+    const cikti = safeHTML('<a href="https://ornek.com" target="_blank">bağ</a>');
+    expect(cikti).toContain('target="_blank"');
+    expect(cikti).toContain('noopener');
+  });
+
+  it('tabindex ve data-* korunur — klavye ve durum bilgisi düşmez', () => {
+    const cikti = safeHTML('<div tabindex="0" data-id="42" data-state="acik">k</div>');
+    expect(cikti).toContain('tabindex="0"');
+    expect(cikti).toContain('data-id="42"');
+    expect(cikti).toContain('data-state="acik"');
+  });
+
+  it('aria-label korunur — erişilebilirlik sanitize edilirken kaybolmaz', () => {
+    const cikti = safeHTML('<button aria-label="Kapat">×</button>');
+    expect(cikti).toContain('aria-label="Kapat"');
+  });
+
+  it('olay işleyicisi allowlist\'te değil — onclick her hâlükârda düşer', () => {
+    const cikti = safeHTML('<button onclick="yap()" tabindex="0">bas</button>');
+    expect(cikti.toLowerCase()).not.toContain('onclick');
+    expect(cikti).toContain('tabindex="0"');   // ama meşru olan kalır
+  });
+
+  it('javascript: href hâlâ kesilir — muafiyet URI süzgecini gevşetmedi', () => {
+    const cikti = safeHTML('<a href="javascript:alert(1)" target="_blank">x</a>');
+    expect(cikti.toLowerCase()).not.toContain('javascript:');
+  });
+});
