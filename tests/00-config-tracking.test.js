@@ -102,7 +102,7 @@ describe('getUserMsgCount()', () => {
 // trackEmotionalFlow(text) — Duygu Motoru'na (13D) DEVREDİLDİ (2026-08-29,
 // FAZ 2): intensity artık dgNabiz'in sürekli 0..4 kuvvetidir; kanıt yoksa
 // eski "2: nötr" varsayılanı yerine null döner ve akışa hiçbir şey eklenmez
-// (§6.10). Emsal: [[gerceklik-mimarisi]].
+// (§6.10). Emsal: .claude/plans/gerceklik-mimarisi.md.
 describe('trackEmotionalFlow(text)', () => {
   beforeEach(() => {
     S._emotionalFlow = [];

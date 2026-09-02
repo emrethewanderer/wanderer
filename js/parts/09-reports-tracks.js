@@ -903,7 +903,7 @@ export async function saveBreakthroughMoment(text) {
  *
  *  Dönüşümün en dürüst kanıtı bir sayı değil, kişinin kendi diliyle yazdığı
  *  iki cümledir: aylar arayla, aynı hayat hakkında. Model bu cümleleri
- *  ÜRETMEZ — uygulama kaynaktan keser ([[kesin-alinti-mimarisi]]).
+ *  ÜRETMEZ — uygulama kaynaktan keser (.claude/plans/kesin-alinti-mimarisi.md).
  *
  *  Kanıt kapısı: iki AYRI kayıt yoksa `null` (tek cümle bir kıyas değildir).
  *  @returns {Promise<{ilk:{metin,tarih}, son:{metin,tarih}}|null>} */

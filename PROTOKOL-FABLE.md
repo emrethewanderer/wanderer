@@ -167,7 +167,8 @@ read_page) → gerekirse screenshot → **konsol kontrolü**. Faz ancak
   (`scripts/auto-build.sh`) — Emre elle build almaz; ama sen faz içinde yine
   de kendi build+test kapından geçersin.
 
-**Preview TEK ORIGIN'dir: `http://localhost:3030`.** Önbellek şüphesinde yeni
+**Preview TEK ORIGIN'dir: `http://localhost:3030`.** (Preview aracı uzak
+oturumda yüklü olmayabilir — bkz. §10.4.) Önbellek şüphesinde yeni
 port açmak yasak. O refleks `.claude/launch.json`'ı 22 girdiye, portları
 5176–5194 aralığına şişirdi; her yeni origin bir preview penceresi daha açtı ve
 her açılışta oturum da state de sıfırlandı. Kaçmak çözüm değildi — önbelleğin
@@ -288,7 +289,8 @@ kapanır — atlanmaz, Emre'nin tekrar istemesine gerek yoktur:
    anlamlı bir mesajla commit'i oluştur ve turu kapat. Bu adım repo'nun
    genel "yalnız istenince commit et" kuralının BİLİNÇLİ istisnasıdır — Emre
    bunu durağan bir talimat olarak verdi (2026-07-24): push YOK, yalnız
-   commit; push hâlâ ayrı onay ister.
+   commit; push hâlâ ayrı onay ister. **Uzak oturumda bu madde değişir —
+   bkz. §10.4.**
 
 ### 3.6 Kesinti kurtarma ("save state")
 Oturum limiti / sıkıştırma / yeni oturum: **TaskList + hafıza = kayıt
@@ -545,6 +547,9 @@ microcopy icat etme yasağı, ad göçü yasağı, commit ve hafıza yasağı,
 kurulur. Devir çağrısı **her hâlükârda** şunları taşır: plan dosyasının
 yolu + FAZ numarası + protokol çekirdeğini (§3/§5/§6) okuma talimatı.
 
+> **Uyarı — ortam:** ajan dosyaları uzak oturumda repodan yüklenir ve
+> **oturum açılışında** taranır; commit edilmemişse ajan YOKTUR (§10.2).
+>
 > **Uyarı:** `CLAUDE.md`'nin `@import`'u alt ajana taşındığına GÜVENME.
 > Protokol yüklenmezse §5–§6 disiplini de gelmez — yani devrin tam da
 > güvendiği şey gelmez. Ajanın kalibrasyon maddesi (eski §8 satırı) artık
@@ -887,6 +892,90 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] Hafızaya yaz + MEMORY.md indeksi
 - [ ] Ölü kod / artık temizliği (kanıtla)
 - [ ] `git status`/`diff` gözden geçir + **commit** (push değil)
+
+---
+
+## 10 · ORTAM AYRIMI — LOKAL MAKİNE VE UZAK OTURUM
+
+> Bu bölüm 2026-09-02'de eklendi. Emre o gün GitHub üzerinden (uzak oturum)
+> çalışmaya başladı; protokolün geri kalanı aylarca **lokal makinede** yazıldı
+> ve farkında olmadan lokal varsayımlar taşıyor. Aşağıdaki maddeler o
+> varsayımları adlandırır — kuralları gevşetmek için değil, iki ortamda da
+> geçerli olsunlar diye.
+
+### 10.1 Tek cümlelik fark
+
+**Lokal oturum DİSKİ görür; uzak oturum REPOYU görür.**
+
+Uzak oturum her açılışta repoyu klondan kurar ve iş bitince kabı geri verir.
+Diskte durup commit edilmemiş hiçbir şey oraya ulaşmaz; orada üretilip commit
+edilmemiş hiçbir şey geri dönmez. Lokalde "dosya duruyor ya" diyebildiğin her
+şey, uzakta **yoktur**.
+
+### 10.2 Bunun bedeli ölçüldü (2026-09-02)
+
+İlk uzak oturum `.claude/` altını boş buldu ve şu tablo çıktı:
+
+| Eksik | Sonucu |
+|---|---|
+| `.claude/agents/` | `uygulayici`/`denetci` adları uzakta YOK — devir mekanik olarak imkânsız |
+| `.claude/memories/` | §7 hafıza disiplini işlevsiz; **23** hedefsiz `[[bağ]]` |
+| `.claude/settings.json` | `auto-build.sh` ve `devir-notu.sh` diskte ölü duruyordu |
+| `.claude/launch.json` | §3.3'ün preview attach girdisi yok |
+| `.claude/plans/` (birkaç plan) | §6.10'un "Ayrıntı:" dediği belgeler yok |
+
+**İki ölçüm birbirine karıştırılmamalı** — ilk yazımında karıştırıldı ve
+çapraz denetim yakaladı (2026-09-02):
+
+- §4.4'ün **29 günlük** düşük-uyum ölçümü (149 🅢 faza 11 çağrı) **lokal** bir
+  bulgudur. O pencerede ajan adları vardı ve kullanılıyordu — kapı 11 kez
+  açıldı. §4.4'ün kendi teşhisi de yokluk değil, **kapının yeriydi**: kural
+  "Faz devredildiyse…" diye başlayan şartlı bir cümleydi.
+- Yukarıdaki tablo **ayrı** bir bulgudur ve bugünündür: uzak oturumda
+  `.claude/agents/` repoda hiç yok, yani devir orada denenemezdi bile.
+
+İkisini tek nedensellik zincirine bağlamak zaman açısından da imkânsızdır:
+uzak oturum 2026-09-02'de başladı, 29 günlük pencere ise 07-27'de. **Ders:**
+bir kuralın uygulanmadığını görünce disipline yormadan önce o ortamda mekanik
+olarak MÜMKÜN olup olmadığına bak — ama iki ortamın bulgusunu tek rakama
+sıkıştırma (§6.10: kanıtı olmayan değer yoktur, uydurulmuş nedensellik dahil).
+
+### 10.3 Kural: `.claude/` altındaki her şey commit edilir
+
+Ajan sözleşmeleri, planlar, hafıza dosyaları, `settings.json`, `launch.json` —
+hepsi repoya girer. Bunlar "yerel ayar" değil, **çalışma anayasasının
+mekaniğidir**; protokolün yarısı onlara dayanır.
+
+Tek istisna, **üretilmiş** olan: `.claude/DEVIR.md`. Kanca onu her tur yeniden
+yazar ve içeriği `git log`/`git status`'tan türetilebilir; takip edilse her tur
+diff üretir. `.gitignore`'dadır (2026-09-02 kararı).
+
+Bir dosyanın hangi tarafa düştüğünü tek soru ayırır: *bunu bir insan mı yazdı,
+yoksa bir komut mu üretti?* İnsan yazdıysa commit edilir.
+
+### 10.4 Madde madde ortam ayrımı
+
+| Madde | Lokalde | Uzak oturumda |
+|---|---|---|
+| **§3.5/6 commit** | "commit at, **push YOK**" — iş diskte güvende, push ayrı onay ister | kap geçicidir: **commit edilmeyen iş oturumla birlikte ölür.** Belirlenmiş dala push, kaydın kendisidir; onayı oturumun görev tanımı verir |
+| **§3.3 preview** | tek origin `:3030`, `preview_start` ile canlı DOM/konsol doğrulama | preview aracı yüklü olmayabilir. O zaman kapı **atlanmaz, ortamı adlandırılır**: "preview bu oturumda yok, X sınanamadı" — sahte "doğruladım" yasak (§6.2) |
+| **§4.4 devir** | `.claude/agents/` diskte, adlar hep yüklü | ajan dosyasını yazmak yetmez, **commit edilmelidir** — ve tanınması ânında olmayabilir: 2026-09-02'de commit'ten ~1,5 saat sonra, aynı oturum içinde etkinleşti. Ad henüz tanınmıyorken devir gerekiyorsa sözleşmeyi çağrının prompt'una elle yükle ve bunu **sapma olarak raporla**; tanınıyorsa gerçek adı kullan (nabız yalnız gerçek adı sayar, §10.5) |
+| **§3.6 DEVIR.md** | kanca yazar, dosya diskte kalır, sonraki oturum okur | klonla gelmez. Kalıcı kayıt noktası **plan dosyasıdır** — "İlk hamle" satırı oraya yazılır (zaten kuralın kendisi budur) |
+| **§7 hafıza** | `.claude/memories/` diskte birikir | commit edilmemiş hafıza uzakta yoktur. Hafıza yazmak, **commit etmekle** tamamlanır |
+| **§6.5 ELLE işler** | Supabase deploy vb. | değişmez — ama listeye bir kalem daha girer: *lokalde durup commit edilmemiş dosyalar*. Onların içeriği **uydurulamaz** (§6.2, gerçeklik kuralı) |
+
+### 10.5 Ölçen aletin kendisi de ortama bağlıdır
+
+`scripts/devir-notu.sh`'in **devir nabzı** transkriptlerde
+`"subagent_type":"uygulayici"` sayar. Ajan adı tanınmıyorsa devir
+`general-purpose` ile yapılır ve nabız **yapılan devri göremez**; üstelik
+başarısız bir `uygulayici` denemesi transkripte yazıldığı için **yapılmayanı
+sayabilir**. 2026-09-02'de tam olarak bu oldu: nabız "2 çağrı" bastı, ikisi de
+başarısız denemeydi, gerçekte yapılan beş devir sayılmadı.
+
+Ders `tests/devir-nabzi.test.js`'in kendi cümlesidir: *"Ölçen aletin kendisi
+ölçülmezse ölçüm bir teselli olur."* Bir nabız kırmızı bastığında önce
+**aletin o ortamda ne ölçebildiğini** sor, sonra kuralın öldüğüne hükmet.
 
 ---
 

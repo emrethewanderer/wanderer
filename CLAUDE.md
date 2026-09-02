@@ -28,7 +28,13 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
    plana ara vermeden devam et. Eşik doğruysa turun son mesajında
    yapıştırılabilir **DEVİR** bloğu: görev, biten/yarım, diskteki durum,
    **İlk hamle**, ELLE bekleyenler, okunacak hafıza.
-8. **Faz kapanışı turu bitirmez.** Her fazın sonunda kayıt noktası atılır —
+8. **Uzak oturum (GitHub) diski değil REPOYU görür** — `.claude/` altındaki
+   her şey (ajanlar, planlar, hafıza, `settings.json`, `launch.json`) commit
+   edilir, yoksa uzakta YOKTUR — devir orada denenemez bile.
+   Tek istisna üretilmiş olan `.claude/DEVIR.md` (gitignore'da). Uzakta kap
+   geçicidir — commit edilmeyen iş oturumla ölür, o yüzden push kaydın
+   kendisidir. Ayrıntı: `PROTOKOL-FABLE.md` §10.
+9. **Faz kapanışı turu bitirmez.** Her fazın sonunda kayıt noktası atılır —
    TaskList güncel + plan dosyasında fazın durumu ve sıradaki **İlk hamle** +
    commit — sonra kısa durum bildirimiyle **sorusuz** sonraki faza geçilir;
    Emre'nin "devam" demesi beklenmez. Mekanik fotoğrafı Stop kancası yazar

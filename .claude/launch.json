@@ -1,0 +1,8 @@
+{
+  "wanderer": {
+    "url": "http://localhost:3030"
+  },
+  "wanderer-dist": {
+    "url": "http://localhost:3031"
+  }
+}
