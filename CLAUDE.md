@@ -12,13 +12,15 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
 1. Emre ile daima Türkçe konuş; `PROTOKOL-FABLE.md` dosyasını oku ve uygula.
 2. `_src.html` düzenle — `index.html` build çıktısıdır, elle DÜZENLENMEZ.
 3. Her faz sonunda kapı: `./build.sh` yeşil → **hedefli** test (o fazın
-   dosyaları; tam süit yalnız sprint kapanışında) → preview'da canlı
-   doğrulama → "Konsol temiz." Faz denetimi **öteki modelde** yapılır —
-   yazan denetlemez: Opus yazdıysa Sonnet, Sonnet yazdıysa Opus (§3.3).
-   Preview TEK ORIGIN'dir (`localhost:3030`): önce
-   `./scripts/preview-baslat.sh`, sonra
-   `preview_start({ name: 'wanderer' })`. Önbellek şüphesinde yeni port
-   AÇMA — sunucu `no-store` basar, `/sw.js` kill-switch'tir (§3.3).
+   dosyaları; tam süit yalnız sprint kapanışında) → **doğrulama tarayıcısı**
+   `node scripts/dogrula.mjs` (Playwright: sayfayı açar, canlı DOM/state
+   sorgusunu koşar, konsolu okur) → "Konsol temiz." Cümleyi koşucunun çıkış
+   kodu söyler, sen değil. Faz denetimi **öteki modelde** yapılır — yazan
+   denetlemez: Opus yazdıysa Sonnet, Sonnet yazdıysa Opus (§3.3).
+   Sunucu TEK ORIGIN'dir (`localhost:3030`) ve koşucu ayaktaysa ona bağlanır,
+   değilse kendi kurar. Önbellek şüphesinde yeni port AÇMA — sunucu
+   `no-store` basar, `/sw.js` kill-switch'tir (§3.3). Tarayıcı bulunamazsa
+   kapı atlanmaz, KIRMIZI kapanır — "sınanamadı" bir kapanış hâli değildir.
 4. Sahte başarı yasak: doğrulanmamış hiçbir şeyi "çalışıyor" diye raporlama.
 5. Supabase migration / edge function deploy ELLE işidir — "Senin yapman
    gereken" başlığıyla ayır, deploy edilmiş varsayma.

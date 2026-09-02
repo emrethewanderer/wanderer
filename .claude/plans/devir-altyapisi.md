@@ -210,6 +210,13 @@ yorumdur — ama kanıt değil. Dosya bırakıldı: yanlışsa sessizce çalış
 yani dosyanın hiç olmamasından kötü değil. **Emre'nin yerel oturumda
 `preview_start` ile sınaması gerekiyor.**
 
+> **GÜNCELLEME (2026-09-02, aynı gün):** bu madde artık kapıyı BLOKE ETMİYOR.
+> Doğrulama kapısının üçüncü adımı `preview_start`'tan Playwright koşucusuna
+> taşındı (`scripts/dogrula.mjs`, PROTOKOL §3.3): koşucu sunucuyu kendi kurar,
+> ayaktaysa ona bağlanır ve `launch.json`'a hiç bakmaz. `launch.json` yalnız
+> lokal makinede **göz** gerektiren estetik yargı için duruyor; şeması hâlâ
+> doğrulanmadı ama artık bir kapının değil bir kolaylığın parçası.
+
 ### Bu sprintin ortak bulgusu — `.claude/` oturum açılışında yüklenir
 Üç eksik de aynı sebeple bu oturumda canlı sınanamıyor:
 

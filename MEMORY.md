@@ -24,6 +24,10 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   `window.foo?.()` köprülerini görmemesi, onu kardeş denetçi sorar
 
 ## Ortam / altyapı
+- [[dogrulama-tarayicisi]] — kapının üçüncü adımı (canlı DOM + konsol) araçtan
+  repoya taşındı: `scripts/dogrula.mjs` (Playwright) her iki ortamda da koşar,
+  üç kovayla yargılar (ihlal / dış origin / gürültü) ve "Konsol temiz."i çıkış
+  koduyla kanıtlar; "preview yok" artık kapıyı atlamanın gerekçesi değil
 - [[claude-altyapisi-commit-disi]] — `.claude/` altındaki çalışma altyapısı
   (ajanlar, hafızalar, kancalar, launch girdileri) aylarca yalnız lokal
   makinede kalmış, repoya hiç girmemişti; uzak oturum klondan kurar, commit

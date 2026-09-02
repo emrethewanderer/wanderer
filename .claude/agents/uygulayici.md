@@ -95,9 +95,15 @@ Kaynak kod (`js/`, `css/`, `_src.html`) değişmediyse test kapısı
 `git diff --stat` kanıtıyla **gerekçeli** geçilir; build yine alınır. Sessizce
 atlamak yasaktır, gerekçeyi rapora yazmak şarttır.
 
-Preview gerekiyorsa **tek origin** kuralı geçerlidir (§3.3): önce
-`./scripts/preview-baslat.sh`, sonra ayakta olana bağlan. Önbellek şüphesinde
+Tarayıcı doğrulaması gerekiyorsa **doğrulama tarayıcısını** koştur (§3.3):
+
+    node scripts/dogrula.mjs --eval "typeof window.<fn>"
+    node scripts/dogrula.mjs --senaryo tests/senaryolar/<slug>.mjs
+
+Koşucu sunucuyu kendi kurar; :3030 ayaktaysa ONA bağlanır. Önbellek şüphesinde
 **yeni port açma** — sunucu `no-store` basar, `/sw.js` kill-switch'tir.
+Tarayıcı bulunamazsa kapı atlanmaz: koşucu exit 1 verir, sen bunu
+`## Duraklar`a yazarsın — "sınanamadı" bir kapanış hâli değildir.
 
 ## 5 · Raporun (parent bunu okuyacak)
 

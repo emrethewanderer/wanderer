@@ -63,6 +63,14 @@ jobs:
         # ücretsizdir; checkJs açıldığı gün burası kendiliğinden sertleşir.
         run: npm run typecheck
 
+      - name: Doğrulama tarayıcısı (duman)
+        # Kapının üçüncü adımı (PROTOKOL-FABLE.md §3.3): sayfayı gerçekten aç,
+        # canlı DOM'a bak, konsolu oku. Build ve süit yeşilken de uygulama
+        # ekranda kırık olabilir — "beyaz ekran" sınıfını yalnız bu adım görür.
+        # Chromium runner imajından çözülür (chromiumYoluCoz zinciri); yoksa
+        # koşucu exit 1 verir ve kapı kırmızı kapanır — sessizce atlanmaz.
+        run: node scripts/dogrula.mjs --senaryo tests/senaryolar/acilis.mjs
+
       - name: Tam süit
         # 153 dosya / 3.600+ test. Denetçi kapıları (gerçeklik, tasarım,
         # bağsız-ad, yetim-köprü, eksen, ihtimalsel, XSS, bundle) bu süitin
