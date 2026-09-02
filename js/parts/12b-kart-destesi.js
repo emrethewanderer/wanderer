@@ -7,7 +7,7 @@
 // kalmasın diye. Sözleşme testle mühürlü: tests/12b-kesit-mekanikleri.test.js
 // (EN karşılığı: tests/12b-deste-en.test.js — parite + donuk alan kapısı).
 // Kart eklemek serbesttir; bir motoru malzemesiz bırakmak değil.
-// Her kart, mevcut 12a `wsArchCard` çizicisiyle
+// Her kart, 12a'nın arketip veri şemasıyla
 // UYUMLU şekildedir (aynı alanlar: id/roman/name/sub/whisper/glyph/sigil/lesson +
 // dusunceler/inanclar/hisler/davranislar) — ARTI yeni meta: category/rarity/recipe.
 //

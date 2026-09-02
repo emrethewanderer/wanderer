@@ -300,29 +300,6 @@ function _getSealedDay(id) {
   return S._archetypes?.[id]?.sealedDay || ARKETIPLER_DATA.find(a => a.id === id)?.sealedDay || null;
 }
 
-function _getUserAdds(id, field) {
-  return S._archetypes?.[id]?.userAdds?.[field] || [];
-}
-
-export function initArchetypes() {
-  if (!S._archetypes) S._archetypes = {};
-  ARKETIPLER_DATA.forEach(a => {
-    if (!S._archetypes[a.id]) {
-      S._archetypes[a.id] = { state: a.defaultState, progress: a.progress ?? 0, sealedDay: a.sealedDay, sealedDate: a.sealedDate, userAdds: {} };
-    }
-  });
-
-  // Mevcut arketipi S._personTransition'dan belirle
-  const pt = S._personTransition;
-  if (pt?.current?.description) {
-    const desc = pt.current.description.toLowerCase();
-    const match = ARKETIPLER_DATA.find(a => desc.includes(a.name.toLowerCase()) || desc.includes(a.id));
-    if (match) S._currentArchetypeId = match.id;
-  }
-  if (!S._currentArchetypeId) S._currentArchetypeId = CURRENT_ID;
-
-  _loadArchetypeProgress();
-}
 
 export function getSuggestedArchetype() {
   const deck = _getDeck();
@@ -344,13 +321,6 @@ export function getSuggestedArchetype() {
   return deck.find(a => a.id !== currentId && a.state !== 'locked') || deck[0];
 }
 
-async function _loadArchetypeProgress() {
-  try {
-    if (!window._idb) return;
-    const data = await window._idb.get('wanderer-kv', 'archetypeProgress');
-    if (data?.value) Object.assign(S._archetypes, data.value);
-  } catch (_) {}
-}
 
 export async function _saveArchetypeProgress() {
   try {
@@ -369,9 +339,6 @@ function _getDeck() {
   }));
 }
 
-function _getStreak() {
-  return parseInt(document.getElementById('topbar-streak-count')?.textContent || '0', 10);
-}
 
 /* ══════════════════════════════════════════════════════
    ARCHFIGURE — 12 SVG line-art figür (wsv3-screens.jsx birebir)
@@ -489,176 +456,11 @@ export function wsArchFigureBody(glyph = 'wanderer', color = 'var(--gold)', halo
    ARCHCARD — tarot kart bileşeni (12c kart dilinden)
    Anlam ekseni: altın = şimdi/mühür · lapis gece = eşik/hedef/sis
 ══════════════════════════════════════════════════════ */
-function wsArchCard(a, size = 'full', highlight = false) {
-  const dims = { full: { w: 268 }, mid: { w: 168 }, mini: { w: 100 } }[size];
-
-  const isCurrent  = a.state === 'current';
-  const isSealed   = a.state === 'sealed';
-  const isReach    = a.state === 'reachable';
-  const isLocked   = a.state === 'locked';
-
-  // hedef vurgusu (Arketip ekranı): mühürlü değilse "kapının ardındaki sen"
-  const asGoal = (highlight && !isSealed && !isCurrent) || isReach;
-  const palette = (isCurrent || isSealed) ? 'gold' : 'lapis';
-  const kicker = size === 'mini' ? '' :
-    (highlight && asGoal) ? 'OLMAK İSTEDİĞİN KİŞİ' :
-    (isCurrent || isSealed) ? `${a.roman} · OLDUĞUN KİŞİ` : `${a.roman}`;
-  const badge = isCurrent ? '◆ ŞİMDİ' : isSealed ? '✦ MÜHÜR' : isReach ? '◇ EŞİK' : (highlight ? '◇ HEDEF' : '· SİS');
-
-  let animStyle = '';
-  if (isCurrent && size !== 'mini') {
-    animStyle = 'animation:wsv3CardIn 0.5s ease both,wsArchBreathGlow 3.5s ease-in-out 0.6s infinite;';
-  } else if (isCurrent) {
-    animStyle = 'animation:wsv3CardIn 0.5s ease both;';
-  }
-  const breathClass = isCurrent && size !== 'mini' ? ' ws-arch-card--breath' : '';
-
-  const face = ikvCardFace(a, {
-    palette,
-    kicker,
-    badge,
-    sub: isLocked ? '· sis altında ·' : (a.whisper || a.sub || ''),
-    fog: isLocked,
-    mini: size === 'mini',
-    star: asGoal,
-  });
-
-  return `<div class="ws-arch-card${breathClass}" style="width:${dims.w}px;position:relative;${animStyle}">${face}</div>`;
-}
 
 /* ══════════════════════════════════════════════════════
    ARCHTRAITS — 4-sütun stat block + popup
 ══════════════════════════════════════════════════════ */
-const TRAIT_FIELDS = [
-  { id: 'dusunceler',  label: 'DÜŞÜNCELER',  glyph: '◉' },
-  { id: 'inanclar',    label: 'İNANÇLAR',    glyph: '✦' },
-  { id: 'hisler',      label: 'HİSLER',      glyph: '❖' },
-  { id: 'davranislar', label: 'DAVRANIŞLAR', glyph: '⟡' },
-];
-const TRAIT_SCALE = 5;
 
-function wsArchTraitsHTML(a, dense = false) {
-  const labelSize = dense ? 6.5 : 7;
-  const valSize   = dense ? 16 : 18;
-  return `<div class="ws-traits-grid" style="gap:${dense?8:12}px;">
-    ${TRAIT_FIELDS.map(f => {
-      const items = a[f.id] || [];
-      const userAdds = _getUserAdds(a.id, f.id);
-      const total = items.length + userAdds.length;
-      const fillPct = Math.min(total, TRAIT_SCALE) / TRAIT_SCALE * 100;
-      return `<button class="ws-trait-btn" data-arch-id="${a.id}" data-field="${f.id}" style="position:relative;">
-        <div class="ws-trait-glyph" style="color:var(--gold);font-size:${dense?11:13}px;">${f.glyph}</div>
-        <div class="ws-trait-val" style="font-size:${valSize}px;color:var(--text);">${total}<span style="font-size:10px;color:var(--text-dim);">/${TRAIT_SCALE}</span></div>
-        <div class="ws-trait-label" style="font-size:${labelSize}px;color:var(--text-dim);">${f.label}</div>
-        <div class="ws-trait-bar"><div class="ws-trait-bar-fill" style="width:${fillPct}%;"></div></div>
-      </button>`;
-    }).join('')}
-  </div>`;
-}
-
-function _openTraitPopup(archId, fieldId) {
-  const a = ARKETIPLER_DATA.find(x => x.id === archId);
-  const field = TRAIT_FIELDS.find(f => f.id === fieldId);
-  if (!a || !field) return;
-
-  const existing = document.getElementById('ws-trait-popup');
-  if (existing) existing.remove();
-
-  const items = a[fieldId] || [];
-  const userAdds = _getUserAdds(archId, fieldId);
-
-  const popup = document.createElement('div');
-  popup.id = 'ws-trait-popup';
-  popup.className = 'ws-trait-popup';
-
-  const placeholders = { dusunceler: 'içinden geçen bir cümle…', inanclar: 'inandığın bir doğru…', hisler: 'içinde olan bir his…', davranislar: 'yaptığın bir davranış…' };
-
-  popup.innerHTML = `
-    <div class="ws-trait-popup-inner" id="ws-trait-popup-inner">
-      <svg width="14" height="14" viewBox="0 0 14 14" style="position:absolute;top:-1px;left:-1px;"><path d="M0 7 L0 0 L7 0" fill="none" stroke="var(--gold)" stroke-width="1.2"/></svg>
-      <svg width="14" height="14" viewBox="0 0 14 14" style="position:absolute;top:-1px;right:-1px;"><path d="M14 7 L14 0 L7 0" fill="none" stroke="var(--gold)" stroke-width="1.2"/></svg>
-      <svg width="14" height="14" viewBox="0 0 14 14" style="position:absolute;bottom:-1px;left:-1px;"><path d="M0 7 L0 14 L7 14" fill="none" stroke="var(--gold)" stroke-width="1.2"/></svg>
-      <svg width="14" height="14" viewBox="0 0 14 14" style="position:absolute;bottom:-1px;right:-1px;"><path d="M14 7 L14 14 L7 14" fill="none" stroke="var(--gold)" stroke-width="1.2"/></svg>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--gold-bright);font-size:14px;line-height:1;">${field.glyph}</span>
-          <div>
-            <div style="font-family:var(--cinzel);font-size:11px;letter-spacing:3px;color:var(--gold);font-weight:700;">${field.label}</div>
-            <div style="font-family:var(--fell);font-style:italic;font-size:9px;color:var(--text-dim);letter-spacing:1.5px;margin-top:2px;">${a.name.toLowerCase()} ${a.sub.toLowerCase()}</div>
-          </div>
-        </div>
-        <button id="ws-trait-popup-close" style="background:transparent;border:1px solid var(--border);color:var(--text-mid);cursor:pointer;width:24px;height:24px;padding:0;font-family:var(--cinzel);font-size:14px;line-height:1;">×</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 40%,transparent);opacity:0.55;"></div>
-        <span style="color:var(--gold);font-size:7px;">◆</span>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 60%,transparent);opacity:0.55;"></div>
-      </div>
-      <div style="overflow-y:auto;flex:1;margin-right:-6px;padding-right:6px;">
-        <ul style="margin:0;padding:0;list-style:none;font-family:var(--serif);font-style:italic;font-size:12px;line-height:1.5;color:var(--text);">
-          ${items.map(t => `<li style="padding-left:18px;margin-bottom:8px;position:relative;"><span style="position:absolute;left:0;top:8px;width:10px;height:1px;background:var(--gold);opacity:0.8;display:block;"></span>${t}</li>`).join('')}
-          ${userAdds.map(t => `<li style="padding-left:18px;margin-bottom:8px;position:relative;color:var(--gold-bright);"><span style="position:absolute;left:0;top:7px;color:var(--gold-bright);font-size:9px;">✦</span>${t}</li>`).join('')}
-        </ul>
-        <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
-          <div style="font-family:var(--cinzel);font-size:8px;letter-spacing:2.5px;color:var(--gold);font-weight:700;margin-bottom:6px;">◇ SEN NE EKLERDİN?</div>
-          <div style="font-family:var(--serif);font-style:italic;font-size:11px;color:var(--text-mid);line-height:1.45;margin-bottom:10px;">
-            Bir an için bu kişi olduğunu hayal et — buraya hangi ${field.label.toLowerCase()} satırını eklerdin?
-          </div>
-          <div id="ws-trait-draft-area">
-            <button id="ws-trait-add-btn" style="width:100%;padding:14px 12px;background:rgba(184,149,60,0.04);border:1px dashed var(--gold);color:var(--gold);cursor:pointer;font-family:var(--cinzel);font-size:10px;letter-spacing:2.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">
-              <span style="font-size:14px;line-height:1;">+</span><span>SEN EKLE</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>`;
-
-  document.body.appendChild(popup);
-
-  // Close handlers
-  const close = () => popup.remove();
-  popup.addEventListener('click', e => { if (e.target === popup) close(); });
-  document.getElementById('ws-trait-popup-close').addEventListener('click', close);
-
-  // ESC
-  const onKey = e => { if (e.key === 'Escape') { close(); window.removeEventListener('keydown', onKey); } };
-  window.addEventListener('keydown', onKey);
-
-  // Draft
-  function attachDraftEditor() {
-    const draftArea = document.getElementById('ws-trait-draft-area');
-    draftArea.innerHTML = `
-      <textarea id="ws-trait-textarea" placeholder="${placeholders[fieldId]}" style="width:100%;min-height:50px;background:rgba(0,0,0,0.35);border:1px solid var(--gold);color:var(--text);font-family:var(--serif);font-style:italic;font-size:12px;padding:8px;resize:none;outline:none;line-height:1.4;"></textarea>
-      <div style="display:flex;gap:6px;margin-top:8px;">
-        <button id="ws-trait-commit" style="flex:2;padding:8px 10px;background:rgba(184,149,60,0.25);color:var(--bg);border:none;font-family:var(--cinzel);font-size:9px;letter-spacing:2.5px;font-weight:700;cursor:pointer;">✦ MÜHÜRLE</button>
-        <button id="ws-trait-cancel" style="flex:1;padding:8px 10px;background:transparent;color:var(--text-mid);border:1px solid var(--border);cursor:pointer;font-family:var(--cinzel);font-size:9px;letter-spacing:2px;">VAZGEÇ</button>
-      </div>`;
-
-    const ta = document.getElementById('ws-trait-textarea');
-    ta.focus();
-    ta.addEventListener('input', () => {
-      const btn = document.getElementById('ws-trait-commit');
-      if (btn) btn.style.background = ta.value.trim() ? 'var(--gold)' : 'rgba(184,149,60,0.25)';
-    });
-
-    document.getElementById('ws-trait-commit').addEventListener('click', () => {
-      const val = ta.value.trim();
-      if (!val) return;
-      if (!S._archetypes[archId].userAdds) S._archetypes[archId].userAdds = {};
-      if (!S._archetypes[archId].userAdds[fieldId]) S._archetypes[archId].userAdds[fieldId] = [];
-      S._archetypes[archId].userAdds[fieldId].push(val);
-      _saveArchetypeProgress();
-      close();
-    });
-
-    document.getElementById('ws-trait-cancel').addEventListener('click', () => {
-      draftArea.innerHTML = `<button id="ws-trait-add-btn" style="width:100%;padding:14px 12px;background:rgba(184,149,60,0.04);border:1px dashed var(--gold);color:var(--gold);cursor:pointer;font-family:var(--cinzel);font-size:10px;letter-spacing:2.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;"><span style="font-size:14px;line-height:1;">+</span><span>SEN EKLE</span></button>`;
-      document.getElementById('ws-trait-add-btn').addEventListener('click', attachDraftEditor);
-    });
-  }
-
-  document.getElementById('ws-trait-add-btn').addEventListener('click', attachDraftEditor);
-}
 
 /* ══════════════════════════════════════════════════════
    ARKETİP EKRANI — EMEKLİ (2026-07-03)
@@ -666,16 +468,21 @@ function _openTraitPopup(archId, fieldId) {
    Eski "Olmak İstediğin Kişi" tam-sayfa yüzeyi (statik 12 arketip
    destesi) yerini kullanıcının kendi tasarladığı hedef kimliğe bıraktı
    (10D-olmak-istedigin.js). switchView('arketip') artık 'oik'e alias'lanır.
-   loadArketipView (route yüzeyi) SİLİNDİ. Yalnız onun zincirindeki
-   yardımcılar (wsArchCard/wsArchTraitsHTML/_openTraitPopup/_getStreak/
-   _getUserAdds/TRAIT_FIELDS/TRAIT_SCALE) artık ÇAĞRILMIYOR — ölü kod
-   olarak bırakıldı, ayrı bir temizlik turunda birlikte sökülebilir
-   (birbirine bağlı küme; tek tek silmek gizli bağımlılık riski taşır).
+   loadArketipView (route yüzeyi) SİLİNDİ. Zincirindeki yardımcılar
+   (wsArchCard/wsArchTraitsHTML/_openTraitPopup/_getStreak/_getUserAdds/
+   _loadArchetypeProgress/initArchetypes/TRAIT_FIELDS/TRAIT_SCALE) burada
+   ölü bırakılmıştı; 2026-09-02 temizlik turunda SÖKÜLDÜ (denetim E1).
+   Küme transitif olarak doğrulandı: dokuzunun da ne repo genelinde çağrısı
+   vardı ne de canlı bir zincirden erişimi. Söküm tanım tanım yapıldı ve her
+   adımda sözdizimi sınandı.
    GERİ GETİRME: git ref öncesi 12a-archetypes.js — loadArketipView bu
    blok + #arketip-view HTML'i + ws-arkv / ws-trait CSS + route ile döner.
 
    KORUNAN (canlı importlar — DOKUNMA): ARKETIPLER_DATA, getArchetypeById,
    getAllArchetypeData, getSuggestedArchetype, initArchetypes, _getDeck,
    wsArchFigure, wsArchFigureBody, EMRE_ONERI, _saveArchetypeProgress,
-   _getUserAdds (12b/12c/10q/09b/13l/02b/02c kullanır).
+   (Not: bu liste eskiden _getUserAdds'i de "12b/12c/10q/09b/13l/02b/02c
+   kullanır" diye korunanlara yazıyordu — ölçüldüğünde o çağrıların hiçbiri
+   yoktu. Belge geçmişin fotoğrafıdır; koda karşı doğrulanmadan gerçek
+   sayılmaz.)
 ══════════════════════════════════════════════════════ */

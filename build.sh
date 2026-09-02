@@ -175,3 +175,19 @@ for f in dist/assets/style-*.css; do
   [ -e "$f" ] || continue
   echo "  stylesheet $(basename "$f"): $(( $(gzip -c "$f" | wc -c) / 1024 ))KB gzip (bütçe dışı)"
 done
+
+# ---- NATİF KABUK SENKRONU ----
+# Denetim D1: android/ ve ios/ altındaki web varlıkları dist'ten 283 KB ve bir
+# bundle hash geride kalmıştı — `cap copy` elle koşulan bir adımdı ve bir gün
+# koşulmamıştı. Kopyalar repo'da commit'li olduğu için fark sessizce taşınıyor,
+# mağazaya giden uygulama web'den geri kalıyordu. Build artık kendi senkronunu
+# yapar: türetilmiş çıktı elle senkronlanmaz.
+# Kabuk yoksa (yalnız web dağıtımı) adım sessizce atlanır.
+if [ -d android ] || [ -d ios ]; then
+  if npx --no-install cap copy >/dev/null 2>&1; then
+    echo "  natif kabuklar senkronlandı (cap copy)"
+  else
+    echo "  ⚠ cap copy koşturulamadı — natif kabuklar dist'ten geride kalmış olabilir."
+    echo "    Elle: npx cap copy   (kapı: tests/native-senkron-kapisi.test.js)"
+  fi
+fi
