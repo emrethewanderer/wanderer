@@ -18,11 +18,20 @@
  */
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, isAbsolute } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const I18N_DIR = join(ROOT, 'js/parts/i18n');
+
+/* --dizin <yol>: kapının KENDİSİNİ sınamak için (tests/i18n-parity.test.js
+   self-test) — yalnız TARANAN dil dizinini değiştirir; TR referansı
+   (loadTrRefs, trDeckIds) yine gerçek ROOT'tan okunur, çünkü "doğru" o
+   sabit kalmalı. tasarim-denetci.mjs ve gerceklik-denetci.mjs'in aynı adı
+   taşıyan bayrağıyla aynı kalıp — kapıyı test etmeyen kapı, kapı değildir. */
+const _dizinArg = process.argv.indexOf('--dizin');
+const I18N_DIR = (_dizinArg >= 0 && process.argv[_dizinArg + 1])
+  ? (isAbsolute(process.argv[_dizinArg + 1]) ? process.argv[_dizinArg + 1] : join(ROOT, process.argv[_dizinArg + 1]))
+  : join(ROOT, 'js/parts/i18n');
 
 const STRUCT_TOKENS = ['[MOD:', '[ARAC]', '[KAGIT]', '[TAKIP]', '[KART]', '[NISAN:'];
 /* Donuk sözleşme alanları — deste overlay bunlara ASLA dokunamaz (§0.2 kural 3). */

@@ -86,7 +86,11 @@ function envanter() {
   const out = [];
   for (const ad of readdirSync(PARTS)) {
     if (!ad.endsWith('.js')) continue;
-    for (const m of readFileSync(join(PARTS, ad), 'utf8').matchAll(YUZEY_RE)) {
+    // Liste alındıktan SONRA dosya silinmiş olabilir (paralel koşu) — envanter
+    // o dosyayı yok saymalı, sınavı çökertmemeli.
+    let icerik;
+    try { icerik = readFileSync(join(PARTS, ad), 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
+    for (const m of icerik.matchAll(YUZEY_RE)) {
       if (m[1].startsWith('_')) continue;   // `_` önekli = private, dış yüzey değil
       out.push({ dosya: ad, fn: m[1] });
     }

@@ -24,7 +24,12 @@ import { DG_KAPI_YUZEYLER } from '../js/parts/13D-duygu-motoru.js';
 
 const DIZIN = join(process.cwd(), 'js', 'parts');
 const DOSYALAR = readdirSync(DIZIN).filter(f => f.endsWith('.js') && f !== '13D-duygu-motoru.js');
-const KAYNAK = DOSYALAR.map(f => readFileSync(join(DIZIN, f), 'utf8')).join('\n/*__DOSYA__*/\n');
+// Liste alındıktan SONRA bir dosya silinmiş olabilir (paralel koşu, editör) —
+// bu okuma modül üst seviyesinde: korunmazsa dosyanın TÜM testleri collect
+// aşamasında ölür (bkz. [[kapi-tarama-yarisi]]).
+const KAYNAK = DOSYALAR.map(f => {
+  try { return readFileSync(join(DIZIN, f), 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return ''; throw e; }
+}).join('\n/*__DOSYA__*/\n');
 
 const topla = (re, src = KAYNAK) => {
   const set = new Set();

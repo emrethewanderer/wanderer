@@ -289,7 +289,11 @@ describe('kart — K12: metin YASAK, yalnız sunum', () => {
 
 /** js/ altındaki her .js dosyasını (13D-duygu-motoru.js hariç) tarar. */
 function _jsDosyalari(dizin, sonuc = []) {
-  for (const ad of readdirSync(dizin, { withFileTypes: true })) {
+  // Üst readdirSync bu alt dizini listeledikten SONRA silinmiş olabilir
+  // (paralel koşu) — recursion o dalı yok sayar, taramayı çökertmez.
+  let girdiler;
+  try { girdiler = readdirSync(dizin, { withFileTypes: true }); } catch (e) { if (e && e.code === 'ENOENT') return sonuc; throw e; }
+  for (const ad of girdiler) {
     const yol = join(dizin, ad.name);
     if (ad.isDirectory()) _jsDosyalari(yol, sonuc);
     else if (ad.name.endsWith('.js') && ad.name !== '13D-duygu-motoru.js') sonuc.push(yol);
@@ -301,7 +305,9 @@ describe('kapı — 13D dışında dgKarsilama( çağıran kalmamış olmalı', 
   it('grep: hiçbir dosya dgKarsilama( çağırmıyor', () => {
     const ihlaller = [];
     for (const dosya of _jsDosyalari(join(ROOT, 'js'))) {
-      const icerik = readFileSync(dosya, 'utf8');
+      // Liste alındıktan SONRA dosya silinmiş olabilir (paralel koşu).
+      let icerik;
+      try { icerik = readFileSync(dosya, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
       if (/dgKarsilama\(/.test(icerik)) ihlaller.push(dosya);
     }
     expect(ihlaller).toEqual([]);
@@ -320,7 +326,9 @@ describe('kapı — 13D dışında dgKarsilama( çağıran kalmamış olmalı', 
     ]);
     const bulunanlar = new Set();
     for (const dosya of _jsDosyalari(join(ROOT, 'js'))) {
-      const icerik = readFileSync(dosya, 'utf8');
+      // Liste alındıktan SONRA dosya silinmiş olabilir (paralel koşu).
+      let icerik;
+      try { icerik = readFileSync(dosya, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
       if (/dgNabiz\(/.test(icerik)) bulunanlar.add(dosya);
     }
     expect(bulunanlar).toEqual(MUAF);

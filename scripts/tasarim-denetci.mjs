@@ -70,6 +70,14 @@ const TARAMA = _dizinArg >= 0 && process.argv[_dizinArg + 1]
   ? [process.argv[_dizinArg + 1]]
   : ['css', 'js'];
 
+/* Göreli yolun kökü TARAMA'nın kendisidir, ROOT değil: `--dizin` ile bir
+   fixture verildiğinde rapor yolu (`rel`) hâlâ ROOT'a göre üretilirse
+   `../../tmp/…` çıkar ve T7'nin `js/parts/[^/]+\.js` deseni hiç tutmaz —
+   kapının kendi testi o yüzden repoya yazmak ZORUNDA kalıyordu. */
+const REL_KOK = _dizinArg >= 0 && process.argv[_dizinArg + 1]
+  ? (isAbsolute(process.argv[_dizinArg + 1]) ? process.argv[_dizinArg + 1] : join(ROOT, process.argv[_dizinArg + 1]))
+  : ROOT;
+
 const ihlaller = [];
 function ihlal(dosya, satirNo, kural, satir, aciklama) {
   ihlaller.push({ dosya, satirNo, kural, satir: String(satir).trim().slice(0, 120), aciklama });
@@ -312,10 +320,14 @@ function bloklar(satirlar, yorum) {
 }
 
 function denetle(dosyaTam) {
-  const rel = relative(ROOT, dosyaTam);
-// Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
-// paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
-// yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  // rel; TARAMA'nın köküne göre (REL_KOK) üretilir, ROOT'a göre değil —
+  // aksi halde --dizin ile verilen bir fixture'da "../../tmp/…" çıkar ve
+  // T7'nin `js/parts/…` deseni hiç tutmaz.
+  const rel = relative(REL_KOK, dosyaTam);
+// ENOENT-güvenli düş: repo taraması sırasında bir dosya silinebilir
+// (editör, git checkout, paralel bir araç) — savunmacı stil §5.2'nin
+// kuralıdır ve T7'nin fixture'a taşınmasından sonra da genel bir katman
+// olarak kalır (K2: yarışın kaynağı ayrı, sonucuna karşı savunma ayrı).
   let kaynak;
   try { kaynak = readFileSync(dosyaTam, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return []; throw e; }
   const satirlar = kaynak.split('\n');
@@ -391,10 +403,14 @@ function denetle(dosyaTam) {
 const T1_JS_PROP_RE = /\.zIndex\s*=\s*['"`]?(-?\d+)/;
 
 function denetleJs(dosyaTam) {
-  const rel = relative(ROOT, dosyaTam);
-// Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
-// paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
-// yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  // rel; TARAMA'nın köküne göre (REL_KOK) üretilir, ROOT'a göre değil —
+  // bkz. denetle()'deki açıklama; T7'nin karar deseni (satır ~421) bu
+  // göreliliğe bağlıdır.
+  const rel = relative(REL_KOK, dosyaTam);
+// ENOENT-güvenli düş: repo taraması sırasında bir dosya silinebilir
+// (editör, git checkout, paralel bir araç) — savunmacı stil §5.2'nin
+// kuralıdır ve T7'nin fixture'a taşınmasından sonra da genel bir katman
+// olarak kalır (K2: yarışın kaynağı ayrı, sonucuna karşı savunma ayrı).
   let kaynak;
   try { kaynak = readFileSync(dosyaTam, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return []; throw e; }
   const satirlar = kaynak.split('\n');

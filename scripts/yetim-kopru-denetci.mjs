@@ -90,9 +90,9 @@ const dosyalar = jsDosyalari(TARAMA_KOK);
    `\n});` araması kaçırıyor ve o dosyanın TÜM expose'ları yetim görünüyordu. */
 const expose = new Set();
 for (const yol of dosyalar) {
-  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
-  // paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
-  // yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (editör,
+  // git checkout, paralel bir araç). Var olmayan dosya repo'nun kalıcı
+  // parçası değildir — sessizce atlanır; susturma değil, doğru semantik.
   let src;
   try { src = readFileSync(yol, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
   for (const m of src.matchAll(/window\.(\w+)\s*(?:=[^=]|\|\|=|\?\?=)/g)) expose.add(m[1]);
@@ -112,9 +112,9 @@ for (const yol of dosyalar) {
 /* ── 2. Karşılıksız çağrıları topla ──────────────────────────────── */
 const ihlaller = [];
 for (const yol of dosyalar) {
-  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
-  // paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
-  // yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (editör,
+  // git checkout, paralel bir araç). Var olmayan dosya repo'nun kalıcı
+  // parçası değildir — sessizce atlanır; susturma değil, doğru semantik.
   let src;
   try { src = readFileSync(yol, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
   src.split('\n').forEach((satir, i) => {
@@ -165,9 +165,9 @@ function govde(src) {
 // Repo genelinde export edilen fonksiyon adları → tanımlandığı dosya
 const exportlar = new Map();
 for (const yol of dosyalar) {
-  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
-  // paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
-  // yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (editör,
+  // git checkout, paralel bir araç). Var olmayan dosya repo'nun kalıcı
+  // parçası değildir — sessizce atlanır; susturma değil, doğru semantik.
   let k;
   try { k = govde(readFileSync(yol, 'utf8')); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
   for (const m of k.matchAll(/export\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)/g)) {
@@ -180,9 +180,9 @@ for (const yol of dosyalar) {
 
 const bareIhlaller = [];
 for (const yol of dosyalar) {
-  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
-  // paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
-  // yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  // Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (editör,
+  // git checkout, paralel bir araç). Var olmayan dosya repo'nun kalıcı
+  // parçası değildir — sessizce atlanır; susturma değil, doğru semantik.
   let ham;
   try { ham = readFileSync(yol, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
   const k = govde(ham);

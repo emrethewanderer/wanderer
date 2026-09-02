@@ -39,3 +39,8 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
    commit — sonra kısa durum bildirimiyle **sorusuz** sonraki faza geçilir;
    Emre'nin "devam" demesi beklenmez. Mekanik fotoğrafı Stop kancası yazar
    (`.claude/DEVIR.md`); yeni oturum sırayla onu, planı, sonra hafızayı okur.
+10. **Koşulan ağaç, commit'lenen ağaç olmalı.** Tam süit koşulduktan
+    SONRA çalışma ağacına dokunulduysa (bir plan satırı, bir belge cümlesi
+    bile) süit yeniden koşulur — "yeşil" koşunun sıfatıdır, ağacın değil.
+    CI'ın ("Kapı") kırmızısı bir bildirim değil **iştir**: görüldüğü an
+    fazın devamı durur. Ayrıntı: `PROTOKOL-FABLE.md` §3.5 madde 2 ve §10.4.

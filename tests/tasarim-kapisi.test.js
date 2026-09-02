@@ -22,7 +22,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -138,32 +138,42 @@ describe('tasarım kapısı — JS kolu (stil CSS dosyasında bitmez)', () => {
 });
 
 describe('tasarım kapısı — T7: yüzey adlandırılmadan doğmaz', () => {
-  /* T7 gerçek repo yollarına bakar (js/parts/*.js), bu yüzden --dizin ile
-     sınanamaz: geçici bir modül GERÇEKTEN yazılır ve finally ile silinir. */
-  const GECICI = join(ROOT, 'js/parts/zz-t7-sinav-gecici.js');
+  /* T7'nin karar deseni gerçek repo yolu biçimindedir (js/parts/*.js) ama
+     artık REPOYA bakmıyor: denetçi göreli yolu TARAMA'nın köküne göre
+     üretir (REL_KOK, K1), yani --dizin ile verilen bir fixture'ın İÇİNDE
+     kurulan js/parts/ ağacı da aynı deseni tutturur. Eskiden bu sınav
+     GERÇEK repoya yazıp finally ile siliyordu — vitest paralel koşarken
+     başka bir denetçi tam o anda js/ altını gezerse ENOENT ile çöküyordu
+     (kapi-tarama-yarisi). Artık yazma tamamen fixture'da kalır. */
+  const MODUL_ADI = 'zz-t7-sinav-gecici.js';
+
+  /** `sina()`'nın mkdtemp+finally kalıbını izler; farkı T7'nin gerçek repo
+   *  yolu deseni yüzünden düz dosya değil `js/parts/` alt ağacı istemesidir. */
+  function sinaT7(icerik) {
+    const dir = mkdtempSync(join(tmpdir(), 'tasarim-t7-'));
+    try {
+      const partsDir = join(dir, 'js/parts');
+      mkdirSync(partsDir, { recursive: true });
+      writeFileSync(join(partsDir, MODUL_ADI), icerik);
+      const res = kos(['--dizin', dir, '--liste']);
+      return res.stdout + res.stderr;
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
 
   it('yeni bir bannersiz modül kapıyı kırar', () => {
-    try {
-      writeFileSync(GECICI, 'export function zzSinav() { return 1; }\n');
-      const res = kos(['--liste']);
-      const cikti = res.stdout + res.stderr;
-      expect(cikti).toMatch(/T7/);
-      expect(cikti).toMatch(/zz-t7-sinav-gecici/);
-    } finally {
-      rmSync(GECICI, { force: true });
-    }
+    const cikti = sinaT7('export function zzSinav() { return 1; }\n');
+    expect(cikti).toMatch(/T7/);
+    expect(cikti).toMatch(/zz-t7-sinav-gecici/);
   });
 
   it('FELSEFE satırı olan yeni modül kapıdan geçer', () => {
-    try {
-      writeFileSync(GECICI,
-        '/* ═══\n   ZZ — Sınav Modülü\n   FELSEFE (Emre): bu yüzey Yolculuk metaforunu konuşur.\n═══ */\n' +
-        'export function zzSinav() { return 1; }\n');
-      const res = kos(['--liste']);
-      expect(res.stdout + res.stderr).not.toMatch(/zz-t7-sinav-gecici/);
-    } finally {
-      rmSync(GECICI, { force: true });
-    }
+    const cikti = sinaT7(
+      '/* ═══\n   ZZ — Sınav Modülü\n   FELSEFE (Emre): bu yüzey Yolculuk metaforunu konuşur.\n═══ */\n' +
+      'export function zzSinav() { return 1; }\n'
+    );
+    expect(cikti).not.toMatch(/zz-t7-sinav-gecici/);
   });
 
   it('taban çizgisindeki eski borç tolere edilir (liste büyümedikçe)', () => {

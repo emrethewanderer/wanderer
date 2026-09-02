@@ -24,7 +24,11 @@ const oku = (rel) => readFileSync(join(KOK, rel), 'utf8');
 
 /** js/ altındaki tüm .js dosyaları (parts, ext, i18n, kök). */
 function _tumKaynaklar(dir = 'js', biriken = []) {
-  for (const ad of readdirSync(join(KOK, dir), { withFileTypes: true })) {
+  // Üst readdirSync bu alt dizini listeledikten SONRA silinmiş olabilir
+  // (paralel koşu) — recursion o dalı yok sayar, taramayı çökertmez.
+  let girdiler;
+  try { girdiler = readdirSync(join(KOK, dir), { withFileTypes: true }); } catch (e) { if (e && e.code === 'ENOENT') return biriken; throw e; }
+  for (const ad of girdiler) {
     const rel = `${dir}/${ad.name}`;
     if (ad.isDirectory()) _tumKaynaklar(rel, biriken);
     else if (ad.name.endsWith('.js')) biriken.push(rel);
@@ -52,7 +56,11 @@ describe('büyük harf kapısı — harfin kuralı dilin kuralıdır', () => {
   it('repoda sabit tr-TR ile büyütme YALNIZ gerekçeli muafiyetle kalır', () => {
     const ihlaller = [];
     for (const dosya of _tumKaynaklar()) {
-      const satirlar = oku(dosya).split('\n');
+      // Liste alındıktan SONRA dosya silinmiş olabilir (paralel koşu) —
+      // o dosya bu turda taranamaz sayılır, sınav çökmez.
+      let ham;
+      try { ham = oku(dosya); } catch (e) { if (e && e.code === 'ENOENT') continue; throw e; }
+      const satirlar = ham.split('\n');
       satirlar.forEach((satir, i) => {
         if (!SABIT_LOCALE.test(satir)) return;
         // Muafiyet satırın kendisinde ya da üstündeki üç yorum satırında.
