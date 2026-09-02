@@ -299,3 +299,59 @@ mı — bunu sınayan bir kapı testi. Bir de dördüncü eksik dosya.
 ### FAZ 6b — Dikiş turu + kapanış · parent'ta
 §4.4: *"Dikiş turu her hâlde planı yazandadır."* Fazlar arası bağ, tam süit
 (sprintin tek koşusu), kapanış raporu, hafıza, commit.
+
+
+## Emre'nin kalibresi — 2026-09-02 (sprint içinde)
+
+Emre devir ölçüsünü keskinleştirdi:
+
+> **Opus'un yapıp Sonnet'in yapamadıklarını Opus yapar, Sonnet denetler.
+> Sonnet'in de Opus'un da yapabildiğini Sonnet yapar, Opus denetler.
+> Planlama her zaman Opus'ta.**
+
+Bu §4.4'ün özüdür ama sınavı daha nettir: soru "yargı var mı" değil,
+**"Sonnet bunu yapabilir mi"**dir. Yapabiliyorsa faz 🅢'dir.
+
+### Bu ölçüyle bir öz-denetim bulgusu: FAZ 1 yanlış etiketlenmiş
+
+FAZ 1 (ajan sözleşmeleri) 🅞 damgalanmıştı. Yeni ölçüye vurulduğunda yanlış:
+sözleşmenin yasak listesi §4.4'te zaten **sayılı** — plandan okunabilirdi,
+Sonnet yazabilirdi. Yalnız iki şey yargıydı: araç listesinin sınırı
+(`denetci`ye Write/Edit verilmemesi) ve sözleşmenin tonu.
+
+§4.4 bu duruma ne diyeceğini biliyor: *"Karışık faz bölünür — bir damla yargı
+bütün fazı 🅞 yapmaz."* Doğru hamle fazı ikiye bölmekti: gövde 🅢 (yasak
+listesi, protokolden), yargı çekirdeği 🅞 (araç sınırı). Bölünmedi, bütünü
+parent'a alındı — yani protokolün Opus'a yazdığı uyarıya düşüldü:
+*"İkinci eğilimin işi kendine ayırmaktır."*
+
+Kayıt olarak duruyor; FAZ 1 yeniden yapılmıyor (çıktısı denetimden geçti ve
+doğru), ama **etiketi yanlıştı** ve sonraki planlarda bu sınav uygulanacak.
+
+## FAZ 7 — Protokolü uzak oturum gerçeğine çek · 🅞 · ~1 oturum
+
+Devir: 🅞 — hangi kuralın lokal varsayım olduğu, hangisinin evrensel olduğu ve
+yerine ne yazılacağı **kural metni yargısıdır**; plandan okunamaz, üstelik
+protokolün kendisini değiştirmek Emre'nin anayasasına dokunmaktır.
+
+**Bağlam (Emre, 2026-09-02):** *"GitHub üzerinden çalışmaya bugün başladım ve
+aylardır lokal olarak bilgisayar üzerinden çalışıyordum."*
+
+Protokol aylarca **lokal** çalışmaya göre yazıldı. Bu sprint uzak oturumda
+koştu ve en az dört madde çarptı:
+
+| Madde | Lokalde | Uzak oturumda | Bu sprintte ne oldu |
+|---|---|---|---|
+| §3.5/6 | *"push YOK, yalnız commit"* | container geçici — commit edilmeyen iş oturumla ölür | her fazda push edildi, sapma olarak raporlandı |
+| §3.3 | preview tek origin `:3030`, canlı DOM doğrulama | preview aracı oturumda yüklü değil | `launch.json` yazıldı ama **sınanamadı** |
+| §4.4 | `.claude/agents/` diskte durur, hep yüklüdür | repo klondan kurulur — commit edilmemişse ajan YOKTUR | devir kapısı 29 gün ölüydü; kök sebep buydu |
+| §3.6 | `.claude/DEVIR.md` diskte kalır | klonla gelmez; ama commit edilirse her tur diff üretir | gitignore'a alındı, gerekçe yazıldı |
+
+**Görev:** bu maddeleri ölç, sonra protokolü gerçeğe çek — sapmaları tek tek
+rapora yazmak yerine kuralın kendisini iki ortamı da tanıyacak hâle getir.
+Sahte uyum yok: uzakta çalışmayan bir kapı "çalışıyor" diye yazılmaz, ortamı
+adlandırılır.
+
+**Değişen:** `PROTOKOL-FABLE.md` (yeni bir bölüm ya da ilgili maddelere ortam
+ayrımı), `CLAUDE.md`'nin yedek çekirdeği · **Yeni:** bu sprintin öğrendiklerini
+taşıyan hafıza dosyası
