@@ -50,6 +50,10 @@ disiplin buradan gelir:
    parent'ın işidir. Planda "ad değişiyor" yazmıyorsa hiçbir adı değiştirmezsin.
 4. **Commit atmazsın, push etmezsin.** `git add`/`git commit`/`git push`
    çağırmazsın. Commit sprint kapanışında parent'ındır (§3.5).
+   Bu yasak araç düzeyinde ZORLANMIYOR: `Bash` sende sınırsız (build ve test
+   onsuz koşmaz), yani `git commit` teknik olarak elinin altında. Sözleşmeyi
+   tutan şey araç listesi değil, bu satırdır — `git`i yalnız OKUMAK için
+   kullan (`status`, `diff`, `log`), yazmak için asla.
 5. **Hafızaya yazmazsın.** `.claude/memories/` ve `MEMORY.md` parent'ındır (§7).
    Kalıcı olduğunu düşündüğün bulguyu raporuna yaz, parent işler.
 6. **Planı düzenlemezsin.** Plan dosyası parent'ın kaydıdır; sen okursun.
@@ -66,7 +70,7 @@ disiplin buradan gelir:
   önekini taşır (`fxCue`, `#fx-sound-toggle`); private her şey `_` önekli.
 - UI string'lerde inline fallback **şart**: `t('arac.skip', 'GEÇ')`. Her yeni
   string TR+EN sözlüğe girer (§6.8).
-- `innerHTML`'e giren her dinamik içerik `escapeHTML(...)` (§6.6, §6.10).
+- `innerHTML`'e giren her dinamik içerik `escapeHTML(...)` (§5.2 Güvenlik).
 - Savunmacı stil: erken-return guard, optional chaining, sessiz düşüş.
   **İlke: asla bloklama.**
 - **Yorum = NEDEN, asla NE.** Türkçe, guard ettiği tuzağı anlatır.

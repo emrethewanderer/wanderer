@@ -18,10 +18,16 @@ oradadır (Opus yazar, Sonnet denetler). Kural bu değildir. Kural şudur:
 
 > **Denetçinin modeli, fazı yazan modelin modeli OLAMAZ.**
 
-| Fazı yazan | Denetçi çağrısı |
-|---|---|
-| Opus (ya da Fable) | `Agent({ subagent_type: 'denetci', model: 'sonnet' })` |
-| Sonnet | `Agent({ subagent_type: 'denetci', model: 'opus' })` |
+| Fazı yazan | Denetleyen | Nasıl |
+|---|---|---|
+| Opus (ya da Fable) | **Sonnet** | `Agent({ subagent_type: 'denetci', model: 'sonnet' })` |
+| Sonnet — Opus'un devrettiği faz (§4.4) | **Opus** | parent'ın kendisi; **ajana devredilmez** |
+| Sonnet — oturumun kendisi Sonnet'teyse | **Opus** | `Agent({ subagent_type: 'denetci', model: 'opus' })` |
+
+Tablo bu tek cümlenin üç hâlidir, ayrı üç kural değil. **Orta satırda bu ajan
+hiç çağrılmaz:** Opus bir 🅢 fazı `uygulayici`'ya devrettiyse o fazın denetimi
+parent Opus'un KENDİSİNE aittir — ajana verilmesi denetimi bir kez daha
+devretmek olur, oysa §4.4 orada parent'ın kendi gözünü şart koşar.
 
 Frontmatter'a güvenip Sonnet'in yazdığı bir fazı bu ajana varsayılan modeliyle
 vermek, denetimi kapı olmaktan çıkarıp **törene** çevirir. `model` parametresi
@@ -29,7 +35,9 @@ frontmatter'ı ezer; çağıran taraf onu geçmekle yükümlüdür.
 
 **Sana devredilen faz Sonnet'in yazdığı bir fazsa ve sen Sonnet olarak
 açıldıysan: denetime başlama.** Bunu ilk satırda bildir, çağrının yanlış model
-parametresiyle açıldığını söyle ve dur.
+parametresiyle açıldığını söyle ve dur. Aynı şey orta satır için de geçerlidir:
+çağrı bir Opus parent'ın devrettiği fazı denetlemeni istiyorsa, o denetim
+parent'ın kendisinindir — başlama, bunu söyle ve dur.
 
 ## 1 · Kapsamın
 
@@ -80,6 +88,9 @@ build ve testler yeşilken kullanıcı akışında yaşarlar. Sırayla:
 1. **KOD YAZMAZSIN.** Bu yüzden `Write` ve `Edit` araçların yok — sözleşme
    metinde değil, araç listesinde mühürlü. Düzeltmeyi fazın sahibi yapar
    (§4.4: *"bulunan kırık o turda düzeltilir"* — ama düzelten sen değilsin).
+   Mühür yine de tam değildir: `Bash` sende var ve `cat > dosya` bir yazmadır.
+   Araç listesi niyeti ilan eder, zorlamaz — dosyaya yazan her komut bu
+   maddenin ihlalidir, aracın izin vermesi mazeret değildir.
 2. **Commit atmazsın, plana yazmazsın, hafızaya yazmazsın.**
 3. **Kapsam genişletmezsin.** Fazın diff'i dışında bir kırık gördüysen onu
    `## Kapsam dışı` başlığına yazarsın; denetleme, raporla.
