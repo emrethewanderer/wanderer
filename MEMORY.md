@@ -44,3 +44,36 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   (saf yaprak, idempotent DEĞİL, asla bloklamaz), paralellik sözleşmesi
   `tests/boot-nabzi.test.js` ile kilitli. **Koddan yeniden keşifle yazıldı** —
   özgün dosya repoya hiç girmemişti, ham ölçüm oturumu kayıp
+- [[guvenlik-emniyet-katmani]] — kriz tespiti tek kaynaktır (13-extras
+  `detectCrisis`) ve window köprüsünden okunur; `getCrisisContext` bir dönem
+  hiç bağlanmayıp kriz enjeksiyonunu SESSİZCE ölü bıraktı. Köprü bugün
+  13-extras'ın kendi expose bloğunda DEĞİL, `main.js:541`'in toplu
+  `Object.assign`'ında — asimetrinin kendisi tuzak
+- [[odev-zinciri-ve-cipi]] — ödev zinciri iki ayrı yerden sessizce koptu:
+  çipi bağsız bir ad (`typeof … === 'undefined'` guard'ı hep doğru dönüyordu),
+  defteri hiç yazılmamış bir getter kesti; motor yıllarca canlıydı, ekran boştu
+
+## Ürün kararları
+- [[olus-muhru-2-muhru-sen-basarsin]] — "Wanderer kart DAĞITAMAZ, kullanıcı
+  kartını belirler": kazanımın tek kapısı beyandır (`kkMuhurle`), mührü
+  kullanıcı basar, elini çekerse hiçbir şey yazılmaz. Aynı karar söz
+  töreninde de geçerli (madde otomatik söze yazılmaz)
+- [[olunan-ve-niyet-alinan-karari]] — bir kart ya OLUNANdır (kazanılmış →
+  altın → Portre 2.0) ya NİYET ALINANdır (hedef mührü → lapis → OİK); geçiş
+  tek yönlüdür ve SIRASI kritiktir: `porAbsorbCard`, hedeflerden silmeden
+  ÖNCE koşar, yoksa `oikCardRefs()` bir an boşalır
+- [[kisi-kartlari]] — özel tablo mu KV mi? Ölçü verinin kart başına mı bütün
+  hâlinde mi okunduğudur (12f Hazine karşı örnektir); yeni kolon eklerken
+  42703 kademeli düşüş zinciri kopyalanır — migration uygulanmadan da
+  uygulama çalışır
+- [[ilham-kartlari-sosyal-feed]] — "İlham Kartı" ayrı sınıfı 2026-06-21'de
+  Geçiş Kartım omurgasına gömüldü ama ad üç katmanda yaşıyor (modül 10B, DB
+  tablosu, enum `kind:'ilham'`) — `grep "ilham"` bu yüzden yanıltır
+- [[ihtimalsel-dil-devrimi]] — ölçüm/beyan kesin dilde, YORUM ihtimalsel
+  dilde; kapısı `scripts/ihtimalsel-denetci.mjs` + `tests/ihtimalsel-dil-kapisi`
+  ve tabanı sıfırlanmış (sert kapı). Dikkat: belge "beş sözlük" diyor, koşucu
+  ÜÇ tarıyor — prompt sözlükleri kapının dışında
+- [[kod-kapisi-ve-posta]] — eşikte adres hem anahtar hem adrestir: e-posta+kod
+  şifre istemez ve aynı hamlede DOĞRULANMIŞ posta adresi kazandırır ("tek
+  adres, tek gerçek"); Magic Link şablonu `{{ .Token }}` içermezse kod yerine
+  BAĞ gider — ELLE iş
