@@ -105,7 +105,7 @@ hafızaya işlendi. 373 test geçiyor, build temiz, tarayıcıda canlı doğrula
 |---|---|
 | ./build.sh | ✅ |
 | vitest (N test) | ✅ |
-| Preview + konsol | ✅ temiz |
+| `node scripts/dogrula.mjs` | ✅ Konsol temiz |
 ```
 Uygun düşerse kapanışı temaya bağla ("Mesele Sensin").
 
@@ -154,28 +154,75 @@ Her görevin ritmi: **KEŞFET → PLANLA → FAZLARA BÖL → UYGULA → DOĞRUL
 ```
 ./build.sh 2>&1 | tail -20                    # build yeşil olmadan İLERLEME YOK
 npx vitest run tests/<o fazın testleri>       # HEDEFLİ süit (tam süit §3.5'te)
+node scripts/dogrula.mjs --senaryo <senaryo>  # TARAYICI: canlı DOM + konsol
 ```
-Sonra tarayıcı: preview'da **canlı DOM/state sorgusu** (javascript_tool /
-read_page) → gerekirse screenshot → **konsol kontrolü**. Faz ancak
-**"Konsol temiz."** diyebildiğinde kapanır.
+Üçüncü adım **doğrulama tarayıcısıdır** (Playwright, `scripts/dogrula.mjs`):
+sayfayı gerçekten açar, canlı DOM/state sorgusunu koşar, konsolu okur. Faz
+ancak **"Konsol temiz."** diyebildiğinde kapanır — ve o cümleyi artık sen
+değil, koşucunun çıkış kodu söyler (exit 0).
 
-- Screenshot'a tek başına güvenme — anon oturum ya da eski kare
-  gösterebilir. Gerçeği canlı eval doğrular.
+- Ekran görüntüsüne (`--ss`) tek başına güvenme — anon oturum ya da eski kare
+  gösterebilir. Gerçeği `--eval` ve senaryo iddiaları doğrular.
 - Yanıltıcı durumda dramasız teşhis: sebebi adlandır ("kodla ilgisi yok —
-  preview anon oturumda"), gerçek doğrulamayı yap, ilerle.
+  oturum anon"), gerçek doğrulamayı yap, ilerle.
 - Not: Stop hook'u her tur sonunda otomatik production build alır
   (`scripts/auto-build.sh`) — Emre elle build almaz; ama sen faz içinde yine
   de kendi build+test kapından geçersin.
 
-**Preview TEK ORIGIN'dir: `http://localhost:3030`.** (Preview aracı uzak
-oturumda yüklü olmayabilir — bkz. §10.4.) Önbellek şüphesinde yeni
+**Tarayıcı 2026-09-02'de ARAÇTAN REPOYA taşındı.** Doğrulama `preview_start`
++ `javascript_tool` ile yapılıyordu; o araç lokal makinede vardı, uzak oturumda
+YOKTU — ve kapı ortamla birlikte kayboluyordu: §10.4 "preview bu oturumda yok,
+sınanamadı" demeyi meşru kılıyordu, meşru bir atlama ise tekrarlandıkça
+alışkanlığa döner (§6.6: kapısı olmayan kural tavsiyeye döner). Şimdi tarayıcıyı
+repo taşır: `playwright-core` bir devDependency'dir, Chromium ortamdan çözülür
+(`chromiumYoluCoz` zinciri: `WANDERER_CHROMIUM` → uzak oturumun
+`/opt/pw-browsers/chromium`'u → sistem Chrome/Chromium), koşucu her iki ortamda
+da aynı cümleyi kanıtlar. **"Preview yok" artık bir gerekçe değildir.**
+
+    node scripts/dogrula.mjs                               # / açılır, konsol kapısı
+    node scripts/dogrula.mjs --yol /kart-test.html         # harness sayfası
+    node scripts/dogrula.mjs --eval "typeof window.fxCue"  # canlı sözleşme sorgusu
+    node scripts/dogrula.mjs --senaryo tests/senaryolar/acilis.mjs
+    node scripts/dogrula.mjs --ss /tmp/kare.png            # ekran görüntüsü
+    npm run dogrula:dist                                   # dist origin'i (:3031)
+
+Koşucunun yargısı **üç kovadır** ve bu ayrım dürüstlük içindir:
+**İHLAL** — pageerror, `console.error`, kendi origin'imizden 4xx/5xx, düşen
+istek → kapıyı kırar (exit 1). **DIŞ ORIGIN** — Supabase, Google Fonts; uzak
+oturumda dış ağ proxy arkasındadır → kırmaz ama raporda adıyla görünür (onun
+sessizliğini uygulamanın kırığı saymak kapıyı gürültüye boğar, sessizce yutmak
+sahte yeşil üretir; ortası: göster). **GÜRÜLTÜ** — dar ve her deseni
+gerekçesini taşıyan bir liste (`GURULTU`) ile ağır sayılmayan türler
+(log/info/debug/verbose); metin raporunda tür dağılımıyla, `--json` çıktısında
+TAM listelenir — yutulan şey denetlenemiyorsa filtre bir kapı değil bir
+perdedir. `--izin <desen>` o koşuya özel ekleme yapar.
+
+**`console.warn` bu repoda GÜRÜLTÜ DEĞİLDİR — ihlaldir.** Sebebi §5.2'nin
+savunmacı stilidir: yakalanan hata `catch (e) { console.warn('fxSave:', …) }`
+ile loglanır ve `js/` altında 305 gerçek kullanımı vardır. Uyarıyı yutan bir
+kapı, uygulamanın kendi hata kanalını kör eder — sessizce düşen bir Supabase
+kaydı tam olarak oraya yazılır. Koşucunun ilk hâli uyarıyı yutuyordu; çapraz
+model denetimi (Sonnet) bunu bulgu olarak döndürdü ve ilk harness taraması
+kanıtladı: `kumComposeFromText: sb.auth.getSession is not a function` o kanaldan
+çıkmış ve yutulmuştu. Varsayılan tersine çevrildi; `--gevsek` uyarıları
+gürültüye indirir ve bu bir gerekçe ister.
+
+Koşu çökerse rapor **"Konsol temiz." DEMEZ** — konsolun boşluğu, koşulmamış bir
+doğrulamayı kanıtlamaz. Bu cümlenin sahtesi koşucunun ilk hâlinde bir kez
+yazıldı, aynı turda bulundu ve testle mühürlendi
+(`tests/dogrulama-tarayicisi.test.js`).
+
+**Sunucu TEK ORIGIN'dir: `http://localhost:3030`.** Önbellek şüphesinde yeni
 port açmak yasak. O refleks `.claude/launch.json`'ı 22 girdiye, portları
 5176–5194 aralığına şişirdi; her yeni origin bir preview penceresi daha açtı ve
 her açılışta oturum da state de sıfırlandı. Kaçmak çözüm değildi — önbelleğin
-kendisi 2026-08-17'de kapatıldı. İki adım, ezberle:
+kendisi 2026-08-17'de kapatıldı. Koşucu bu kurala uyar: **:3030 ayaktaysa ONA
+BAĞLANIR**, değilse aynı sunucuyu süreç içinde kurar ve koşu bitince kapatır —
+yani elle başlatma adımı artık zorunlu değildir. Lokal makinede göz gerektiren
+estetik yargı için preview aracı hâlâ kullanılabilir; ama KAPI koşucudur.
 
-    ./scripts/preview-baslat.sh          # idempotent — ayaktaysa dokunmaz
-    preview_start({ name: 'wanderer' })  # süreç başlatmaz, ayakta olana bağlanır
+    ./scripts/preview-baslat.sh          # elle sunucu (isteğe bağlı, idempotent)
+    preview_start({ name: 'wanderer' })  # LOKAL: göz için — kapı için DEĞİL
 
 `scripts/preview-server.mjs` her yanıta `Cache-Control: no-store` basar ve
 `ETag`/`Last-Modified`'ı HİÇ göndermez: tarayıcının elinde ne doğrulama koşulu
@@ -186,23 +233,25 @@ buydu). `/sw.js` gerçek Service Worker yerine kill-switch servis eder: kalan
 kaydı söker, cache'leri siler. 14-boot'un SW sökümü yalnız ana uygulama boot
 ederse çalışır, harness sayfaları onu import etmez — bu katman o boşluğu kapar.
 
-Sunucu preview'ın sandbox'ında değil KABUKTA başlar (sandbox repo içindeki
-`.mjs`'i açamıyor — EPERM); launch.json girdisi bu yüzden komutsuzdur, yalnız
-`url` ile attach eder. `dist` sınanacaksa ikinci origin:
-`./scripts/preview-baslat.sh 3031 dist` + `preview_start({ name: 'wanderer-dist' })`.
-Açık sekmeyi `navigate` ile yeniden kullan; her doğrulama için yeni sekme açma.
-Kapı: `tests/preview-sunucusu.test.js`.
+Preview aracı kullanılıyorsa sunucu onun sandbox'ında değil KABUKTA başlar
+(sandbox repo içindeki `.mjs`'i açamıyor — EPERM); `launch.json` girdisi bu
+yüzden komutsuzdur, yalnız `url` ile attach eder. Koşucunun böyle bir kısıtı
+yoktur — sunucuyu kendi süreci içinde kurar. `dist` sınanacaksa ikinci origin:
+`npm run dogrula:dist` (`--kok dist --port 3031`).
+Kapılar: `tests/preview-sunucusu.test.js` (sunucu) ·
+`tests/dogrulama-tarayicisi.test.js` (koşucunun kendisi — ölçen alet de
+ölçülür, §10.5).
 
 **Kapının ölçüsü işin yüzeyine göredir.** Kaynak kod (`js/`, `css/`,
 `_src.html`) değişmediyse — tur yalnız belgeye, plana ya da hafızaya
-dokunduysa — test ve preview kapıları `git diff --stat` kanıtıyla
+dokunduysa — test ve tarayıcı kapıları `git diff --stat` kanıtıyla
 **gerekçeli** geçilir; build yine alınır (ucuz ve `index.html` üretimini
 doğrular). Sessizce atlamak yasak, gerekçeyi rapora yazmak şart. Kod
 değişmemişken 1600+ testi koşturmak dürüstlük değil, israftır — kapı
 riski karşılamak için vardır, tören için değil.
 
 **Tam süit faz sonunda KOŞMAZ (Emre'nin kararı, 2026-08-23).** Faz kapısı
-üç adımdır: build → **o fazın dokunduğu testler** → preview/konsol. 2800+
+üç adımdır: build → **o fazın dokunduğu testler** → tarayıcı/konsol. 2800+
 testi her fazın sonunda koşturmak kapıyı güçlendirmiyordu, yalnız turu
 uzatıyordu: bir fazın kırığı o fazın dosyalarında yaşar, başka bir modülün
 testi onu zaten bulmaz. Hedefi diff söyler —
@@ -268,8 +317,9 @@ kapanır — atlanmaz, Emre'nin tekrar istemesine gerek yoktur:
    sözleşme kırığı…). Bulunanı düzelt — bulup rapor edip bırakma.
    Denetim yalnız kod okuma turu değildir: asıl kırıklar **davranışsaldır**
    (build ve testler yeşilken kullanıcı akışında yaşarlar), o yüzden planın
-   `## Doğrulama` senaryolarını preview'da gerçekten koştur. Şüpheyi önce
-   kırmızı testle mühürle, sonra düzelt. Devredilen sprintte bu tur
+   `## Doğrulama` senaryolarını **doğrulama tarayıcısında gerçekten koştur**
+   (`node scripts/dogrula.mjs --senaryo …`). Şüpheyi önce kırmızı testle
+   mühürle, sonra düzelt. Devredilen sprintte bu tur
    pazarlıksızdır (§4.4) ve **ikiye ayrılır**: her fazın denetimi o faz
    biter bitmez yapılır (güçlü modelde, sonraki faz açılmadan önce),
    kapanıştaki bu tur ise **dikişlere** bakar — fazların birbirine bindiği
@@ -376,7 +426,7 @@ devralan neyin diskte durduğunu bilsin.
 **İlk hamle.** <yeni oturumun sorusuz yapacağı somut ilk adım>
 
 **Açık kararlar.** <Duraklar / Emre'ye sorulacaklar — yoksa "yok">
-**Doğrulama.** build <✅/❌ + ne zaman> · vitest <N test, ✅/❌> · preview <durum>
+**Doğrulama.** build <✅/❌ + ne zaman> · vitest <N test, ✅/❌> · dogrula <✅/❌ + yol/senaryo>
 **ELLE bekleyen.** <Supabase şema / deploy / mağaza — yoksa "yok">
 **Oku.** plan dosyası + hafıza: <[[memory-adı]] listesi>
 ```
@@ -418,8 +468,12 @@ Sırasıyla:
 6. `## Ton Rehberi (kitap-köklü TR)` — gerçek microcopy örnekleri; sayaç
    dili yasak
 7. `## Riskler / Dikkat` — numaralı (TDZ, init yeri, kota, reduced-motion…)
-8. `## Doğrulama (preview, her faz sonunda)` — numaralı senaryolar +
-   `typeof window.x === 'function'` sözleşme regresyonu
+8. `## Doğrulama (dogrula.mjs, her faz sonunda)` — numaralı senaryolar +
+   `typeof window.x === 'function'` sözleşme regresyonu. Senaryo **koşulabilir
+   olmalı**: her madde ya bir `--eval` ifadesine ya da
+   `tests/senaryolar/<slug>.mjs` içindeki bir iddiaya çevrilir (emsal:
+   `tests/senaryolar/acilis.mjs`). Koşulamayan bir doğrulama maddesi bir
+   talimattır, kapı değil — talimat koşulmadığında da yeşil görünür.
 9. `## Kritik Dosyalar` — YENİ / yerinde-evrim / yeniden-kullanılan.
    Devirde (§4.4) planın **en önemli** bölümü budur: "yeniden-kullanılan"
    listesi, planı yazanın keşifte bulduğu "bu zaten var" bilgisinin
@@ -591,8 +645,9 @@ güçlü modelde kalır. Dosya avı planlayanın bağlamını şişirmesin — a
 kağıda geçmeyen kısmı, devralan tarafa ikinci kez ödetilir.
 
 **Denetim turu.** Yöntemi §3.5 madde 1'dedir (davranışsal: planın
-`## Doğrulama` senaryolarını preview'da gerçekten koştur; şüpheyi önce
-kırmızı testle mühürle, sonra düzelt). Devirde denetim **ikiye ayrılır**;
+`## Doğrulama` senaryolarını doğrulama tarayıcısında gerçekten koştur —
+`node scripts/dogrula.mjs --senaryo …`; şüpheyi önce kırmızı testle mühürle,
+sonra düzelt). Devirde denetim **ikiye ayrılır**;
 DEVREDİLEN fazların (Sonnet'in yazdıklarının) denetimi Opus'undur; parent
 Opus'sa ajana verilmez, parent'ın kendisi denetler. Opus'un kendi yazdığı
 fazlarda yön terstir: onların faz denetimi `denetci` ajanına (Sonnet) gider.
@@ -800,7 +855,7 @@ eğilimleri protokolle şöyle dengelenir:
   gözlemle → tek cümle anlat → eyle → sonucu oku.
 - **Sonnet:** göreve başlamadan bu protokolün §3 ve §6'sını yeniden tara.
   Emin olmadığında tahmin etme — grep'le kanıtla. Doğrulama kapısını
-  (build→test→preview→konsol) asla "muhtemelen geçer" diye atlama.
+  (build→test→dogrula→konsol) asla "muhtemelen geçer" diye atlama.
   Görev-sonu öz-incelemeyi (§3.4) kısaltma; senin en çok değer katacağın
   adım odur. **Kendi yazdığın fazı kendin denetleme** (§3.3): oturum sende
   açıldıysa faz denetimi `Agent({ subagent_type: 'denetci', model: 'opus' })`
@@ -872,8 +927,9 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] Faz denetimi **öteki modelde** koşturuldu (§3.3) — yazan denetlemez:
       Opus'un yazdığı fazı Sonnet, Sonnet'in yazdığı fazı Opus denetler
       (`denetci` çağrısında `model` parametresiyle); bulgusu bu turda düzeltilir
-- [ ] Preview'da canlı doğrulama + **"Konsol temiz."**
-- [ ] Kaynak kod değişmediyse test/preview §3.3'e göre `git diff --stat`
+- [ ] `node scripts/dogrula.mjs …` yeşil (exit 0) + **"Konsol temiz."** —
+      cümleyi koşucunun çıkış kodu söyler, sen değil
+- [ ] Kaynak kod değişmediyse test/tarayıcı §3.3'e göre `git diff --stat`
       kanıtıyla **gerekçeli** geçilir — sessizce değil
 - [ ] Görev-sonu öz-inceleme (§3.4): yeniden oku → düzelt → completed →
       kısa rapor → sorusuz devam
@@ -900,7 +956,7 @@ eğilimleri protokolle şöyle dengelenir:
 **Sprint kapanışı**
 - [ ] Dikiş turu — fazlar arası bağ: çifte init, çakışan state anahtarı,
       bütünde bozulan akış; yöntem davranışsal (planın `## Doğrulama`
-      senaryolarını preview'da koştur), bul→düzelt. Faz denetimleri
+      senaryolarını `scripts/dogrula.mjs` ile koştur), bul→düzelt. Faz denetimleri
       yapıldıysa dosyaları yeniden OKUMA; devredilmemiş sprintte bu tur
       §3.5'in tam öz-denetimidir (kapsam `git diff`)
 - [ ] **Tam süit** — sprintin tek `npx vitest run` koşusu, yeşil — ve
@@ -978,9 +1034,9 @@ yoksa bir komut mu üretti?* İnsan yazdıysa commit edilir.
 
 | Madde | Lokalde | Uzak oturumda |
 |---|---|---|
-| **§3.5/2 tam süit** | süit senin makinende koşar; kırmızıyı ekranda görür, turu orada durdurursun | süit **CI'da da koşar** (`.github/workflows/kapi.yml`) ve sonucu e-postayla gelir. Kırmızı Kapı bir bildirim değil **iştir**: görüldüğü an fazın devamı durur, kırık düzeltilir, sonra devam edilir. Ölçü 2026-09-02'nin iki kırmızı koşusudur ve ikisi zıt yönü gösterir: birincisinde kapı OKUNDU — `58b645a` başlığı bunu yazar ("CI'ın ilk koşusunun bulduğu kırık") ve kırık 10 dakikada kapandı. İkincisinde okunmadı: kırmızı 09:21'de düştü (Actions koşu #15'in tamamlanma damgası) ama düzeltme zaten 09:01'de açılmış bir fazın (`6242fd3`) yan ürünü olarak geldi, önce cümleyi yeniden yazan bir KAÇINMAYLA (`9c636bd`), gerçek düzeltme 10:08'de (`8ab08a0`). Aradaki fark 10 dakika ile 50 dakika değil yalnız; biri kapıyı bir iş sayar, öteki bir bildirim |
+| **§3.5/2 tam süit** | süit senin makinende koşar; kırmızıyı ekranda görür, turu orada durdurursun | süit **CI'da da koşar** (`.github/workflows/kapi.yml` — doğrulama tarayıcısının duman koşusu da orada bir adımdır) ve sonucu e-postayla gelir. Kırmızı Kapı bir bildirim değil **iştir**: görüldüğü an fazın devamı durur, kırık düzeltilir, sonra devam edilir. Ölçü 2026-09-02'nin iki kırmızı koşusudur ve ikisi zıt yönü gösterir: birincisinde kapı OKUNDU — `58b645a` başlığı bunu yazar ("CI'ın ilk koşusunun bulduğu kırık") ve kırık 10 dakikada kapandı. İkincisinde okunmadı: kırmızı 09:21'de düştü (Actions koşu #15'in tamamlanma damgası) ama düzeltme zaten 09:01'de açılmış bir fazın (`6242fd3`) yan ürünü olarak geldi, önce cümleyi yeniden yazan bir KAÇINMAYLA (`9c636bd`), gerçek düzeltme 10:08'de (`8ab08a0`). Aradaki fark 10 dakika ile 50 dakika değil yalnız; biri kapıyı bir iş sayar, öteki bir bildirim |
 | **§3.5/6 commit** | "commit at, **push YOK**" — iş diskte güvende, push ayrı onay ister | kap geçicidir: **commit edilmeyen iş oturumla birlikte ölür.** Belirlenmiş dala push, kaydın kendisidir; onayı oturumun görev tanımı verir |
-| **§3.3 preview** | tek origin `:3030`, `preview_start` ile canlı DOM/konsol doğrulama | preview aracı yüklü olmayabilir. O zaman kapı **atlanmaz, ortamı adlandırılır**: "preview bu oturumda yok, X sınanamadı" — sahte "doğruladım" yasak (§6.2) |
+| **§3.3 tarayıcı** | `node scripts/dogrula.mjs` — tek origin `:3030`, Chromium sistemden çözülür (yoksa `npx playwright install chromium`). Preview aracı hâlâ var; ama göz için, kapı için değil | **AYNI KOMUT.** Chromium `/opt/pw-browsers/chromium`'dan çözülür, kap onunla gelir. Bu satır 2026-09-02'ye kadar şöyleydi: *"preview aracı yüklü olmayabilir, o zaman kapı atlanmaz ama ortamı adlandırılır — 'preview bu oturumda yok, X sınanamadı'"*. O muafiyet **KALDIRILDI**: kapı artık ortama değil repoya bağlı. Tarayıcı gerçekten bulunamıyorsa koşucu hata verir (exit 1) ve faz KAPANMAZ — "sınanamadı" bir kapanış hâli değildir |
 | **§4.4 devir** | `.claude/agents/` diskte, adlar hep yüklü | ajan dosyasını yazmak yetmez, **commit edilmelidir** — ve tanınması ânında olmayabilir: 2026-09-02'de commit'ten ~1,5 saat sonra, aynı oturum içinde etkinleşti. Ad henüz tanınmıyorken devir gerekiyorsa sözleşmeyi çağrının prompt'una elle yükle ve bunu **sapma olarak raporla**; tanınıyorsa gerçek adı kullan (nabız yalnız gerçek adı sayar, §10.5) |
 | **§3.6 DEVIR.md** | kanca yazar, dosya diskte kalır, sonraki oturum okur | klonla gelmez. Kalıcı kayıt noktası **plan dosyasıdır** — "İlk hamle" satırı oraya yazılır (zaten kuralın kendisi budur) |
 | **§7 hafıza** | `.claude/memories/` diskte birikir | commit edilmemiş hafıza uzakta yoktur. Hafıza yazmak, **commit etmekle** tamamlanır |

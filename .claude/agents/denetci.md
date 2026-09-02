@@ -62,7 +62,9 @@ Denetim yalnız kod okuma turu **değildir**. Asıl kırıklar **davranışsald�
 build ve testler yeşilken kullanıcı akışında yaşarlar. Sırayla:
 
 1. **Davranış.** Planın `## Doğrulama` bölümündeki senaryoları **gerçekten
-   koştur** (preview'da canlı sorgu, ya da hedefli test). Okuyup "geçer" deme.
+   koştur**: `node scripts/dogrula.mjs --senaryo <senaryo>` (ya da `--eval` ile
+   canlı sorgu, ya da hedefli test). Okuyup "geçer" deme — koşucunun çıkış kodu
+   0 değilse faz geçmemiştir.
 2. **Sözleşme kırığı.** `window.*` expose'ları, DOM id'leri, storage
    anahtarları, fonksiyon imzaları — faz bir tüketiciyi sessizce kopardı mı?
    `grep -rn <ad> js/` ile kanıtla.
