@@ -106,8 +106,26 @@ function oku(dosya) {
    örneği (`memory-adı`) Türkçe ı içerdiği için zaten [A-Za-z0-9_-]+ karakter
    sınıfına uymaz; `.claude/plans/<slug>.md` gibi açı-parantezli örnekler de
    aynı sınıf `<`/`>` kabul etmediği için kendiliğinden dışlanır. Yalnız `name`
-   saf ASCII ve tiresizdir, bu yüzden tek kelime açıkça listelenir. */
-const SABLON_ADLAR = new Set(['name']);
+   saf ASCII ve tiresizdir, bu yüzden tek kelime açıkça listelenir.
+
+   `ad` — FAZ 7d gerekçesi: dikiş notu bu biçimi anlatırken `[[ad]]` yazmıştı
+   (devir-altyapisi.md, FAZ 6b dikiş bulgusu 1 — bkz. git a9a1de4→9c636bd);
+   kapı bunu gerçek hafıza referansı sandı ve cümle `[[ad]]` yerine "çift
+   köşeli parantez biçimi" diye yeniden yazılarak KAÇIRILDI — kapının kendisi
+   düzeltilmedi. `name`in Türkçe karşılığı olduğu ve aynı gerekçeyle (biçim
+   tarifi, hedef değil) kullanıldığı için buraya eklendi.
+
+   Sınır — bu liste GENİŞ TUTULMAZ: `grep -rn '\[\[[A-Za-z0-9_-]+\]\]'` ile
+   ölçüldü (2026-09-02, kök+`.claude`+`js`+`tests`+`scripts`), repodaki HER
+   `[[...]]` örneği ya gerçek bir hafıza adı ya da zaten `.claude/memories/`de
+   karşılığı olan bir bağdı — `name` ve `ad` DIŞINDA hiçbir jenerik yer-tutucu
+   ASCII karakter sınıfına uyarak geçmiyordu (`bağ`, `memory-adı` gibi
+   örnekler Türkçe harf yüzünden zaten regex dışı). Spekülatif kelime
+   (`isim`, `slug`…) EKLENMEDİ: ölçülmemiş bir varsayım kapıyı körleştirir
+   (§6.10 gerçeklik kuralı) — gerçek bir hafıza adı bu kelimelerden biriyle
+   çakışırsa denylist onu sessizce yutar. Yeni bir şablon örneği çıkarsa aynı
+   ölçüm tekrarlanıp buraya tek tek eklenir. */
+const SABLON_ADLAR = new Set(['name', 'ad']);
 
 const DESEN_HAFIZA = /\[\[([A-Za-z0-9_-]+)\]\]/g;
 const DESEN_PLAN = /\.claude\/plans\/([A-Za-z0-9_-]+\.md)/g;
@@ -250,6 +268,7 @@ describe('referans bütünlüğü kapısı — kapının kendisi çalışıyor',
     const gecerliBag = `${AC}var-olan-hafiza${KA}`;
     const kirikBag = `${AC}zz-sinav-yok-boyle-hafiza${KA}`;
     const sablonBag = `${AC}name${KA}`; // §7 format örneği — MUAF
+    const sablonAdBag = `${AC}ad${KA}`; // FAZ 7d — "kırık `[[ad]]` bağı" gibi biçim tarifleri — MUAF
     const kirikPlan = `${PLAN_ON}zz-sinav-yok-boyle-plan.md`;
     const kirikAgent = `${AGENT_ON}zz-sinav-yok-boyle-agent.md`;
     const acikliOrnek = `${PLAN_ON}<slug>.md`; // şablon örneği — açı parantez yüzünden zaten dışlanır
@@ -260,6 +279,7 @@ describe('referans bütünlüğü kapısı — kapının kendisi çalışıyor',
         `// gerçek bağ: ${gecerliBag}`,
         `// kırık bağ: ${kirikBag}`,
         `// şablon: ${sablonBag}`,
+        `// şablon ad: ${sablonAdBag}`,
         `// kırık plan: ${kirikPlan}`,
         `// kırık agent: ${kirikAgent}`,
         `// şablon plan: ${acikliOrnek}`,
@@ -291,6 +311,7 @@ describe('referans bütünlüğü kapısı — kapının kendisi çalışıyor',
       const anahtarlar = new Set(bulgular.map(anahtar));
       expect(anahtarlar.has('hafiza:var-olan-hafiza')).toBe(false); // gerçek hedef var
       expect(anahtarlar.has('hafiza:name')).toBe(false); // §7 şablon placeholder'ı
+      expect(anahtarlar.has('hafiza:ad')).toBe(false); // FAZ 7d — `name`in Türkçe karşılığı, biçim tarifi
       // açı-parantezli `<slug>.md` örneği karakter sınıfına hiç uymaz — hiçbir
       // `plan:` anahtarı üretmemeli (üretseydi regex'in kendisi bozuk demektir).
       expect([...anahtarlar].some((k) => k.startsWith('plan:') && k.includes('<'))).toBe(false);
