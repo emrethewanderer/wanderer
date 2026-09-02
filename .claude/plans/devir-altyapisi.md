@@ -181,3 +181,51 @@ maddenin yanında protokol numarası (`§4.3`) ki ajan kaynağı doğrulayabilsi
 - `[[xss-kapisi]]` — kapı deseni emsali (FAZ 4'ün belge dili için)
 - `[[kapi-tarama-yarisi]]` — `js/` gezen denetçilerin yarış tuzağı
 - `[[olu-kod-temizlikleri]]` — FAZ 5'te oluşturulacak
+
+---
+
+## İlerleme — 2026-09-02
+
+### FAZ 1 ✅ — Opus yazdı, **Sonnet denetledi**
+İki sözleşme yazıldı. Çapraz denetim üç bulgu getirdi, üçü de o turda düzeltildi
+(commit `bc12209`): çapraz-model tablosu protokolün üç satırını ikiye
+indirgemiş ve "Opus'un devrettiği faz → parent'ın kendisi; ajana devredilmez"
+satırını kaybetmişti; `escapeHTML` atfı §6.6/§6.10 yerine §5.2 olmalıydı;
+Risk 4'ün araç-düzeyi boşluğu adlandırılmamıştı.
+
+### FAZ 2 + 3 ✅ — **Sonnet yazdı**, Opus denetledi
+Tek çağrıda birleştirildi (§4.4 cold start: ikisi de `.claude/` yapılandırma
+dosyası). Denetim parent'ta kaldı — tablonun orta satırı gereği ajana
+verilmedi. **Bulgu yok.** Doğrulananlar: Stop sırası `auto-build` →
+`devir-notu` (gerekçe: `dist/` takipli — 19 dosya — build'den önce çekilen
+fotoğraf bayatlar), `$CLAUDE_PROJECT_DIR` geçerli hook env'i, `jq -e` iki
+komutu da basıyor.
+
+**Durak — karara bağlandı:** `.claude/launch.json` şeması **doğrulanmadı**.
+Ne repoda ne protokolde alan-alan bir örnek var; harness binary'sinde de
+okunabilir şema yüzeye çıkmadı. Yazılan biçim
+(`{"<isim>": {"url": "..."}}`) protokolün "`url` alanı" ifadesi ve
+`preview_start({ name: 'wanderer' })` kullanımıyla tutarlı en minimal
+yorumdur — ama kanıt değil. Dosya bırakıldı: yanlışsa sessizce çalışmaz,
+yani dosyanın hiç olmamasından kötü değil. **Emre'nin yerel oturumda
+`preview_start` ile sınaması gerekiyor.**
+
+### Bu sprintin ortak bulgusu — `.claude/` oturum açılışında yüklenir
+Üç eksik de aynı sebeple bu oturumda canlı sınanamıyor:
+
+| Dosya | Neden sınanamıyor |
+|---|---|
+| `.claude/agents/*.md` | harness ajan listesini oturum açılışında tarar — `subagent_type: 'uygulayici'` hâlâ "not found" |
+| `.claude/settings.json` | ayar izleyicisi yalnız oturum başında ayar dosyası olan dizinleri izler |
+| `.claude/launch.json` | preview aracı bu oturumda yüklü değil |
+
+Bu bir kusur değil, bu sprintin **teşhisinin kendisi**: altyapı repoda
+olmadığı için hiç yüklenmiyordu. Dosyalar artık doğru konumda ve commit'te;
+etkinleşmeleri sonraki oturumda görülecek. Sınama FAZ 6'nın işi ve orada
+"kanıtlandı" değil, **"sonraki oturuma bırakıldı"** diye yazılacak.
+
+### İlk hamle (sonraki oturum, sorusuz)
+`Agent({ subagent_type: 'uygulayici' })` çağrısını aç — hata vermiyorsa
+FAZ 1-3 canlı kanıtlanmıştır; `.claude/DEVIR.md`'nin değişiklik zamanına bak
+(kanca ateşlendiyse güncel olur). Sonra FAZ 4 (gerçeklik + kesin alıntı
+mimari belgeleri) `uygulayici`'ya devredilir.
