@@ -15,3 +15,7 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
 - [[olu-kod-temizlikleri]] — ekran/özellik silmeden önce dört sözleşme
   yüzeyini (window köprüsü, DOM id, storage anahtarı, i18n anahtarı) tara;
   tarihsel KORUNANLAR listesi kayıp, dosya onun yerine prosedür yazar
+- [[bagsiz-ad-kapisi]] — vite'ın IIFE build'i modülleri tek scope'a
+  düzleştirdiği için build'in kendisi yakalamadığı "bundle'da çalışan,
+  kaynakta olmayan ad" sınıfını `tsc` scope analiziyle yakalar; sınırı
+  `window.foo?.()` köprülerini görmemesi, onu kardeş denetçi sorar

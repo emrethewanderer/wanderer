@@ -355,3 +355,54 @@ adlandırılır.
 **Değişen:** `PROTOKOL-FABLE.md` (yeni bir bölüm ya da ilgili maddelere ortam
 ayrımı), `CLAUDE.md`'nin yedek çekirdeği · **Yeni:** bu sprintin öğrendiklerini
 taşıyan hafıza dosyası
+
+
+### FAZ 6a ✅ — **Sonnet yazdı**, Opus denetledi
+`tests/referans-butunlugu.test.js` (kapı) + `.claude/memories/bagsiz-ad-kapisi.md`
++ MEMORY indeksi. **Bulgu yok.** Test bağımsız koşuldu: 5/5 yeşil. Kırmızı→yeşil
+kanıtı raporda: hafıza yazılmadan önce kapı tam olarak beklenen tek ihlali
+bastı. Kapının kendisini fixture ağacında sınayan ikinci describe bloğu var —
+*"yakalamayan bir kapı, kapı değildir."*
+
+**Gözlem (bulgu değil):** taban testin içinde `Set` olarak duruyor, oysa
+repodaki dört emsal (`xss-taban.json`, `tasarim-taban.json`,
+`eksen-taban.json`, `ihtimalsel-taban.json`) ayrı JSON. Sapma kabul edildi:
+o dördünde taban'ı **iki** tüketici paylaşıyor (denetçi `.mjs` + test);
+burada tek tüketici var, ayrı dosya yeni bir dolaylılık olurdu (§8 Opus
+kalibresi: "yeni soyutlama kurmadan önce üç kez ara").
+
+## ⚠ SPRINTİN KÖK BULGUSU — çalışma belleği repoya hiç girmemiş
+
+Kapı ilk koşulduğunda **36 ayrı kırık referans** buldu (82 örnek). 26'sı
+`[[hafıza]]` bağı. Kanıt:
+
+    git log --all --oneline -- .claude/memories/
+    → 1bd6683 (bu sprint, FAZ 5) · 1e7264f (geçen sprint, 2 dosya)
+
+Yani eski oturumların yazdığı ~26 hafıza dosyası **hiç commit edilmemiş**.
+Adları gerçek çalışma belleği olduklarını gösteriyor: `ad-senkronu-kurali`,
+`boot-nabzi`, `tanima-motoru`, `safestorage-kuyruk-flush-kilidi`,
+`llm-bicimleri-geri-sizar`, `olus-muhru-2-muhru-sen-basarsin`…
+
+Bu, `.claude/agents/` ile **birebir aynı örüntü** ve bu sprintin bütün
+parçalarını tek teşhise bağlıyor:
+
+> **`.claude/` altındaki çalışma altyapısının tamamı Emre'nin lokal
+> makinesinde kalmış, repoya hiç girmemiş.** Aylarca lokal çalışıldığı için
+> bu görünmezdi — dosyalar diskte duruyordu, her oturum onları görüyordu.
+> Uzak oturum repoyu **klondan** kurar: commit edilmemiş olan YOKTUR.
+
+Sprintte tek tek "eksik" diye bulduğum her şey bunun türevi:
+
+| Eksik | Sonucu |
+|---|---|
+| `.claude/agents/` (2 dosya) | devir kapısı 29 gün ölü — §4.4 uygulanamıyordu |
+| `.claude/memories/` (~26 dosya) | §7 hafıza disiplini uzakta işlevsiz; 26 kırık bağ |
+| `.claude/settings.json` | iki kanca script'i diskte ölü duruyordu |
+| `.claude/launch.json` | preview attach girdisi yok |
+| `.claude/plans/` (birkaç plan) | §6.10'un işaret ettiği belgeler yok |
+
+**Bu bir ELLE iştir ve Emre'nindir** (§6.5): lokal makinedeki `.claude/`
+dizini commit edilmeden 26 hafıza geri gelmez — içerikleri uydurulamaz
+(§6.2, K3). Kapı bu borcu TABAN'da donduruyor: büyümesi yasak, ödenmesi
+serbest.
