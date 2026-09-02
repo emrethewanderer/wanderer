@@ -216,7 +216,7 @@ yani dosyanın hiç olmamasından kötü değil. **Emre'nin yerel oturumda
 | Dosya | Neden sınanamıyor |
 |---|---|
 | `.claude/agents/*.md` | harness ajan listesini oturum açılışında tarar — `subagent_type: 'uygulayici'` hâlâ "not found" |
-| `.claude/settings.json` | ayar izleyicisi yalnız oturum başında ayar dosyası olan dizinleri izler |
+| ~~`.claude/settings.json`~~ | **DÜZELTME — bu satır yanlış çıktı, aşağıya bak** |
 | `.claude/launch.json` | preview aracı bu oturumda yüklü değil |
 
 Bu bir kusur değil, bu sprintin **teşhisinin kendisi**: altyapı repoda
@@ -229,3 +229,40 @@ etkinleşmeleri sonraki oturumda görülecek. Sınama FAZ 6'nın işi ve orada
 FAZ 1-3 canlı kanıtlanmıştır; `.claude/DEVIR.md`'nin değişiklik zamanına bak
 (kanca ateşlendiyse güncel olur). Sonra FAZ 4 (gerçeklik + kesin alıntı
 mimari belgeleri) `uygulayici`'ya devredilir.
+
+
+### DÜZELTME — Stop kancası bu oturumda ATEŞLENDİ (ölçüldü)
+
+Yukarıdaki tablo `.claude/settings.json` için "bu oturumda sınanamaz" diyordu;
+gerekçe `update-config` rehberinin uyarısıydı: *"ayar izleyicisi yalnız oturum
+başında ayar dosyası olan dizinleri izler."* **Ölçüm bunu yalanladı.**
+
+`.claude/DEVIR.md`'nin damgası tur tur izlendi:
+
+| An | Damga | Ne oldu |
+|---|---|---|
+| 08:28:55 | — | `settings.json` yazıldı |
+| 08:30 | `08:30` | belirsiz — ajan script'i elle de koşturmuştu |
+| **08:37** | **`08:37`** | **kanca tur sonunda kendi ateşlendi** — elle çalıştırma yok |
+
+Yani **FAZ 2 canlı kanıtlandı**: kanca bağlı ve çalışıyor. Rehberin uyarısı bu
+ortamda geçerli değil (`.claude/` dizini oturum başında vardı, yalnız içindeki
+`settings.json` yoktu — izleyici anlaşılan dizini izliyor, dosyayı değil).
+
+Bu, kalan iki satırı **düşürmez**: ajan adları hâlâ "not found" veriyor ve
+preview aracı bu oturumda yüklü değil. Üçünün aynı sebeple sınanamayacağı
+varsayımı yanlıştı — sebepler ayrıymış, ve biri kanıtla kapandı.
+
+### FAZ 4 ✅ — **Sonnet yazdı**, Opus denetledi
+İki mimari belgesi koddan türetildi: `gerceklik-mimarisi.md` (230 satır),
+`kesin-alinti-mimarisi.md` (161 satır). **Bulgu yok.** Denetim yöntemi:
+belgelerdeki 87 `dosya:satır` iddiasından 14'ü rastgele seçilip koda karşı
+sınandı — **14/14 tuttu**, yani belgeler hatırlanmış değil okunmuş. K3 notları
+her iki belgenin başında, hatta beklenenden titiz: "kod içindeki yorumlarda
+geçen tarihler koddan alıntıdır" ayrımını da yapıyorlar.
+
+**Durak — karara bağlandı:** ajan üçüncü bir kırık referans buldu —
+`tests/sifir-kanit-sinavi.test.js:19` → `.claude/plans/koken-kor-noktalar.md`,
+o da yok. Plan-dışı olduğu için yazmamış (sözleşmesi gereği doğru davranış).
+**Karar: FAZ 5'in kapsamına alınıyor** — FAZ 5 zaten kırık referans kapatma
+işidir (§6.9'un `olu-kod-temizlikleri` hafızası), ikisi aynı cinsten.
