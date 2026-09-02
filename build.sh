@@ -84,6 +84,18 @@ if [ -f sw.js ]; then
   bundle_hash="$(grep -oE 'assets/_src-[A-Za-z0-9_-]+\.js' "$TMP/index.html" | head -1 | sed -E 's#.*_src-([A-Za-z0-9_-]+)\.js#\1#')"
   if [ -n "$bundle_hash" ]; then
     sed -i.bak -E "s/const CACHE = '[^']*';/const CACHE = 'etw-${bundle_hash}';/" sw.js && rm -f sw.js.bak
+    # Sessiz başarısızlık kapısı — index.html'deki kardeşinin (yukarısı) SW
+    # tarafındaki eşi. sed hiçbir şey değiştirmezse de 0 döner: `const CACHE`
+    # satırının biçimi bir gün değişirse (örn. boşluksuz `const CACHE='x';`)
+    # damga sessizce boşa düşer, build YEŞİL görünür ama Service Worker eski
+    # hash'te kalır — kullanıcı yeni bundle'ı almaz. Damganın gerçekten
+    # oturduğunu doğrulamak bu yüzden kapıdır, tören değil.
+    if ! grep -q "const CACHE = 'etw-${bundle_hash}';" sw.js; then
+      echo "✗ sw.js damgası oturmadı — 'const CACHE' satırının biçimi sed desenine uymuyor."
+      echo "  beklenen: const CACHE = 'etw-${bundle_hash}';"
+      echo "  bulunan : $(grep -n "^const CACHE" sw.js | head -1)"
+      exit 1
+    fi
   fi
 fi
 
