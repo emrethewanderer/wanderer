@@ -89,3 +89,36 @@ D2 `CODEMOD.md` + `TYPESCRIPT_MIGRATION.md` gerçek sayılarla; denetim raporuna
   taban deseni (`scripts/tasarim-taban.json`), `safeEq`
   (`supabase/functions/bulten-cikis/index.ts:61`), `escapeHTML`
 - **YENİ:** üç kapı testi, bir taban, bir workflow
+
+---
+
+## Kapanış — 2026-09-02
+
+On fazın hepsi uygulandı. Dört commit: `c0c9cb5` (FAZ 1-3), `d823acb` (FAZ 4-5),
+`1be5df8` (FAZ 6-7), `1bd4aca` (FAZ 8-10) + `58b645a` (CI'ın bulduğu yarış
+onarımı) + `63269a6` (hafıza).
+
+**Plandan sapmalar — dürüstlük kaydı:**
+
+1. **FAZ 5'in kapsamı büyüdü.** Plan "motoru ifade-bazlı yap" diyordu; ölçüm
+   gösterdi ki bu repoda HTML `innerHTML` satırında değil, HTML döndüren
+   yardımcı fonksiyonlarda kuruluyor. Motor bu yüzden **tüm HTML üreten
+   template'leri** tarayacak şekilde yazıldı (4.158 interpolasyon), taban 950
+   kayıtta donduruldu.
+2. **FAZ 7'de bulgu derinleşti.** Çapraz denetim (Sonnet), C5'i tersine
+   çevirdi: `onclick` zaten siliniyordu; asıl kırık `ADD_URI_SAFE_ATTR`
+   eksikliğiydi ve `target`/`tabindex`/`data-*`'ı da sessizce siliyordu.
+3. **FAZ 9'da E2 yapılmadı.** Gerekçe raporda: iki ayrı rol, ve optimizasyon
+   aracı bu ortamda yok.
+4. **Plan dışı iş:** CI'ın ilk koşusu bir tarama yarışı buldu (T7 geçici
+   dosyası ↔ `js/` gezen denetçiler). Dört denetçide 9 okuma noktası dayanıklı
+   yapıldı. Hafızaya yazıldı: `[[kapi-tarama-yarisi]]`.
+
+**Devir kapısı kaydı (§4.4).** Fazların hiçbiri `uygulayici` ajanına
+devredilmedi; gerekçe planın başında yazılı (`.claude/agents/` bu snapshot'ta
+yok). Faz denetimi ise çapraz modelde yapıldı ve bir gerçek bulgu getirdi —
+kuralın asıl kazancı orada göründü.
+
+**Bekleyen ELLE işler:** edge function deploy (`revenuecat-webhook`,
+`eposta-sekme` değişti) · güvenlik başlıkları (`SETUP-GUVENLIK-BASLIKLARI.md`)
+· mağaza build'i.
