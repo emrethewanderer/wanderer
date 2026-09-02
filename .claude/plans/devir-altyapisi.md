@@ -417,7 +417,7 @@ sıfır kırık.** §3.5 madde 2'nin pazarlıksız kapısı geçildi.
 İki mimari belgesi `.claude/plans/` altına yazıldı, ama üç dosya onları
 `[[hafıza]]` bağı olarak arıyordu. Kapı bunları TABAN'da tuttuğu için test
 yeşildi — kırık görünmüyordu. Referans biçimi hedefin gerçek yerini
-göstermeli: `[[ad]]` hafızadır, plan değil. Üçü de plan yoluna çevrildi,
+göstermeli: çift köşeli parantez biçimi hafızadır, plan değil. Üçü de plan yoluna çevrildi,
 TABAN 35 → 33'e indi.
 
 ### Dikiş bulgusu 2 — devir nabzı yanlış ölçüyor (FAZ 7b'ye)
