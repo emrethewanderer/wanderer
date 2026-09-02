@@ -50,7 +50,11 @@ function gez(dizin) {
   const out = [];
   for (const f of readdirSync(dizin)) {
     const tam = join(dizin, f);
-    if (statSync(tam).isDirectory()) out.push(...gez(tam));
+    // statSync de aynı yarışa açıktır (yukarıdaki nota bkz.) — listelenmiş
+    // ama artık var olmayan girdi atlanır.
+    let st;
+    try { st = statSync(tam); } catch (_) { continue; }
+    if (st.isDirectory()) out.push(...gez(tam));
     else if (f.endsWith('.js')) out.push(tam);
   }
   return out;
@@ -171,7 +175,19 @@ const say = { toplam: 0, guvenli: 0, kacisli: 0, riskli: 0, muaf: 0 };
 const kayitlar = [];
 
 for (const dosya of gez(TARAMA_KOKU)) {
-  const src = readFileSync(dosya, 'utf8');
+  /* Dosya listesi alındıktan SONRA silinmiş olabilir: vitest paralel
+     koşarken tasarim-kapisi testi T7 sınavı için repo'ya geçici bir modül
+     (js/parts/zz-t7-sinav-gecici.js) yazıp siliyor. Bu denetçi js/ altını
+     gezdiği için araya girer ve okumaya kalkarsa ENOENT ile çöker — ilk CI
+     koşusunda tam da bu oldu. Tarama anında var olmayan dosya zaten repo'nun
+     kalıcı parçası değildir: sessizce atlanır. */
+  let src;
+  try {
+    src = readFileSync(dosya, 'utf8');
+  } catch (e) {
+    if (e && (e.code === 'ENOENT' || e.code === 'EISDIR')) continue;
+    throw e;
+  }
   const yol = dosya.replace(ROOT + '/', '');
   const satirBasi = [0];
   for (let i = 0; i < src.length; i++) if (src[i] === '\n') satirBasi.push(i + 1);

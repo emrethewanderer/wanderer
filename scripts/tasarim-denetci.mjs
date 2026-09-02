@@ -313,7 +313,11 @@ function bloklar(satirlar, yorum) {
 
 function denetle(dosyaTam) {
   const rel = relative(ROOT, dosyaTam);
-  const kaynak = readFileSync(dosyaTam, 'utf8');
+// Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
+// paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
+// yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  let kaynak;
+  try { kaynak = readFileSync(dosyaTam, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return []; throw e; }
   const satirlar = kaynak.split('\n');
   const yorum = yorumHaritasi(satirlar);
   t8Topla(rel, satirlar, yorum);
@@ -388,7 +392,11 @@ const T1_JS_PROP_RE = /\.zIndex\s*=\s*['"`]?(-?\d+)/;
 
 function denetleJs(dosyaTam) {
   const rel = relative(ROOT, dosyaTam);
-  const kaynak = readFileSync(dosyaTam, 'utf8');
+// Tarama yarışı: dosya listelendikten sonra silinmiş olabilir (vitest
+// paralel koşarken tasarim-kapisi T7 sınavı repo'ya geçici bir modül
+// yazıp siliyor). Var olmayan dosya repo'nun kalıcı parçası değildir.
+  let kaynak;
+  try { kaynak = readFileSync(dosyaTam, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') return []; throw e; }
   const satirlar = kaynak.split('\n');
   const yorum = yorumHaritasi(satirlar, true);
   t8Topla(rel, satirlar, yorum);
