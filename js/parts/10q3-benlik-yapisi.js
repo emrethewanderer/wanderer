@@ -21,6 +21,7 @@
 ═══════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
+import { escapeHTML } from './00a-infrastructure.js';
 import { getCardById, getFullDeck } from './12b-kart-destesi.js';
 import { ikvCardFace, ikvRing, ikvLantern } from './12c-kart-gorsel.js';
 import { porCardRefs, porCardName } from './02c-portre.js';
@@ -33,7 +34,9 @@ import { t } from './15-i18n.js';
 // (10q2 yelpazesinin dersi).
 const BY_MAX_NODE = 6;
 
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ─── 2. VERİ — besleme izleri kaynağından okunur ─── */
 /** Atölye kutbu izi mi? (Katalog filtresi bunları elemesin.) */

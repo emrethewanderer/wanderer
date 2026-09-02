@@ -23,12 +23,13 @@
    primitifleri yalnız 12c'den (ikv*), stiller css/parts/gordun.css.
 ═══════════════════════════════════════════════════════════════════ */
 
-import { localISODate } from './00a-infrastructure.js';
+import { localISODate, escapeHTML } from './00a-infrastructure.js';
 import { ikvCardFace, ikvCardBack, ikvRing, ikvMilestoneScene, ikvEnsureStyles, ikvSeed } from './12c-kart-gorsel.js';
 import { t } from './15-i18n.js';
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 const CAT_KEYS = ['dusunceler', 'inanclar', 'duygular', 'davranislar'];
 const _asText = (e) => (typeof e === 'string' ? e : (e && e.text) || '');

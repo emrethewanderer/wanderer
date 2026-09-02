@@ -26,7 +26,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, localISODate, recordActivityDay } from './00a-infrastructure.js';
+import { SafeStorage, localISODate, recordActivityDay, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { awardElmas, getElmasSayisi, spendElmas } from './10g-w2-wanderer-game.js';
 import { dfGetActiveFoundationTarget } from './09b-depth-foundations.js';
@@ -36,8 +36,9 @@ const STORAGE_KEY = 'etw_gunluk_ritus_v1';
 /* Dile duyarlı tarih/locale (toLocaleX için) */
 const _locale = () => (S._currentLang === 'tr' ? 'tr-TR' : 'en-US');
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ── Ekonomi (dengeli) ── */
 const GIFT_ELMAS = 3;

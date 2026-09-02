@@ -23,7 +23,7 @@
 
 import { S } from '../state.js';
 import { sb, SUMMARY_MODEL } from '../config.js';
-import { SafeStorage, showToast, A11y } from './00a-infrastructure.js';
+import { SafeStorage, showToast, A11y, escapeHTML } from './00a-infrastructure.js';
 import { t, langBeyanVar, openLangGate } from './15-i18n.js';
 import { p } from './16-i18n-prompts.js';
 import { callLLM } from './04-llm-hero-history.js';
@@ -78,11 +78,9 @@ const FOUNDATION_ARCH = {
 ══════════════════════════════════════════════════════════════ */
 const PORTRE_KEY = uid => `etw_portre_karti_${uid}`;
 
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 function emptyCard() {
   return {

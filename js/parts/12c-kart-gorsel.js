@@ -20,6 +20,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { wsArchFigureBody } from './12a-archetypes.js';
+import { escapeHTML } from './00a-infrastructure.js';
 
 /* ── Palet (base.css token'larının kart-yerel sabitleri — SVG içinde var()
       her yerde çalışmadığından düz değer kullanılır) ─────────────────────── */
@@ -939,7 +940,8 @@ export function ikvMilestoneScene(d, opts = {}) {
      extra:   ad bloğunun altına eklenecek ham HTML (boyut barları vb.)
    }
 ═══════════════════════════════════════════════════════════════════════════ */
-function ikvEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+/* Tek kaynak: escapeHTML (00a) — bu modülün kendi ikizi vardı. */
+const ikvEsc = escapeHTML;
 
 const IKV_TICKS = `
   <svg class="ikv-tick ikv-tick--tl" viewBox="0 0 16 16"><path d="M0 8 L0 0 L8 0"/></svg>

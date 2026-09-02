@@ -24,7 +24,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, recordActivityDay, localISODate } from './00a-infrastructure.js';
+import { SafeStorage, recordActivityDay, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { ikvCardFace, ikvMilestoneScene } from './12c-kart-gorsel.js';
 import { t } from './15-i18n.js';
 
@@ -33,8 +33,9 @@ const STORAGE_KEY = 'etw_seri_muhru_v1';
 /* Dile duyarlı locale (toLocaleX için) */
 const _locale = () => (S._currentLang === 'tr' ? 'tr-TR' : 'en-US');
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ── Gün anahtarı — 00a tek kaynağı (padded). Bu defter hayal/söz ile aynı
       formatı kullanır; SERİ defteri pad'siz `localDayKey`'dir (10f

@@ -27,7 +27,7 @@
 import { S } from '../state.js';
 import { sb, SUMMARY_MODEL } from '../config.js';
 import { NISANLAR } from './12e-isik-nisanlari.js';
-import { SafeStorage, showToast, localISODate, recordActivityDay } from './00a-infrastructure.js';
+import { SafeStorage, showToast, localISODate, recordActivityDay, escapeHTML } from './00a-infrastructure.js';
 import { idbSaveRecording, idbGetRecording, idbDeleteRecording } from './00b-indexeddb.js';
 import { dfSave } from './09b-depth-foundations.js';
 import { awardElmas, getElmasSayisi } from './10g-w2-wanderer-game.js';
@@ -61,11 +61,9 @@ export const CAT_SIGILS = {
 const _norm = s => String(s || '').toLocaleLowerCase('tr').replace(/[.,!?;:"'…]/g, '').replace(/\s+/g, ' ').trim();
 const _asText = e => (typeof e === 'string' ? e : (e && e.text) || '');
 
-function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ══════════════════════════════════════════════════════════════
    KALICILIK — çift yazım: KV ayna (hep) + oik_kartlari satırı (kirli olan)

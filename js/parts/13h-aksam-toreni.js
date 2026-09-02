@@ -27,15 +27,16 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, localISODate } from './00a-infrastructure.js';
+import { SafeStorage, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 
 const STORAGE_KEY = 'etw_aksam_toreni_v1';
 const EVENING_HOUR = 21;     // kapı AÇILIR — akşam 21:00 ("9")
 const EVENING_END_HOUR = 24; // kapı KAPANIR — gece yarısı 00:00 ("12"); sonrası yeni gün
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 function _dayKey(d) {
   return localISODate(d);

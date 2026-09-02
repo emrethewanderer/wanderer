@@ -26,7 +26,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, recordActivityDay, localDayKey, getActivityDays, showToast, localISODate } from './00a-infrastructure.js';
+import { SafeStorage, recordActivityDay, localDayKey, getActivityDays, showToast, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { ikvMilestoneScene, ikvCardFace, ikvCardBack } from './12c-kart-gorsel.js';
 import { t } from './15-i18n.js';
 
@@ -37,8 +37,9 @@ const META_KEY  = 'etw_ultra_meta_v1';
 /* Dile duyarlı locale (toLocaleX için) */
 const _locale = () => (S._currentLang === 'tr' ? 'tr-TR' : 'en-US');
 
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 
 /* ── Gün anahtarları ──────────────────────────────────────────────────
    İkisi de 00a'nın `localISODate`'idir; yerel adlar çağrı yerlerinin

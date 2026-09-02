@@ -15,7 +15,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, showToast, recordActivityDay } from './00a-infrastructure.js';
+import { SafeStorage, showToast, recordActivityDay, escapeHTML } from './00a-infrastructure.js';
 import { awardElmas } from './10g-w2-wanderer-game.js';
 import { t } from './15-i18n.js';
 
@@ -27,8 +27,9 @@ const MAX = 500;
 const PHOTO_MAX_PX = 900;
 const PHOTO_QUALITY = 0.8;
 
-const _esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const _esc = escapeHTML;
 
 /* Etki puanı — olayın kullanıcının hayatındaki yeri (1–5); etiketler i18n'den
    render anında çözülür (dil donmasın). [[tr-en-i18n-tamamlama]] */

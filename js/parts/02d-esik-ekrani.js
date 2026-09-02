@@ -31,6 +31,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { S } from '../state.js';
+import { escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { ikvCardFace, ikvEnsureStyles } from './12c-kart-gorsel.js';
 import { getCardById, getFullDeck, deckReady, RARITIES } from './12b-kart-destesi.js';
@@ -38,7 +39,9 @@ import { getCardById, getFullDeck, deckReady, RARITIES } from './12b-kart-destes
 // kendi kopyasını tutmaz, adı ve işareti aynı yerden okur.
 import { CAT_KEYS, CAT_SIGILS } from './10D-olmak-istedigin.js';
 
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+/* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
+   ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
+const esc = escapeHTML;
 const _rarLabel = (rar) => rar ? t('deck.rarity.' + rar.id, rar.label) : undefined; // K7 köprüsü (12b RARITIES)
 
 // Altın altyazının "kaç gündür" sayısı buradan çıkar (imGetCurrent().since farkı)
