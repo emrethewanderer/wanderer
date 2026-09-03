@@ -199,39 +199,30 @@ function tara(kok) {
 
 function anahtar(b) { return `${b.tip}:${b.ad}`; }
 
-/* ─── 2. TABAN — 2026-09-02 ölçümü, otuz üç ayrı ad ───
-   Ölçüm yöntemi: `tara(ROOT)` bu tarih itibariyle 82 kırık referans örneği,
-   36 ayrı ad buldu. Otuz üçü devraldığımız borç (bu turdan önce vardı),
-   biri (`hafiza:bagsiz-ad-kapisi`) bu FAZ'ın kapattığı hedeftir — bilerek
-   TABAN'da DEĞİL, testin kırmızı-yeşil geçişini kanıtlasın diye. */
+/* ─── 2. TABAN — 2026-09-03 ölçümü, dokuz ayrı ad ───
+   İlk ölçüm (2026-09-02) otuz üç ad saymıştı: yirmi üçü hafıza bağı, onu
+   plan yolu. Yirmi üç hafıza borcunun tamamı o günün ilerleyen turunda
+   ödendi (`6134284` — "Hafıza borcu kapandı: 23/23") ve dosyaları bugün
+   `.claude/memories/` altında duruyor. TABAN küçülmedi; küçülmeyen taban
+   bir kapı değil bir PERDEdir — ödenmiş yirmi üç borcun satırı, o
+   dosyalardan biri silindiğinde kapıyı sessizce yeşil bırakacak yirmi üç
+   serbest geçiş demektir. Ölçüm 2026-09-03'te yenilendi ve taban gerçeğe
+   çekildi: geriye yalnız plan borcu kaldı.
+
+   On plan borcundan biri (`ic-calisma-08-uc-ses-rev2.md`) 2026-09-03'te
+   yeniden kuruldu — raporunun faz kırılımı ve fazların uygulanmış hâli
+   birlikte yeterli kanıt veriyordu — ve TABAN'dan düştü. Kalan dokuzda o
+   kanıt yok.
+
+   Kalan dokuz ad, lokalde yazılıp commit edilmemiş planlardır (PROTOKOL §10.1:
+   "lokal oturum diski görür, uzak oturum repoyu"). İçerikleri repodan
+   görünmez ve §6.10 gereği UYDURULAMAZ — yeniden yazılmaları kayıptan
+   kurtarma işidir, bu kapının işi değil. Borcun kendisi ve neden ödenemediği
+   `.claude/plans/README.md`'de kayıtlıdır. */
 const TABAN = new Set([
-  'hafiza:ad-senkronu-kurali',
-  'hafiza:belge-katmani-doc-primitifleri',
-  'hafiza:boot-nabzi',
-  'hafiza:buyuk-harf-dil-kapisi',
-  'hafiza:guvenlik-emniyet-katmani',
-  'hafiza:i18n-bundle-bolme',
-  'hafiza:ihtimalsel-dil-devrimi',
-  'hafiza:ilham-kartlari-sosyal-feed',
-  'hafiza:kisi-kartlari',
-  'hafiza:kisilerim-kart-motoru',
-  'hafiza:kod-kapisi-ve-posta',
-  'hafiza:llm-bicimleri-geri-sizar',
-  'hafiza:odev-zinciri-ve-cipi',
-  'hafiza:olunan-ve-niyet-alinan-karari',
-  'hafiza:olus-muhru-2-muhru-sen-basarsin',
-  'hafiza:safestorage-kuyruk-flush-kilidi',
-  'hafiza:safestorage-testlerde-kvcache',
-  'hafiza:sohbet-reasoning-fix',
-  'hafiza:tanima-motoru',
-  'hafiza:test-kirilganligi-jsdom-stil-isinmasi',
-  'hafiza:tr-en-i18n-tamamlama',
-  'hafiza:yerel-tarih-anahtari',
-  'hafiza:yetim-kopru-denetcisi',
   'plan:bundle-diyet.md',
   'plan:duygu-motoru.md',
   'plan:gorunmeyen-doksan-bes.md',
-  'plan:ic-calisma-08-uc-ses-rev2.md',
   'plan:ihtimalsel-dil-devrimi.md',
   'plan:mod-sistemi.md',
   'plan:persona-ic-calisma.md',

@@ -47,6 +47,23 @@ kaçar. İkisi de kayıp değildir.
 | 17 | Telemetri & Gözlemevi | İç Çalışma 17 · Telemetri & Gözlemevi | https://claude.ai/code/artifact/c662a623-318b-40a0-8fd3-c7cb55ad29b7 |
 | 18 | Bugün Ekranı & Studio | İç Çalışma 18 · Bugün & Studio | https://claude.ai/code/artifact/c608b5f4-62b4-4ac7-8aa2-31590ab75c15 |
 
+## 2026-09-03 · denetim turu — üç oda tazelendi
+
+İç Çalışma 1–8 koda karşı denetlendi. Kod katmanı temiz çıktı; kusur **rapor
+katmanındaydı** — üç oda kendi durumunu yanlış bildiriyordu ve üçü de aynı
+URL'e yeniden yayınlandı:
+
+| Oda | Neydi | Ne oldu |
+|---|---|---|
+| 02 | rev.2 · dokuz boşluk "açık", Faz 1–4 "yapılacak" | **rev.3** — sekizi kodda kapalı bulundu (kod yorumları boşlukları adıyla anıyor), B bilinçli açık |
+| 08 | rev.2 · "altı fazın hiçbiri henüz uygulanmadı" | **rev.3** — altısı da kodda; her faza `dosya:satır` kanıtı eklendi. Favicon 🕯️🗣️ ilk kez verildi |
+| 05 | rev.3 · "bundle kapısı delik, 548 byte aşım yeşil geçiyor" | Kırık kapanmış: `build.sh:153–156` byte'ta karşılaştırıyor, bütçe 1024 KB |
+
+**Dersin kendisi:** bir rapor bitmiş işi "yapılacak" gösterdiğinde, ölçüm
+boşluğundan daha sinsi bir kusur üretir — okuyanı **yapılmış işi yeniden
+yapmaya** çağırır. Rapor da geçmişin fotoğrafıdır (§7) ve fotoğrafın tarihi
+üstünde yazmalıdır.
+
 ## Sette olmayan, galeride duran
 
 | Ad | URL | Not |
