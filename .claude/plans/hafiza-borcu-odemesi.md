@@ -256,9 +256,80 @@ gerekiyorsa eklenir)
 anlatır) · [[kapi-sessiz-gec]] (kapı kırığı ile körlük ayrımı — FAZ 1'in
 denetçi dosyalarında emsal)
 
-## Durum
+## Durum (2026-09-03 · sprint kapandı)
 
-- FAZ 1–6: açılmadı.
-- **İlk hamle.** FAZ 1'i `uygulayici` ajanına devret (🅢, §4.4 devir kapısı):
-  plan yolu `.claude/plans/hafiza-borcu-odemesi.md`, FAZ 1, protokol
-  çekirdeği §3/§5/§6 + emsal dosya `boot-nabzi.md`.
+**Borç ödendi: 23 / 23.** `.claude/memories/` altında 25 dosya var (23 yeni +
+önceki sprintten 8'i, `boot-nabzi` dahil sayılınca). `MEMORY.md` hepsini
+indeksliyor.
+
+| Faz | Yazan | Durum | Denetim |
+|---|---|---|---|
+| FAZ 1 | `uygulayici` (Sonnet) | ✅ 4 dosya | ⚠️ **yarım** — `denetci` (Opus) kota duvarına tosladı |
+| FAZ 2 | `uygulayici` (Sonnet) | ✅ 4 dosya | ⚠️ **yarım** — aynı sebep |
+| FAZ 3 | `uygulayici` (Sonnet) → **parent** | ✅ 3 dosya (1'i ajandan, 2'si parent) | ⚠️ denetlenmedi |
+| FAZ 4 | **parent** (Opus) | ✅ 3 dosya | ⚠️ denetlenmedi |
+| FAZ 5 | parent (Opus) | ✅ 4 dosya | ✅ `denetci` (Sonnet) — **3 bulgu, üçü de düzeltildi** |
+| FAZ 6 | parent (Opus) | ✅ 4 dosya | ⚠️ **yarım** — `denetci` (Sonnet) kota duvarına tosladı |
+
+### Sapma raporu — devir kapısı kısmen uygulanamadı (§4.4)
+
+Oturum **API kota sınırına** çarptı (429, "session limit"); beş ajan aynı
+anda düştü: FAZ 3'ün uygulayıcısı (üç dosyadan birini yazmıştı), FAZ 4'ün
+uygulayıcısı (hiç yazmamıştı) ve üç denetçi (FAZ 1, 2, 6).
+
+Kural gereği bu bir **sapmadır ve gizlenmez** (§10.4): FAZ 3'ün kalan iki
+dosyası ile FAZ 4'ün üç dosyası **parent tarafından** yazıldı, yani 🅢
+oldukları hâlde devredilmediler. Gerekçe kapasitedir, tercih değil — ajan
+çağrısı açılamıyordu. FAZ 3'ün ajandan gelen tek dosyası
+(`buyuk-harf-dil-kapisi.md`) ajanın öz-denetimini yapamadan öldüğü için
+parent tarafından ayrıca sınandı ve **iki kusuru düzeltildi** (aşağıda).
+
+### Denetim borcu — açık kalan iş
+
+Üç fazın (1, 2, 6) ve parent'ın kendi yazdığı FAZ 3–4'ün çapraz-model
+denetimi **yapılmadı**. Parent mekanik bir dikiş turu koştu (hedge kelime
+taraması, K2 beyanı bütünlüğü, `Why:`/`How to apply:` iskeleti, `[[bağ]]`
+kapısı, indeks bütünlüğü — hepsi temiz), ama bu **satır-satır kanıt
+doğrulaması değildir**. FAZ 5'in denetimi tam da o katmanda üç K1 ihlali
+buldu (bir sayım hatası, bir çapasız paragraf, iki satır kayması) — yani
+kalan fazlarda da benzeri olması beklenir.
+
+**İlk hamle (yeni oturum).** Kota resetlendiğinde denetimi tamamla:
+
+```
+Agent({ subagent_type: 'denetci', model: 'opus',   … })  # FAZ 1, 2 (Sonnet yazdı)
+Agent({ subagent_type: 'denetci', model: 'sonnet', … })  # FAZ 3–4, 6 (Opus yazdı)
+```
+
+Denetçiye verilecek özel madde — bu sprintin **kanıtlanmış sistemik kusuru**:
+*satır atıfı kayması.* İçerik doğruyken aralığın son satırı iddianın kritik
+satırını dışarıda bırakabiliyor. Her `dosya:satır` atfı açılıp gösterilen
+aralığın iddia edilen kodu gerçekten kapsayıp kapsamadığı sınanmalı.
+
+### Bu sprintte bulunan yorum/kod ayrışmaları (kaynak kod DEĞİŞTİRİLMEDİ)
+
+Beşi de ilgili hafıza dosyasına "Dürüst uyarı" olarak işlendi; kaynak
+yorumları bu sprintin kapsamı dışında olduğu için **düzeltilmedi** — ayrı
+bir tur ister:
+
+1. `js/parts/12f-hazine-paketleri.js:21` — "kişi kartları sosyal yüzeye
+   çıkar" okuması doğrulanmıyor: `kisi_kartlari` sahibine kapalı, paylaşım
+   yalnız 10A'dan `paylasilan_kartlar`'a gidiyor.
+2. `scripts/ihtimalsel-denetci.mjs` + `tests/ihtimalsel-dil-kapisi.test.js` —
+   banner'lar "beş sözlük dosyası" diyor, `TARAMA_DOSYALARI` üç dosya;
+   prompt sözlükleri (16b/16e) kapının DIŞINDA.
+3. `js/parts/00a-infrastructure.js:900` — "Hukuki, GDPR, Ayarlar, Ayna,
+   Hafıza" listesi bugünkü kodla örtüşmüyor (Hukuki ve Hafıza `doc-*`
+   kullanmıyor; Postane ve LLM kabuğu listede yokken kullanıyor).
+4. `tests/dil-buyuk-harf-kapisi.test.js:98` — "Repoda 215 `text-transform:
+   uppercase` var" 2026-08-28 tarihli bir kayıt; bugün `css/` altında 216,
+   toplam 275.
+5. `js/parts/10q-w2-kisi-karti.js:894-904` çevresi — sorun yok, ama
+   `migrations/000_wanderer_schema.sql`'in `42703` deseni kod yorumlarının
+   ima ettiği gibi üç değil **iki** kolonda yazılı.
+
+### Ayrıca netleşen
+
+`mig 039`, `mig 025/027/031/032` diye anılan dosyalar **yok ve aranmamalı**:
+001–040 arası kırk migration 2026-07-25'te `000_wanderer_schema.sql`'de
+birleştirildi (`migrations/README.md`), ad göçü onun **§2** bloğunda.
