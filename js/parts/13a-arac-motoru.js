@@ -105,6 +105,8 @@ export async function aracRunTool(btn) {
   chip.remove();
   const def = _ARAC_DEFS[tool];
   if (!def) return;
+  // Araç Nabzı: kullanıcı chip'i onayladı (09·D) — aracın çalışıp çalışmadığından bağımsız, karar burada.
+  try { window.wtLogArac?.('onayla', { arac: tool }); } catch (_) {}
   try {
     const ok = await def.run(args);
     if (ok === false) showToast(t('arac.fail', 'Bu araç şu an çalıştırılamadı.'), true);
@@ -120,6 +122,8 @@ export function aracDismiss(btn) {
   // araç türü geçildiği 09d'nin negatif defterine düşer (chip silinmeden ÖNCE
   // okunmalı, dataset chip'le birlikte gider).
   try { window.omKaydetAracGec?.(chip?.dataset?.tool); } catch (_) {}
+  // Araç Nabzı: kullanıcı chip'i geçti (09·D).
+  try { window.wtLogArac?.('reddet', { arac: chip?.dataset?.tool }); } catch (_) {}
   chip?.remove();
 }
 
@@ -127,6 +131,8 @@ export function aracDismiss(btn) {
 function _renderToolChip(container, entry) {
   const def = _ARAC_DEFS[entry.tool];
   if (!def) return;
+  // Araç Nabzı: chip GERÇEKTEN çizildiğinde sayılır (09·D) — tanımsız araç hiç sayılmaz.
+  try { window.wtLogArac?.('oner', { arac: entry.tool }); } catch (_) {}
   const chip = document.createElement('div');
   chip.className = 'arac-chip';
   chip.dataset.tool = entry.tool;

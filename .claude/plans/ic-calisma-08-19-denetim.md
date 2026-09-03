@@ -133,7 +133,10 @@ kalıbıyla, `errors` dizisine kendi etiketiyle (`storage:chat-images:hayal`).
 Kapalı kümeler planda verilidir, uygulayan taraf küme icat etmez:
 - `kota`: `duvar` · `sheet` · `gate` · `iptal` · `bonus`
 - `arac`: `oner` · `onayla` · `reddet`
-- `bolge`: `gun` · `galeri` · `icdunya` · `yolculuk` · `ocak`
+- `bolge`: `ayrac` · `galeri` · `icdunya` · `yolculuk` · `ocak`
+  (**`gun` yoktur ve olmamalı:** Bugün'ün kendi `view` segmenti zaten paydadır.
+  Ayrı bir `gun` olayı aynı şeyi ikinci kez sayar ve oranı bozar — oda 18'in
+  sorduğu soru "ayraç altına kaç kişi indi", "Bugün'e kaç kişi girdi" değil.)
 - `paylasim`: `story` · `yazi` · `kopyala` · `indir`
 **Değişen:** `js/parts/00f-kullanim-nabzi.js`
 **Yeni:** `tests/00f-kota-nabzi.test.js` · `tests/00f-arac-nabzi.test.js` ·
@@ -258,6 +261,34 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
   dokunulmadı).
   **ELLE bekleyen:** iki edge fonksiyonun redeploy'u — yama repoda, prod'da değil.
 
-**İlk hamle (FAZ 2+3):** `00f-kullanim-nabzi.js`'e `wtLogModel` (`00f:637`)
-kalıbıyla dört kanal ekle — kapalı kümeler planda yazılı — sonra çağrı
-yerlerini bağla.
+- **FAZ 2+3 · BİTTİ** (2026-09-03). Dört kanal `00f:660-791`, çağrı yerleri
+  altı modülde, dört yeni test dosyası (32 test). Kapı: build ✅ · hedefli süit
+  ✅ · tarayıcı ✅ (dört kanal da `"function"`, exit 0, "Konsol temiz.").
+
+  **Denetim (parent · Opus) — bir kırık bulundu ve düzeltildi:**
+  `duvar` olayı yalnız `13m`'in `server_enforced` dalına takılmıştı. Ama İç
+  Çalışma 16 · boşluk B'nin kendisi söylüyor ki `server_enforced` bugün
+  **kapalı** (llm-chat vendorlanana dek açılamaz) — yani enstrümante edilen dal
+  prod'da hiç koşmuyor, koşan dal (`quota_consume` RPC) sayılmıyordu. Panel
+  "duvara kimse çarpmıyor" diye okunurdu: kanıtsız bir sıfır değil, **yanlış**
+  bir sıfır (§6.10). Şüphe önce kırmızı testle mühürlendi
+  (`tests/13m-kota.test.js` — üç yeni test, biri kırmızıydı), sonra
+  `13m-kota.js:186-188` düzeltildi.
+
+  **Durakların kararı:**
+  1. `indir` olayı **bağlandı** — `13g:297` (kart) ve `13g:610` (çok sayfalı
+     yazı) PNG indirme dallarına. Gerekçe: indirme bir başarısızlık değil ayrı
+     bir sonuçtur; Share sheet'i olmayan tarayıcıda kullanıcı yine de kartını
+     aldı. 'story' saymak paylaşımı, hiç saymamak kullanıcıyı yok sayardı.
+  2. `story`/`yazi`nın `_shareCanvas(es)` içinde, gerçek başarı noktasında
+     loglanması **kabul edildi** — dıştaki `ok` iptalde de `true` döndüğü için
+     dış gate planın yasağını ("Share sheet iptali olay değildir") çiğnerdi.
+  3. `tur` alanının `story`/`yazi`da boş kalması **plana taşındı**: altı
+     çağıranın (kart/seri/yol/wrapped/hazine/oluş mührü) kendi `tur`'unu
+     geçirmesi ayrı bir fazın işi. Uydurmak §6.10 ihlali olurdu.
+  4. `13m`'de `dal` alanının boş kalması **gerekçeyle reddedildi** (kırık
+     değil): `_KOTA_DAL`'ın `a`/`b`'si teklif A/B eksenidir ve `13m`'nin RPC
+     tabanlı duvarında böyle bir eksen yoktur.
+
+**İlk hamle (FAZ 4):** `migrations/051_gozlemevi_tek_cam.sql` — `050`'nin on
+altı bloğunu aynen taşı, üstüne yedi blok ekle.

@@ -201,6 +201,8 @@ export async function sfCopyToMine(cardId) {
       .insert([{ user_id: uid, card_id: cardId }]);
     if (error) { console.warn('sfCopy:', error.message); showToast?.(t('sf.add_failed', 'Eklenemedi')); return null; }
     S._ilhamSavedSet.add(cardId);
+    // Paylaşım Nabzı: feed'den koleksiyona kopyalama GERÇEKTEN tamamlandı (12·C).
+    try { window.wtLogPaylasim?.('kopyala', { tur: 'kart' }); } catch (_) {}
 
     // Kart snapshot'ından Atölye tohumu kur → 10A iki kutuplu omurgada doğsun
     const card = _viewState.feed.find(c => c.id === cardId) || _viewState.top.find(c => c.id === cardId);

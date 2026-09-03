@@ -148,8 +148,12 @@ export async function ktGate() {
         S._kota = { ...cached, bonus_left: cached.bonus_left - 1 };
         ktRender();
         _bonusToastMaybe(S._kota);
+        // Kota Nabzı: bonus hakkı gerçekten tüketildi (16·C) — kota sayacına dokunmaz, yalnız gözlemler.
+        try { window.wtLogKota?.('bonus', { tier: _isPrem(S._kota) ? 'max' : _isPro(S._kota) ? 'pro' : 'free' }); } catch (_) {}
         return { available: true, allowed: true, reason: 'bonus', q: S._kota };
       }
+      // Kota Nabzı: kullanıcı gerçekten duvara çarptı (16·C) — huninin dip noktası.
+      try { window.wtLogKota?.('duvar', { tier: _isPrem(cached) ? 'max' : _isPro(cached) ? 'pro' : 'free' }); } catch (_) {}
       return { available: true, allowed: false, reason: blockedW ? 'week' : 'window', q: cached };
     }
     S._kota = {
@@ -172,7 +176,19 @@ export async function ktGate() {
     if (error) throw error;
     S._kota = data;
     ktRender();
-    if (data.reason === 'bonus') _bonusToastMaybe(data);
+    if (data.reason === 'bonus') {
+      _bonusToastMaybe(data);
+      // Kota Nabzı: sunucu tarafında da bonus tüketimi olabilir (018 imzası) — aynı olay, ikinci yol.
+      try { window.wtLogKota?.('bonus', { tier: _isPrem(data) ? 'max' : _isPro(data) ? 'pro' : 'free' }); } catch (_) {}
+    }
+    // Kota Nabzı: duvar İKİ yoldan iner ve ikisi de sayılmalı (16·C). Yukarıdaki
+    // server_enforced dalı bugün prod'da KOŞMUYOR — İç Çalışma 16 · boşluk B:
+    // `server_enforced` ancak llm-chat vendorlanınca açılabilir. Yalnız orayı
+    // saymak, huninin dip noktasını hep 0 gösterirdi: kanıtsız değil, YANLIŞ
+    // bir sayı (§6.10).
+    if (data.allowed === false) {
+      try { window.wtLogKota?.('duvar', { tier: _isPrem(data) ? 'max' : _isPro(data) ? 'pro' : 'free' }); } catch (_) {}
+    }
     return { available: true, allowed: data.allowed !== false, reason: data.reason || null, q: data };
   } catch (e) {
     // Tüketim çağrısı düştü — kullanıcıyı cezalandırma, yerel sayaca düş.

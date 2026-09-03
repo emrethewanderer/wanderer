@@ -265,6 +265,9 @@ async function _shareCanvas(cv, title) {
       await Filesystem.writeFile({ path, data: base64, directory: Directory.Cache });
       const { uri } = await Filesystem.getUri({ path, directory: Directory.Cache });
       await Share.share({ title: title || 'Wanderer', files: [uri] });
+      // Paylaşım Nabzı: story GERÇEKTEN paylaşıldı (12·C) — iptal dalı (aşağıda)
+      // bilerek loglanmaz, Share sheet iptali olay değildir.
+      try { window.wtLogPaylasim?.('story'); } catch (_) {}
       return true;
     } catch (e) {
       if (String(e && e.message).includes('canceled')) return true; // kullanıcı vazgeçti
@@ -278,6 +281,7 @@ async function _shareCanvas(cv, title) {
       const file = new File([blob], 'wanderer.png', { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: title || 'Wanderer' });
+        try { window.wtLogPaylasim?.('story'); } catch (_) {}
         return true;
       }
     }
@@ -291,6 +295,10 @@ async function _shareCanvas(cv, title) {
     a.download = 'wanderer-muhur.png';
     document.body.appendChild(a); a.click(); a.remove();
     showToast(t('shr.card_downloaded', 'Kart görseli indirildi ✦'));
+    // Paylaşım Nabzı: 'indir' AYRI bir sonuçtur, başarısızlık değil (12·C).
+    // Share sheet'i olmayan bir tarayıcıda kullanıcı yine de kartını aldı —
+    // bunu 'story' saymak paylaşımı, hiç saymamak da kullanıcıyı yok sayardı.
+    try { window.wtLogPaylasim?.('indir', { tur: 'kart' }); } catch (_) {}
     return true;
   } catch (e) { console.warn('shr download:', e && e.message); }
   return false;
@@ -555,6 +563,8 @@ async function _shareCanvases(canvases, title, text) {
         uris.push(uri);
       }
       await Share.share({ title: title || 'Wanderer', text: text || undefined, files: uris });
+      // Paylaşım Nabzı: yazı GERÇEKTEN paylaşıldı (12·C) — iptal dalı bilerek loglanmaz.
+      try { window.wtLogPaylasim?.('yazi'); } catch (_) {}
       return true;
     } catch (e) {
       if (String(e && e.message).includes('canceled')) return true;
@@ -573,11 +583,13 @@ async function _shareCanvases(canvases, title, text) {
       if (text) payload.text = text;
       if (navigator.canShare(payload)) {
         await navigator.share(payload);
+        try { window.wtLogPaylasim?.('yazi'); } catch (_) {}
         return true;
       }
       // Çoklu desteklenmiyorsa tek-dosya dene
       if (files.length === 1 && navigator.canShare({ files: [files[0]] })) {
         await navigator.share({ files: [files[0]], title: title || 'Wanderer', text: text || undefined });
+        try { window.wtLogPaylasim?.('yazi'); } catch (_) {}
         return true;
       }
     }
@@ -599,6 +611,9 @@ async function _shareCanvases(canvases, title, text) {
     } else {
       showToast(t('shr.images_downloaded', 'Görseller indirildi ✦'));
     }
+    // Paylaşım Nabzı: çok sayfalı yazı indirildi — tek olay, sayfa başına değil
+    // (n sayfa n paylaşım değildir).
+    try { window.wtLogPaylasim?.('indir', { tur: 'rapor' }); } catch (_) {}
     return true;
   } catch (e) { console.warn('shr download multi:', e && e.message); }
   return false;

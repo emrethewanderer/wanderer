@@ -251,6 +251,52 @@ export function loadBugunView() {
 
   // STÜDYO bölgesi (tek sayfa) — Galeri rafı + oda sayaçları
   try { wsSyncStudio(); } catch (_) {}
+
+  // Bölge Nabzı — beş STÜDYO çapası ayraç altına inince görünür mü, hiç
+  // görünmüyor mu (İç Çalışma 18 · A). loadBugunView Bugün'e her girişte
+  // çağrılır; gözlemci burada kurulmalı ki çapa DOM'a yeni geldiğinde
+  // (ekran değişince #bugun-view yeniden monte olabilir) yeniden bağlanır.
+  try { _bolgeGozle(); } catch (_) {}
+}
+
+/* ─── BÖLGE NABZI (İç Çalışma 18 rev.2 · boşluk A) ───
+   Ayraç altına kaç kişi indi, Galeri/İç Dünya/yolculuk/ocak hiç görüldü mü
+   sezgiyle biliniyordu, kadrandan değil. Beş çapayı `IntersectionObserver`
+   ile gözler; her biri bölge başına OTURUMDA BİR KEZ sayılır (RİSK 2) —
+   `_bolgeGorulen` modül-yerel set'i loadBugunView'ın tekrar tekrar
+   çağrılmasından etkilenmez, sayfa yaşadığı sürece yaşar. Bölge bir kez
+   görülünce `unobserve` edilir; ikinci kez gözlenmez, ikinci kez de
+   yazılmaz. `gun` bilinçli olarak yok (K1, 00f'in wtLogBolge yorumu). */
+const _BOLGE_ANCHORS = {
+  'ws-studio-divider': 'ayrac',
+  'studio-galeri':     'galeri',
+  'studio-icdunya':    'icdunya',
+  'studio-yolculuk':   'yolculuk',
+  'studio-ocak':       'ocak',
+};
+let _bolgeGorulen = new Set();
+let _bolgeObs = null;
+
+function _bolgeGozle() {
+  // Eski tarayıcı / test ortamı — sessiz düş, akışı bloklamaz (§5.2).
+  if (typeof IntersectionObserver === 'undefined') return;
+  if (!_bolgeObs) {
+    _bolgeObs = new IntersectionObserver((girisler) => {
+      girisler.forEach((g) => {
+        if (!g.isIntersecting) return;
+        const bolge = _BOLGE_ANCHORS[g.target.id];
+        if (!bolge || _bolgeGorulen.has(bolge)) return;
+        _bolgeGorulen.add(bolge);
+        try { window.wtLogBolge?.(bolge); } catch (_) {}
+        _bolgeObs.unobserve(g.target);   // bir kez sayılır; yol geriye akmaz
+      });
+    });
+  }
+  Object.entries(_BOLGE_ANCHORS).forEach(([id, bolge]) => {
+    if (_bolgeGorulen.has(bolge)) return;   // zaten sayıldı — yeniden gözleme
+    const el = document.getElementById(id);
+    if (el) _bolgeObs.observe(el);          // aynı elemanı iki kez observe etmek no-op'tur
+  });
 }
 
 /* ─── STÜDYO BÖLGESİ SENKRONU ───
