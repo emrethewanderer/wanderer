@@ -11,7 +11,7 @@ bilmek onu aramaya harcanan turdan ucuzdur.
     denetim-onarimi.md · devir-altyapisi.md · gerceklik-mimarisi.md
     hafiza-borcu-odemesi.md · kapi-saglamlastirma.md
     kesin-alinti-mimarisi.md · koken-kor-noktalar.md
-    ic-calisma-08-uc-ses-rev2.md
+    ic-calisma-08-uc-ses-rev2.md · opus-oz-denetimi.md
 
 ## Repoda OLMAYAN, ama referans verilen dokuz plan
 

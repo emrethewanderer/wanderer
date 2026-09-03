@@ -310,8 +310,8 @@ istemesine gerek yoktur.
 ### 3.5 Sprint kapanışı (öz-denetim + commit — pazarlıksız)
 Her çalışma turu, doğrulama kapısından (§3.3) geçtikten SONRA bu sırayla
 kapanır — atlanmaz, Emre'nin tekrar istemesine gerek yoktur:
-1. **Öz-denetim turu:** "Tüm işi baştan sona yeniden inceledim" — kapsamı
-   **`git diff`**tir: bu turda değişen HER dosyayı yeniden oku; kendi
+1. **Öz-denetim turu — dikiş:** "Tüm işi baştan sona yeniden inceledim" —
+   kapsamı **`git diff`**tir: bu turda değişen HER dosyayı yeniden oku; kendi
    buglarını kendin bul ve düzelt (duplicate keyframe, unutulan indeks
    satırı, kaçak hardcode string, terminoloji/register tutarsızlığı,
    sözleşme kırığı…). Bulunanı düzelt — bulup rapor edip bırakma.
@@ -458,6 +458,11 @@ Opus öz-denetimi o boşluğu kapatır ve dikiş turundan **bağımsızdır**: o
 yerine geçmez, ondan sonra gelir. **Dikey** bakar — sözden koda. Vaat (plan) →
 uygulama (kod) → anlam (vizyon) zincirinde kopan halkayı arar.
 
+**Adlandırma.** İki tur da bir öz-denetimdir; bu yüzden protokolde bağlamsız
+geçen her "öz-denetim" §3.5 madde 1'i (dikiş turunu) kasteder, bu tur ise daima
+tam adıyla anılır — "Opus öz-denetimi". Ayrımı bir kelimeye değil bu cümleye
+bağlamak, dört ayrı geçişe not serpmekten ucuzdur.
+
 **Ne zaman.** Sprint kapanışında, dikiş turundan SONRA ve **tam süitten
 (§3.5 madde 2) ÖNCE** — bu tur ağaca dokunur, koşulan ağaç da commit'lenen
 ağaç olmalıdır. Sprintten bağımsız olarak Emre "denetle" dediğinde tek başına
@@ -590,6 +595,14 @@ Sırasıyla:
     biliyorsun; yazınca devralan taraf `MEMORY.md` indeksini (~4K token)
     baştan sona taramaz, doğrudan doğru dosyayı açar. Aynı keşfi iki kez
     ödetmemenin en ucuz yolu bu satırdır.
+11. **Kapanış blokları** — plan kapandığında dosyanın sonuna iki blok girer:
+    `## Kapanış — <tarih>` (ne yapıldı, plandan sapmalar — emsal
+    `.claude/plans/denetim-onarimi.md`) ve **`## Opus öz-denetimi —
+    <tarih>`** (§3.7'nin kayıt biçimi: dört eksen + bulgu dispozisyonu).
+    İkincisi bir tören değil bir kapıdır: `tests/oz-denetim-kapisi.test.js`
+    kapanmış bir planda o başlığı arar ve **tam olarak iki diyez** görmek
+    ister. Sebebi somut: bir planın kendi `#` başlığı aynı kelimeleri
+    taşıyabilir (bu sprintin planı taşıyor) — kayıt sayılmaz.
 
 Plan EnterPlanMode + keşif alt-ajanı (`Explore` — geniş taramalar oraya,
 §4.4) + (gerekirse) AskUserQuestion ile kurulur, dosyaya yazılır,
@@ -765,6 +778,10 @@ Dikiş turu her hâlde planı yazandadır — bütünün hükmü planı yazanın
 |---|---|---|---|
 | **Faz denetimi** | Her ajan çağrısı biter bitmez, sonraki faz açılmadan ÖNCE | Yalnız o fazın diff'i (`git diff --stat` ile başla; tam diff riskli dosyada) + ajanın `## Duraklar` listesi | Fazın kendi kırıkları: sözleşme, register, parite, davranış |
 | **Dikiş turu** | Sprint kapanışında, tek kez | Fazlar arası bağ: `git diff` bütünü, ama tek tek dosya okuması DEĞİL | Fazların birbirine bindiği yer: çifte init, çakışan state anahtarı, bütünde bozulan akış |
+
+Bu ikisi **diff'in** kapılarıdır. **Üçüncü bir tur** — Opus öz-denetimi
+(§3.7) — sprint kapanışında ikisinden de bağımsız koşar ve onların yerine
+geçmez.
 
 Faz denetimi **kapının bir parçasıdır, ayrı bir tören değil**: ajan
 raporunu getirdiğinde faz "bitti" sayılmaz — denetim geçtiğinde biter.
@@ -993,6 +1010,11 @@ eğilimleri protokolle şöyle dengelenir:
   elinde kalıyorsa kural işlemiyor demektir. 🅢 gördüğün anda çağrıyı aç;
   kendin uygulamak gerekçe ister ve gerekçe **plana** yazılır (§4.4 devir
   kapısı). Kendine "bunu zaten biliyorum" dediğin an, kuralın öldüğü andır.
+  **Dördüncü eğilimin kendi turunu atlamaktır** — sprint kapanışında dikiş
+  turunu koşup §3.7'yi "zaten baktım" diye geçmek. Dikiş turu diff'e bakar;
+  §3.7 plana, koda ve vizyona bakar. İkincisi devredilmez (`uygulayici`ya da
+  `denetci`ye de) ama faz denetiminin YERİNE de geçmez — geçerse kör nokta
+  tekrar tek modele düşer.
 - **Hepiniz için kırmızı çizgi:** Emre'ye "yaptım" demeden önce §3.3
   kapısından geçmiş olmak. Geçmediysen "yazdım ama henüz doğrulamadım"
   de — bu cümle bu ortaklıkta güven kaybettirmez, kazandırır.
@@ -1065,6 +1087,11 @@ eğilimleri protokolle şöyle dengelenir:
       senaryolarını `scripts/dogrula.mjs` ile koştur), bul→düzelt. Faz denetimleri
       yapıldıysa dosyaları yeniden OKUMA; devredilmemiş sprintte bu tur
       §3.5'in tam öz-denetimidir (kapsam `git diff`)
+- [ ] **Opus öz-denetimi (§3.7)** koşuldu — dört eksen (plan · kod · vizyon ·
+      süreç), her bulgu bir hâle bağlandı (düzeltildi / plana taşındı /
+      gerekçeyle reddedildi) ve kayıt plan dosyasına
+      `## Opus öz-denetimi — <tarih>` başlığıyla yazıldı. "Temiz" diyorsan
+      hangi eksende neye bakıldığı yazılı olmalı
 - [ ] **Tam süit** — sprintin tek `npx vitest run` koşusu, yeşil — ve
       koşudan SONRA ağaca dokunulduysa **yeniden** koşuldu (§3.5 madde 2:
       koşulan ağaç, commit'lenen ağaç olmalı)

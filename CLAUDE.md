@@ -46,3 +46,9 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
     bile) süit yeniden koşulur — "yeşil" koşunun sıfatıdır, ağacın değil.
     CI'ın ("Kapı") kırmızısı bir bildirim değil **iştir**: görüldüğü an
     fazın devamı durur. Ayrıntı: `PROTOKOL-FABLE.md` §3.5 madde 2 ve §10.4.
+11. **Opus öz-denetimi (§3.7) dikiş turundan sonra, tam süitten önce
+    koşar.** Plana/koda/vizyona/sürece karşı dört eksen: her bulgu
+    düzeltilir, plana taşınır ya da gerekçeyle reddedilir — dördüncü bir
+    hâl ("not edildi") yok. Kapanan plan `## Opus öz-denetimi` kaydını
+    taşır; kayıt yoksa tur koşulmamış sayılır. Ayrıntı: `PROTOKOL-FABLE.md`
+    §3.7.
