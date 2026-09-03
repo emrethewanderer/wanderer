@@ -18,7 +18,8 @@
 | 00 | Wanderer İç Çalışma Atlası · 18 Oda | https://claude.ai/code/artifact/07a1a25a-ca78-4aff-ad16-ccd37dc268ca |
 
 Atlas on sekiz odayı bağlar ve duvarlarını kesen altı ortak damarı gösterir.
-Kapak tarihi 18 Temmuz 2026; içerik rev.2'lerle güncellendi.
+Kapak tarihi 18 Temmuz 2026; **rev.2 · 3 Eylül 2026** ile altı damar da koda
+karşı okundu ve TOC'un on kritik satırı tazelendi.
 
 ## 18 Oda
 
@@ -47,7 +48,37 @@ kaçar. İkisi de kayıp değildir.
 | 17 | Telemetri & Gözlemevi | İç Çalışma 17 · Telemetri & Gözlemevi | https://claude.ai/code/artifact/c662a623-318b-40a0-8fd3-c7cb55ad29b7 |
 | 18 | Bugün Ekranı & Studio | İç Çalışma 18 · Bugün & Studio | https://claude.ai/code/artifact/c608b5f4-62b4-4ac7-8aa2-31590ab75c15 |
 
-## 2026-09-03 · denetim turu — üç oda tazelendi
+## 2026-09-03 (akşam) · İkinci denetim turu — on iki belge
+
+Emre'nin talebi: *"İç Çalışma 08'den 19'a kadar hepsini tek tek koda göre ve
+vizyonumuza göre güncelleyip en iyileyip uygulayalım."* Küme **odalar 08–18
+(on bir) + Atlas = on iki belge**. Sabahki tur 1–8'i denetlemişti; bu tur seti
+kapattı — ve öncekinden farklı olarak yalnız raporları düzeltmedi, **boşlukları
+kapattı**: yedi faz kod yazdı, sonra raporlar o koda karşı yeniden yazıldı.
+
+| Oda | rev | Ne değişti |
+|---|---|---|
+| 08 | **rev.3.1** | İçerik yargısı aynı; kanal sayısı on birden on beşe tazelendi. Bir fotoğrafın bayatlaması için bir akşam yetiyor |
+| 09 | **rev.2** | A kapandı (`hayal/` silme kapsamı) · D kapandı (Araç Nabzı) |
+| 10 | **rev.2** | A zaten kapalıymış (`13B` orkestratör) · B kapandı (`parseDayKey`) · D yanlışlandı |
+| 11 | **rev.2** | A kapandı (VERSION damgası) · B kapandı (Davetin Nabzı) · C kapandı (sessiz saat ezilmesi) |
+| 12 | **rev.2** | A kapandı (`10F` ön-süzgeç) · C kapandı (Halkanın Nabzı) |
+| 13 | **rev.2** | A · B · C üçü de zaten kapalıymış — rapor haberi almamıştı |
+| 14 | **rev.2** | A **yanlışlandı** (git init — öncül öldü) · B kapandı (Hata Nabzı) · C kapandı |
+| 15 | **rev.2** | D kapandı (iki çapraz hukuki bulgu) · B yarısı kapandı · A hâlâ ELLE |
+| 16 | **rev.2** | C kapandı (Gelirin Nabzı) — ve kapatılırken B'nin ölü dalı yanlış sıfır üretiyordu |
+| 17 | **rev.2** | A kapandı — bu odanın kendi "Tek Cam" sprinti koştu, on bir odanın Faz 1'i burada buluştu |
+| 18 | **rev.2** | A kapandı (beş bölge gözlemcisi) · C'nin verisi bugün akmaya başladı |
+| 00 | **rev.2** | Altı damar: D2 · D4 kapandı, **D5 yanlışlandı**, D1 büyüdü, D3 · D6 duruyor |
+
+**Turun üç dersi.** (1) Kod katmanı sağlıklıydı; kusur yine **rapor
+katmanındaydı** — altı boşluk zaten kapalıydı, üçü yanlıştı. (2) Bayatlığın
+üçüncü türü bulundu: *öncülü ölen madde* (D5 · git init). Kapanan madde kayıt
+bırakır, duran madde görünür kalır; öncülü ölen madde **hâlâ doğru görünür** ve
+okuyanı olmayan bir işe çağırır. (3) Kod tarafı ilerledikçe **ELLE borcu
+büyüyor**: `041`–`051`, sekizi sıra-bağımlı.
+
+## 2026-09-03 (sabah) · denetim turu — üç oda tazelendi
 
 İç Çalışma 1–8 koda karşı denetlendi. Kod katmanı temiz çıktı; kusur **rapor
 katmanındaydı** — üç oda kendi durumunu yanlış bildiriyordu ve üçü de aynı

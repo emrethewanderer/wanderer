@@ -485,3 +485,101 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
 
 **İlk hamle (FAZ 8):** kalan on rapor + Atlas — 09·10·11·12·15·16·17·18·08
 sonra Atlas; her biri `dosya:satır` kanıtıyla.
+
+---
+
+## Kapanış — 2026-09-03
+
+Sekiz fazın sekizi de uygulandı; on iki belgenin on ikisi yeniden yayınlandı.
+Sprint iki parçalıydı ve sırası kasıtlıydı: **önce kod, sonra rapor.** Boşluk
+kapatmadan rapor yazmak, düzeltmeye çalıştığı bayatlığı kendi eliyle üretirdi.
+
+**Sayım.** 44 boşluk maddesinden bu sprintte **12'si kapandı**, 6'sı zaten
+kapalı bulundu, **4'ü yanlışlandı** (10·D · 14·A · 17·D + Atlas D5), 8'i ELLE
+olarak duruyor, kalanı kısmen/ürün kararı.
+
+### Plandan sapmalar (dürüstlük kaydı)
+
+1. **FAZ 6 devredilemedi.** `uygulayici` çağrısı Sonnet oturum kotasına takıldı
+   (429, sıfırlama 20:10 UTC). Kanal mekanik olarak kapalıyken kapı
+   bekletilemezdi; parent uyguladı ve gerekçe `Devir dışı:` satırıyla plana
+   yazıldı (§4.4).
+2. **Planın kendi iki hatası kod yazılmadan yakalandı:** yeni modül `10D` diye
+   yazılmıştı ama `10D-olmak-istedigin.js` zaten vardı (→ `10F`); ve süzgecin
+   tek yüzeyi olduğu varsayılmıştı, oysa iki yüzey var (`10C:153` yorum ·
+   `10A:1298` kart metni). Yalnız `10C`'ye takmak boşluğu **kapatmış görünüp
+   kapatmazdı**.
+3. **Planın `paylasim_pulse` şartnamesi yanlıştı** — `prev_screen = tür`
+   diyordu, oysa `wtLogPaylasim` `prev_screen: null` yazıp türü `meta.tur`'a
+   koyar. Uygulayan taraf kaynağa uydu, plana değil; plan düzeltildi.
+4. **Kendi FAZ 5 işimde bir §6.10 ihlali bulundu ve geri alındı.** Davetin
+   Nabzı bir "Tık" sütunu çiziyordu; `notification_log.clicked_at`'i yazan
+   hiçbir yer yok (`sw.js:140` yalnız pencereyi öne alır). O sütun daima 0
+   gösterip "kimse tıklamıyor" diye okunurdu — ölçülmeyeni ölçülmüş gibi
+   göstermek, kanıtsız sıfırdan daha yanıltıcıdır, çünkü **kanıtlı görünür**.
+5. **CI dört koşu üst üste kırmızı bastı ve görülmedi** (#57–#60). Kırık FAZ
+   5'in yedi kartındaki 23 korumasız HTML interpolasyonuydu. Hem kırık hem onu
+   üreten iki kural boşluğu kapandı — ayrıntı aşağıda, "Sürece karşı".
+
+## Opus öz-denetimi — 2026-09-03
+
+**Plana karşı.** Sekiz fazın **Yeni:/Değişen:** listeleri ağaca karşı okundu;
+sekizi de teslim edildi. `## Duraklar` maddelerinin hepsi karara bağlandı (en
+büyüğü: küfür listesi — gerekçeyle reddedildi, gerekçe modül başlığında).
+Sessizce düşen madde **yok**; sapmaların beşi yukarıda adıyla kayıtlı. Bir
+şartname hatası (madde 3) ve iki keşif eksikliği (madde 2) planın kendisindeydi
+ve üçü de kod yazılmadan ya da aynı turda yakalandı.
+
+**Koda karşı.** Kapıların görmediği yer bu sprintte **gerçekten vardı** ve
+pahalıya patladı: XSS tabanı 23 interpolasyonla büyümüştü, hedefli süit onu
+seçmiyordu (repo-geneli kapılar hiçbir önekle bulunmaz). Düzeltme kapıyı
+susturmak değil kaydı gerçek kılmak oldu — `gzSayi()` zorlamayı yazma anına
+taşır (`13q:23`), iki HTML parçası ise beyan edilmiş muafiyet aldı
+(`13q:1231`, gerekçe ve **blok kapsamının bedeli** yorumda yazılı). Tabanın
+tolere ettiği borç **büyümedi, düştü**: 1931 → 1905 ham erişim. Tek-kaynak
+motorun ikizi doğmadı: kriz için `detectCrisis` yeniden kullanıldı, dört yeni
+nabız kanalı `wtLogModel` kalıbına bindi — yeni motor, yeni kolon, yeni tablo
+yok. `*-MUAF` beyanlarının ikisi de gerekçelidir; gerekçesiz muafiyet yok.
+
+**Vizyona karşı.** Eklenen şey **kart değil kaldıraç** mı? Yedi Gözlemevi
+kartının her biri bir soruya bağlı ve **ne ölçmediğini de söylüyor** — bu
+süsleme değil, tezin doğrudan uygulaması: *uygulama kullanıcı hakkında bir şey
+söylüyorsa kaynağı kullanıcı olmak zorundadır.* En saf hâli iki kararda görünür:
+(a) Davetin Nabzı'nın ölçülmeyen sütunu **kaldırıldı**, (b) ön-süzgece küfür
+listesi **yazılmadı** — "uygunsuz içerik" demek sessiz bir hakarettir ve §6.10
+yargılara da uygulanır. Anlam ekseni (altın=şimdi · lapis=gelecek · bronz=söz)
+korundu; yeni yüzey admin panelidir, gezginin dünyasına dokunmaz. Manevi
+register sekülerleşmedi — bu sprint kullanıcı microcopy'sine hiç girmedi.
+Sayaç dili sızmadı: sayılar yalnız admin kadranında, gezgin yüzeyinde değil.
+
+**Sürece karşı.** Turun asıl kazancı burada ve **iki kural boşluğu** kapandı:
+1. **Repo-geneli kapılar önekle bulunmaz.** §3.3'ün hedefli süit kuralı doğru
+   ama kördü: `tests/xss-kapisi.test.js` bir modülün değil bütün ağacın
+   kapısıdır. Yeni kapı: `npm run kapi:genel` (`vitest run kapisi
+   kapi-workflow` — 20 dosya, 284 test, ~17 sn). **Liste değil desen** olması
+   kasıtlı: liste bayatlar, yeni bir kapı ona kendiliğinden girmez. §3.3'e
+   madde, §9'un faz kapısına satır, `CLAUDE.md` çekirdeğine zincir.
+2. **Kırmızı Kapı okunmadı.** §9'un "push sonrası Kapı koşusu izlendi" maddesi
+   *sprint kapanışı* listesindeydi; oysa push **her fazda** oluyor. §10.4 iki
+   hâl tanımlıyordu (kapıyı iş sayan 10 dk · bildirim sayan 50 dk); üçüncü hâl
+   ikisinden de kötü ve bugün ölçüldü: **kapı hiç okunmadı.** Madde faz
+   kapanışı listesine taşındı, §10.4'ün tablosu üçüncü hâli adıyla anıyor.
+3. Üçüncü bir bulgu **repo dışında** kaldı ve sınırı yazılıyor: rapor kurarken
+   etiket dengesi iki kez kırıldı (oda 16 ve 18). Kapı `scratchpad/rev.py`'ye
+   gömüldü — ama scratchpad repoda değildir, yani bu kapı oturumla ölür. Kalıcı
+   bir kural değil, bu turun aracıdır.
+
+**Bulgular.** 8 — düzeltildi 7 · plana taşındı 0 · gerekçeyle reddedildi 1
+- `js/parts/13q-gozlemevi.js` (7 kart, 23 interpolasyon) — XSS tabanı büyümüştü — **düzeltildi** (`gzSayi` + beyan)
+- `PROTOKOL-FABLE.md` §3.3 — repo-geneli kapılar hedefte yoktu — **düzeltildi** (`kapi:genel`)
+- `PROTOKOL-FABLE.md` §9 — Kapı okuma maddesi yanlış listedeydi — **düzeltildi**
+- `js/parts/13m-kota.js:186` — duvar ölü dala bağlıydı, panel yanlış sıfır basacaktı — **düzeltildi** (önce kırmızı test)
+- `js/parts/13q-gozlemevi.js` Davetin Nabzı — ölçülmeyen "Tık" sütunu — **düzeltildi**
+- `.claude/plans/…` `paylasim_pulse` şartnamesi — kaynakla çelişiyordu — **düzeltildi**
+- Oda 08 raporu — kanal sayısı bir akşamda bayatladı — **düzeltildi** (rev.3.1)
+- Ön-süzgeçte küfür/hakaret listesi — **gerekçeyle reddedildi** (yanlış pozitifin bedeli, §6.10 yargılara da uygulanır; reaktif ⚑ hattı ikinci hat olarak duruyor)
+
+**Bakılmayan.** Prod durumu (Supabase Dashboard) hiçbir eksende ölçülmedi ve
+ölçülemez; kartların canlı `admin_usage_report` çıktısıyla nasıl göründüğü
+sınanmadı — sentetik veriyle sınandı. Oda 18·B (gerçek cihaz turu) bu turda da
+yapılmadı: doğrulama tarayıcısı konsolu okur, gezginin gözünü okumaz.
