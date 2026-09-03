@@ -118,6 +118,27 @@ describe('Ağaç kimliği — guard\'ın yargısı', () => {
     expect(log).toContain('FARKLI AĞAÇ');
   });
 
+  it('SHALLOW fetch (fetch-depth: 2) ağacı okumaya yeter', () => {
+    // Guard'ın en kırılgan varsayımı: `actions/checkout` PR koşusunda
+    // `refs/pull/N/merge`i SIĞ çeker. İkinci parent orada çözülmezse guard
+    // her PR'de "OKUNAMADI"ya düşer ve sessizce işlevsizleşir — kapı yanlış
+    // yeşil vermez ama Emre'nin beklemesi de bitmez. Burada checkout'un
+    // yaptığı şeyin aynısı kurulur: bare uzak + `--depth=2` fetch.
+    const uzak = depoKur(false).d;
+    execFileSync('git', ['update-ref', 'refs/pull/1/merge', 'HEAD'], { cwd: uzak });
+
+    const klon = fs.mkdtempSync(path.join(os.tmpdir(), 'kapi-sig-'));
+    git(klon, 'init', '-q');
+    git(klon, 'remote', 'add', 'origin', uzak);
+    git(klon, 'fetch', '-q', '--depth=2', 'origin', 'refs/pull/1/merge');
+    git(klon, 'checkout', '-q', 'FETCH_HEAD');
+    expect(git(klon, 'rev-parse', '--is-shallow-repository')).toBe('true');
+
+    const { karar, log } = guardKostur({ cwd: klon });
+    expect(karar).toBe('hayir');
+    expect(log).toContain('AYNI AĞAÇ');
+  });
+
   it('push/workflow_dispatch koşusunda ağaç koşulsuz sınanır', () => {
     for (const olay of ['push', 'workflow_dispatch']) {
       expect(guardKostur({ cwd: ayni.d, olay }).karar).toBe('evet');
