@@ -2888,6 +2888,16 @@ export const I18N_CORE = {
     'sf.to_me': 'Bana',
     'sf.already_saved': 'Bu kartı zaten koleksiyonuna aldın',
     'sf.add_failed': 'Eklenemedi',
+
+    /* ÖN SÜZGEÇ (10F) — yayından önceki tek bakış. Ton kuralı: cümle
+       kullanıcının metnini korur, çıkarılacak izi adıyla söyler ve ASLA
+       "uygunsuz içerik" demez. Engellenen şey içerik değil, yanlış adrese
+       gitmek üzere olan bir iz. */
+    'sz.kriz': 'Bu cümle halkaya değil, yanında durabilecek birine gitmeli. Burada kalsın — ve istersen şimdi konuşalım.',
+    'sz.telefon': 'Burada bir telefon numarası görünüyor. Cümlen kalsın — numara çıksın.',
+    'sz.eposta': 'Burada bir e-posta adresi görünüyor. Cümlen kalsın — adres çıksın.',
+    'sz.tckn': 'Burada kimlik numarasına benzeyen bir dizi var. Halka anonim; o da öyle kalsın.',
+    'sz.iban': 'Burada bir IBAN görünüyor. Bu alan onun yeri değil.',
     'sf.seed_fallback': 'İlham aldığım bir kart',
     'sf.workshop_opening': "Atölye açılıyor — kendi Geçiş Kartım'ını kaz",
     'sf.card_not_found': 'Kart bulunamadı',

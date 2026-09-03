@@ -152,6 +152,11 @@ export async function sfPostComment(cardId, body) {
   if (!sb || !uid) { showToast?.(t('gk.toast_login_first', 'Önce giriş yap')); return null; }
   const clean = String(body || '').trim().slice(0, 600);
   if (clean.length < 1) return null;
+  /* Ön süzgeç (10F) — yorum herkese açık akışa iner; kimlik bilgisi ve kriz
+     yayın ANINDA tutulur, sonradan gelen ⚑ raporuyla değil (İç Çalışma 12·A).
+     Geçmezse INSERT hiç denenmez: yayınlanmamış bir satırı geri almak yoktur. */
+  const sz = window.szDenetle?.(clean);
+  if (sz && sz.gecer === false) { showToast?.(sz.mesaj, true); return null; }
   const r = window.ilhamRumuz?.() || { name: 'GEZGİN', color: '#F5A623' };
   try {
     const { data, error } = await sb.from('paylasim_yorumlari').insert([{

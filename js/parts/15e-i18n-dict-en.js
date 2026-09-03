@@ -2838,6 +2838,16 @@ export const I18N_EN = {
     'sf.to_me': 'To Me',
     'sf.already_saved': 'You already added this card to your collection',
     'sf.add_failed': 'Could not add',
+
+    /* PRE-PUBLISH FILTER (10F) — the single look before publishing. Tone rule:
+       the sentence protects the user's own words, names the trace to remove,
+       and NEVER says "inappropriate content". What is held back is not the
+       content but a trace about to reach the wrong address. */
+    'sz.kriz': 'This belongs with someone who can sit beside you, not with the circle. Keep it here — and if you want, let\'s talk now.',
+    'sz.telefon': 'There seems to be a phone number here. Keep your words — let the number go.',
+    'sz.eposta': 'There seems to be an email address here. Keep your words — let the address go.',
+    'sz.tckn': 'There is a sequence here that looks like an ID number. The circle is anonymous; let it stay that way.',
+    'sz.iban': 'There seems to be an IBAN here. This is not the place for it.',
     'sf.seed_fallback': 'A card that inspired me',
     'sf.workshop_opening': 'Opening the Workshop — carve your own Transition Card',
     'sf.card_not_found': 'Card not found',

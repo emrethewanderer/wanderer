@@ -454,5 +454,34 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
   milisaniyeyle yapılamaz. **Keşif notu:** `13j-wrapped.js`'in hiç test dosyası
   yok — bu turda eklenmedi, ayrı bir işin konusu.
 
-**İlk hamle (FAZ 7):** `js/parts/10F-on-suzgec.js` (`sz` öneki) — PII deseni +
-kelime listesi; iki yüzeye takılır (`10C:150` yorumlar, `10A:1303` kart metni).
+- **FAZ 7 · BİTTİ** (2026-09-03). `js/parts/10F-on-suzgec.js` + iki yüzey
+  (`10C:153` yorum · `10A:1298` kart metni) + `main.js` bağı + on anahtar
+  (TR/EN) + `tests/10F-on-suzgec.test.js` (16 test). Kapı: build ✅ (714KB) ·
+  parite kapısı ✅ · tüketici testleri ✅ (87) · tarayıcı ✅
+  (`typeof window.szDenetle` → `"function"`, exit 0).
+
+  **🅞 kararı — küfür/hakaret kelime listesi YAZILMADI.** Plan "kelime listesi +
+  PII deseni" diyordu; yargı turunda ilki reddedildi ve gerekçesi modülün
+  başlığına yazıldı:
+  1. Yanlış pozitif, ürünün en kırılgan anında konuşur — insan **kendi
+     cümlesini** paylaşırken. "Uygunsuz içerik" demek sessiz bir hakarettir.
+  2. Kelime listesi niyet kanıtı olmadan hüküm verir; §6.10'un "kanıtı olmayan
+     değer yoktur" kuralı sayılara olduğu kadar **yargılara** da uygulanır.
+  3. Reaktif ⚑ hattı (`10C` `sfReportCard` → `paylasim_raporlari` → admin
+     RAPORLAR) zaten var ve insan gözü taşıyor. Ön süzgeç yalnız
+     **tartışmasız** olanı tutar.
+  Sonuç: süzgeç iki şey tutar — **kimlik bilgisi** (telefon/e-posta/TCKN/IBAN)
+  ve **kriz**. Kart, ne yapmadığını da başlığında söyler (Gözlemevi
+  kartlarının dürüstlük sınırıyla aynı ilke).
+
+  **İkinci motor yazılmadı:** kriz için `detectCrisis` (`13-extras:816`, on bir
+  dil, Emniyet Katmanı'nın tek kaynağı) yeniden kullanıldı. İkinci bir dedektör,
+  iki motorun zamanla ayrışması demekti (§1.3).
+
+  **Testin yarısı yanlış pozitif avıdır** — tarih, seri sayısı, kilometre taşı,
+  saat, yüzde, para ve 10/12 haneli kodlar engellenMEmeli; desenler bu yüzden
+  dar yazıldı. Ayrıca ton kuralı teste bağlandı: mesaj "uygunsuz"/"yasak"/
+  "ihlal" kelimelerini taşıyamaz.
+
+**İlk hamle (FAZ 8):** kalan on rapor + Atlas — 09·10·11·12·15·16·17·18·08
+sonra Atlas; her biri `dosya:satır` kanıtıyla.
