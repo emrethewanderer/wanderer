@@ -326,6 +326,12 @@ kapanır — atlanmaz, Emre'nin tekrar istemesine gerek yoktur:
    yere. Faz denetimleri yapıldıysa burada dosyaları yeniden okumazsın.
    Devredilmemiş sprintte de tur ÇAPRAZ MODELDİR (§3.3): Opus'un yazdığı
    fazları Sonnet denetler, bulguyu Opus düzeltir.
+
+   > **Bu tur dikişlere bakar; bütüne bakan tur ayrıdır.** *Opus öz-denetimi*
+   > (§3.7) bundan bağımsızdır ve **bu maddeden sonra, tam süitten (madde 2)
+   > önce** koşar — o tur da ağaca dokunur, koşulan ağaç commit'lenen ağaç
+   > olmalıdır. Bu listenin maddeleri repoda numarasıyla anılıyor; yeni tur
+   > bu yüzden bir maddeye değil **ayrı bir bölüme** yazıldı.
 2. **Tam süit — sprintin tek koşusu:** `npx vitest run 2>&1 | tail -15`.
    Faz kapıları hedefli süitle geçilir (§3.3); bütünün yeşil olduğu
    BURADA kanıtlanır ve burada pazarlıksızdır. Kırmızı bir testle sprint
@@ -438,6 +444,106 @@ dosyayı açsın. Aynı keşfi iki kez ödetmemenin en ucuz yolu budur.
 **Yeni oturum brifingi aldığında:** blokta yazan plan dosyasını ve hafıza
 bağlarını oku, TaskList'i tazele, **İlk hamle**yi sorusuz yap. "Nereden
 devam edeyim?" diye sorma — cevabı elindeki bloktadır.
+
+### 3.7 Opus öz-denetimi — plana, koda, vizyona karşı (Emre'nin kuralı, 2026-09-03)
+
+Dikiş turu (§3.5 madde 1) **yatay** bakar: fazların birbirine bindiği yere.
+Kapsamı `git diff`tir ve sorusu tektir — *bu turda yazılan şey kendi içinde
+tutarlı mı?* Bu soruyu geçen bir sprint yine de **yanlış şeyi** inşa etmiş
+olabilir: plan bir madde vaat eder, hiçbir faz onu yapmaz, hiçbir test onu
+bilmez ve diff'te de bir eksiklik görünmez — çünkü **eksik olan şey diff'te
+yoktur.**
+
+Opus öz-denetimi o boşluğu kapatır ve dikiş turundan **bağımsızdır**: onun
+yerine geçmez, ondan sonra gelir. **Dikey** bakar — sözden koda. Vaat (plan) →
+uygulama (kod) → anlam (vizyon) zincirinde kopan halkayı arar.
+
+**Ne zaman.** Sprint kapanışında, dikiş turundan SONRA ve **tam süitten
+(§3.5 madde 2) ÖNCE** — bu tur ağaca dokunur, koşulan ağaç da commit'lenen
+ağaç olmalıdır. Sprintten bağımsız olarak Emre "denetle" dediğinde tek başına
+koşar; o hâlde kapsamı Emre'nin adlandırdığı iştir, son sprint değil.
+
+**Kim.** Opus. Tur `uygulayici`ya devredilmez — 🅞'dir, ve plandan okunamayan
+yargı tam olarak turun konusudur. `denetci`ye de devredilmez; ama **bulgu
+toplamak için** çapraz model çağrılabilir, hüküm Opus'ta kalır.
+
+**§3.3'ün "yazan denetlemez" kuralıyla çelişmez — onu tamamlar.** İkisi ayrı
+irtifalarda durur ve biri ötekinin yerine ASLA geçmez:
+
+| | Faz denetimi (§3.3) | Opus öz-denetimi (§3.7) |
+|---|---|---|
+| Sorusu | Bu diff dediğini yaptı mı? | Yapılan iş doğru iş miydi? |
+| Kapsamı | Tek fazın diff'i | Planın bütünü + ağacın bütünü + tez |
+| Modeli | **Yazmayan** model — pazarlıksız | Opus — planı ve vizyonu taşıyan |
+| Zamanı | Her faz biter bitmez | Sprint kapanışında, bir kez |
+
+Bu turun karşı modelde koşulmamasının sebebi kör noktayı umursamamak değil:
+denetlenen şey fazlar değil **planın kendisidir**, ve planı yazan yargıyı
+taşıyan modeldir. Kör noktayı ikiye bölen kapı faz denetimidir ve o
+pazarlıksız kalır — bu tur onun YERİNE geçerse denetim tekrar tek modele
+düşer, yani kural kendi gerekçesini yer.
+
+**Dört eksen.** Sıra önemlidir: her eksen bir öncekinin bulamayacağını arar.
+
+1. **Plana karşı — "vaat ne, teslim ne?"** Her fazın **Yeni:/Değişen:**
+   listesi ağaca karşı okunur, her `## Duraklar` maddesi karara bağlanır,
+   sapmalar planın kapanış bloğuna **dürüstlük kaydı** olarak yazılır (emsal:
+   `.claude/plans/denetim-onarimi.md` — "Plandan sapmalar"). En sık kırık
+   sessizce düşen maddedir: kimse yalan söylemez, yalnız iki kayıt ayrışır
+   ([[rapor-bayatligi]]). Bir planın durum satırı olduğu gibi kullanılmaz —
+   kanıt koddadır, çapası grep'lenir.
+2. **Koda karşı — "kapıların görmediği yer."** §5 (kod parmak izi) ve §6
+   (mutlak kurallar) bütünde sınanır. Kapılar zaten koşuyor; bu eksenin işi
+   onların **kapsamı dışında** kalandır: bir TABAN'ın tolere ettiği borç
+   büyüdü mü, bir `*-MUAF` beyanı gerekçesiz mi kaldı, yeni kod eski bir
+   kapının desenine hiç uğramıyor mu, tek-kaynak motorun ikizi doğdu mu
+   (§1.3). Ölü kod ancak `grep -rn` kanıtıyla ölür (§3.1).
+3. **Vizyona karşı — "bu iş teze ne kattı?"** En kolay atlanan ve en pahalı
+   eksen; hiçbir test onu kırmızıya çevirmez. Sorular: eklenen şey **kart
+   değil kaldıraç** mı (§1.1); anlam ekseni (altın=şimdi/olduğun ·
+   lapis=gelecek/hayal · bronz=söz) korunuyor mu; manevi register
+   sekülerleşti mi (§6.3); sayaç dili sızdı mı (§4.2/6); uygulamanın
+   kullanıcı hakkında söylediği her şeyin kökeni yine kullanıcı mı (§6.10).
+   Bulgunun tipik biçimi şudur: **kod doğru, iş yanlış.**
+4. **Sürece karşı — "bu kırığı üreten kural hangisi?"** Turun asıl kazancı
+   burasıdır. Bulunan kırık bir **kural boşluğuysa** düzeltme koda değil
+   **protokole** yazılır; aynı kırık iki sprintte iki kez çıktıysa mesele o
+   kırık değil onu üreten kuraldır. §6.6'nın cümlesi burada işler: *kapısı
+   olmayan kural, zamanla tavsiyeye döner* — ölçülebilir bir kural bulduysan
+   ona bir kapı (denetçi maddesi ya da test) ekle, ölçülemiyorsa belgeye yaz
+   ve "yargıya bırakılanlar" listesine koy.
+
+**Bulgu bırakılmaz.** Her bulgu üç hâlden birine bağlanır ve raporda görünür:
+**Düzeltildi** (varsayılan — o turda, o ağaçta) · **Plana taşındı** (bir
+sonraki fazın işi; plana yazılmayan madde yoktur) · **Gerekçeyle reddedildi**
+(neden bir kırık olmadığı yazılır). Dördüncü bir hâl — "not edildi" — yoktur.
+
+**"Temiz" bir iddiadır ve kanıt ister.** Boş bulgu listesi bir sonuç değildir:
+*bulgu yok + eksen koşuldu* ile *bulgu yok + eksen koşulmadı* aynı satırı
+üretir ama aynı şey değildir ([[kapi-sessiz-gec]]). Rapor hangi eksende neye
+bakıldığını yazar; bakılmadıysa **"bakılmadı"** der — bu cümle güven
+kaybettirmez, kazandırır (§8'in kırmızı çizgisi).
+
+**Kayıt — turun çıktısı plan dosyasına yazılır.** Tek biçim, grep'lenebilir:
+
+```
+## Opus öz-denetimi — <tarih>
+**Plana karşı.** <vaat ↔ teslim; sapmalar>
+**Koda karşı.** <kapıların görmediği yerde ne bulundu>
+**Vizyona karşı.** <teze katkı · anlam ekseni · register>
+**Sürece karşı.** <değişen kural / eklenen kapı — yoksa "kural değişmedi">
+**Bulgular.** N — düzeltildi N · plana taşındı N · reddedildi N
+- <dosya:satır> — <ne> — <hangi hâl>
+```
+
+**Kapı.** Tur koşuldu mu, ölçülebilir tek yerde görünür: **kapanan her plan bu
+kaydı taşır** (§4.2 madde 11). Kayıt yoksa tur ya koşulmamıştır ya
+raporlanmamıştır — ikisi de aynı sonucu verir (§6.2). Kapı
+`tests/oz-denetim-kapisi.test.js`'tir; bugünkü borç TABAN'da tolere edilir,
+**büyümesi yasaktır** (kalıp: `tests/referans-butunlugu.test.js`). Gerekçesi
+ölçüldü: §4.4'ün devir kuralı yirmi dokuz günde öldü çünkü kağıtta doğru,
+ölçüde yoktu — 149 🅢 faza karşı 11 çağrı. Dördüncü bir denetim turu, kapısı
+olmazsa raporun bir başlığına döner.
 
 ---
 
