@@ -78,7 +78,22 @@ durduğu plandan okunamaz; protokolün kendi sesinde, ürüne bakarak yazılır.
 FAZ 1'in metni yazıldıktan sonra türev iş; yargı gerektirmez.
 **Değişen:** `CLAUDE.md` (yedek çekirdek maddesi) · `PROTOKOL-FABLE.md`
 (§4.2 plan şablonuna `## Kapanış` maddesi, §4.4 ve §8'e çapraz atıf,
-§9 "Sprint kapanışı" kontrol listesi satırı)
+§9 "Sprint kapanışı" kontrol listesi satırı, §3.5/§3.7'ye adlandırma
+ayrımı) · `.claude/plans/README.md` (envanter satırı)
+
+**FAZ 1 denetiminin B1 bulgusu bu faza düştü.** "Öz-denetim" kelimesi
+protokolde artık iki tura birden işaret ediyor: §3.5 madde 1 (dikiş —
+**çapraz model**, zorunlu) ve §3.7 (Opus turu — **tek model**, hüküm
+Opus'ta). Dört eski geçiş (§4.4 içinde iki, §3.5 madde 4, §9 sprint
+kapanışı) dokunulmadan kaldı ve bağlamsız okunduğunda yanlış tura
+bağlanabiliyor. **Karar (parent'ın yargısı, ajan uygulayacak):** dört
+geçiş tek tek düzeltilmeyecek — bir *okuma kuralı* yazılacak. §3.5
+madde 1'in etiketi `**Öz-denetim turu — dikiş:**` olur ve §3.7'ye tek
+cümlelik bir **Adlandırma** notu girer: bağlamsız her "öz-denetim"
+§3.5 madde 1'dir; §3.7 daima tam adıyla ("Opus öz-denetimi") anılır.
+Gerekçe: dört yere not serpmek gürültüdür, ad göçü (§4.3) ise bu
+sprintte planlanmadı — kelime aynı kalıyor, yalnız hangi turun
+kastedildiği tek yerden okunuyor.
 
 ### FAZ 3 — Kapı · 🅢 · ~1 oturum
 K2/K3/K4'ün testi; kalıp `tests/referans-butunlugu.test.js`.
@@ -147,6 +162,25 @@ eyleme ya bir kapıya bağlanır. Yasak kalıp: *"gerektiğinde gözden geçiril
   `scripts/xss-taban.json`) · kapı self-test kalıbı (`tests/bagsiz-ad-kapisi.test.js`
   "sessizce geçmez" sınavı) · `## Kapanış` + "Plandan sapmalar" kaydı
   (`.claude/plans/denetim-onarimi.md:95`) — dürüstlük kaydının emsali
+
+## Durum
+
+- **FAZ 1** · ✅ uygulandı (Opus), **denetlendi** (`denetci`, Sonnet — çapraz
+  model, §3.3). Commit `ea364de`. Kapı: build ✅ · `referans-butunlugu` 6/6 ✅ ·
+  `dogrula.mjs` ✅ "Konsol temiz." (exit 0). İki bulgu döndü:
+  - **B1 — terminoloji çakışması (orta).** "Öz-denetim" iki tura birden
+    işaret ediyor. → **FAZ 2'ye düştü**, karar yukarıda yazılı.
+  - **B2 — ileri-referans (düşük).** §3.7 şu an var olmayan iki şeyi
+    (`§4.2 madde 11`, `tests/oz-denetim-kapisi.test.js`) şimdiki zamanda
+    anlatıyor. Sprint FAZ 3'ten önce kesilirse §6.2 ihlali kalıntısı olur.
+    → **Kapatma yolu ileriye**: FAZ 2 ve FAZ 3 aynı turda koşulur, geri alma
+    yok. Risk kabul edildi ve kayda geçti.
+
+- **FAZ 2** · ⏳ · **FAZ 3** · ⏳ · **FAZ 4** · ⏳
+
+**İlk hamle** (oturum kesilirse): FAZ 2 ve FAZ 3 `uygulayici` ajanına iki ayrı
+çağrıyla açılır (farklı dosya kümeleri — §4.4 cold start kuralı), sonra ikisi
+de parent'ta denetlenir.
 
 ## Hafıza bağları
 
