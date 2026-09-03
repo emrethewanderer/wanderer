@@ -228,8 +228,15 @@ Devir: 🅞 — süzgecin **eşiği ve tonu** yargıdır: bir kart yayından dö
 kullanıcıya ne denir, hangi desen "şüpheli" sayılıp admin kuyruğuna girer,
 hangisi doğrudan reddedilir. Yanlış eşik, ürünün en kırılgan yüzeyinde
 (kendi cümlesini paylaşan insan) sessiz bir hakaret üretir.
-**Yeni:** `js/parts/10D-on-suzgec.js` (önek `sz`)
-**Değişen:** `js/parts/10C-sosyal-feed.js`
+**Yeni:** `js/parts/10F-on-suzgec.js` (önek `sz`)
+**Değişen:** `js/parts/10C-sosyal-feed.js` · `js/parts/10A-gecis-karti.js`
+
+**Plan düzeltmesi (2026-09-03):** bu satır önce `10D-on-suzgec.js` diyordu —
+**çakışma**: `10D-olmak-istedigin.js` zaten var. Doğrusu `10F` (10A–10E dolu,
+`sz` öneki serbest). Ayrıca süzgecin **iki** yüzeyi var, bir değil:
+`10C:150` `sfPostComment` (yorumlar → `paylasim_yorumlari`) ve `10A:1303`
+(kart metni → `paylasilan_kartlar`). Yalnız `10C`'ye takmak, yayına inen
+metnin yarısını süzgeçsiz bırakırdı.
 
 ### FAZ 8 — On iki raporun yeniden yayını · 🅞 · ~2 oturum
 Devir: 🅞 — her odanın **hangi cümlesinin düzeltileceği** yargıdır; rapor
@@ -283,7 +290,7 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
 
 ## Kritik Dosyalar
 
-- **YENİ:** `migrations/051_gozlemevi_tek_cam.sql` · `js/parts/10D-on-suzgec.js` ·
+- **YENİ:** `migrations/051_gozlemevi_tek_cam.sql` · `js/parts/10F-on-suzgec.js` ·
   `tests/silme-kapsami.test.js` · dört `tests/00f-*-nabzi.test.js`
 - **Yerinde evrim:** `js/parts/00f-kullanim-nabzi.js` · `js/parts/13q-gozlemevi.js` ·
   `js/parts/13m-kota.js` · `js/parts/08-trends-payment.js` ·
