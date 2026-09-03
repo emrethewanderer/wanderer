@@ -176,11 +176,15 @@ eyleme ya bir kapıya bağlanır. Yasak kalıp: *"gerektiğinde gözden geçiril
     → **Kapatma yolu ileriye**: FAZ 2 ve FAZ 3 aynı turda koşulur, geri alma
     yok. Risk kabul edildi ve kayda geçti.
 
-- **FAZ 2** · ⏳ · **FAZ 3** · ⏳ · **FAZ 4** · ⏳
+- **FAZ 2** · ✅ devredildi (`uygulayici`/Sonnet), denetlendi (parent/Opus).
+  Commit `c9368d8`. Üç bulgu, üçü de o turda düzeltildi; iki Durak'tan biri
+  düzeltildi, biri gerekçeyle reddedildi.
+- **FAZ 3** · ✅ devredildi (`uygulayici`/Sonnet), denetlendi (parent/Opus).
+  Commit `3d70409`. Ajan plan-dışı bir kırık BULDU (Türkçe büyük I); dört
+  denetim bulgusu düzeltildi ve yeni sınavlar mutasyon testiyle kanıtlandı.
+- **FAZ 4** · ✅ Opus öz-denetimi koşuldu; kaydı aşağıda.
 
-**İlk hamle** (oturum kesilirse): FAZ 2 ve FAZ 3 `uygulayici` ajanına iki ayrı
-çağrıyla açılır (farklı dosya kümeleri — §4.4 cold start kuralı), sonra ikisi
-de parent'ta denetlenir.
+Dört fazın dördü de kapandı; **İlk hamle** satırı düştü.
 
 ## Hafıza bağları
 
@@ -189,3 +193,89 @@ de parent'ta denetlenir.
 [[kapi-cifte-kosu]] ("koşulan ağaç, commit'lenen ağaç") ·
 [[claude-altyapisi-commit-disi]] (uzak oturumda `.claude/` commit edilmezse yok) ·
 [[olu-kod-temizlikleri]] (kod ekseninde KORUNANLAR listesi)
+
+---
+
+## Kapanış — 2026-09-03
+
+Dört faz uygulandı. Commit zinciri: `ea364de` (FAZ 1) · `10ccbb7` (FAZ 1
+denetimi) · `c9368d8` (FAZ 2) · `3d70409` (FAZ 3) + bu turun kapanışı.
+
+**Devir kaydı (§4.4).** İki 🅢 faz (2 ve 3) `uygulayici` ajanına ayrı ayrı
+devredildi — farklı dosya kümelerine dokundukları için birleştirilmedi. İki
+🅞 faz (1 ve 4) Opus'ta kaldı. Faz denetimleri çapraz modelde: FAZ 1'i
+`denetci` (Sonnet) denetledi, FAZ 2 ve 3'ü parent (Opus). Oran kapısı:
+🅞 2 · 🅢 2 — geçti.
+
+**Plandan sapmalar — dürüstlük kaydı:**
+
+1. **FAZ 2'nin kapsamı büyüdü.** FAZ 1'in denetim bulgusu B1 (terminoloji
+   çakışması) plana yazılıp o faza eklendi. Sapma değil, kuralın işlemesi —
+   ama planda yazılı olmadan girdi, o yüzden burada.
+2. **FAZ 3'ün kapısı plandan geniş çıktı.** Plan üç şey istiyordu (TABAN,
+   H2 ayrımı, körlük sınavı); kapı beş şey öğrendi. İkisi plan dışı: Türkçe
+   büyük I tespiti (ajanın keşfi) ve kod bloğu farkındalığı (denetimin
+   bulgusu). İkisi de sahte-yeşil yolu kapatıyor, yani kapsam büyümesi
+   kapının lehine.
+3. **`_src.html`e dokunulmadı.** Plan Doğrulama madde 4'ün vaadi ölçüldü:
+   `git diff --name-only 624bb03..HEAD | grep -E '^(js/|css/|_src)'` → **0**.
+
+**Bekleyen ELLE iş:** yok. Bu sprint Supabase'e, deploy'a ya da mağazaya
+dokunmadı.
+
+## Opus öz-denetimi — 2026-09-03
+
+**Plana karşı.** Dört fazın `Yeni:`/`Değişen:` listeleri ağaca karşı okundu;
+hepsi teslim edildi, sessizce düşen madde yok. `## Doğrulama`nın beş
+maddesinden dördü faz kapılarında koşuldu, beşincisi (tam süit) kapanışta.
+`## Riskler`in beşi de tutuldu — özellikle Risk 3 (numara kayması):
+`§3.5` maddeleri 1/2/3/6 hâlâ yerinde, `grep` ile doğrulandı. Açık `##
+Duraklar` maddesi kalmadı: ajanların üç Durak'ından ikisi düzeltildi, biri
+gerekçeyle reddedildi.
+
+**Koda karşı.** Kaynak kod hiç değişmedi (ölçüm: 0 satır), yani sözleşme
+regresyonu imkânsız. Yeni kapı reponun TABAN + self-test kalıbını izliyor.
+**Bu eksenin asıl bulgusu buydu:** kapının `trKucult()` fonksiyonu, reponun
+zaten yirmiden fazla yerde kullandığı `toLocaleLowerCase('tr')` deyiminin
+elle yazılmış ikiziydi (§1.3 ihlali). Faz denetimi bunu göremezdi — çünkü
+faz denetimi **diff'e** bakar, diff'te ikiz yoktur; ikiz ancak repo genelinde
+aranınca görünür. §3.7'nin varlık gerekçesi ilk koşusunda kendini kanıtladı.
+
+**Vizyona karşı.** Bu sprint kullanıcıya görünen hiçbir şey üretmedi ve
+üretmemesi gerekiyordu — ürettiği şey, ürünün teze bağlı kalıp kalmadığını
+soran turun kendisi. Dürüst uyarı: **bu turun değeri koşulmasına bağlıdır**,
+yazılmasına değil; kapı (FAZ 3) tam olarak bu yüzden pazarlıksızdı. Teze
+doğrudan değen bulgu kod ekseninden geldi: 733 desenlik `/i` körlüğü,
+kullanıcı derdini BÜYÜK harfle yazdığında sinyal motorunun onu duymaması
+demektir — yani uygulama kullanıcı hakkında **eksik kanıtla** konuşur.
+Bu, §6.10'un ("kanıtı olmayan değer yoktur") ürün tarafındaki tam karşılığı
+ve *"Mesele Sensin"*in ihlali: mesele kullanıcıysa, kullanıcının kendi
+cümlesi ölçüme girmek zorundadır.
+
+**Sürece karşı.** Üç kalıcı iyileştirme: (1) kural bir kapıya bağlandı ve
+kapı CI'da kendiliğinden koşuyor — `kapi.yml`in "Tam süit" adımı tüm
+`*-kapisi` testlerini içine aldığı için workflow'a dokunmaya gerek kalmadı
+(ölçüldü). (2) Devir kapısı (§4.4) kârını gösterdi: benim yazdığım şartname
+yanlış bir desen öneriyordu, ajan onu ölçüp düzeltti — devrin kazancı
+hız değil, **ikinci bir göz**. (3) Yeni gotcha hafızaya yazıldı ve bir
+sonraki kapının adı kondu: girdisi normalize edilmemiş `/…/i` desenlerini
+bulan bir denetçi, `TASARIM`/`KOKEN` kalıbında yazılabilir.
+
+**Bulgular.** 12 — düzeltildi 9 · plana taşındı 2 · reddedildi 1
+
+- `PROTOKOL-FABLE.md` §3.5/§3.7 — "öz-denetim" iki tura birden işaret ediyordu — **düzeltildi** (tek okuma kuralı)
+- `PROTOKOL-FABLE.md:540` — var olmayan kapıyı şimdiki zamanda anlatan ileri-referans — **düzeltildi** (FAZ 2+3 aynı turda kapandı)
+- `PROTOKOL-FABLE.md` §4.2 madde 11 — "alt seviyede duran not" gerekçesi ters bağlanmıştı — **düzeltildi**
+- `PROTOKOL-FABLE.md:461` — "Adlandırma:" düz metinle açılıyordu, komşuları kalın+noktalı — **düzeltildi**
+- `PROTOKOL-FABLE.md:313` — 91 karakterlik satır — **düzeltildi**
+- `tests/oz-denetim-kapisi.test.js` — yorum "beş harf" diyordu, fonksiyon yedi çeviriyordu — **düzeltildi**
+- `tests/oz-denetim-kapisi.test.js` — kod bloğu içindeki şablon başlığı kayıt sayılıyordu (sahte yeşil) — **düzeltildi** + iki self-test
+- `tests/oz-denetim-kapisi.test.js` — kod bloğu içindeki `## Kapanış` örneği planı kapanmış sayıyordu (yanlış kırmızı) — **düzeltildi**
+- `tests/oz-denetim-kapisi.test.js` — TABAN semantiği (K3) hiç sınanmamıştı — **düzeltildi** + iki self-test
+- `tests/oz-denetim-kapisi.test.js` — `trKucult()` var olan motorun ikiziydi (§1.3) — **düzeltildi** (tek satırlık deyim)
+- `js/parts/09b-depth-foundations.js` ve 733 desen — `/i` bayrağı BÜYÜK harfli Türkçe girdiyi kaçırıyor — **plana taşındı** ([[turkce-i-regex-korlugu]]; bir sonraki sprintin denetçi adayı)
+- `_src.html:39` — `rel="icon"` yok, her tarayıcı `/favicon.ico` isteyip 404 alıyor — **plana taşındı** (tek satırlık ürün düzeltmesi, bu sprintin kapsamı değil)
+
+**Reddedilen.** `.claude/plans/README.md` envanteri alfabetik değil (ajanın
+Durak'ı) — liste zaten alfabetik değildi; yeniden sıralamak bu sprintin
+kapsamı dışında bir gürültü olurdu ve kayıt değerini artırmaz.

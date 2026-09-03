@@ -68,22 +68,15 @@ const ROOT = join(__dirname, '..');
  *  var: `devir-altyapisi.md:538` → "## KAPANIŞ — 2026-09-02". Naif bir
  *  `/i` kapısı bu gerçek kapanışı görmezdi (TABAN'da olduğu için aggregate
  *  sonucu değiştirmez, ama tespitin kendisini yanlış kılardı — bkz. altta
- *  "büyük harfli KAPANIŞ" self-test'i). Bu fonksiyon farkı elle kapatır:
- *  yedi harf çevrilir ve asıl gerekçe bunlardan yalnız İ/I çiftindedir —
- *  Ş/Ğ/Ü/Ö/Ç'yi `.toLowerCase()` zaten doğru çevirir, onlar simetri için
- *  burada durur. `.toLocaleLowerCase('tr')` de aynı işi görürdü; elle harita
- *  ICU'nun ortamdan ortama değişmesine bağımlı kalmasın diye seçildi. */
-function trKucult(s) {
-  return s
-    .replace(/İ/g, 'i')
-    .replace(/I/g, 'ı')
-    .replace(/Ş/g, 'ş')
-    .replace(/Ğ/g, 'ğ')
-    .replace(/Ü/g, 'ü')
-    .replace(/Ö/g, 'ö')
-    .replace(/Ç/g, 'ç')
-    .toLowerCase();
-}
+ *  "büyük harfli KAPANIŞ" self-test'i). Bu yüzden desenler ham metne değil,
+ *  ÖNCE Türkçe kuralıyla küçültülmüş metne uygulanır.
+ *
+ *  Motor elle YAZILMAZ: repo bu işi zaten `toLocaleLowerCase('tr')` ile
+ *  yapıyor ve yirmiden fazla çağrısı var (`js/parts/12d-kart-uretim.js:158`,
+ *  `js/parts/09a-personalization-engine.js:1210`, …). Elle harf haritası
+ *  yazmak o motorun ikizini kurmak olurdu (§1.3) — ilk yazımında öyle
+ *  yazılmıştı, Opus öz-denetimi (§3.7, kod ekseni) bunu buldu. */
+const trKucult = (s) => String(s).toLocaleLowerCase('tr');
 
 /** `.claude/plans/` dizinini (yalnız o dizin, recursive DEĞİL) tarar;
  *  `.md` uzantılı ve `README.md` olmayan dosyaların tam yollarını döndürür.
