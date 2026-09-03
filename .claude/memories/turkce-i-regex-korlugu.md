@@ -31,8 +31,13 @@ dönmez, çünkü testler küçük harfli örneklerle yazılmıştır. Wanderer'
 açısından bedeli ağırdır: kullanıcının kendi cümlesi ölçüme girmez, yani
 uygulama kullanıcı hakkında **eksik kanıtla** konuşur (§6.10).
 
-**Yayılım ölçüldü (2026-09-03):** `js/`, `scripts/`, `tests/` altında `ı/ş/ğ`
-içeren **733** adet `/…/i` deseni var. En yoğun üçü:
+**Yayılım ölçüldü (2026-09-03) — ve rakam YÖNTEME BAĞLIDIR.** `js/`,
+`scripts/`, `tests/` altında `ı/ş/ğ` içeren `/…/i` desenleri sayıldı; üç ayrı
+regex-literal tespit yöntemi **636 / 717 / 733** verdi (fark, kaçışlı `/`
+karakterinin ve çok satırlı ifadelerin ele alınışından). Tek bir rakamı kesin
+diye sunmak §6.10 ihlali olurdu — **büyüklük mertebesi yedi yüzdür**, kesin
+sayı değil. Yöntemden bağımsız olarak sabit kalan şey dosya kırılımıdır ve
+asıl bilgi odur:
 
 | Dosya | Desen |
 |---|---|
@@ -40,13 +45,15 @@ içeren **733** adet `/…/i` deseni var. En yoğun üçü:
 | `js/parts/16c-i18n-detect-dict.js` | 224 |
 | `js/parts/09a-personalization-engine.js` | 73 |
 
+Üç yöntemin üçünde de `09b`: 251, `16c`: 223–224, `09a`: 72–73 çıktı.
+
 `09b-depth-foundations.js` bu desenleri **ham metne** uygular
 (`r.test(text)`, satır 390–428, 740–890) ve dosyada tek bir küçültme çağrısı
-yoktur — yani orada kırık teoride değil pratikte açıktır. 733 rakamı ihlal
-sayısı DEĞİL, incelenecek yüzeydir: girdisini önceden normalize eden çağrı
-noktaları temizdir.
+yoktur — yani orada kırık teoride değil pratikte açıktır. Bu rakam ihlal sayısı DEĞİL,
+incelenecek yüzeydir: girdisini önceden normalize eden çağrı noktaları
+temizdir.
 
-## How to apply
+**How to apply:**
 
 - Türkçe metne desen uygularken **`/i`ye güvenme**. Girdiyi önce normalize et:
   `String(x).toLocaleLowerCase('tr')` — repo bu deyimi zaten yirmiden fazla
@@ -60,7 +67,7 @@ noktaları temizdir.
 - `toLowerCase()` (locale'siz) Türkçe metinde **yanlıştır** — `I`yı `i` yapar.
   `toUpperCase()` de simetrik olarak `i`yi `I` yapar, `İ` değil.
 
-**Açık borç (bu turda kapatılmadı):** 733 desenin hangilerinin gerçekten ham
+**Açık borç (bu turda kapatılmadı):** desenlerin hangilerinin gerçekten ham
 metne uygulandığı taranmadı; yalnız `09b` örneklem olarak doğrulandı. Bu bir
 sonraki sprintin işidir ve ölçülebilir olduğu için **kapıya bağlanabilir**:
 girdisi normalize edilmemiş `/…/i` desenlerini bulan bir denetçi, `TASARIM`

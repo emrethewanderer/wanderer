@@ -541,6 +541,13 @@ kaybettirmez, kazandırır (§8'in kırmızı çizgisi).
 - <dosya:satır> — <ne> — <hangi hâl>
 ```
 
+Kayıt **bu turun** bulgularını taşır — faz denetimlerinin (§3.3) zaten
+kapanmış kararlarını değil. Onlar `## Kapanış` bloğunun işidir. Ayrım
+gereksiz bir titizlik değil: ilk koşuda tam bu karıştırıldı ve turun verimi
+üçten on ikiye şişti; çapraz denetim yakaladı. Bir denetim turunun kendi
+hasadını abartması, hiç koşulmamasından daha sinsidir — sonraki tur onu
+ölçü sanır.
+
 **Kapı.** Tur koşuldu mu, ölçülebilir tek yerde görünür: **kapanan her plan bu
 kaydı taşır** (§4.2 madde 11). Kayıt yoksa tur ya koşulmamıştır ya
 raporlanmamıştır — ikisi de aynı sonucu verir (§6.2). Kapı

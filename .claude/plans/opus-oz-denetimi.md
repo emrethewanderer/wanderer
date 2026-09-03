@@ -220,6 +220,30 @@ devredildi — farklı dosya kümelerine dokundukları için birleştirilmedi. �
 3. **`_src.html`e dokunulmadı.** Plan Doğrulama madde 4'ün vaadi ölçüldü:
    `git diff --name-only 624bb03..HEAD | grep -E '^(js/|css/|_src)'` → **0**.
 
+**Faz denetimlerinin hasadı (bu turun ürünü DEĞİL).** Dört fazın faz
+denetimleri — ikisi çapraz modelde (`denetci`/Sonnet), ikisi parent'ta —
+toplam **on üç** kırık buldu ve on üçü de kendi turlarında kapandı: FAZ 1'de
+iki (terminoloji çakışması, ileri-referans → `10ccbb7`/`c9368d8`), FAZ 2'de
+üç (§4.2 madde 11'in ters gerekçesi, register kayması, 91 karakterlik satır →
+`c9368d8`), FAZ 3'te dört (yorum sayı hatası, kod bloğu körlüğünün iki yönü,
+sınanmamış TABAN semantiği → `3d70409`), FAZ 4'te dört (kaydın kendi verim
+şişmesi, hafıza dosyasının biçimi, yönteme bağlı sunulan rakam, yanlış Durak
+sayısı). Ayrıca FAZ 2 ajanının iki Durak'ından biri
+düzeltildi, biri gerekçeyle reddedildi (`README.md` envanteri alfabetik
+değil — liste zaten alfabetik değildi).
+
+Bunlar §3.7 kaydının **dışındadır** ve bilerek öyle: kayıt, Opus turunun
+kendi çıktısıdır. İlk yazımında dokuzu da kayda doldurulmuştu ve turun
+verimini 3'ten 12'ye şişiriyordu — çapraz denetim (Sonnet) bunu bulgu olarak
+döndürdü, kayıt daraltıldı. Kuralın kendisi de bu yüzden netleşti (§3.7'ye
+tek cümle eklendi).
+
+**Sıra hatası — dürüstlük kaydı.** FAZ 4, kendi çapraz-model denetimi
+dönmeden commit edildi (`ecb8774`); §4.4 "denetim geçtiğinde biter" der.
+Denetimin bulguları bu yüzden ayrı bir commit'te kapandı ve tam süit
+yeniden koşuldu. Sebebi (Stop kancasının commit baskısı) bir gerekçe değil,
+yalnız sebep — kayda geçti.
+
 **Bekleyen ELLE iş:** yok. Bu sprint Supabase'e, deploy'a ya da mağazaya
 dokunmadı.
 
@@ -230,8 +254,8 @@ hepsi teslim edildi, sessizce düşen madde yok. `## Doğrulama`nın beş
 maddesinden dördü faz kapılarında koşuldu, beşincisi (tam süit) kapanışta.
 `## Riskler`in beşi de tutuldu — özellikle Risk 3 (numara kayması):
 `§3.5` maddeleri 1/2/3/6 hâlâ yerinde, `grep` ile doğrulandı. Açık `##
-Duraklar` maddesi kalmadı: ajanların üç Durak'ından ikisi düzeltildi, biri
-gerekçeyle reddedildi.
+Duraklar` maddesi kalmadı: FAZ 2 ajanı iki Durak bildirdi (biri düzeltildi,
+biri gerekçeyle reddedildi), FAZ 3 ajanı "yok" dedi.
 
 **Koda karşı.** Kaynak kod hiç değişmedi (ölçüm: 0 satır), yani sözleşme
 regresyonu imkânsız. Yeni kapı reponun TABAN + self-test kalıbını izliyor.
@@ -252,30 +276,28 @@ Bu, §6.10'un ("kanıtı olmayan değer yoktur") ürün tarafındaki tam karşı
 ve *"Mesele Sensin"*in ihlali: mesele kullanıcıysa, kullanıcının kendi
 cümlesi ölçüme girmek zorundadır.
 
-**Sürece karşı.** Üç kalıcı iyileştirme: (1) kural bir kapıya bağlandı ve
+**Sürece karşı.** Dört kalıcı iyileştirme: (1) kural bir kapıya bağlandı ve
 kapı CI'da kendiliğinden koşuyor — `kapi.yml`in "Tam süit" adımı tüm
 `*-kapisi` testlerini içine aldığı için workflow'a dokunmaya gerek kalmadı
 (ölçüldü). (2) Devir kapısı (§4.4) kârını gösterdi: benim yazdığım şartname
 yanlış bir desen öneriyordu, ajan onu ölçüp düzeltti — devrin kazancı
 hız değil, **ikinci bir göz**. (3) Yeni gotcha hafızaya yazıldı ve bir
 sonraki kapının adı kondu: girdisi normalize edilmemiş `/…/i` desenlerini
-bulan bir denetçi, `TASARIM`/`KOKEN` kalıbında yazılabilir.
+bulan bir denetçi, `TASARIM`/`KOKEN` kalıbında yazılabilir. (4) **Kuralın
+kendi boşluğu kapandı:** §3.7 kaydın KİMİN bulgularını taşıdığını
+söylemiyordu; ilk koşu tam oradan kaydı — faz denetimlerinin dokuz kararı
+kayda dolduruldu ve tur kendi verimini üçten on ikiye şişirdi. Çapraz denetim
+(Sonnet) bunu yakaladı, kayıt daraltıldı ve §3.7'ye tek cümle eklendi. Bir
+denetim turunun kendi hasadını abartması, hiç koşulmamasından daha sinsidir:
+sonraki tur onu ölçü sanır.
 
-**Bulgular.** 12 — düzeltildi 9 · plana taşındı 2 · reddedildi 1
+**Bulgular (bu turun kendi çıktısı).** 3 — düzeltildi 1 · plana taşındı 2 ·
+reddedildi 0
 
-- `PROTOKOL-FABLE.md` §3.5/§3.7 — "öz-denetim" iki tura birden işaret ediyordu — **düzeltildi** (tek okuma kuralı)
-- `PROTOKOL-FABLE.md:540` — var olmayan kapıyı şimdiki zamanda anlatan ileri-referans — **düzeltildi** (FAZ 2+3 aynı turda kapandı)
-- `PROTOKOL-FABLE.md` §4.2 madde 11 — "alt seviyede duran not" gerekçesi ters bağlanmıştı — **düzeltildi**
-- `PROTOKOL-FABLE.md:461` — "Adlandırma:" düz metinle açılıyordu, komşuları kalın+noktalı — **düzeltildi**
-- `PROTOKOL-FABLE.md:313` — 91 karakterlik satır — **düzeltildi**
-- `tests/oz-denetim-kapisi.test.js` — yorum "beş harf" diyordu, fonksiyon yedi çeviriyordu — **düzeltildi**
-- `tests/oz-denetim-kapisi.test.js` — kod bloğu içindeki şablon başlığı kayıt sayılıyordu (sahte yeşil) — **düzeltildi** + iki self-test
-- `tests/oz-denetim-kapisi.test.js` — kod bloğu içindeki `## Kapanış` örneği planı kapanmış sayıyordu (yanlış kırmızı) — **düzeltildi**
-- `tests/oz-denetim-kapisi.test.js` — TABAN semantiği (K3) hiç sınanmamıştı — **düzeltildi** + iki self-test
 - `tests/oz-denetim-kapisi.test.js` — `trKucult()` var olan motorun ikiziydi (§1.3) — **düzeltildi** (tek satırlık deyim)
-- `js/parts/09b-depth-foundations.js` ve 733 desen — `/i` bayrağı BÜYÜK harfli Türkçe girdiyi kaçırıyor — **plana taşındı** ([[turkce-i-regex-korlugu]]; bir sonraki sprintin denetçi adayı)
+- `js/parts/09b-depth-foundations.js` ve yedi yüz mertebesinde desen — `/i` bayrağı BÜYÜK harfli Türkçe girdiyi kaçırıyor — **plana taşındı** ([[turkce-i-regex-korlugu]]; bir sonraki sprintin denetçi adayı)
 - `_src.html:39` — `rel="icon"` yok, her tarayıcı `/favicon.ico` isteyip 404 alıyor — **plana taşındı** (tek satırlık ürün düzeltmesi, bu sprintin kapsamı değil)
 
-**Reddedilen.** `.claude/plans/README.md` envanteri alfabetik değil (ajanın
-Durak'ı) — liste zaten alfabetik değildi; yeniden sıralamak bu sprintin
-kapsamı dışında bir gürültü olurdu ve kayıt değerini artırmaz.
+**Bu üç madde, önceki faz denetimlerinin bulgularını İÇERMEZ.** Onlar
+`## Kapanış`ın "Faz denetimlerinin hasadı" özetindedir ve bu turun ürünü
+değildir — kendi turlarında bulunup kendi commit'lerinde kapandılar.
