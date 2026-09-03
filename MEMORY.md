@@ -70,6 +70,10 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   koda karşı grep'lenmeden okunmaz, kod yorumları rapordan güncel olabilir
 
 ## Motorlar ve tuzaklar
+- [[turkce-i-regex-korlugu]] — JS'in `/i` bayrağı Türkçe büyük `I`yı `ı`ya
+  değil `i`ye indirir; `ı/ş/ğ` içeren desen BÜYÜK harfli girdiyi sessizce
+  kaçırır. Yayılım yedi yüz mertebesinde (yöntemden yönteme 636–733); en
+  yoğunu `09b-depth-foundations.js`. Çözüm `toLocaleLowerCase('tr')`.
 - [[boot-nabzi]] — boot'un darboğazı bundle boyutu DEĞİL sıralı ağ turlarıdır
   (kayıtlı zincir 1331→905 ms); `iife`+`inlineDynamicImports` yüzünden dinamik
   import byte kazandırmaz, ağ turu kazandırır. Motor `js/parts/00h-boot-nabzi.js`
