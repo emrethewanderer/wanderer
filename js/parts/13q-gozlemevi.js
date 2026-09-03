@@ -20,6 +20,18 @@ import { escapeHTML as esc, showToast } from './00a-infrastructure.js';
 import { callLLM } from './04-llm-hero-history.js';
 import { p } from './16-i18n-prompts.js';
 
+/* ── sayı yazıcısı — nabız kartlarının tek sayısal çıkışı ──────────────
+   Nabız değerleri SQL agregasından gelir ve her kartın başında `Number(v) || 0`
+   ile zorlanır; yani doğrudan basmak bugün güvenlidir. Sorun şu ki XSS kapısı
+   STATİKTİR: interpolasyon yerinde ne gördüğüne bakar, üç satır yukarıdaki
+   zorlamayı göremez — ve haklıdır. Aradaki satırlarda bir aritmetik, bir
+   `||` yedeği ya da yeni bir alan o değeri sessizce string'e çevirebilir;
+   o gün kaçış kaydı OLMAYAN bir interpolasyon HTML'e ham veri taşır.
+   Zorlamayı yazma anına taşımak kaydı ve garantiyi aynı yere koyar.
+   Kökeni: 2026-09-03, CI'ın dört koşu üst üste kırmızı bastığı kırık —
+   FAZ 5'in yedi kartı 23 korumasız interpolasyonla tabanı büyütmüştü. ── */
+const gzSayi = (v) => String(Number(v) || 0);
+
 /* ── ekran adları sözlüğü (view + tören) — bilinmeyen ad kendisi kalır ── */
 const GZ_EKRAN = {
   bugun: 'Bugün', chat: 'Sohbet (Wanderer)', history: 'Geçmiş Günler',
@@ -931,7 +943,7 @@ export function _emniyetNabzi(sp) {
   </div>`;
 
   return `<div class="gz-sec">Emniyet Nabzı — sinyal karta, kart lütfa geçiyor mu</div>
-    <div class="gz-flow"><div>Sinyal <b>${sinyal}</b> · Kart <b>${kart}</b> · Lütuf <b>${lutuf}</b>${tani}</div></div>
+    <div class="gz-flow"><div>Sinyal <b>${gzSayi(sinyal)}</b> · Kart <b>${gzSayi(kart)}</b> · Lütuf <b>${gzSayi(lutuf)}</b>${tani}</div></div>
     <div class="admin-stat-row">
       ${kose(sinyal, _SAFETY_AD.crisis_signal)}
       ${kose(kart, _SAFETY_AD.crisis_card)}
@@ -958,7 +970,7 @@ export function _hataNabzi(ep) {
   if (enSik) {
     const pay = total ? Math.round((Number(enSik.n) || 0) / total * 100) : 0;
     if (pay >= 40) {
-      tani = ` <span class="gz-n">— hataların %${pay}'i tek etikette toplanıyor: <code>${esc(enSik.label)}</code></span>`;
+      tani = ` <span class="gz-n">— hataların %${gzSayi(pay)}'i tek etikette toplanıyor: <code>${esc(enSik.label)}</code></span>`;
     }
   }
 
@@ -975,7 +987,7 @@ export function _hataNabzi(ep) {
   </div>`).join('');
 
   return `<div class="gz-sec">Hata Nabzı — hangi hata tekrarlıyor</div>
-    <div class="gz-flow"><div><b>${total}</b> hata · <b>${etkilenen}</b> etkilenen gezgin${tani}</div></div>
+    <div class="gz-flow"><div><b>${gzSayi(total)}</b> hata · <b>${gzSayi(etkilenen)}</b> etkilenen gezgin${tani}</div></div>
     <div class="admin-stat-row">
       ${kose(total, 'Hata')}
       ${kose(etkilenen, 'Etkilenen gezgin')}
@@ -1031,7 +1043,7 @@ export function _davetNabzi(np) {
   </div>`).join('');
 
   return `<div class="gz-sec">Davetin Nabzı — davet gidiyor mu, dönüyor mu</div>
-    <div class="gz-flow"><div><b>${total}</b> gönderim · <b>${tiklanma}</b> tıklanma${tani}</div></div>
+    <div class="gz-flow"><div><b>${gzSayi(total)}</b> gönderim · <b>${gzSayi(tiklanma)}</b> tıklanma${tani}</div></div>
     <div class="admin-stat-row">
       ${kose(total, 'Gönderim')}
       ${kose(tiklanma, 'Tık')}
@@ -1079,7 +1091,7 @@ export function _gelirNabzi(kp) {
   </div>`).join('');
 
   return `<div class="gz-sec">Gelirin Nabzı — paywall hunisinin ilk basamakları</div>
-    <div class="gz-flow"><div>Duvar <b>${duvar}</b> · Kapı <b>${kapi}</b> · Sheet <b>${sheet}</b> · İptal <b>${iptal}</b>${tani}</div></div>
+    <div class="gz-flow"><div>Duvar <b>${gzSayi(duvar)}</b> · Kapı <b>${gzSayi(kapi)}</b> · Sheet <b>${gzSayi(sheet)}</b> · İptal <b>${gzSayi(iptal)}</b>${tani}</div></div>
     <div class="admin-stat-row">
       ${kose(duvar, 'Duvar')}
       ${kose(kapi, 'Kapı')}
@@ -1133,7 +1145,7 @@ export function _aracNabzi(ap) {
     }).join('');
 
   return `<div class="gz-sec">Araç Nabzı — öneri kabul mü ret mi görüyor</div>
-    <div class="gz-flow"><div>Öneri <b>${oner}</b> · Onay <b>${onayla}</b> · Ret <b>${reddet}</b>${tani}</div></div>
+    <div class="gz-flow"><div>Öneri <b>${gzSayi(oner)}</b> · Onay <b>${gzSayi(onayla)}</b> · Ret <b>${gzSayi(reddet)}</b>${tani}</div></div>
     <div class="admin-stat-row">
       ${kose(oner, 'Öneri')}
       ${kose(onayla, 'Onay')}
@@ -1159,7 +1171,7 @@ export function _bolgeNabzi(bp) {
 
   let tani = '';
   if (ayracPct < 50) {
-    tani = ` <span class="gz-n">— Bugün'e giren ${gorenler} gezginin yalnız %${ayracPct}'i ayracın altına indi: STÜDYO fold altında kalıyor</span>`;
+    tani = ` <span class="gz-n">— Bugün'e giren ${gzSayi(gorenler)} gezginin yalnız %${gzSayi(ayracPct)}'i ayracın altına indi: STÜDYO fold altında kalıyor</span>`;
   }
 
   const rows = bolgeler.map(x => {
@@ -1168,12 +1180,12 @@ export function _bolgeNabzi(bp) {
     return `<div class="gz-bar-row">
       <span class="gz-bar-name">${esc(_BOLGE_AD[x.bolge] || x.bolge)}</span>
       <span class="gz-bar-track"><span class="gz-bar gz-bar--lapis" style="width:${Math.max(1.5, pct)}%"></span></span>
-      <span class="gz-bar-val">%${pct} · ${g} gezgin</span>
+      <span class="gz-bar-val">%${gzSayi(pct)} · ${gzSayi(g)} gezgin</span>
     </div>`;
   }).join('');
 
   return `<div class="gz-sec">Bölge Nabzı — Bugün'ün altına kaç kişi iniyor</div>
-    <div class="gz-flow"><div><b>${gorenler}</b> gezgin bu pencerede Bugün'e girdi${tani}</div></div>
+    <div class="gz-flow"><div><b>${gzSayi(gorenler)}</b> gezgin bu pencerede Bugün'e girdi${tani}</div></div>
     ${rows}`;
 }
 
@@ -1212,8 +1224,21 @@ export function _halkaNabzi(pp) {
     <span class="gz-bar-val">${Number(x.n) || 0}</span>
   </div>`).join('');
 
+  /* Aşağıdaki blokta kaçışsız İKİ interpolasyon kalır ve ikisi de kaçırılamaz,
+     çünkü ikisi de HTML PARÇASIDIR, metin değil — esc()'ten geçirmek çubukları
+     ve teşhis cümlesini ekrana kod olarak yazdırırdı:
+       `turRows` — içindeki iki dinamik değer üretildiği yerde zaten korunuyor
+                   (`esc(x.tur)` ve `Number(x.n) || 0`, yukarı bkz.)
+       `tani`    — bu dosyada üretilen sabit cümle; dışarıdan hiçbir değer
+                   taşımaz, yalnız iki sayının karşılaştırmasıyla seçilir
+     İkisinin de emsali _sesNabzi'nin aynı deseni (bu dosyada, tabanda).
+     Beyan bloğun TAMAMINI kapsar — dar tutulamaz, denetçi satır değil blok
+     ölçer (audit-innerhtml.mjs:209). Bedeli şudur: buraya yeni bir
+     interpolasyon eklenirse kapı onu GÖREMEZ. Kural elle taşınır — sayılar
+     `gzSayi()` üstünden basılır, serbest metin `esc()` ile sarılır.
+     XSS-MUAF: turRows + tani — kaçışlı parçalardan kurulmuş HTML (gerekçe üstte). */
   return `<div class="gz-sec">Halkanın Nabzı — paylaşım nereye düşüyor</div>
-    <div class="gz-flow"><div>Story <b>${story}</b> · Yazı <b>${yazi}</b> · Kopyala <b>${kopyala}</b> · İndir <b>${indir}</b>${tani}</div></div>
+    <div class="gz-flow"><div>Story <b>${gzSayi(story)}</b> · Yazı <b>${gzSayi(yazi)}</b> · Kopyala <b>${gzSayi(kopyala)}</b> · İndir <b>${gzSayi(indir)}</b>${tani}</div></div>
     <div class="admin-stat-row">
       ${kose(story, 'Story')}
       ${kose(yazi, 'Yazı')}
