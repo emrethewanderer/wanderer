@@ -2,7 +2,7 @@
 
 Bu dizin çalışan plan artefaktlarını tutar (`PROTOKOL-FABLE.md` §4.2). Dosya
 listesi bir envanter değil, bir **kayıt**tır: repoda olmayan planların borcu da
-burada yazılıdır — çünkü onlara yaslanan otuz altı dosya var ve bir okuyucu
+burada yazılıdır — çünkü onlara yaslanan otuz üç dosya var ve bir okuyucu
 "bkz. şu planın FAZ 14'ü" satırını takip edemediğinde, eksikliğin sebebini
 bilmek onu aramaya harcanan turdan ucuzdur.
 
@@ -16,9 +16,10 @@ bilmek onu aramaya harcanan turdan ucuzdur.
 ## Repoda OLMAYAN, ama referans verilen dokuz plan
 
 2026-09-03 ölçümü: aşağıdaki dokuz ad `js/`, `tests/`, `scripts/` ve kök
-belgelerinde toplam otuz altı yerde anılır, hiçbirinin dosyası yoktur.
+belgelerinde **otuz üç ayrı dosyada** anılır, hiçbirinin dosyası yoktur.
+(Sütun toplamı 35'tir, 33 değil: iki dosya aynı anda iki plana atıf verir.)
 
-| Plan | Kaç yerde anılır | En görünür çağıran |
+| Plan | Kaç dosyada anılır | En görünür çağıran |
 |---|---|---|
 | `mod-sistemi.md` | 10 | `tests/00-mode-system.test.js:5` |
 | `duygu-motoru.md` | 9 | `tests/13D-ehliyet.test.js:10` |

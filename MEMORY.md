@@ -64,6 +64,10 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   galerisinde yaşar, ne diskte ne repoda; kaybolmuş görünmelerinin sebebi
   iki odanın numarasız adla yayımlanmış olmasıydı — adres tablosu
   `.claude/artifacts.md`
+- [[rapor-bayatligi]] — bir rapor bitmiş işi "yapılacak" gösterdiğinde
+  ölçüm boşluğundan daha sinsi bir kusur üretir: okuyanı yapılmış işi
+  yeniden yapmaya çağırır; oda 02 ve 08 tam bunu yapıyordu — durum satırı
+  koda karşı grep'lenmeden okunmaz, kod yorumları rapordan güncel olabilir
 
 ## Motorlar ve tuzaklar
 - [[boot-nabzi]] — boot'un darboğazı bundle boyutu DEĞİL sıralı ağ turlarıdır
