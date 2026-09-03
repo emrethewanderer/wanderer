@@ -158,10 +158,62 @@ Kanallar tüketicilere bağlanır. Her çağrı **tek satır**, savunmacı
 **Yeni:** `migrations/051_gozlemevi_tek_cam.sql`
 **Değişen:** `migrations/README.md`
 
-### FAZ 5 — Gözlemevi kartları · 🅞 · ~1.5 oturum
-Yedi kart. Devir: 🅞 — kartların **adı, sırası ve teşhis cümleleri** üründe
-ayarlanır; "Emniyet Nabzı"nın hangi sayıyı öne alacağı (yakalama mı, kart
-gösterimi mi) plandan okunamaz ve mahremiyet sözleşmesine dokunur.
+### FAZ 5 — Gözlemevi kartları · 🅢 · ~1.5 oturum
+**Faz bölündü (§4.4).** Yargı çekirdeği — kart adları, sordukları soru, teşhis
+cümleleri ve her kartın **dürüstlük sınırı** — aşağıda planda verildi; geriye
+kalan render mekaniktir ve `_sesNabzi` (`13q:796`) kalıbının birebir taklidi.
+Uygulayan taraf kart adı, eşik ya da cümle **icat etmez**.
+
+Ortak kurallar (hepsi `_sesNabzi`'den):
+- Kolun ikisi de boşsa kart **hiç çizilmez** (`return ''`) — kanıtsız sıfır yok.
+- Payda yoksa sayı yerine `—` durur, `0` değil.
+- Oran panelde hesaplanır (K3); SQL ham sayı döner.
+- Teşhis `if/else` zinciridir, **en ağır olan önce**; hiçbiri tutmazsa cümle yok.
+- Her kartın başına `13q` kalıbında Türkçe doküman yorumu: kartın sorusu,
+  hangi İç Çalışma boşluğunu kapattığı, ve bilinen tuzağı.
+
+| # | Kart | Kaynak | Köşeler | Boşluk |
+|---|---|---|---|---|
+| 1 | **Emniyet Nabzı** | `safety_pulse` | Sinyal · Kart · Lütuf | 15·B |
+| 2 | **Hata Nabzı** | `error_pulse` | Hata · Etkilenen gezgin · En sık etiket | 14·B |
+| 3 | **Davetin Nabzı** | `notification_pulse` | Gönderim · Tık (tip bazında çubuk) | 11·B |
+| 4 | **Gelirin Nabzı** | `kota_pulse` | Duvar · Kapı · Sheet · İptal | 16·C |
+| 5 | **Araç Nabzı** | `arac_pulse` | Öneri · Onay · Ret (araç bazında çubuk) | 09·D |
+| 6 | **Bölge Nabzı** | `bolge_pulse` | beş bölgenin erişim yüzdesi | 18·A |
+| 7 | **Halkanın Nabzı** | `paylasim_pulse` | Story · Yazı · Kopyala · İndir | 12·C |
+
+**Dürüstlük sınırları — her kart ne ölçmediğini de söyler:**
+1. **Emniyet Nabzı kaçırma oranını ÖLÇMEZ** ve bunu yazılı olarak söyler.
+   Yakalanmayan sinyal tanım gereği sayılamaz; asıl korkulacak sayı budur ve
+   ancak sentetik bir kriz eval setiyle ölçülür (15·B'nin kapatılmayan yarısı).
+   Bu cümle kartın altında durur — yoksa panel, ölçmediği şeyi ölçüyor sanılır.
+2. **Hata Nabzı yalnız `label` gösterir.** `error_message`/`error_stack`
+   rapora hiç girmez (FAZ 4'ün mutlak kuralı) — kart onları isteyemez.
+3. **Gelirin Nabzı satın alma sayısını ÖLÇMEZ.** O RevenueCat'in defteridir;
+   bu kart yalnız client'ın gördüğünü sayar. Huninin son basamağı burada yok.
+4. **Bölge Nabzı'nın paydası `bugun_gorenler`dir** — payda 0 ise kart çizilmez.
+
+**Teşhis cümleleri (verilen; icat edilmeyecek):**
+- Emniyet · sinyal var kart yok → *"sinyal yakalanıyor ama kart gösterilmiyor:
+  20 dk soğuma penceresi mi yutuyor?"*
+- Hata · tek etiket ≥ %40 → *"hataların %N'i tek etikette toplanıyor: `<etiket>`"*
+- Davet · gönderim var tık yok → *"davet gidiyor, dönüş yok:
+  notificationclick atıfı takılı olmayabilir"*
+- Davet · hiç gönderim yok → *"motor bu pencerede hiç koşmamış — pg_cron kurulu mu?"*
+- Gelir · duvar var kapı yok → *"duvara çarpılıyor ama teklif hiç açılmıyor"*
+- Gelir · kapı var sheet yok → *"teklif görülüyor, sheet'e geçilmiyor"*
+- Araç · öneri var dokunuş yok → *"chip çiziliyor ama kimse dokunmuyor: öneri
+  ne kabul ne ret alıyor, sessizce kayboluyor"*
+- Bölge · ayraç erişimi < %50 → *"Bugün'e giren N gezginin yalnız %M'i ayracın
+  altına indi: STÜDYO fold altında kalıyor"*
+- Halka · indir > story → *"paylaşım çoğunlukla indirmeye düşüyor: Share
+  sheet'i olmayan cihazlar mı, vazgeçme mi?"*
+
+**Ayrıca `_sondaIcerik` (şema sondası) yedi yeni nabzı öğrenir** — bugün
+`kart_pulse`/`ritus_pulse`/… varlığını sorguluyor (`13q:950-954`). `051`
+uygulanmadığında yedi kartın sessizce yok olması değil, sondanın **adıyla
+söylemesi** gerekir. Bu, İç Çalışma 08 · FAZ 6'nın kurduğu sözleşmenin devamıdır.
+
 **Değişen:** `js/parts/13q-gozlemevi.js`
 
 ### FAZ 6 — Üç küçük borç · 🅢 · ~1 oturum
@@ -185,7 +237,8 @@ metni ürünün sesidir (§2). Aynı URL'e yayın; `favicon` verilmez (mevcut
 korunur); `.claude/artifacts.md` tablosu tazelenir.
 **Değişen:** on iki artifact + `.claude/artifacts.md`
 
-**Etiket sayımı:** 🅢 **5** · 🅞 **3** — oran kapısı (§4.4) geçildi.
+**Etiket sayımı:** 🅢 **6** · 🅞 **2** — oran kapısı (§4.4) geçildi.
+FAZ 5 bölündü: yargı çekirdeği plana yazıldı, render devredilebilir hâle geldi.
 
 ## State / Veri
 
