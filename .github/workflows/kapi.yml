@@ -17,10 +17,31 @@ on:
   # farklı ağaçtır. Bu workflow'un varlık sebebi tam olarak "koşulan ağaç,
   # commit'lenen ağaç olmalı" kuralı (PROTOKOL-FABLE.md §3.5 madde 2);
   # çifte koşu bilinçlidir, "israf" diye SÖKÜLMEZ.
+  #
+  # 2026-09-03: o cümledeki "ikisi farklı ağaçtır" bir VARSAYIMDI ve ölçüldüğünde
+  # beş PR'nin beşinde de yanlış çıktı — merge commit'inin ağacı ile dalın head
+  # ağacı bit bit aynıydı (3992dbe/6134284, a48e2c1/428ef2e, 663b133/db7f3bf,
+  # fc91681/a79210a, ad68dbd/92e33fe). Sebep basit: base yalnız Emre'nin
+  # merge'leriyle ilerliyor ve PR'ler base ilerlemeden, açıldıktan 8–18 saniye
+  # sonra merge ediliyor. Yani pull_request koşusu push koşusunun bire bir
+  # kopyasıydı; PR sayfasında Emre'nin gördüğü "1 in progress, 1 successful"
+  # tam olarak buydu — bitmiş dal koşusu ile yeni başlamış PR kopyası.
+  #
+  # Tetik SÖKÜLMEDİ; gerekçesi ÖLÇÜLEBİLİR yapıldı. Aşağıdaki "Ağaç kimliği"
+  # adımı ikisinin farkını her koşuda gerçekten hesaplar: ağaçlar farklıysa
+  # (base ilerlemiş) kapı tam koşar — kuralın korumak istediği hâl budur;
+  # aynıysa aynı ağacı ikinci kez sınamaz, çünkü aynı ağacı iki kez sınamak
+  # bilgi üretmez, yalnız bekleme üretir.
   push:
     branches: ['**']
   pull_request:
   workflow_dispatch:
+
+permissions:
+  # Guard'ın kanıt sorgusu için: karşı koşunun check-run sonucu okunur.
+  # `contents: read` checkout'un kendisi için; ikisi de salt okuma.
+  contents: read
+  checks: read
 
 concurrency:
   # Aynı dalda arka arkaya push'lar birikmesin; yalnız sonuncusu koşsun.
@@ -32,7 +53,11 @@ concurrency:
 
 jobs:
   kapi:
-    name: build · süit · denetçiler
+    # Ad event'e göre ayrışır. Eskiden iki koşu da "build · süit · denetçiler"
+    # diye görünüyordu ve PR sayfasında ayırt edilemiyordu — aynı adı taşıyan
+    # iki satırdan hangisinin neyi sınadığı okunamıyorsa, okuyan kişi ikisini
+    # de bir tören sayar. Artık dal ağacı ile birleşmiş ağaç adıyla görünür.
+    name: ${{ github.event_name == 'pull_request' && 'birleşmiş ağaç' || 'dal ağacı' }} · build · süit · denetçiler
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -41,29 +66,118 @@ jobs:
       # ve setup-node): v6/v7 de yayında ama v7 ESM göçü taşıyor, bu turda
       # gereksiz risk — v5 deprecation'ı çözen en küçük sıçrama.
       - uses: actions/checkout@v5
+        with:
+          # PR koşusunda çekilen ref `refs/pull/N/merge`, bir merge commit'tir:
+          # birinci parent base, İKİNCİ parent dalın kendi head'i. Ağaç
+          # karşılaştırması iki parent'ı da gerektirir; derinlik 2 yeter,
+          # fetch-depth: 0'ın bedelini ödemeye gerek yok.
+          fetch-depth: 2
+
+      - name: Ağaç kimliği
+        id: agac
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # Karşı koşunun check-run adı. Aşağıdaki job `name:` ifadesinin push
+          # dalıyla HARFİ HARFİNE aynı olmalı — ayrışırsa kanıt sorgusu hiçbir
+          # şey bulamaz ve kapı sessizce her PR'de tam koşar (güvenli ama
+          # işlevsiz). tests/kapi-workflow.test.js ikisinin eşitliğini sınar.
+          DAL_KOSUSU: 'dal ağacı · build · süit · denetçiler'
+        # Kapının hangi ağacı sınadığını burada ADLANDIRIR. Yargı tek soruya
+        # bakar: birleşmiş ağaç, dalın push'unda zaten sınanmış ağacın kendisi mi?
+        # Karşılaştırma commit sha'sıyla DEĞİL tree sha'sıyla yapılır — merge
+        # commit'in sha'sı daima farklıdır, ağacı olmayabilir.
+        # Okunamayan her hâlde yargı "koş"tur: şüphe kapıyı gevşetmez.
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" != 'pull_request' ]; then
+            echo "Dal/main koşusu — ağaç koşulsuz sınanır."
+            echo "kos=evet" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # --verify --quiet ŞARTTIR: onsuz `git rev-parse` çözemediği ref'i
+          # stdout'a OLDUĞU GİBİ basar (exit 128 ama çıktı dolu) ve değişken
+          # boş kalmaz — aşağıdaki "okunamadı" dalı hiç çalışmaz, kapı yanlış
+          # gerekçeyle karar verir. tests/kapi-workflow.test.js bunu sınar.
+          birlesmis=$(git rev-parse --verify --quiet 'HEAD^{tree}' 2>/dev/null || echo '')
+          dal=$(git rev-parse --verify --quiet 'HEAD^2^{tree}' 2>/dev/null || echo '')
+
+          if [ -z "$birlesmis" ] || [ -z "$dal" ]; then
+            echo "Ağaç kimliği OKUNAMADI (birleşmiş='$birlesmis' dal='$dal')."
+            echo "Şüphede kapı koşar — sınanamayan bir ağaç geçmiş sayılmaz."
+            echo "kos=evet" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "birleşmiş ağaç : $birlesmis"
+          echo "dal ağacı      : $dal"
+
+          if [ "$birlesmis" = "$dal" ]; then
+            # Ağaç eşitliği "sınandı" DEMEK DEĞİLDİR — yalnız "aynı ağaç" demektir.
+            # İkisini birbirine karıştırmak kapıyı sahte yeşile açar; en net hâli
+            # fork PR'idir: `push` tetiği yalnız BU repodaki push'larda koşar, yani
+            # fork'tan gelen bir dalın ağacı burada HİÇ sınanmamıştır — ama ağaç
+            # kimliği yine eşit çıkar. Aynısı iptal edilmiş ya da kırmızı kapanmış
+            # bir dal koşusu için de geçerlidir (push ve pull_request ayrı
+            # concurrency gruplarındadır, biri ötekinin hâlini bilmez).
+            #
+            # O yüzden atlamanın şartı ağaç değil KANITTIR (PROTOKOL-FABLE.md §6.10):
+            # karşı koşunun check-run'ı gerçekten `success` mi? Kanıt yoksa,
+            # okunamıyorsa ya da API susarsa yargı "koş"tur.
+            kanit=$(curl -sS --max-time 20 \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
+              2>/dev/null \
+              | jq -r --arg ad "$DAL_KOSUSU" \
+                  '[.check_runs[]? | select(.name == $ad and .conclusion == "success")] | length' \
+              2>/dev/null || echo '0')
+
+            if [ "${kanit:-0}" -gt 0 ] 2>/dev/null; then
+              echo "→ AYNI AĞAÇ ve dal koşusu KANITLI geçti ($DAL_KOSUSU / success)."
+              echo "  Aynı ağacı ikinci kez sınamak bilgi üretmez — kapı burada durur."
+              echo "kos=hayir" >> "$GITHUB_OUTPUT"
+            else
+              echo "→ AYNI AĞAÇ ama KANIT YOK: '$DAL_KOSUSU' bu sha için başarıyla"
+              echo "  kapanmış görünmüyor (fork PR'i, iptal, kırmızı ya da okunamayan API)."
+              echo "  Sınanmamış bir ağaç geçmiş sayılmaz — kapı tam koşar."
+              echo "kos=evet" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "→ FARKLI AĞAÇ. Base ilerlemiş; commit'lenecek ağaç dalınkinden"
+            echo "  başkadır ve HENÜZ SINANMADI. Kapının varlık sebebi tam budur."
+            echo "kos=evet" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Node kur
+        if: steps.agac.outputs.kos == 'evet'
         uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: npm
 
       - name: Bağımlılıklar
+        if: steps.agac.outputs.kos == 'evet'
         run: npm ci
 
       - name: Build
+        if: steps.agac.outputs.kos == 'evet'
         # build.sh 2026-09-02'ye kadar Linux'ta hiç koşmamıştı: üç `sed -i ''`
         # çağrısı BSD sözdizimindeydi ve GNU sed onları exit 2 ile öldürüyordu
         # (denetim A1). Bu adım o kırığın geri gelmesini imkânsız kılar.
         run: ./build.sh
 
       - name: Tip kontrolü
+        if: steps.agac.outputs.kos == 'evet'
         # NOT: tsconfig.json `checkJs:false` taşır, yani bu adım bugün yalnız
         # .d.ts dosyalarını görür (denetim B3). Kapı olarak zayıftır ama
         # ücretsizdir; checkJs açıldığı gün burası kendiliğinden sertleşir.
         run: npm run typecheck
 
       - name: Doğrulama tarayıcısı (duman)
+        if: steps.agac.outputs.kos == 'evet'
         # Kapının üçüncü adımı (PROTOKOL-FABLE.md §3.3): sayfayı gerçekten aç,
         # canlı DOM'a bak, konsolu oku. Build ve süit yeşilken de uygulama
         # ekranda kırık olabilir — "beyaz ekran" sınıfını yalnız bu adım görür.
@@ -72,12 +186,14 @@ jobs:
         run: node scripts/dogrula.mjs --senaryo tests/senaryolar/acilis.mjs
 
       - name: Tam süit
+        if: steps.agac.outputs.kos == 'evet'
         # 153 dosya / 3.600+ test. Denetçi kapıları (gerçeklik, tasarım,
         # bağsız-ad, yetim-köprü, eksen, ihtimalsel, XSS, bundle) bu süitin
         # İÇİNDE koşar — ayrı adım gerekmez, hepsi tests/*-kapisi.test.js.
         run: npx vitest run
 
       - name: Bağımlılık açıkları
+        if: steps.agac.outputs.kos == 'evet'
         # Üretim bağımlılıkları temiz olmalı. Bu adım kırmızıya dönerse
         # bir üçüncü taraf paketinde yeni bir danışma yayınlanmış demektir —
         # susturulacak bir gürültü değil, bakılacak bir haber.

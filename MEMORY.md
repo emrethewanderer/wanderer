@@ -24,6 +24,9 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
 - [[kapi-sessiz-gec]] — bir kapı kırığı değil kırığı GÖRME YETENEĞİNİ
   kaybettiğinde de kırmızı yanmalı: boş bulgu listesi "temiz" demek değil
   (tsc TS18003 exit 0 ile gelir); sınır ölçülerek çizilir
+- [[kapi-cifte-kosu]] — kapı workflow'u push+pull_request ile aynı ağacı
+  iki kez sınıyordu; "ikisi farklı ağaçtır" gerekçesi beş PR'de de yanlış
+  çıktı — tetik sökülmedi, gerekçe her koşuda ölçülür oldu
 - [[olu-kod-temizlikleri]] — ekran/özellik silmeden önce dört sözleşme
   yüzeyini (window köprüsü, DOM id, storage anahtarı, i18n anahtarı) tara;
   tarihsel KORUNANLAR listesi kayıp, dosya onun yerine prosedür yazar
