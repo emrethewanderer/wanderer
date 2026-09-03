@@ -859,9 +859,9 @@ describe('Davetin Nabzı — motor koşuyor mu, dönüş var mı (11·B)', () =>
     expect(html).toContain('pg_cron kurulu mu?');
   });
 
-  it('gönderim var tıklanma yoksa dönüş-yok teşhisini yazar', () => {
+  it("gönderim var tıklanma yoksa \"ölçülmüyor\" der — \"kimse tıklamadı\" DEMEZ", () => {
     const html = _davetNabzi({ total: 5, tip_dagilim: [{ tip: 'morning', gonderim: 5, tiklanma: 0 }] });
-    expect(html).toContain('davet gidiyor, dönüş yok');
+    expect(html).toContain('tık sütunu ölçülmüyor');
     expect(html).toContain('notificationclick atıfı');
   });
 

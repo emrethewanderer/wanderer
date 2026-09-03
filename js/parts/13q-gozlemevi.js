@@ -989,7 +989,16 @@ export function _hataNabzi(ep) {
    Veri: notification_log — bir aydır yazılıyordu, hiç okunmuyordu (mig
    051, to_regclass kapısının arkasından). MUTLAK KURAL: title/body
    rapora hiç girmez (mig 051 başlık notu, LLM'in yazdığı kişisel metin) —
-   kart yalnız tip + gönderim/tıklanma SAYISINI gösterir. ── */
+   kart yalnız tip + gönderim/tıklanma SAYISINI gösterir.
+
+   DÜRÜSTLÜK SINIRI — TIK SÜTUNU BUGÜN ÖLÇÜLMÜYOR (2026-09-03'te doğrulandı):
+   `notification_log.clicked_at` kolonu şemada var ama onu YAZAN hiçbir yer
+   yok. `sw.js:140` `notificationclick`'i bildirimi kapatır, pencereyi öne
+   alır ve deep-link mesajı yollar — kaydı güncellemez. Yani buradaki sıfır
+   "kimse tıklamadı" DEĞİL, "ölçmüyoruz" demektir; kart bunu altında sabit
+   metinle söyler. §6.10'un en ince ihlali tam burada olurdu: ölçülmeyen bir
+   şeyi ölçülmüş gibi gösteren bir sütun, kanıtsız sıfırdan daha yanıltıcıdır
+   — çünkü kanıtlı görünür. Atıf takılınca bu not ve teşhis düşer. ── */
 export function _davetNabzi(np) {
   // Kol tekil ama net: `tip_dagilim` dizisinin VARLIĞI sorgunun gerçekten
   // koştuğunun kanıtıdır (RPC her zaman en az [] döner) — yokluğu, alanın
@@ -1005,7 +1014,8 @@ export function _davetNabzi(np) {
   if (!total) {
     tani = ' <span class="gz-n">— motor bu pencerede hiç koşmamış — pg_cron kurulu mu?</span>';
   } else if (!tiklanma) {
-    tani = ' <span class="gz-n">— davet gidiyor, dönüş yok: notificationclick atıfı takılı olmayabilir</span>';
+    /* Tahmin değil olgu: atıf takılı DEĞİL (yukarıdaki dürüstlük sınırı). */
+    tani = ' <span class="gz-n">— tık sütunu ölçülmüyor: notificationclick atıfı takılı değil, bu sıfır bir sonuç değil bir boşluk</span>';
   }
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
@@ -1026,7 +1036,8 @@ export function _davetNabzi(np) {
       ${kose(total, 'Gönderim')}
       ${kose(tiklanma, 'Tık')}
     </div>
-    ${rows}`;
+    ${rows}
+    <div class="gz-flow"><div class="gz-n">Tık sütunu bugün ölçülmüyor: <code>notification_log.clicked_at</code> kolonu var ama onu yazan yok (sw.js notificationclick atıfı takılı değil). Buradaki sıfır "kimse tıklamadı" değil "ölçmüyoruz" demektir.</div></div>`;
 }
 
 /* ── 6f8. Gelirin Nabzı — paywall hunisinin ilk basamakları: duvar → kapı
