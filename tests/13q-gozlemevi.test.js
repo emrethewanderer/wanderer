@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { _hafizaNabzi, _gecikmeNabzi, _baglamNabzi, _koleksiyonNabzi, _ritusNabzi, _esikNabzi, _duyguNabzi, _donusumNabzi, _sesNabzi, _sondaHTML } from '../js/parts/13q-gozlemevi.js';
+import { _hafizaNabzi, _gecikmeNabzi, _baglamNabzi, _koleksiyonNabzi, _ritusNabzi, _esikNabzi, _duyguNabzi, _donusumNabzi, _sesNabzi, _sondaHTML, _emniyetNabzi, _hataNabzi, _davetNabzi, _gelirNabzi, _aracNabzi, _bolgeNabzi, _halkaNabzi } from '../js/parts/13q-gozlemevi.js';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -197,58 +197,69 @@ describe('Şema Sondası — sessiz fallback\'in sesi', () => {
     { ad: 'Lapis kartın sahnesi', ok: true, not: 'z' },
   ];
 
-  // Aşağıdaki testler tek tek EKSİK bıraktıkları alanı sınar, o yüzden
-  // ötekiler hep dolu geçirilir: bir alanın yokluğu TAM BİR borç saymalı.
-  it('altı nabzın altısı da (044·045·046·048·049·050) varsa borç kapalı der', () => {
-    const html = _sondaHTML(hepsiVar, { kart_pulse: { total: 0 }, ritus_pulse: { total: 0 }, esik_pulse: { total: 0 }, duygu_pulse: { total: 0 }, kimlik_pulse: { total: 0 }, model_pulse: { total: 0 } });
+  /* On İki Odanın Denetimi · FAZ 5: yedi yeni nabız (migration 051) altı
+     eskinin yanına biner — sonda artık ON ÜÇ alanı öğrenir. Tek noktadan
+     tutulur ki her "alanı yoksa" testi ötekileri elle kopyalamak zorunda
+     kalmasın (`eksi()` yalnız sınanan alanı çıkarır, gerisi hep TAM kalır —
+     bir alanın yokluğu TAM BİR borç saymalı). */
+  const TUM_NABIZLAR = {
+    kart_pulse: {}, ritus_pulse: {}, esik_pulse: {}, duygu_pulse: {},
+    kimlik_pulse: {}, model_pulse: {}, safety_pulse: {}, error_pulse: {},
+    notification_pulse: {}, kota_pulse: {}, arac_pulse: {}, bolge_pulse: {},
+    paylasim_pulse: {},
+  };
+  const eksi = (k) => { const r = { ...TUM_NABIZLAR }; delete r[k]; return r; };
+
+  it('on üç nabzın on üçü de varsa borç kapalı der', () => {
+    const html = _sondaHTML(hepsiVar, TUM_NABIZLAR);
     expect(html).toContain('şema borcu kapalı');
     expect(html).not.toContain('ELLE bekliyor');
   });
 
   it('kart_pulse alanı yoksa 044 borcu açık sayılır — içi boş olması yetmez', () => {
-    const bosPulse = _sondaHTML(hepsiVar, { kart_pulse: {}, ritus_pulse: {}, esik_pulse: {}, duygu_pulse: {}, kimlik_pulse: {}, model_pulse: {} });
+    const bosPulse = _sondaHTML(hepsiVar, TUM_NABIZLAR);
     expect(bosPulse).toContain('şema borcu kapalı');       // alanlar VAR, veri yok
-    const yok = _sondaHTML(hepsiVar, { ritus_pulse: {}, esik_pulse: {}, duygu_pulse: {}, kimlik_pulse: {}, model_pulse: {} });
+    const yok = _sondaHTML(hepsiVar, eksi('kart_pulse'));
     expect(yok).toContain('1 şema borcu açık');
     expect(yok).toContain('migration 044');
   });
 
   it('ritus_pulse alanı yoksa 045 borcu açık sayılır', () => {
-    const yok = _sondaHTML(hepsiVar, { kart_pulse: {}, esik_pulse: {}, duygu_pulse: {}, kimlik_pulse: {}, model_pulse: {} });
+    const yok = _sondaHTML(hepsiVar, eksi('ritus_pulse'));
     expect(yok).toContain('1 şema borcu açık');
     expect(yok).toContain('migration 045');
     expect(yok).toContain('ritüel olaylarını okuyamaz');
   });
 
   it('esik_pulse alanı yoksa 046 borcu açık sayılır — huni okunamaz', () => {
-    const yok = _sondaHTML(hepsiVar, { kart_pulse: {}, ritus_pulse: {}, duygu_pulse: {}, kimlik_pulse: {}, model_pulse: {} });
+    const yok = _sondaHTML(hepsiVar, eksi('esik_pulse'));
     expect(yok).toContain('Eşiğin Nabzı (migration 046)');
     expect(yok).toContain('✗ ELLE bekliyor');
     expect(yok).toContain('kadran onboarding hunisini okuyamaz');
   });
 
   it('duygu_pulse alanı yoksa 048 borcu açık sayılır — yanılma defteri okunamaz (FAZ 15)', () => {
-    const yok = _sondaHTML(hepsiVar, { kart_pulse: {}, ritus_pulse: {}, esik_pulse: {}, kimlik_pulse: {}, model_pulse: {} });
+    const yok = _sondaHTML(hepsiVar, eksi('duygu_pulse'));
     expect(yok).toContain('1 şema borcu açık');
     expect(yok).toContain('Yanılma Nabzı (migration 048)');
     expect(yok).toContain('kadran yanılma defterini okuyamaz');
   });
 
-  it('altı nabız da yoksa altı borç birden sayılır', () => {
-    expect(_sondaHTML(hepsiVar, { overview: {} })).toContain('6 şema borcu açık');
+  it('on üç nabız da yoksa on üç borç birden sayılır', () => {
+    expect(_sondaHTML(hepsiVar, { overview: {} })).toContain('13 şema borcu açık');
   });
 
   it('eksik tablo sayılır ve sonucu tek cümleyle söylenir', () => {
     const html = _sondaHTML([
       { ad: 'Koleksiyon tablosu', ok: false, not: 'kazanılan kartlar cihazlar arası taşınmaz' },
       ...hepsiVar.slice(1),
-    ], { kart_pulse: {}, ritus_pulse: {}, esik_pulse: {}, duygu_pulse: {}, kimlik_pulse: {}, model_pulse: {} });
+    ], TUM_NABIZLAR);
     expect(html).toContain('1 şema borcu açık');
     expect(html).toContain('cihazlar arası taşınmaz');
   });
 
   it('kimlik_pulse alanı yoksa 049 borcu açık sayılır — üçgen okunamaz', () => {
-    const yok = _sondaHTML(hepsiVar, { kart_pulse: {}, ritus_pulse: {}, esik_pulse: {}, duygu_pulse: {}, model_pulse: {} });
+    const yok = _sondaHTML(hepsiVar, eksi('kimlik_pulse'));
     expect(yok).toContain('Dönüşümün Nabzı (migration 049)');
     expect(yok).toContain('✗ ELLE bekliyor');
     expect(yok).toContain('üçgenin kaymalarını okuyamaz');
@@ -259,11 +270,68 @@ describe('Şema Sondası — sessiz fallback\'in sesi', () => {
     expect(_sondaHTML(undefined, undefined)).toContain('Şema Sondası');
   });
 
+  it('model_pulse alanı yoksa 050 borcu açık sayılır — eksen seçimi okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('model_pulse'));
+    expect(yok).toContain('Üç Sesin Nabzı (migration 050)');
+    expect(yok).toContain('✗ ELLE bekliyor');
+    expect(yok).toContain('kadran eksen seçimlerini okuyamaz');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
+  /* On İki Odanın Denetimi · FAZ 5 — yedi yeni nabız, tek migration (051),
+     ortak sözleşme: alan yoksa borç açık, içi boş olması yetmez. */
+  it('safety_pulse alanı yoksa 051 borcu açık sayılır — Emniyet Nabzı okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('safety_pulse'));
+    expect(yok).toContain('Emniyet Nabzı (migration 051)');
+    expect(yok).toContain('✗ ELLE bekliyor');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
+  it('error_pulse alanı yoksa 051 borcu açık sayılır — Hata Nabzı okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('error_pulse'));
+    expect(yok).toContain('Hata Nabzı (migration 051)');
+    expect(yok).toContain('kadran error_logs tablosunu okuyamaz');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
+  it('notification_pulse alanı yoksa 051 borcu açık sayılır — Davetin Nabzı okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('notification_pulse'));
+    expect(yok).toContain('Davetin Nabzı (migration 051)');
+    expect(yok).toContain('kadran notification_log tablosunu okuyamaz');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
+  it('kota_pulse alanı yoksa 051 borcu açık sayılır — Gelirin Nabzı okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('kota_pulse'));
+    expect(yok).toContain('Gelirin Nabzı (migration 051)');
+    expect(yok).toContain('kadran paywall hunisini okuyamaz');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
+  it('arac_pulse alanı yoksa 051 borcu açık sayılır — Araç Nabzı okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('arac_pulse'));
+    expect(yok).toContain('Araç Nabzı (migration 051)');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
+  it('bolge_pulse alanı yoksa 051 borcu açık sayılır — Bölge Nabzı okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('bolge_pulse'));
+    expect(yok).toContain('Bölge Nabzı (migration 051)');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
+  it('paylasim_pulse alanı yoksa 051 borcu açık sayılır — Halkanın Nabzı okunamaz', () => {
+    const yok = _sondaHTML(hepsiVar, eksi('paylasim_pulse'));
+    expect(yok).toContain('Halkanın Nabzı (migration 051)');
+    expect(yok).toContain('kadran paylaşım hunisini okuyamaz');
+    expect(yok).toContain('1 şema borcu açık');
+  });
+
   /* Üç Sesin tablosu (İç Çalışma 08 rev.2 · FAZ 6): tablo VARLIĞI ile içerik
      DOLULUĞU ayrı ölçülür — "tablo var" demek "üç ses konuşuyor" demek
      değildir. Sonda okunamadıysa satır hiç çizilmez: kadran susar, yalan
      söylemez. */
-  const altiAlanTam = { kart_pulse: {}, ritus_pulse: {}, esik_pulse: {}, duygu_pulse: {}, kimlik_pulse: {}, model_pulse: {} };
+  const altiAlanTam = TUM_NABIZLAR;
 
   it('içerik sondası okunamadıysa "Üç sesin içeriği" satırı hiç çizilmez', () => {
     const html = _sondaHTML(hepsiVar, altiAlanTam);
@@ -294,14 +362,6 @@ describe('Şema Sondası — sessiz fallback\'in sesi', () => {
     expect(html).toContain('✗ ELLE bekliyor');
     expect(html).toContain('1 şema borcu açık');
     expect(html).not.toContain('şema borcu kapalı');
-  });
-
-  it('model_pulse alanı yoksa 050 borcu açık sayılır — eksen seçimi okunamaz', () => {
-    const yok = _sondaHTML(hepsiVar, { kart_pulse: {}, ritus_pulse: {}, esik_pulse: {}, duygu_pulse: {}, kimlik_pulse: {} });
-    expect(yok).toContain('Üç Sesin Nabzı (migration 050)');
-    expect(yok).toContain('✗ ELLE bekliyor');
-    expect(yok).toContain('kadran eksen seçimlerini okuyamaz');
-    expect(yok).toContain('1 şema borcu açık');
   });
 });
 
@@ -689,5 +749,262 @@ describe('Üç Sesin Nabzı — panel sözleşmesi', () => {
 
   it('bozuk/eksik alanlarda çökmez', () => {
     expect(() => _sesNabzi({ total: 3, eksen_tur: null, secim_dagilim: 'x', gecis: 7 })).not.toThrow();
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════
+   On İki Odanın Denetimi (İç Çalışma 08-19) · FAZ 5 — Gözlemevi kartları
+   Yedi yeni kart migration 051'in yedi bloğunu okur. Sözleşme öncekilerle
+   birebir aynı: kolun ikisi de boşsa kart HİÇ çizilmez (kanıtsız sıfır
+   yok, §6.10), payda yoksa oran gösterilmez, teşhis en ağırdan konuşur.
+   ══════════════════════════════════════════════════════════════════ */
+
+describe('FAZ 5 — yedi kart, boş veriyle çizilmez (§6.10 kanıtı)', () => {
+  const fonksiyonlar = [
+    ['_emniyetNabzi', _emniyetNabzi],
+    ['_hataNabzi', _hataNabzi],
+    ['_davetNabzi', _davetNabzi],
+    ['_gelirNabzi', _gelirNabzi],
+    ['_aracNabzi', _aracNabzi],
+    ['_bolgeNabzi', _bolgeNabzi],
+    ['_halkaNabzi', _halkaNabzi],
+  ];
+
+  it.each(fonksiyonlar)('%s: undefined/null/{} için boş string döner', (_ad, fn) => {
+    expect(fn(undefined)).toBe('');
+    expect(fn(null)).toBe('');
+    expect(fn({})).toBe('');
+  });
+});
+
+describe('Emniyet Nabzı — sinyal → kart → lütuf (15·B)', () => {
+  it('sp yoksa ya da total 0 ise çizilmez', () => {
+    expect(_emniyetNabzi({ total: 0 })).toBe('');
+  });
+
+  it('sinyal var kart yoksa teşhis yazar (soğuma penceresi şüphesi)', () => {
+    const html = _emniyetNabzi({ total: 3, olaylar: [{ olay: 'crisis_signal', n: 3, gezgin: 2 }] });
+    expect(html).toContain('sinyal yakalanıyor ama kart gösterilmiyor');
+    expect(html).toContain('20 dk soğuma penceresi');
+  });
+
+  it('sinyal ve kart birlikteyse teşhis yazılmaz', () => {
+    const html = _emniyetNabzi({
+      total: 4,
+      olaylar: [{ olay: 'crisis_signal', n: 2, gezgin: 2 }, { olay: 'crisis_card', n: 2, gezgin: 2 }],
+    });
+    expect(html).not.toContain('soğuma penceresi');
+  });
+
+  it('kaçırma oranı ölçmediğini kartın altında her zaman söyler', () => {
+    const html = _emniyetNabzi({ total: 1, olaylar: [{ olay: 'crisis_grace', n: 1, gezgin: 1 }] });
+    expect(html).toContain('kaçırma oranını ölçmez');
+    expect(html).toContain('sentetik bir kriz eval setiyle ölçülür');
+  });
+
+  it('üç köşe Sinyal · Kart · Lütuf adlarıyla çizilir', () => {
+    const html = _emniyetNabzi({
+      total: 3,
+      olaylar: [
+        { olay: 'crisis_signal', n: 1 }, { olay: 'crisis_card', n: 1 }, { olay: 'crisis_grace', n: 1 },
+      ],
+    });
+    expect(html).toContain('Sinyal');
+    expect(html).toContain('Kart');
+    expect(html).toContain('Lütuf');
+  });
+});
+
+describe('Hata Nabzı — hangi hata tekrarlıyor (14·B)', () => {
+  it('tek etiket toplamın %40+\'ını taşıyorsa teşhis yazar', () => {
+    const html = _hataNabzi({
+      total: 10, affected_users: 4,
+      top_labels: [{ label: 'kumComposeFromText', n: 5 }, { label: 'other', n: 5 }],
+    });
+    expect(html).toContain("hataların %50'i tek etikette toplanıyor");
+    expect(html).toContain('kumComposeFromText');
+  });
+
+  it('dağılım dengeliyse (%40 altı) teşhis yazılmaz', () => {
+    const html = _hataNabzi({
+      total: 10, affected_users: 4,
+      top_labels: [{ label: 'a', n: 3 }, { label: 'b', n: 3 }, { label: 'c', n: 4 }],
+    });
+    expect(html).not.toContain('tek etikette toplanıyor');
+  });
+
+  it('label alanı esc() üzerinden geçer — XSS payload metne dönüşür', () => {
+    const html = _hataNabzi({
+      total: 10, affected_users: 1,
+      top_labels: [{ label: '<img src=x onerror=alert(1)>', n: 9 }],
+    });
+    expect(html).not.toContain('<img src=x');
+    expect(html).toContain('&lt;img');
+  });
+
+  it('error_message/error_stack alanlarını hiç istemez — yalnız label/total/affected_users okunur', () => {
+    const html = _hataNabzi({ total: 2, affected_users: 1, top_labels: [], error_message: 'sızmamalı' });
+    expect(html).not.toContain('sızmamalı');
+  });
+});
+
+describe('Davetin Nabzı — motor koşuyor mu, dönüş var mı (11·B)', () => {
+  it('tip_dagilim dizisi yoksa (alan gelmediyse) çizilmez', () => {
+    expect(_davetNabzi({ total: 0 })).toBe('');
+  });
+
+  it('gönderim hiç yoksa "motor koşmamış" teşhisini yazar', () => {
+    const html = _davetNabzi({ total: 0, tip_dagilim: [] });
+    expect(html).toContain('motor bu pencerede hiç koşmamış');
+    expect(html).toContain('pg_cron kurulu mu?');
+  });
+
+  it('gönderim var tıklanma yoksa dönüş-yok teşhisini yazar', () => {
+    const html = _davetNabzi({ total: 5, tip_dagilim: [{ tip: 'morning', gonderim: 5, tiklanma: 0 }] });
+    expect(html).toContain('davet gidiyor, dönüş yok');
+    expect(html).toContain('notificationclick atıfı');
+  });
+
+  it('tıklanma da varsa hiçbir teşhis yazılmaz', () => {
+    const html = _davetNabzi({ total: 5, tip_dagilim: [{ tip: 'morning', gonderim: 5, tiklanma: 2 }] });
+    expect(html).not.toContain('motor bu pencerede');
+    expect(html).not.toContain('dönüş yok');
+  });
+
+  it('tip alanı esc() üzerinden geçer (sunucudan gelir)', () => {
+    const html = _davetNabzi({ total: 1, tip_dagilim: [{ tip: '<b>x</b>', gonderim: 1, tiklanma: 0 }] });
+    expect(html).not.toContain('<b>x</b>');
+    expect(html).toContain('&lt;b&gt;');
+  });
+
+  it('title/body alanlarını hiç istemez — yalnız tip + sayı okunur', () => {
+    const html = _davetNabzi({ total: 1, tip_dagilim: [{ tip: 'morning', gonderim: 1, tiklanma: 0 }], title: 'sızmamalı', body: 'sızmamalı2' });
+    expect(html).not.toContain('sızmamalı');
+  });
+});
+
+describe('Gelirin Nabzı — paywall hunisinin ilk basamakları (16·C)', () => {
+  it('duvar var kapı yoksa teşhis yazar', () => {
+    const html = _gelirNabzi({ total: 3, huni: [{ olay: 'duvar', n: 3, gezgin: 2 }] });
+    expect(html).toContain('duvara çarpılıyor ama teklif hiç açılmıyor');
+  });
+
+  it('kapı var sheet yoksa teşhis yazar (duvar da varsa en ağırı — duvar/kapı ikilisi — önce konuşur)', () => {
+    const html = _gelirNabzi({ total: 2, huni: [{ olay: 'gate', n: 2, gezgin: 1 }] });
+    expect(html).toContain("teklif görülüyor, sheet'e geçilmiyor");
+  });
+
+  it('duvar ve kapı birlikte yoksa "kapı yok" teşhisi, "sheet yok" teşhisinin ÖNÜNE geçer', () => {
+    const html = _gelirNabzi({ total: 3, huni: [{ olay: 'duvar', n: 3, gezgin: 1 }] });
+    expect(html).toContain('duvara çarpılıyor');
+    expect(html).not.toContain("sheet'e geçilmiyor");
+  });
+
+  it('satın alma sayısını ölçmediğini kartın altında her zaman söyler', () => {
+    const html = _gelirNabzi({ total: 1, huni: [{ olay: 'iptal', n: 1, gezgin: 1 }] });
+    expect(html).toContain('satın alma sayısını ölçmez');
+    expect(html).toContain("RevenueCat'in defteridir");
+  });
+
+  it('dört köşe Duvar · Kapı · Sheet · İptal adlarıyla çizilir', () => {
+    const html = _gelirNabzi({
+      total: 4,
+      huni: [{ olay: 'duvar', n: 1 }, { olay: 'gate', n: 1 }, { olay: 'sheet', n: 1 }, { olay: 'iptal', n: 1 }],
+    });
+    expect(html).toContain('Duvar');
+    expect(html).toContain('Kapı');
+    expect(html).toContain('Sheet');
+    expect(html).toContain('İptal');
+  });
+});
+
+describe('Araç Nabzı — öneri kabul mü ret mi görüyor (09·D)', () => {
+  it('öneri var, dokunuş (onay/ret) yoksa teşhis yazar', () => {
+    const html = _aracNabzi({ total: 3, matris: [{ arac: 'soz', olay: 'oner', n: 3 }] });
+    expect(html).toContain('chip çiziliyor ama kimse dokunmuyor');
+    expect(html).toContain('sessizce kayboluyor');
+  });
+
+  it('onay ya da ret varsa teşhis yazılmaz', () => {
+    const html = _aracNabzi({
+      total: 2,
+      matris: [{ arac: 'soz', olay: 'oner', n: 1 }, { arac: 'soz', olay: 'onayla', n: 1 }],
+    });
+    expect(html).not.toContain('sessizce kayboluyor');
+  });
+
+  it('araç bazında çubuk her aracın öneri/onay/ret dağılımını gösterir', () => {
+    const html = _aracNabzi({
+      total: 3,
+      matris: [
+        { arac: 'not', olay: 'oner', n: 2 }, { arac: 'not', olay: 'onayla', n: 1 },
+        { arac: 'imge', olay: 'reddet', n: 1 },
+      ],
+    });
+    expect(html).toContain('Not');
+    expect(html).toContain('İmge');
+    expect(html).toContain('2 öneri · 1 onay · 0 ret');
+  });
+});
+
+describe('Bölge Nabzı — Bugün\'ün altına kaç kişi iniyor (18·A)', () => {
+  it('bugun_gorenler 0/eksikse kart hiç çizilmez (payda kuralı, K3+§6.10)', () => {
+    expect(_bolgeNabzi({ total: 5, bugun_gorenler: 0, bolgeler: [{ bolge: 'ayrac', gezgin: 3 }] })).toBe('');
+    expect(_bolgeNabzi({ total: 5, bolgeler: [] })).toBe('');
+  });
+
+  it('ayraç erişimi %50 altındaysa STÜDYO fold teşhisini yazar', () => {
+    const html = _bolgeNabzi({ bugun_gorenler: 10, bolgeler: [{ bolge: 'ayrac', gezgin: 3 }] });
+    expect(html).toContain("Bugün'e giren 10 gezginin yalnız %30'i ayracın altına indi");
+    expect(html).toContain('STÜDYO fold altında kalıyor');
+  });
+
+  it('ayraç erişimi %50 ve üstündeyse teşhis yazılmaz', () => {
+    const html = _bolgeNabzi({ bugun_gorenler: 10, bolgeler: [{ bolge: 'ayrac', gezgin: 6 }] });
+    expect(html).not.toContain('STÜDYO fold altında kalıyor');
+  });
+
+  it('bölge adları Türkçe etiketlerle çizilir', () => {
+    const html = _bolgeNabzi({
+      bugun_gorenler: 10,
+      bolgeler: [{ bolge: 'icdunya', gezgin: 4 }, { bolge: 'yolculuk', gezgin: 2 }],
+    });
+    expect(html).toContain('İç Dünya');
+    expect(html).toContain('Yolculuk');
+  });
+});
+
+describe('Halkanın Nabzı — paylaşım nereye düşüyor (12·C)', () => {
+  it('indir sayısı story\'i geçtiğinde teşhis yazar', () => {
+    const html = _halkaNabzi({ total: 5, huni: [{ olay: 'story', n: 1 }, { olay: 'indir', n: 4 }] });
+    expect(html).toContain('paylaşım çoğunlukla indirmeye düşüyor');
+    expect(html).toContain('Share sheet');
+  });
+
+  it('story indir\'e eşit ya da fazlaysa teşhis yazılmaz', () => {
+    const html = _halkaNabzi({ total: 4, huni: [{ olay: 'story', n: 3 }, { olay: 'indir', n: 1 }] });
+    expect(html).not.toContain('çoğunlukla indirmeye düşüyor');
+  });
+
+  it('dört köşe Story · Yazı · Kopyala · İndir adlarıyla çizilir', () => {
+    const html = _halkaNabzi({
+      total: 4,
+      huni: [{ olay: 'story', n: 1 }, { olay: 'yazi', n: 1 }, { olay: 'kopyala', n: 1 }, { olay: 'indir', n: 1 }],
+    });
+    expect(html).toContain('Story');
+    expect(html).toContain('Yazı');
+    expect(html).toContain('Kopyala');
+    expect(html).toContain('İndir');
+  });
+
+  it('tur_dagilim boşsa kırılım satırı hiç çizilmez (uydurulmaz)', () => {
+    const html = _halkaNabzi({ total: 1, huni: [{ olay: 'story', n: 1 }], tur_dagilim: [] });
+    expect(html).not.toContain('paylaşılan şeyin sınıfı');
+  });
+
+  it('tur_dagilim doluysa kırılım satırı çizilir', () => {
+    const html = _halkaNabzi({ total: 1, huni: [{ olay: 'story', n: 1 }], tur_dagilim: [{ tur: 'kart', n: 1 }] });
+    expect(html).toContain('paylaşılan şeyin sınıfı');
+    expect(html).toContain('kart');
   });
 });

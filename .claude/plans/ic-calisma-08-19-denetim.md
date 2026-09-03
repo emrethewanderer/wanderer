@@ -380,5 +380,36 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
      `051` her iki hâlde de çalışıyor, bu gerçek Postgres'te ispatlandı.
   3. `051` **ELLE koşulur** (§6.5) — deploy edilmiş varsayılmıyor.
 
-**İlk hamle (FAZ 5):** `13q-gozlemevi.js`'e yedi kart — spesifikasyon yukarıda
-FAZ 5 bölümünde tam, `_sesNabzi` (`13q:796`) kalıbı emsal.
+- **FAZ 5 · BİTTİ** (2026-09-03). Yedi kart `13q:905-1200` arası, şema sondası
+  yedi nabzı öğrendi (`13q:1259`), `tests/13q-gozlemevi.test.js` 124 teste
+  büyüdü. Kapı: build ✅ · 13q 124 ✅ · tasarım kapısı 29 ✅ · gerçeklik kapısı
+  ✅ · tarayıcı ✅ (`/admin.html`, exit 0, "Konsol temiz.").
+
+  **Denetim (parent · Opus):** yeni CSS sınıfı yok (hepsi mevcut `gz-*`/
+  `stat-*`), `esc()` sunucudan gelen her alanda, dört dürüstlük sınırının
+  ikisi kartın altında **sabit metin** olarak duruyor (Emniyet: kaçırma
+  oranını ölçmez · Gelir: satın alma sayısını ölçmez). Uygulayan taraf test
+  yazarken kendi kırığını yakaladı: `_davetNabzi({})` dolu kart çiziyordu,
+  guard `tip_dagilim` varlığına bağlandı.
+
+  **Durakların kararı:**
+  1. `window.gzYorumla` doğrulaması **benim kapı talimatımın hatasıydı** —
+     `13q`'nun hiç `window.*` export bloğu yok ve hiç olmamış (modül ESM
+     zinciriyle çağrılıyor, `07-settings-knowledge.js:704`). Gerçek kanıt
+     `--yol /admin.html` koşusudur ve o yeşil.
+  2. `tests/13q-gozlemevi.test.js`'e dokunulması **onaylandı**: kapının kendisi
+     "kartların boş veriyle çizilmediğini kanıtla" diyordu, bu ancak testle
+     kanıtlanır. Yeni dosya açılmadı, mevcut olan lockstep büyüdü.
+  3. **Ölçülmüş sıfır `0` basar, `—` basmaz** — onaylandı ve gerekçesi
+     **koda yazıldı** (`13q:903-911`). `—` "bilmiyoruz" demektir; `0` ise
+     "ölçtük, hiç olmadı" der. Kriz kartının hiç gösterilmediğini `—` ile
+     örtmek §6.10'u ters yönden ihlal eder: kanıtı OLAN değeri gizlemek.
+     `_sesNabzi`'nin `kose(n||null)` kalıbı ikisini karıştırıyor; kapsam
+     gereği değiştirilmedi ama yeni kartlar onu emsal almıyor ve bu, sonraki
+     okuyanın "tutarsızlık" sanıp düzeltmemesi için yazılı.
+  4. Köşe-dışı kırılımlar (Gelir'de bonus satırı, Hata/Davet'te dağılım
+     barları) **kabul edildi** — uydurulmuş cümle değil ham veri, mevcut
+     `gz-bar-row` kalıbıyla.
+
+**İlk hamle (FAZ 6):** `00a`'ya `parseDayKey` (iki formatı bilen tek okuyucu),
+`10x:387-388`'in sessiz saat ezmesini durdur, `send-push`'a `VERSION` sabiti.
