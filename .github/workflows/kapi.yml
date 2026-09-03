@@ -37,6 +37,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  # Guard'ın kanıt sorgusu için: karşı koşunun check-run sonucu okunur.
+  # `contents: read` checkout'un kendisi için; ikisi de salt okuma.
+  contents: read
+  checks: read
+
 concurrency:
   # Aynı dalda arka arkaya push'lar birikmesin; yalnız sonuncusu koşsun.
   # main istisna: main'e giden her commit'in kapı sonucu bir KAYITTIR,
@@ -69,6 +75,13 @@ jobs:
 
       - name: Ağaç kimliği
         id: agac
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # Karşı koşunun check-run adı. Aşağıdaki job `name:` ifadesinin push
+          # dalıyla HARFİ HARFİNE aynı olmalı — ayrışırsa kanıt sorgusu hiçbir
+          # şey bulamaz ve kapı sessizce her PR'de tam koşar (güvenli ama
+          # işlevsiz). tests/kapi-workflow.test.js ikisinin eşitliğini sınar.
+          DAL_KOSUSU: 'dal ağacı · build · süit · denetçiler'
         # Kapının hangi ağacı sınadığını burada ADLANDIRIR. Yargı tek soruya
         # bakar: birleşmiş ağaç, dalın push'unda zaten sınanmış ağacın kendisi mi?
         # Karşılaştırma commit sha'sıyla DEĞİL tree sha'sıyla yapılır — merge
@@ -101,10 +114,37 @@ jobs:
           echo "dal ağacı      : $dal"
 
           if [ "$birlesmis" = "$dal" ]; then
-            echo "→ AYNI AĞAÇ. Base ilerlememiş; bu ağaç dal push'unda sınandı"
-            echo "  (head sha: ${{ github.event.pull_request.head.sha }})."
-            echo "  Aynı ağacı ikinci kez sınamak bilgi üretmez — kapı burada durur."
-            echo "kos=hayir" >> "$GITHUB_OUTPUT"
+            # Ağaç eşitliği "sınandı" DEMEK DEĞİLDİR — yalnız "aynı ağaç" demektir.
+            # İkisini birbirine karıştırmak kapıyı sahte yeşile açar; en net hâli
+            # fork PR'idir: `push` tetiği yalnız BU repodaki push'larda koşar, yani
+            # fork'tan gelen bir dalın ağacı burada HİÇ sınanmamıştır — ama ağaç
+            # kimliği yine eşit çıkar. Aynısı iptal edilmiş ya da kırmızı kapanmış
+            # bir dal koşusu için de geçerlidir (push ve pull_request ayrı
+            # concurrency gruplarındadır, biri ötekinin hâlini bilmez).
+            #
+            # O yüzden atlamanın şartı ağaç değil KANITTIR (PROTOKOL-FABLE.md §6.10):
+            # karşı koşunun check-run'ı gerçekten `success` mi? Kanıt yoksa,
+            # okunamıyorsa ya da API susarsa yargı "koş"tur.
+            kanit=$(curl -sS --max-time 20 \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100" \
+              2>/dev/null \
+              | jq -r --arg ad "$DAL_KOSUSU" \
+                  '[.check_runs[]? | select(.name == $ad and .conclusion == "success")] | length' \
+              2>/dev/null || echo '0')
+
+            if [ "${kanit:-0}" -gt 0 ] 2>/dev/null; then
+              echo "→ AYNI AĞAÇ ve dal koşusu KANITLI geçti ($DAL_KOSUSU / success)."
+              echo "  Aynı ağacı ikinci kez sınamak bilgi üretmez — kapı burada durur."
+              echo "kos=hayir" >> "$GITHUB_OUTPUT"
+            else
+              echo "→ AYNI AĞAÇ ama KANIT YOK: '$DAL_KOSUSU' bu sha için başarıyla"
+              echo "  kapanmış görünmüyor (fork PR'i, iptal, kırmızı ya da okunamayan API)."
+              echo "  Sınanmamış bir ağaç geçmiş sayılmaz — kapı tam koşar."
+              echo "kos=evet" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "→ FARKLI AĞAÇ. Base ilerlemiş; commit'lenecek ağaç dalınkinden"
             echo "  başkadır ve HENÜZ SINANMADI. Kapının varlık sebebi tam budur."

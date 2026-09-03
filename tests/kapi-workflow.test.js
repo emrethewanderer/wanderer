@@ -39,7 +39,8 @@ function agacScriptiCikar(yml) {
     .map((s) => s.slice(girinti))
     .join('\n')
     .replace(/\$\{\{\s*github\.event_name\s*\}\}/g, '$OLAY')
-    .replace(/\$\{\{\s*github\.event\.pull_request\.head\.sha\s*\}\}/g, '$HEAD_SHA');
+    .replace(/\$\{\{\s*github\.event\.pull_request\.head\.sha\s*\}\}/g, '$HEAD_SHA')
+    .replace(/\$\{\{\s*github\.token\s*\}\}/g, '$GH_TOKEN');
 }
 
 const SCRIPT = agacScriptiCikar(YML);
@@ -76,14 +77,44 @@ function depoKur(baseIlerlesin) {
   return { d, headSha };
 }
 
+const DAL_KOSUSU = 'dal ağacı · build · süit · denetçiler';
+
+// Checks API'sinin yerine geçen sahte `curl`: yanıtı dosyadan basar. `cevap`
+// null ise API susmuş/çökmüş demektir (exit 1) — guard'ın en önemli sınırı bu.
+function sahteCurlKur(dizin, cevap) {
+  const bin = path.join(dizin, 'sahte-bin');
+  fs.mkdirSync(bin, { recursive: true });
+  const yanit = path.join(bin, 'yanit.json');
+  fs.writeFileSync(yanit, cevap === null ? '' : JSON.stringify(cevap));
+  fs.writeFileSync(
+    path.join(bin, 'curl'),
+    cevap === null ? '#!/bin/sh\nexit 1\n' : `#!/bin/sh\ncat ${JSON.stringify(yanit)}\n`,
+    { mode: 0o755 },
+  );
+  return bin;
+}
+
 // Guard'ı bash ile koşturur, $GITHUB_OUTPUT'a yazdığı kararı döndürür.
-function guardKostur({ cwd, olay = 'pull_request', headSha = 'sha-yok' }) {
+// `cevap` verilmezse kanıt DOLUDUR (mutlu yol); null → API susar.
+function guardKostur({ cwd, olay = 'pull_request', headSha = 'sha-yok', cevap }) {
   const cikti = path.join(cwd, '.gh-output');
   fs.writeFileSync(cikti, '');
+  const varsayilan = { check_runs: [{ name: DAL_KOSUSU, conclusion: 'success' }] };
+  const bin = sahteCurlKur(cwd, cevap === undefined ? varsayilan : cevap);
   const log = execFileSync('bash', ['-c', SCRIPT], {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, GITHUB_OUTPUT: cikti, OLAY: olay, HEAD_SHA: headSha },
+    env: {
+      ...process.env,
+      PATH: `${bin}:${process.env.PATH}`,
+      GITHUB_OUTPUT: cikti,
+      OLAY: olay,
+      HEAD_SHA: headSha,
+      GH_TOKEN: 'sahte',
+      GITHUB_API_URL: 'https://api.github.test',
+      GITHUB_REPOSITORY: 'emrethewanderer/wanderer',
+      DAL_KOSUSU,
+    },
   });
   const ham = fs.readFileSync(cikti, 'utf8');
   return { karar: ham.match(/kos=(\w+)/)?.[1], log };
@@ -96,7 +127,7 @@ describe('Ağaç kimliği — guard\'ın yargısı', () => {
     farkli = depoKur(true);
   });
 
-  it('base ilerlemediyse birleşmiş ağaç dalın ağacıdır → KOŞMAZ', () => {
+  it('aynı ağaç + dal koşusu KANITLI geçmiş → KOŞMAZ', () => {
     // Emre'nin gördüğü "1 in progress, 1 successful" tam olarak bu hâldi:
     // beş PR'nin beşinde de merge ağacı head ağacına eşitti.
     expect(git(ayni.d, 'rev-parse', 'HEAD^{tree}'))
@@ -162,6 +193,59 @@ describe('Ağaç kimliği — guard\'ın yargısı', () => {
   });
 });
 
+describe('Kanıt kapısı — ağaç eşitliği "sınandı" demek DEĞİLDİR', () => {
+  // Denetimin (Sonnet, 2026-09-03) K1 bulgusu: guard yalnız ağaç kimliğine
+  // bakıp "dal push'unda sınandı" diyordu. En net kırık hâli fork PR'idir —
+  // `push` tetiği yalnız BU repodaki push'larda koşar, yani fork'tan gelen
+  // dalın ağacı hiç sınanmamıştır ama ağaç kimliği yine eşit çıkar.
+  let ayni;
+  beforeAll(() => { ayni = depoKur(false); });
+
+  it('fork PR\'i: dal koşusu HİÇ YOK → kapı tam koşar', () => {
+    const { karar, log } = guardKostur({ cwd: ayni.d, cevap: { check_runs: [] } });
+    expect(karar).toBe('evet');
+    expect(log).toContain('KANIT YOK');
+  });
+
+  it('dal koşusu KIRMIZI kapanmışsa → kapı tam koşar', () => {
+    const cevap = { check_runs: [{ name: DAL_KOSUSU, conclusion: 'failure' }] };
+    expect(guardKostur({ cwd: ayni.d, cevap }).karar).toBe('evet');
+  });
+
+  it('dal koşusu İPTAL edilmişse → kapı tam koşar', () => {
+    // push ve pull_request ayrı concurrency gruplarındadır; biri ötekinin
+    // iptal edildiğini bilmez.
+    const cevap = { check_runs: [{ name: DAL_KOSUSU, conclusion: 'cancelled' }] };
+    expect(guardKostur({ cwd: ayni.d, cevap }).karar).toBe('evet');
+  });
+
+  it('API susarsa/çökerse → kapı tam koşar (şüphe gevşetmez)', () => {
+    const { karar, log } = guardKostur({ cwd: ayni.d, cevap: null });
+    expect(karar).toBe('evet');
+    expect(log).toContain('KANIT YOK');
+  });
+
+  it('BAŞKA bir check yeşilse kanıt sayılmaz — ad birebir eşleşmeli', () => {
+    const cevap = { check_runs: [{ name: 'başka bir iş', conclusion: 'success' }] };
+    expect(guardKostur({ cwd: ayni.d, cevap }).karar).toBe('evet');
+  });
+
+  it('aranan check-run adı, job adının push dalıyla HARFİ HARFİNE aynı', () => {
+    // Ayrışırsa kanıt sorgusu hiçbir şey bulamaz ve kapı her PR'de tam koşar:
+    // güvenli ama işlevsiz — ve bunu hiçbir koşu kırmızıya çevirmez.
+    const envAd = YML.match(/DAL_KOSUSU:\s*'([^']+)'/)?.[1];
+    const jobAd = YML.match(/\|\|\s*'([^']+)'\s*\}\}\s*·\s*(.+)$/m);
+    expect(envAd).toBe(`${jobAd[1]} · ${jobAd[2].trim()}`);
+  });
+
+  it('kanıt sorgusu yalnız pull_request yolunda çalışır', () => {
+    // push koşusunda kanıt aranmaz — sınanacak olan zaten o koşunun kendisidir.
+    const { karar, log } = guardKostur({ cwd: ayni.d, olay: 'push', cevap: { check_runs: [] } });
+    expect(karar).toBe('evet');
+    expect(log).toContain('koşulsuz');
+  });
+});
+
 describe('Guard\'ın kapsamı — hiçbir pahalı adım dışarıda kalmaz', () => {
   const PAHALI = [
     'Node kur', 'Bağımlılıklar', 'Build', 'Tip kontrolü',
@@ -201,6 +285,11 @@ describe('Tetikler ve kimlik', () => {
     const d = YML.match(/^\s+fetch-depth:\s*(\d+)/m);
     expect(d).not.toBeNull();
     expect(Number(d[1])).toBeGreaterThanOrEqual(2);
+  });
+
+  it('checks: read izni var — kanıt sorgusu onsuz sessizce boş döner', () => {
+    expect(YML).toMatch(/^permissions:$/m);
+    expect(YML).toMatch(/^  checks: read$/m);
   });
 
   it('job adı event\'e göre ayrışır — iki koşu PR sayfasında karışmaz', () => {

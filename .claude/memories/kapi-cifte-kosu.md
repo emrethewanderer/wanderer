@@ -66,6 +66,29 @@ yüzden ağaç sınanmamış değildi — ama korumayı sağlayan şey kural de�
 tesadüftü. Bunu gerçek kapıya çevirmek ELLE iştir (branch protection →
 required check + auto-merge) ve Emre'nin kararına bırakıldı.
 
+**Çapraz denetimin bulduğu K1 — ağaç eşitliği "sınandı" DEMEK DEĞİLDİR.**
+Guard'ın ilk hâli yalnız tree sha eşitliğine bakıp *"bu ağaç dal push'unda
+sınandı"* diyordu. İkisi ayrı şeydir ve karıştırmak kapıyı sahte yeşile açar.
+En net kırık hâli **fork PR'idir**: `push` tetiği yalnız BU repodaki push'larda
+koşar, yani fork'tan gelen bir dalın ağacı burada hiç sınanmamıştır — ama ağaç
+kimliği yine eşit çıkar ve guard bütün pahalı adımları atlardı. Aynısı iptal
+edilmiş ya da kırmızı kapanmış bir dal koşusu için de geçerli: push ve
+pull_request ayrı `concurrency` gruplarındadır, biri ötekinin hâlini bilmez.
+
+Düzeltildi: atlamanın şartı artık ağaç değil **kanıt** (§6.10). Guard, Checks
+API'sinden karşı koşunun (`dal ağacı · build · süit · denetçiler`) bu sha için
+`conclusion: success` ile kapandığını doğrular; kanıt yoksa, ad eşleşmezse ya
+da API susarsa yargı "koş"tur. `permissions: checks: read` bunun için eklendi.
+
+**Tuzak — required check seçilirken:** iki job adı var ama PR sayfasında yalnız
+`birleşmiş ağaç · …` görünür. Branch protection'da required olarak o seçilir;
+bu ancak yukarıdaki kanıt kapısı yerinde durduğu sürece gerçek bir kapıdır —
+kanıt kapısı sökülürse required check içi boşalır, çünkü atlanan bir koşu da
+"success" raporlar. `DAL_KOSUSU` env değeri ile job adının push dalı harfi
+harfine aynı olmalıdır; ayrışırsa sorgu hiçbir şey bulamaz ve kapı sessizce
+her PR'de tam koşar — güvenli ama işlevsiz, ve bunu hiçbir koşu kırmızıya
+çevirmez. `tests/kapi-workflow.test.js` ikisinin eşitliğini sınar.
+
 **Ders (§10.5 ile aynı):** bir kapının gerekçesi yazılı olması onu doğru
 yapmaz. *"İkisi farklı ağaçtır"* cümlesi kağıtta iki ay durdu; ölçen tek
 satır (`git rev-parse HEAD^{tree}` vs `HEAD^2^{tree}`) yazılana kadar kimse
