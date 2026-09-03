@@ -163,4 +163,8 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
 - [[kirmizi-kapi-okunmali]] — kırmızı Kapı'nın üçüncü hâli: hiç okunmamak.
   Kural §9'da vardı ama *sprint kapanışı* listesindeydi; oysa uzak oturumda
   push her fazda olur. **Kapının yeri, varlığından önemlidir**
+- [[kapi-yoklanir-beklenmez]] — CI koşusu **yoklanır, beklenmez**; uzak
+  oturumda `GITHUB_TOKEN` yer tutucudur ve `api.github.com` 403 döner. Tavansız
+  bir `until` bunu sessizce sonsuza çevirdi (40 dk, koşu çoktan yeşildi).
+  Kapı: `tests/bekleme-dongusu-kapisi.test.js`
 

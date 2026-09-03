@@ -31,23 +31,29 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
    plana ara vermeden devam et. Eşik doğruysa turun son mesajında
    yapıştırılabilir **DEVİR** bloğu: görev, biten/yarım, diskteki durum,
    **İlk hamle**, ELLE bekleyenler, okunacak hafıza.
-8. **Uzak oturum (GitHub) diski değil REPOYU görür** — `.claude/` altındaki
+8. **Kapı YOKLANIR, beklenmez.** Push sonrası koşuyu `mcp__github__actions_get`
+   ile OKU; `in_progress` ise işe devam et, sonra tekrar yokla. Kabukta bekleme
+   döngüsü kurma ve `api.github.com`'a doğrudan gitme — token bir yer
+   tutucudur, API 403 döner ve tavansız bir `until` SESSİZCE sonsuza gider
+   (2026-09-03: 40 dakika, üstelik koşu çoktan yeşil bitmişti).
+   Kapı: `tests/bekleme-dongusu-kapisi.test.js` · ayrıntı §10.6.
+9. **Uzak oturum (GitHub) diski değil REPOYU görür** — `.claude/` altındaki
    her şey (ajanlar, planlar, hafıza, `settings.json`, `launch.json`) commit
    edilir, yoksa uzakta YOKTUR — devir orada denenemez bile.
    Tek istisna üretilmiş olan `.claude/DEVIR.md` (gitignore'da). Uzakta kap
    geçicidir — commit edilmeyen iş oturumla ölür, o yüzden push kaydın
    kendisidir. Ayrıntı: `PROTOKOL-FABLE.md` §10.
-9. **Faz kapanışı turu bitirmez.** Her fazın sonunda kayıt noktası atılır —
+10. **Faz kapanışı turu bitirmez.** Her fazın sonunda kayıt noktası atılır —
    TaskList güncel + plan dosyasında fazın durumu ve sıradaki **İlk hamle** +
    commit — sonra kısa durum bildirimiyle **sorusuz** sonraki faza geçilir;
    Emre'nin "devam" demesi beklenmez. Mekanik fotoğrafı Stop kancası yazar
    (`.claude/DEVIR.md`); yeni oturum sırayla onu, planı, sonra hafızayı okur.
-10. **Koşulan ağaç, commit'lenen ağaç olmalı.** Tam süit koşulduktan
+11. **Koşulan ağaç, commit'lenen ağaç olmalı.** Tam süit koşulduktan
     SONRA çalışma ağacına dokunulduysa (bir plan satırı, bir belge cümlesi
     bile) süit yeniden koşulur — "yeşil" koşunun sıfatıdır, ağacın değil.
     CI'ın ("Kapı") kırmızısı bir bildirim değil **iştir**: görüldüğü an
     fazın devamı durur. Ayrıntı: `PROTOKOL-FABLE.md` §3.5 madde 2 ve §10.4.
-11. **Opus öz-denetimi (§3.7) dikiş turundan sonra, tam süitten önce
+12. **Opus öz-denetimi (§3.7) dikiş turundan sonra, tam süitten önce
     koşar.** Plana/koda/vizyona/sürece karşı dört eksen: her bulgu
     düzeltilir, plana taşınır ya da gerekçeyle reddedilir — dördüncü bir
     hâl ("not edildi") yok. Kapanan plan `## Opus öz-denetimi` kaydını

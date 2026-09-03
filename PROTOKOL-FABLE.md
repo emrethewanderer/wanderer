@@ -1105,6 +1105,10 @@ eğilimleri protokolle şöyle dengelenir:
       sprint sonunda değil, burada. Kırmızıysa sonraki faz açılmaz (§10.4).
       Madde eskiden yalnız sprint kapanışındaydı; oysa push her fazda olur ve
       dört faz boyunca kırmızı bir Kapı görülmedi (2026-09-03)
+- [ ] Kapı **YOKLANDI, beklenmedi** — `mcp__github__actions_get`; `in_progress`
+      ise iş sürer, sonraki duraksamada tekrar yoklanır. Kabukta bekleme
+      döngüsü YOK, doğrudan `api.github.com` YOK (§10.6 — ikisi birleşince
+      40 dakika sessizce yendi)
 
 **Kota %95 + kalan pay yetmiyorsa (iki koşul birlikte — §3.6)**
 - [ ] Eşik gerçekten doğru mu: %95 **ve** kalan iş kalan paya sığmıyor —
@@ -1227,6 +1231,40 @@ başarısız denemeydi, gerçekte yapılan beş devir sayılmadı.
 Ders `tests/devir-nabzi.test.js`'in kendi cümlesidir: *"Ölçen aletin kendisi
 ölçülmezse ölçüm bir teselli olur."* Bir nabız kırmızı bastığında önce
 **aletin o ortamda ne ölçebildiğini** sor, sonra kuralın öldüğüne hükmet.
+
+### 10.6 Kapı YOKLANIR, beklenmez — ve hiçbir döngü tavansız kurulmaz
+
+**Kural tek cümledir: bir koşunun bitmesi BEKLENMEZ, durumu YOKLANIR.**
+Push'tan sonra `mcp__github__actions_list` / `actions_get` ile durum okunur.
+`in_progress` ise iş devam eder ve bir sonraki doğal duraksamada tekrar
+yoklanır. Kapı koşusu dört dakika sürer; onu beklemek için kurulan bir kabuk
+döngüsü, kazandığından çoğunu geri verir.
+
+**İki yasak, ve ikisi 2026-09-03'te birleşip 40 dakika yedi:**
+
+1. **Doğrudan GitHub API yasak.** Uzak oturumda `GITHUB_TOKEN` bir yer
+   tutucudur (`"proxy-injected"`, 14 karakter) ve `api.github.com` **403**
+   döner: *"GitHub access is not enabled for this session."* Erişim yalnız
+   `mcp__github__*` araçlarındadır — sistem talimatı bunu zaten söyler, ve
+   ihlalin cezası bir hata değil bir SESSİZLİKTİR.
+2. **Tavansız bekleme döngüsü yasak.** Her `until`/`while true` + `sleep`
+   bir çıkış tavanı taşır (deneme sayacı, `--max-time`, `SECONDS`) ve tavan
+   dolunca **gürültülü** biter — sessizce değil.
+
+Birleşme şöyle işledi: `curl` 403 döndü, dönen JSON'da `status` alanı yoktu,
+`.get('status','')` boş string verdi ve `'' != "completed"` sonsuza kadar doğru
+kaldı. Ne hata basıldı, ne döngü kırıldı. Üstelik **koşu çoktan yeşil
+bitmişti** — bekleyen sorgu bunu asla göremedi, çünkü bakamıyordu.
+
+Ders §6.2'nin kardeşidir: *sahte başarı yasaktır* — sessiz bir sonsuz döngü
+hiçbir şeyi yanlış RAPORLAMAZ, yalnız hiç bitmez. Dürüstlük yalnız çıktının
+değil, **durmanın** da sözleşmesidir.
+
+Kapı: `tests/bekleme-dongusu-kapisi.test.js` — kabuk yüzeylerinde (`scripts/`,
+`.github/`, `.claude/hooks/`) iki deseni de arar; tabanı **sıfırdır** ve
+büyümesi yasaktır. Kapı kendi ihlalini de sınar (§10.5: ölçen alet de
+ölçülür). Adı `*-kapisi` olduğu için `npm run kapi:genel`
+desenine kendiliğinden girer.
 
 ---
 
