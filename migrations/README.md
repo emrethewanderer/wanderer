@@ -29,35 +29,73 @@ sistem promptu, bilgi tabanı, karşılama, başlatıcılar). İçerik tohumlar�
 `ON CONFLICT DO NOTHING` ile korumalı — Model Stüdyosu'ndan yaptığın
 düzenlemeler ezilmez.
 
-## Bundan sonrası
+## Bundan sonrası — bekleyen ELLE borcu
 
-Yeni şema işleri **041'den** devam eder (`041_*.sql`, `042_*.sql`, …,
-`046_*.sql`). Numara git geçmişiyle tutarlı kalsın diye 001'e geri dönülmez.
+Yeni şema işleri **041'den** devam eder. Numara git geçmişiyle tutarlı kalsın
+diye 001'e geri dönülmez.
 
-- `046_gozlemevi_esik_nabzi.sql` — Eşiğin Nabzı: `admin_usage_report`'a
-  `esik_pulse` bloğu ekler (`kind='esik'`, İç Çalışma 06 rev.2 FAZ 3). ELLE
-  koşulur — Supabase Dashboard → SQL Editor.
+Aşağıdaki on dosyanın **hiçbiri otomatik uygulanmaz** (§6.5 — ELLE iştir) ve
+uygulanıp uygulanmadıkları **repodan görünmez**. Kod hepsinde savunmacı
+yazılmıştır: eksik şema hiçbir yeri kırmaz, ilgili yüzey yalnız sessizce
+çizilmez ya da yerel moda düşer. "Sessizce çizilmemek" bir sözleşmedir —
+kanıtsız sıfır basmaktansa hiç basmamak (§6.10).
 
-- `050_gozlemevi_model_nabzi.sql` — Üç Sesin Nabzı: `admin_usage_report`'a
-  `model_pulse` bloğu ekler (`kind='model'` + `kind='latency'` satırlarının
-  `meta.fm` alanı; İç Çalışma 08 rev.2 FAZ 3). ELLE koşulur — Supabase
-  Dashboard → SQL Editor. Uygulanmadan panel `model_pulse`'ı hiç görmez,
-  Şema Sondası'nın borç sayacı bunu görünür kılar.
+### SIRA ÖNEMLİDİR
 
-Yeni bir migration biriktiğinde iki seçenek var: ayrı dosya olarak bırakmak,
-ya da `000_wanderer_schema.sql`'e işleyip dosyayı silmek. İkincisi tercih
-edilirse aynı disiplin geçerli: `IF NOT EXISTS` / `DROP POLICY IF EXISTS` +
-yeniden kurulum, yıkıcı ifade yok.
+Yedisi (`042 · 044 · 045 · 046 · 048 · 049 · 050`) `admin_usage_report`
+fonksiyonunu **baştan yeniden kurar** ve her biri bir öncekinin gövdesini
+aynen taşıyıp üstüne kendi bloğunu ekler. Bu yüzden tek doğru sıra:
 
-## Şemanın DIŞINDA kalanlar
+    000 → 041 → 042 → 043 → 044 → 045 → 046 → 047 → 048 → 049 → 050
 
-`profiles`, `chat_history`, `chat_summaries`, `challenge_progress`,
-`admin_settings`, `public_settings`, `knowledge_base`, `knowledge_chunks`,
-`user_analytics`, `user_profile`, `user_patterns`, `user_tracks`,
-`user_manifesto`, `mood_history`, `homework`, `notebook`, `parts_log`,
-`somatic_log`, `breakthrough_moments`, `transformation_cards`,
-`weekly_reports`, `onboarding_answers`, `feedbacks` — bunlar Supabase'de elle
-kurulmuş, repoda hiç migration'ı olmayan tablolar. `000` onları yaratmaz;
-yalnız §3'te üzerlerine kolon/politika ekler (tablo gerçekten varsa).
+Her dosya bir öncekinin bloklarını taşıdığı için **atlamak zararsızdır** —
+`045`'i atlayıp `046`'yı koşarsan `045`'in bloğu da gelir. Tehlike ters
+yöndedir: **daha düşük numaralı bir dosyayı sonradan tek başına koşmak**,
+kendinden sonraki blokları siler (örn. `050`'den sonra `044`'ü koşmak
+045–050'nin kartlarını düşürür). Kaybolan kartın sebebi kodda görünmez.
+Kural tek cümle: **en güncel tanım daima en yüksek numaradadır** (bugün
+`050`); şüphede kalırsan yalnız onu koş.
 
-Gerçek envanteri görmek için `000_wanderer_schema.sql` §12'deki sorguyu koştur.
+Taşıma 2026-09-03'te dosya dosya ölçüldü — `050` on bloğun hepsini içerir:
+`mode` · `memory` · `latency` · `ctx` · `kart` · `ritus` · `esik` · `duygu` ·
+`kimlik` · `model` (`*_pulse`). Yeni bir dosya bu listeyi eksiltirse, eksilen
+kart Gözlemevi'nden sessizce kaybolur.
+
+### Defter
+
+| # | Dosya | Ne yapar | Kaynak | Uygulanmazsa |
+|---|---|---|---|---|
+| 041 | `chat_decorations.sql` | `chat_history.decorations` (JSONB) — alıntı kartı, çip, takip, kaynakça mesajın kimliğine bağlanır | İç Çalışma 01 · C | Süsler hard reload'da ölür; deko yazımı sessizce düşer |
+| 042 | `gozlemevi_nabiz.sql` | Hafıza · gecikme · bağlam nabızları rapora girer | İç Çalışma 02 · A/F/D | Epizodik hafızanın canlı mı fallback mi olduğu görünmez |
+| 043 | `persona_directives_history.sql` | Append-only geçmiş defteri + trigger — "Yayınla" geri alınabilir olur | İç Çalışma 03 · B | Panel "geçmiş defteri henüz kurulmamış" der; yayın geri alınamaz |
+| 044 | `gozlemevi_koleksiyon_nabzi.sql` | Koleksiyonun Nabzı — kimlik ve bilgelik kollarının ekonomisi | İç Çalışma 04 · Y1 | Panel hiç çizilmez |
+| 045 | `gozlemevi_ritus_nabzi.sql` | Ritüellerin Nabzı — dokuz yüzeyin hunisi | İç Çalışma 05 · A | Panel hiç çizilmez |
+| 046 | `gozlemevi_esik_nabzi.sql` | Eşiğin Nabzı — onboarding hunisi (`kind='esik'`) | İç Çalışma 06 · A | Panel hiç çizilmez |
+| 047 | `telefon_kimlik_ve_posta.sql` | Kod kapısı kimliği + posta defteri (e-posta tek anahtar) | Kod Kapısı sprinti | Eski kapılar konuşur; posta defteri yok |
+| 048 | `gozlemevi_duygu_nabzi.sql` | Yanılma Nabzı — Duygu Motoru'nun kendi hata oranı | 13D §10 · FAZ 15 | Panel hiç çizilmez |
+| 049 | `gozlemevi_kimlik_nabzi.sql` | Kimlik Üçgeni'nin nabzı (`kind='kimlik'`) | İç Çalışma 07 · D | Panel hiç çizilmez |
+| 050 | `gozlemevi_model_nabzi.sql` | Üç Sesin Nabzı (`kind='model'` + `latency.meta.fm`) | İç Çalışma 08 · A | Panel `model_pulse`'ı hiç görmez |
+
+### Durumu nereden görürsün
+
+Gözlemevi → **Şema Sondası**. Varlık kanıtı satır sayısı değil **hata
+kodudur** (`42P01` tablo yok · `42703` kolon yok); RLS yüzünden boş dönmek
+"yok" demek değildir. Sonda ayrıca **tablo VAR ≠ içerik DOLU** ayrımını
+yapar: `wanderer_models` tablosu kurulmuş ama `system_prompt` boşsa üç sesin
+eksen davranışı yoktur.
+
+### Ayrıca ELLE bekleyen, migration olmayan iki iş
+
+- İki edge function redeploy: `soz-terzisi` · `sohbet-baslaticilari`
+  (İç Çalışma 03 · F). Yapılmazsa panel kaydeder, sunucu okumaz.
+- Admin → *Merhaba, Emre* → **Yayınla**: anayasanın güncel register'ı
+  `admin_settings.system_prompt`'a insin (İç Çalışma 03 · A′). Yapılmazsa
+  sunucu eski anayasayı konuşur.
+
+## Yeni migration eklerken
+
+İki seçenek var: ayrı dosya olarak bırakmak, ya da `000_wanderer_schema.sql`'e
+işleyip dosyayı silmek. İkincisi tercih edilirse aynı disiplin geçerli:
+`IF NOT EXISTS` / `DROP POLICY IF EXISTS` + yeniden kurulum, yıkıcı ifade yok.
+`admin_usage_report`'a dokunan bir dosya, bir öncekinin **tüm** bloklarını
+taşımak zorundadır — ve bu defterin tablosuna bir satır ekler.
