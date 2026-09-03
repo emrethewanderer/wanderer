@@ -265,6 +265,26 @@ girer (`grep -rn <fnAdı> js/` ile bulunur). Tam süit **yalnız sprint
 kapanışında** koşar (§3.5) ve orada pazarlıksızdır. Hedefli süiti de
 atlamak yasak: "muhtemelen geçer" bir kapı değildir.
 
+**Ama önek kuralının bir kör noktası var ve ölçüldü (2026-09-03): REPO-GENELİ
+kapılar hiçbir önekle bulunmaz.** `tests/xss-kapisi.test.js` bir modülün değil
+**bütün ağacın** kapısıdır; `git diff` ona hiç işaret etmez. Bedeli dört
+kırmızı CI koşusudur: FAZ 5 `js/parts/13q-*` değiştirdi, hedefli süit
+`tests/13q-*` koştu ve yeşil bastı — oysa aynı faz XSS tabanını 23
+interpolasyonla büyütmüştü. Kırık #57'de doğdu, #58–#60'ta taşındı; Emre dört
+uyarı e-postası aldı, oturum hiçbirini görmedi. Kapı kağıtta vardı, hedefte
+yoktu.
+
+Bu yüzden faz kapısının ikinci adımı **iki koşudur**, biri değil:
+
+    npx vitest run tests/<önek>*   # o fazın modülleri
+    npm run kapi:genel             # repo-geneli kapılar — desene bağlı, listeye değil
+
+`kapi:genel` = `vitest run kapisi kapi-workflow`: 20 dosya, 284 test, **~17
+saniye**. Elle bakımlı bir liste değil bir DESEN olması kasıtlıdır — liste
+bayatlar, yeni bir kapı ona kendiliğinden girmez ve kapı sessizce eksilir.
+Ucuzluğu ölçüldü çünkü ucuz olmayan bir kural yine atlanırdı: §3.3'ün tam
+süiti faz sonundan tam bu sebeple çıkarılmıştı.
+
 **Faz denetimi ÇAPRAZ MODELDİR (Emre'nin kararı, 2026-08-23).** Bir fazın
 öz-denetimini o fazı YAZAN model yapmaz — **öteki model** yapar:
 
@@ -1059,6 +1079,9 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] `./build.sh 2>&1 | tail -20` yeşil
 - [ ] **Hedefli** süit yeşil — o fazın dokunduğu testler (`git diff
       --name-only` → `tests/<önek>*`). Tam süit BURADA DEĞİL, §3.5'te
+- [ ] **`npm run kapi:genel` yeşil** — repo-geneli kapılar hiçbir önekle
+      bulunmaz, o yüzden ayrı koşar (~17 sn). Atlanırsa kırık CI'da doğar:
+      2026-09-03'te tam bu oldu, dört koşu üst üste kırmızı bastı (§3.3)
 - [ ] Faz denetimi **öteki modelde** koşturuldu (§3.3) — yazan denetlemez:
       Opus'un yazdığı fazı Sonnet, Sonnet'in yazdığı fazı Opus denetler
       (`denetci` çağrısında `model` parametresiyle); bulgusu bu turda düzeltilir
@@ -1078,6 +1101,10 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] Commit atıldı (push yok) — Stop kancası `.claude/DEVIR.md`'yi kendi yazar
 - [ ] Kısa durum bildirimi yazıldı ve **sorusuz sonraki faza geçildi** —
       faz sonunda durup "devam edeyim mi?" beklemek yasak (§3.4 madde 5)
+- [ ] **Uzak oturumda push edildiyse: o push'un Kapı koşusu OKUNDU** —
+      sprint sonunda değil, burada. Kırmızıysa sonraki faz açılmaz (§10.4).
+      Madde eskiden yalnız sprint kapanışındaydı; oysa push her fazda olur ve
+      dört faz boyunca kırmızı bir Kapı görülmedi (2026-09-03)
 
 **Kota %95 + kalan pay yetmiyorsa (iki koşul birlikte — §3.6)**
 - [ ] Eşik gerçekten doğru mu: %95 **ve** kalan iş kalan paya sığmıyor —
@@ -1174,7 +1201,13 @@ yoksa bir komut mu üretti?* İnsan yazdıysa commit edilir.
 
 | Madde | Lokalde | Uzak oturumda |
 |---|---|---|
-| **§3.5/2 tam süit** | süit senin makinende koşar; kırmızıyı ekranda görür, turu orada durdurursun | süit **CI'da da koşar** (`.github/workflows/kapi.yml` — doğrulama tarayıcısının duman koşusu da orada bir adımdır) ve sonucu e-postayla gelir. Kırmızı Kapı bir bildirim değil **iştir**: görüldüğü an fazın devamı durur, kırık düzeltilir, sonra devam edilir. Ölçü 2026-09-02'nin iki kırmızı koşusudur ve ikisi zıt yönü gösterir: birincisinde kapı OKUNDU — `58b645a` başlığı bunu yazar ("CI'ın ilk koşusunun bulduğu kırık") ve kırık 10 dakikada kapandı. İkincisinde okunmadı: kırmızı 09:21'de düştü (Actions koşu #15'in tamamlanma damgası) ama düzeltme zaten 09:01'de açılmış bir fazın (`6242fd3`) yan ürünü olarak geldi, önce cümleyi yeniden yazan bir KAÇINMAYLA (`9c636bd`), gerçek düzeltme 10:08'de (`8ab08a0`). Aradaki fark 10 dakika ile 50 dakika değil yalnız; biri kapıyı bir iş sayar, öteki bir bildirim |
+| **§3.5/2 tam süit** | süit senin makinende koşar; kırmızıyı ekranda görür, turu orada durdurursun | süit **CI'da da koşar** (`.github/workflows/kapi.yml` — doğrulama tarayıcısının duman koşusu da orada bir adımdır) ve sonucu e-postayla gelir. Kırmızı Kapı bir bildirim değil **iştir**: görüldüğü an fazın devamı durur, kırık düzeltilir, sonra devam edilir. Ölçü 2026-09-02'nin iki kırmızı koşusudur ve ikisi zıt yönü gösterir: birincisinde kapı OKUNDU — `58b645a` başlığı bunu yazar ("CI'ın ilk koşusunun bulduğu kırık") ve kırık 10 dakikada kapandı. İkincisinde okunmadı: kırmızı 09:21'de düştü (Actions koşu #15'in tamamlanma damgası) ama düzeltme zaten 09:01'de açılmış bir fazın (`6242fd3`) yan ürünü olarak geldi, önce cümleyi yeniden yazan bir KAÇINMAYLA (`9c636bd`), gerçek düzeltme 10:08'de (`8ab08a0`). Aradaki fark 10 dakika ile 50 dakika değil yalnız; biri kapıyı bir iş sayar, öteki bir bildirim. **Üçüncü hâl 2026-09-03'te
+ölçüldü ve ikisinden de kötüdür: kapı HİÇ okunmadı.** Dört koşu üst üste
+kırmızı bastı (#57–#60), Emre dört e-posta aldı, oturum hiçbirini görmedi —
+çünkü push sonrası koşuya bakmak listede sprint kapanışına yazılmıştı, oysa
+push her fazda oluyordu. Kırmızıyı bir iş saymak için önce onu GÖRMEK gerekir;
+bakılmayan kapı, kırmızı bile olsa sessizdir. Madde artık faz kapanışında da
+duruyor (§9) |
 | **§3.5/6 commit** | "commit at, **push YOK**" — iş diskte güvende, push ayrı onay ister | kap geçicidir: **commit edilmeyen iş oturumla birlikte ölür.** Belirlenmiş dala push, kaydın kendisidir; onayı oturumun görev tanımı verir |
 | **§3.3 tarayıcı** | `node scripts/dogrula.mjs` — tek origin `:3030`, Chromium sistemden çözülür (yoksa `npx playwright install chromium`). Preview aracı hâlâ var; ama göz için, kapı için değil | **AYNI KOMUT.** Chromium `/opt/pw-browsers/chromium`'dan çözülür, kap onunla gelir. Bu satır 2026-09-02'ye kadar şöyleydi: *"preview aracı yüklü olmayabilir, o zaman kapı atlanmaz ama ortamı adlandırılır — 'preview bu oturumda yok, X sınanamadı'"*. O muafiyet **KALDIRILDI**: kapı artık ortama değil repoya bağlı. Tarayıcı gerçekten bulunamıyorsa koşucu hata verir (exit 1) ve faz KAPANMAZ — "sınanamadı" bir kapanış hâli değildir |
 | **§4.4 devir** | `.claude/agents/` diskte, adlar hep yüklü | ajan dosyasını yazmak yetmez, **commit edilmelidir** — ve tanınması ânında olmayabilir: 2026-09-02'de commit'ten ~1,5 saat sonra, aynı oturum içinde etkinleşti. Ad henüz tanınmıyorken devir gerekiyorsa sözleşmeyi çağrının prompt'una elle yükle ve bunu **sapma olarak raporla**; tanınıyorsa gerçek adı kullan (nabız yalnız gerçek adı sayar, §10.5) |

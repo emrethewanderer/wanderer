@@ -12,7 +12,8 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
 1. Emre ile daima Türkçe konuş; `PROTOKOL-FABLE.md` dosyasını oku ve uygula.
 2. `_src.html` düzenle — `index.html` build çıktısıdır, elle DÜZENLENMEZ.
 3. Her faz sonunda kapı: `./build.sh` yeşil → **hedefli** test (o fazın
-   dosyaları; tam süit yalnız sprint kapanışında) → **doğrulama tarayıcısı**
+   dosyaları; tam süit yalnız sprint kapanışında) → **`npm run kapi:genel`**
+   (repo-geneli kapılar; hiçbir önekle bulunmazlar, ~17 sn) → **doğrulama tarayıcısı**
    `node scripts/dogrula.mjs` (Playwright: sayfayı açar, canlı DOM/state
    sorgusunu koşar, konsolu okur) → "Konsol temiz." Cümleyi koşucunun çıkış
    kodu söyler, sen değil. Faz denetimi **öteki modelde** yapılır — yazan
