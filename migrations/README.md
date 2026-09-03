@@ -34,32 +34,38 @@ düzenlemeler ezilmez.
 Yeni şema işleri **041'den** devam eder. Numara git geçmişiyle tutarlı kalsın
 diye 001'e geri dönülmez.
 
-Aşağıdaki on dosyanın **hiçbiri otomatik uygulanmaz** (§6.5 — ELLE iştir) ve
-uygulanıp uygulanmadıkları **repodan görünmez**. Kod hepsinde savunmacı
+Aşağıdaki on bir dosyanın **hiçbiri otomatik uygulanmaz** (§6.5 — ELLE iştir)
+ve uygulanıp uygulanmadıkları **repodan görünmez**. Kod hepsinde savunmacı
 yazılmıştır: eksik şema hiçbir yeri kırmaz, ilgili yüzey yalnız sessizce
 çizilmez ya da yerel moda düşer. "Sessizce çizilmemek" bir sözleşmedir —
 kanıtsız sıfır basmaktansa hiç basmamak (§6.10).
 
 ### SIRA ÖNEMLİDİR
 
-Yedisi (`042 · 044 · 045 · 046 · 048 · 049 · 050`) `admin_usage_report`
+Sekizi (`042 · 044 · 045 · 046 · 048 · 049 · 050 · 051`) `admin_usage_report`
 fonksiyonunu **baştan yeniden kurar** ve her biri bir öncekinin gövdesini
 aynen taşıyıp üstüne kendi bloğunu ekler. Bu yüzden tek doğru sıra:
 
-    000 → 041 → 042 → 043 → 044 → 045 → 046 → 047 → 048 → 049 → 050
+    000 → 041 → 042 → 043 → 044 → 045 → 046 → 047 → 048 → 049 → 050 → 051
 
 Her dosya bir öncekinin bloklarını taşıdığı için **atlamak zararsızdır** —
 `045`'i atlayıp `046`'yı koşarsan `045`'in bloğu da gelir. Tehlike ters
 yöndedir: **daha düşük numaralı bir dosyayı sonradan tek başına koşmak**,
-kendinden sonraki blokları siler (örn. `050`'den sonra `044`'ü koşmak
-045–050'nin kartlarını düşürür). Kaybolan kartın sebebi kodda görünmez.
+kendinden sonraki blokları siler (örn. `051`'den sonra `044`'ü koşmak
+045–051'in kartlarını düşürür). Kaybolan kartın sebebi kodda görünmez.
 Kural tek cümle: **en güncel tanım daima en yüksek numaradadır** (bugün
-`050`); şüphede kalırsan yalnız onu koş.
+`051`); şüphede kalırsan yalnız onu koş.
 
-Taşıma 2026-09-03'te dosya dosya ölçüldü — `050` on bloğun hepsini içerir:
-`mode` · `memory` · `latency` · `ctx` · `kart` · `ritus` · `esik` · `duygu` ·
-`kimlik` · `model` (`*_pulse`). Yeni bir dosya bu listeyi eksiltirse, eksilen
-kart Gözlemevi'nden sessizce kaybolur.
+Taşıma 2026-09-03'te dosya dosya ölçüldü — `051` on yedi bloğun hepsini
+içerir: `mode` · `memory` · `latency` · `ctx` · `kart` · `ritus` · `esik` ·
+`duygu` · `kimlik` · `model` (050'den taşınan on) + `kota` · `arac` · `bolge` ·
+`paylasim` · `safety` · `error` · `notification` (051'in yedi yenisi) —
+hepsi `*_pulse` anahtarıyla. `error_pulse` ve `notification_pulse`
+`usage_events` DIŞINDAKİ iki tablodan okur (`error_logs`,
+`notification_log`) — yazılıyorlardı, `051`'e kadar hiç okunmuyorlardı.
+Yeni bir dosya bu listeyi eksiltirse, eksilen kart Gözlemevi'nden sessizce
+kaybolur — bu artık kanıtla yakalanır: `tests/migration-blok-tasima.test.js`
+her dosyanın bir öncekinin tüm üst-düzey bloklarını taşıdığını sınar.
 
 ### Defter
 
@@ -75,6 +81,7 @@ kart Gözlemevi'nden sessizce kaybolur.
 | 048 | `gozlemevi_duygu_nabzi.sql` | Yanılma Nabzı — Duygu Motoru'nun kendi hata oranı | 13D §10 · FAZ 15 | Panel hiç çizilmez |
 | 049 | `gozlemevi_kimlik_nabzi.sql` | Kimlik Üçgeni'nin nabzı (`kind='kimlik'`) | İç Çalışma 07 · D | Panel hiç çizilmez |
 | 050 | `gozlemevi_model_nabzi.sql` | Üç Sesin Nabzı (`kind='model'` + `latency.meta.fm`) | İç Çalışma 08 · A | Panel `model_pulse`'ı hiç görmez |
+| 051 | `gozlemevi_tek_cam.sql` | Yedi yeni nabız: kota · araç · bölge · paylaşım · emniyet (`usage_events`) + hata · bildirim (`error_logs`/`notification_log`, ilk kez okunuyor) | On İki Odanın Denetimi · FAZ 4 | Panel yedi kartı hiç görmez; `error_logs`/`notification_log` yoksa iki blok `null` döner (`to_regclass` kapısı) |
 
 ### Durumu nereden görürsün
 

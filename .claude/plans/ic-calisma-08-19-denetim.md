@@ -343,5 +343,35 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
      değil): `_KOTA_DAL`'ın `a`/`b`'si teklif A/B eksenidir ve `13m`'nin RPC
      tabanlı duvarında böyle bir eksen yoktur.
 
-**İlk hamle (FAZ 4):** `migrations/051_gozlemevi_tek_cam.sql` — `050`'nin on
-altı bloğunu aynen taşı, üstüne yedi blok ekle.
+- **FAZ 4 · BİTTİ** (2026-09-03). `migrations/051_gozlemevi_tek_cam.sql`
+  (607 satır) + `migrations/README.md` defteri + `tests/migration-blok-tasima.test.js`.
+
+  **Denetim (parent · Opus) — bağımsız doğrulama:** `050`'nin **132 JSON
+  anahtarının hiçbiri düşmemiş**; `051` 158 anahtar taşıyor, `_pulse` sayısı
+  **17**. Gizlilik kuralı sorguda tutuluyor: `error_pulse` yalnız
+  `user_id`·`label`·`occurred_at` seçer (`user_id` de yalnız `COUNT(DISTINCT)`
+  içinde, dönmez), `notification_pulse` yalnız `type`·`clicked_at`.
+  `error_message`/`error_stack`/`user_agent` dosyada iki kez geçiyor ama
+  **ikisi de kuralın kendisini yazan yorum satırı** (`:42-43`, `:557-558`) —
+  sorguda yok. `to_regclass` kapıları yerinde (`:80`, `:105`).
+
+  Uygulayan taraf iki şey yaptı ki ikisi de kapının ötesindeydi: (1) gerçek bir
+  PostgreSQL 16'da koşturup `CREATE FUNCTION`'ın tablo yokken de başardığını
+  **çalıştırarak** kanıtladı — ve o turda dinamik SQL'de gerçek bir kapanış
+  parantezi hatası yakalayıp düzeltti (`:99`, `:120`); sözle geçilseydi `051`
+  prod'da patlardı. (2) kapının yakaladığını iki mutasyonla gösterdi: eski bir
+  blok silinince zincir testi adıyla kırmızı oldu.
+
+  **Durakların kararı:**
+  1. `paylasim_pulse`'ın türü `meta->>'tur'`den okuması **kabul edildi** ve
+     **plan düzeltildi** (yukarıda) — hata plandaydı, kodda değil.
+     Not: kardeş kanallar ikinci ekseni `prev_screen`'de taşır, `paylasim`
+     `meta`'da. Tutarsızlık bilinçli olarak **düzeltilmedi**: `tur` bugün zaten
+     çoğunlukla `null` (FAZ 2+3 · Durak 3) ve üç dosyaya dokunmanın kazancı,
+     hiçbir kartı değiştirmeyen bir ad değişikliğinden ibaret olurdu.
+  2. `error_logs`/`notification_log`'un prod'daki varlığı **ELLE bilgisidir** —
+     `051` her iki hâlde de çalışıyor, bu gerçek Postgres'te ispatlandı.
+  3. `051` **ELLE koşulur** (§6.5) — deploy edilmiş varsayılmıyor.
+
+**İlk hamle (FAZ 5):** `13q-gozlemevi.js`'e yedi kart — spesifikasyon yukarıda
+FAZ 5 bölümünde tam, `_sesNabzi` (`13q:796`) kalıbı emsal.
