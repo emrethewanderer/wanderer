@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { urlBase64ToUint8Array, _buildEngagementSnapshot } from '../js/parts/10x-w2-bildirimler.js';
 import { VAPID_PUBLIC } from '../js/config.js';
-import { localISODate } from '../js/parts/00a-infrastructure.js';
+import { localISODate, SafeStorage } from '../js/parts/00a-infrastructure.js';
 import { S } from '../js/state.js';
 
 describe('urlBase64ToUint8Array', () => {
@@ -29,6 +29,8 @@ describe('_buildEngagementSnapshot', () => {
   beforeEach(() => {
     S._gunlukRitus = undefined;
     S.currentUser = { id: 'u1' };
+    // Sessiz saat tercihi testler arası sızmasın — biri yazarsa öteki görmesin.
+    try { SafeStorage.remove('etw_sessiz_saat_v1_u1'); } catch (_) {}
   });
 
   it('motor için gerekli tüm sinyal alanlarını içerir', () => {
@@ -38,8 +40,40 @@ describe('_buildEngagementSnapshot', () => {
     expect(snap).toHaveProperty('last_active_date');
     expect(snap).toHaveProperty('last_sealed_date');
     expect(snap).toHaveProperty('pending_soz_text');
-    expect(snap.quiet_start).toBe(23);
-    expect(snap.quiet_end).toBe(8);
+  });
+
+  /* SESSİZ SAAT — sözleşme 2026-09-03'te DEĞİŞTİ (İç Çalışma 11 · boşluk C).
+     Bu test eskiden `quiet_start === 23` diye kilitliyordu; yani kaldırılan
+     davranışın kendisini koruyordu. Payload o iki anahtarı literal yazdığı
+     sürece, kullanıcının tabloda ne tercihi olursa olsun her senkron onu
+     geri eziyordu — "hardcode" değil, tercihi aktif olarak yok etmek.
+     Yeni sözleşme: anahtar YALNIZ gerçek bir tercih varsa gönderilir;
+     yoksa upsert onu hiç yazmaz ve DB varsayılanı (23/8, mig 000) ya da
+     kullanıcının mevcut değeri korunur. */
+  it('SESSİZ SAAT: tercih yokken quiet_* anahtarları payload\'a HİÇ girmez', () => {
+    const snap = _buildEngagementSnapshot();
+    expect(snap).not.toHaveProperty('quiet_start');
+    expect(snap).not.toHaveProperty('quiet_end');
+  });
+
+  it('SESSİZ SAAT: geçerli tercih varsa iki anahtar da payload\'a girer', () => {
+    SafeStorage.set('etw_sessiz_saat_v1_u1', { start: 1, end: 9 });
+    const snap = _buildEngagementSnapshot();
+    expect(snap.quiet_start).toBe(1);
+    expect(snap.quiet_end).toBe(9);
+  });
+
+  it('SESSİZ SAAT: bozuk tercih sessizce düşer — yarım değer gönderilmez', () => {
+    SafeStorage.set('etw_sessiz_saat_v1_u1', { start: 'gece', end: 9 });
+    const snap = _buildEngagementSnapshot();
+    expect(snap).not.toHaveProperty('quiet_start');
+    expect(snap).not.toHaveProperty('quiet_end');
+  });
+
+  it('SESSİZ SAAT: aralık dışı saat (24) reddedilir', () => {
+    SafeStorage.set('etw_sessiz_saat_v1_u1', { start: 24, end: 8 });
+    const snap = _buildEngagementSnapshot();
+    expect(snap).not.toHaveProperty('quiet_start');
   });
 
   it('lang alanı aktif arayüz diline eşit olur (push dil kilidi, mig 037)', () => {

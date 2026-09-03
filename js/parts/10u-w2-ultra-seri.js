@@ -26,7 +26,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, recordActivityDay, localDayKey, getActivityDays, showToast, localISODate, escapeHTML } from './00a-infrastructure.js';
+import { SafeStorage, recordActivityDay, localDayKey, getActivityDays, showToast, localISODate, parseDayKey, escapeHTML } from './00a-infrastructure.js';
 import { ikvMilestoneScene, ikvCardFace, ikvCardBack } from './12c-kart-gorsel.js';
 import { t } from './15-i18n.js';
 
@@ -131,10 +131,13 @@ function _ledgerFor(id) {
 function usStreakFromDays(daysArr) {
   const set = new Set(daysArr || []);
   if (!set.size) return 0;
-  const sorted = Array.from(set).map(k => {
-    const [y, mo, da] = String(k).split('-').map(Number);
-    return new Date(y, (mo || 1) - 1, da || 1);
-  }).sort((a, b) => b - a);
+  // Seri defteri usDayKey biçimindedir (1-tabanlı ay, padded) — 00a'nın tek
+  // okuyucusu, biçim `taban0` varsayılanında (false) duruyor. Çözülemeyen
+  // anahtar `null` döner ve zincirden DÜŞER; eskiden `|| 1` ile 1 Ocak'a
+  // kayıyordu ve bozuk bir satır seriyi sessizce uzatabilirdi.
+  const sorted = Array.from(set).map(k => parseDayKey(k)).filter(Boolean)
+    .sort((a, b) => b - a);
+  if (!sorted.length) return 0;
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const last = sorted[0];
   const sinceLast = Math.round((today - last) / 86400000);

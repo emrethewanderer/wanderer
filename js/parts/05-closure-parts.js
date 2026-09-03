@@ -1,7 +1,7 @@
 import { S } from '../state.js';
 import { sb } from '../config.js';
 import { ensureExt } from './00-ext-loader.js';
-import { SafeStorage, AnimUtils, showToast, localISODate, escapeHTML } from './00a-infrastructure.js';
+import { SafeStorage, AnimUtils, showToast, localISODate, escapeHTML, localDayKey } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { nowTR, toTR, onModeBadgeUpdate } from './00-config-tracking.js';
 import { p, dp } from './16-i18n-prompts.js';
@@ -296,7 +296,7 @@ export async function closureRevealSummary() {
   if (loadEl) loadEl.style.display = '';
 
   const now = new Date();
-  const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const todayKey = localDayKey(now);
 
   let deep = null;
   let failed = false;  // üretim/kayıt patladı mı — "az konuştuk"tan AYRI durum

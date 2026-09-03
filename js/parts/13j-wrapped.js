@@ -22,7 +22,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, getActivityDays, escapeHTML } from './00a-infrastructure.js';
+import { SafeStorage, getActivityDays, parseDayKey, escapeHTML } from './00a-infrastructure.js';
 import { computeButunluk } from './10p-w2-meclis.js';
 import { t } from './15-i18n.js';
 
@@ -104,13 +104,15 @@ export function wrBuildStats(ym) {
   const month = parseInt(ym.slice(5, 7), 10); // 1-tabanlı
   const pad = `${ym}-`;
 
-  // Aktif günler — localDayKey 'YYYY-M-D' (AY 0-TABANLI!)
+  // Aktif günler — aktivite defteri localDayKey biçimindedir (AY 0-TABANLI!).
+  // Elle split yerine 00a'nın tek okuyucusu: biçim bilgisi burada, `taban0`
+  // bayrağında açıkça duruyor (İç Çalışma 10 · B).
   const dayNums = new Set();
   try {
     for (const k of getActivityDays()) {
-      const p = String(k).split('-');
-      if (p.length === 3 && parseInt(p[0], 10) === year && parseInt(p[1], 10) === month - 1) {
-        dayNums.add(parseInt(p[2], 10));
+      const dt = parseDayKey(k, { taban0: true });
+      if (dt && dt.getFullYear() === year && dt.getMonth() === month - 1) {
+        dayNums.add(dt.getDate());
       }
     }
   } catch (_) {}

@@ -41,8 +41,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, content-type, apikey, x-cron-secret',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+/* SÜRÜM DAMGASI (İç Çalışma 11 · boşluk A) — bu motor dört ayrı sprintte
+   zenginleşti (recent_thread ithafı, haftalık örüntü, portre meselesi, "Günün
+   Nuru" şablonu, mig 037 dil kilidi) ve her biri "ELLE: send-push deploy"
+   notuyla kapandı. Kod ile prod arasındaki mesafe REPODAN GÖRÜNMEZ: deploy
+   yapılmadıysa kullanıcılar aylardır ilk-nesil kopya alıyor olabilir ve bunu
+   kimse fark etmez. Bu sabit o mesafeyi tek çağrıda ölçülebilir kılar.
+
+   DİKKAT — damga ancak deploy edildiğinde doğrudur. Redeploy edilmemiş bir
+   fonksiyonda bu satır ESKİ değeri döndürür; yani damganın kendisi de
+   deploy'a bağımlıdır ve "yeni sürüm görünmüyorsa deploy edilmemiştir"
+   tam olarak aradığımız sinyaldir (§6.2 — doğrulanmamış hiçbir şey
+   "çalışıyor" diye raporlanmaz). Yeni bir sprint bu dosyaya dokunduğunda
+   tarihi ELLE ilerletir. */
+const VERSION = '2026-09-03';
+
+/* Damga json() içinde: motorun HER yanıtı — engine/test/broadcast ve hata
+   dalları dahil — sürümü taşır. Tek yere koymak, yeni bir dönüş yolu
+   eklendiğinde damganın unutulmasını imkânsız kılar. */
 const json = (obj: unknown, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  new Response(JSON.stringify(
+    (obj && typeof obj === 'object' && !Array.isArray(obj)) ? { ...obj, version: VERSION } : obj
+  ), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
 

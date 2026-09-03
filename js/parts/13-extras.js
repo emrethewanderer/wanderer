@@ -1,6 +1,6 @@
 import { S } from '../state.js';
 import { AI_MODES } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, SecureStorage, AnimUtils, escapeHTML, showToast, localISODate } from './00a-infrastructure.js';
+import { STORAGE_KEYS, SafeStorage, SecureStorage, AnimUtils, escapeHTML, showToast, localISODate, localDayKey } from './00a-infrastructure.js';
 import { t, getCurrentLanguage } from './15-i18n.js';
 import { dp, dpAll, p } from './16-i18n-prompts.js';
 import { switchViewHooks } from './03-auth-shell.js';
@@ -78,11 +78,11 @@ export function renderStreakBar() {
   for (let i = 6; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(now.getDate() - i);
-    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const key = localDayKey(d);
     const hasMsg = allMsgs.some(m => {
       if (!m.created_at || m.role !== 'user') return false;
       const md = new Date(m.created_at);
-      return `${md.getFullYear()}-${md.getMonth()}-${md.getDate()}` === key;
+      return localDayKey(md) === key;
     });
     days.push({ isToday: i === 0, hasMsg });
   }

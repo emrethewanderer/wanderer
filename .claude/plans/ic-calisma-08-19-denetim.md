@@ -217,6 +217,12 @@ söylemesi** gerekir. Bu, İç Çalışma 08 · FAZ 6'nın kurduğu sözleşmeni
 **Değişen:** `js/parts/13q-gozlemevi.js`
 
 ### FAZ 6 — Üç küçük borç · 🅢 · ~1 oturum
+Devir dışı: bu faz 🅢 ve `uygulayici`ya AÇILDI — ama çağrı Sonnet oturum
+kotasına takılarak düştü (rate_limit, 20:10 UTC sıfırlanma). Devir kanalı
+mekanik olarak kapalıyken kapı bekletilemez; §10.5'in dersi burada da geçerli:
+bir kuralın uygulanmadığını görünce önce o ortamda **mümkün** olup olmadığına
+bak. Parent uyguladı, denetim kendi üstünde kaldı — bu bir sapmadır ve
+raporda öyle geçer.
 - `parseDayKey` → `00a`'ya tek okuyucu (iki formatı bilir; **göç değil**)
 - sessiz saat → `10x` hardcode'u satır değerine devreder (şema hazır)
 - `VERSION` sabiti → `send-push/index.ts` + yanıtta damga
@@ -411,5 +417,42 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
      barları) **kabul edildi** — uydurulmuş cümle değil ham veri, mevcut
      `gz-bar-row` kalıbıyla.
 
-**İlk hamle (FAZ 6):** `00a`'ya `parseDayKey` (iki formatı bilen tek okuyucu),
-`10x:387-388`'in sessiz saat ezmesini durdur, `send-push`'a `VERSION` sabiti.
+- **FAZ 6 · BİTTİ** (2026-09-03, parent uyguladı — yukarıdaki devir notu).
+  Kapı: build ✅ (713KB) · 19 dosya / 379 test ✅ · tarayıcı ✅ (exit 0,
+  "Konsol temiz.").
+
+  1. **`parseDayKey`** → `00a:332`. Kritik tasarım kararı: **otomatik ayrım
+     yapmaz, bayrak ister.** `'2026-11-25'` iki biçimde de geçerlidir ama
+     farklı ayı gösterir (0-tabanlı: Aralık · 1-tabanlı: Kasım); pad'e bakmak
+     kurtarmaz çünkü ikisi de iki hanelidir. Sessizce tahmin eden bir okuyucu
+     yılın çoğunda doğru, bazı günlerinde bir ay şaşardı — ve o hata Wrapped'in
+     "aktif gün" sayısında görünmeden yaşardı. `tests/gun-anahtari-okuyucu.test.js`
+     bu tuzağı adıyla kilitler (aynı string, iki bayrak, iki ay).
+     **Üç okuyucu bağlandı:** `13j:113` · `10u:138` · `12:42` (`w3DayKeyToDate`,
+     "daima Date döner" sözleşmesi korunarak).
+  2. **On dört ikiz gövde tek çağrıya indi.** Keşif planı aştı: `localDayKey`'in
+     ifadesi yedi değil **on dört** yerde kopyalanmıştı (`03`×4 · `05`×1 ·
+     `11`×6 · `12`×1 · `13-extras`×2). Hepsi birebir aynıydı, hepsi
+     `localDayKey(d)` oldu. Bu bir davranış değişikliği değil; kopya, sessizce
+     ayrışabilen bir sözleşmedir ve oda 10·B'nin asıl köküydü.
+  3. **Sessiz saat ezmesi durdu** → `10x:388-399`. Mesele "hardcode" değildi:
+     payload `quiet_start: 23` yazdığı sürece kullanıcının tablodaki tercihi
+     HER senkronda geri eziliyordu. Artık anahtar yalnız gerçek tercih varsa
+     gönderilir (`_sessizSaatTercihi`, SafeStorage per-uid); yoksa upsert onu
+     yazmaz ve DB varsayılanı/mevcut değer korunur. **Ayarlar yüzeyi bu fazın
+     işi değildi** (microcopy yargısı) — o gelene dek davranış bugünküyle
+     birebir aynı, fark şu ki artık ezilmiyor. Mevcut test `quiet_start === 23`
+     diye kilitliyordu, yani kaldırılan davranışın kendisini; sözleşmesi
+     düzeltildi ve dört yeni test eklendi.
+  4. **`VERSION` damgası** → `send-push/index.ts:43`. `json()` yardımcısının
+     içine kondu: motorun HER yanıtı (engine/test/broadcast + hata dalları)
+     sürümü taşır, yeni bir dönüş yolu eklendiğinde damga unutulamaz.
+
+  **Bilerek dokunulmayanlar:** `12:58` ve `12:190`'daki elle parse — ikisi de
+  gün sınırı aritmetiği için ham bileşen ister (`new Date(y,m,d)` ve
+  `new Date(y,m,d+1)`); `parseDayKey` bunu ifade edemez ve DST'de gün ekleme
+  milisaniyeyle yapılamaz. **Keşif notu:** `13j-wrapped.js`'in hiç test dosyası
+  yok — bu turda eklenmedi, ayrı bir işin konusu.
+
+**İlk hamle (FAZ 7):** `js/parts/10F-on-suzgec.js` (`sz` öneki) — PII deseni +
+kelime listesi; iki yüzeye takılır (`10C:150` yorumlar, `10A:1303` kart metni).
