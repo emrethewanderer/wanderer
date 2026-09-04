@@ -738,7 +738,43 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   **ELLE bekleyen:** `052` migration + `send-push` redeploy. İkisi
   yapılmadan hiçbir şey yazılmaz ve kart bugünkü dürüst notunu korur.
 
-**İlk hamle (FAZ 6):** `migrations/053_saklama_politikasi.sql` —
+- **FAZ 6 · BİTTİ** (2026-09-04). `uygulayici`da (🅢), Durak yok.
+  `053` üç adımı K3'ün sırasıyla taşıyor: agregat tablo → geri doldurma →
+  `usage_events_prune(90)` (önce taşır, sonra siler, aynı transaction).
+  Cron'a bağlanmadı ve bunun ELLE bir karar olduğu dosyada yazılı.
+  `admin_usage_report` adı dosyada hiç geçmiyor — kapı bunu ölçüyor.
+
+  **Ajanın kendi keşfi (planda yoktu, iyi bir mühendislik kararı):** cutoff
+  **saat değil GÜN** bazlı. Saat bazlı bir cutoff bir günü iki `prune()`
+  çağrısı arasında bölebilir ve REPLACE semantiği ilk yarının sayısını
+  sessizce silerdi. Gün bazlı filtre bunu yapısal olarak imkânsız kılıyor:
+  bir gün ya tamamen altındadır ya tamamen üstünde.
+
+  **Denetim (parent · Opus) — bir kırık bulundu ve kapatıldı.** Geri
+  doldurma **bugünü de** kapsıyor, yani agregat yakın günler için bir satır
+  yazıyor ama o gün henüz bitmemiş: akşam gelen olaylar oraya yansımıyor ve
+  satır ancak o gün cutoff'un altına düştüğünde düzeliyor. Aradaki pencerede
+  satır **durur ama eksiktir**. Bu bir kırık değil bir sözleşme — kırık,
+  sözleşmenin **yazılmamış** olmasıydı: yazılmasa bir gün biri o satırı
+  "günün toplamı" diye okur ve **ölçülmüş görünen eksik bir sayı** basardı,
+  §6.10'un en sinsi hâli. Dosyaya `OKUMA SÖZLEŞMESİ` bloğu girdi (ham satırı
+  duran gün için `usage_events`, durmayan gün için agregat; çakışmada otorite
+  ham taraf) ve iki test onu kilitledi.
+  Küçük bir yan bulgu: kendi yorumum `admin_usage_report` adını anınca kapı
+  kırmızıya döndü — kapı haklıydı ve dosyanın zaten bir dili vardı
+  ("Gözlemevi'nin 051'de kurulan rapor RPC'si"); yoruma değil, kapıya uydum.
+
+  Kapı: build ✅ · hedefli süit ✅ 19/19 · `kapi:genel` ✅ 339/339 ·
+  tarayıcı **gerekçeli** geçildi (`js/`/`css/`/`_src.html` değişmedi).
+  **ELLE bekleyen:** `053` migration'ı + periyodik `usage_events_prune(90)`
+  koşumu (pg_cron kurulu değil, bilinçli sınır).
+
+**İlk hamle (FAZ 7):** `migrations/054_riza_defteri.sql` —
+`hukuk_kabul(user_id, surum, kabul_at)` + RLS (sahibi okur/yazar);
+`03-auth-shell.js` kayıt anında yazar. `bulten_izin_surum` KORUNUR — o ayrı
+bir rızadır ve bu defter onun yerine geçmez. HK_VERSION'a DOKUNULMAZ (K4).
+
+**Eski İlk hamle (FAZ 6, tamamlandı):** `migrations/053_saklama_politikasi.sql` —
 `usage_events_daily` agregat tablosu → geri doldurma → `usage_events_prune()`.
 Sıra K3'ün kendisidir: ham satır silinmeden önce agregat dolmalı.
 `admin_usage_report`'a DOKUNULMAZ.
