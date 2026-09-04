@@ -1,6 +1,6 @@
 /**
- * BÜYÜK-İ TUZAĞI KAPISI — `dp`/`dpAll` tüketicilerinin tamamı
- * (plan: .claude/plans/ic-calisma-kalan-fazlar.md, FAZ 2c)
+ * BÜYÜK-İ TUZAĞI KAPISI — `dp`/`dpAll` tüketicilerinin tamamı + tek eşleştirici
+ * (plan: .claude/plans/ic-calisma-kalan-fazlar.md, FAZ 2c/2e)
  *
  * JS'in `/i` bayrağı Türkçenin noktalı İ'sini (U+0130) küçük i'ye
  * KATLAMAZ — desenler küçük harfle yazılı olduğu için, cümlesine büyük İ
@@ -25,15 +25,25 @@
  * (ham `dp()` + `.test()`) yakalamanın gerçekten BAŞARISIZ olduğunu, ham
  * `.test()` taramasının hem gerçek ihlali yakaladığını hem de `dpTest`
  * üzerinden geçen satırı ihlal SAYMADIĞINI gösterir.
+ *
+ * Dördüncü blok (FAZ 2e) tuzağın `dp()` DIŞINDAKİ hâlini kapatır: `09a`,
+ * `09b`, `10-features-w2`, `01-prompts-modes` kendi Türkçe desen listelerini
+ * taşıyor ve onlar da `dp()`'e hiç uğramadan `liste.some(r => r.test(x))`
+ * kalıbıyla çalışıyordu — aynı tuzak, başka bir sözlük. Kök çözüm `reTest`
+ * (16-i18n-prompts.js) — desen nerede yaşarsa yaşasın TEK eşleştirici.
+ * Kapı burada "ham `dp(`/`dpAll(`" değil, ham `X.some(ad => ad.test(` KALIBI
+ * arar; `16-i18n-prompts.js` yine İSTİSNA (reTest'in kendi gövdesi).
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 import { S } from '../js/state.js';
-import { dp, dpTest, dpAllTest, dpNormalizeKonum } from '../js/parts/16-i18n-prompts.js';
+import { dp, dpTest, dpAllTest, dpNormalizeKonum, reTest } from '../js/parts/16-i18n-prompts.js';
 import { dgNabiz } from '../js/parts/13D-duygu-motoru.js';
 import { DETECT_I18N } from '../js/parts/16c-i18n-detect-dict.js';
+import { _DEFENSE_PATTERNS, p4DetectExplicitFeedback } from '../js/parts/09a-personalization-engine.js';
+import { dfDetectKalpZihinState, dfAnalyzeChoices, dfGetChoiceStats } from '../js/parts/09b-depth-foundations.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -250,5 +260,138 @@ describe('büyük-İ tuzağı kapısı — kapının kendisi çalışıyor', () 
     const hamSonuc = dp('detect.progress').some((r) => r.test(buyukIli));
     expect(hamSonuc).toBe(false); // büyük-İ normalize'siz KAÇAR
     expect(dpTest('detect.progress', buyukIli)).toBe(true); // dpTest YAKALAR
+  });
+});
+
+/* ─── 4. TEK EŞLEŞTİRİCİ — `reTest` ÇAĞRI YERLERİ (FAZ 2e) ──────────────
+   `09a`/`09b`/`10-features-w2`/`01-prompts-modes` kendi desen listelerini
+   taşır ve `dp()`'e hiç uğramaz — yukarıdaki 2. bölüm bu dosyaları görmez.
+   Burada aranan kalıp DAHA GENİŞTİR: `dp(`/`dpAll(` çağrısına bağlı değil,
+   `LISTE.some(ad => ad.test(...))` biçiminin KENDİSİDİR — lambda
+   parametresi kendi üstünde `.test(` çağırıyorsa (backreference), desen
+   normalize'siz eşleştiriliyor demektir. `13D-duygu-motoru.js:173`
+   (`sonra.some(k => _OLUMSUZ_EK_RE.test(k))`) bu kalıba GİRMEZ — orada
+   sabit olan TEK bir regex, değişen ise adaylar listesidir (rolleri ters);
+   kapı bu satırı bilerek ihlal SAYMAZ. */
+
+/** Bir satırda ham `LISTE.some(ad => ad.test(...))` kalıbı var mı — lambda
+ *  parametresi (`ad`) AYNI ZAMANDA `.test(`'in ALICISIYSA (backreference),
+ *  desen listesi normalize'siz eşleştiriliyor demektir. `16-i18n-prompts.js`
+ *  İSTİSNA: `reTest`'in KENDİ gövdesi normalize'i uygular; tek kaynak motor
+ *  orada durur, kapı kendi tanımını ihlal saymaz. */
+const _HAM_SOME_RE = /\.some\(\s*([A-Za-z_$][\w$]*)\s*=>\s*\1\.test\(/;
+function _hamSomeTestSatirlari(kaynak) {
+  const sonuc = [];
+  kaynak.split('\n').forEach((satir, i) => {
+    if (_HAM_SOME_RE.test(satir)) sonuc.push({ satirNo: i + 1, satir: satir.trim() });
+  });
+  return sonuc;
+}
+
+describe('büyük-İ tuzağı kapısı — ham LISTE.some(ad => ad.test()) tabanı (sıfır olmalı)', () => {
+  it('js/ altında ham .some(ad => ad.test()) kalıbı kullanılmıyor (16-i18n-prompts.js hariç)', () => {
+    const dosyalar = _jsDosyalari(join(ROOT, 'js'));
+    const ihlaller = [];
+    for (const dosya of dosyalar) {
+      if (dosya.endsWith('16-i18n-prompts.js')) continue; // reTest'in kendi gövdesi
+      const kaynak = readFileSync(dosya, 'utf8');
+      for (const h of _hamSomeTestSatirlari(kaynak)) {
+        ihlaller.push(`${relative(ROOT, dosya)}:${h.satirNo}  ${h.satir}`);
+      }
+    }
+    if (ihlaller.length) {
+      throw new Error(
+        `${ihlaller.length} satır ham LISTE.some(ad => ad.test(...)) kullanıyor:\n` +
+        ihlaller.join('\n') +
+        '\n\nreTest(desenler, text) kullan (16-i18n-prompts.js).'
+      );
+    }
+    expect(ihlaller).toEqual([]);
+  });
+});
+
+describe('büyük-İ tuzağı kapısı — 4. blok kapının kendisi çalışıyor (§10.5)', () => {
+  it('ham .some(ad => ad.test()) tarayıcısı gerçek ihlali yakalıyor', () => {
+    const ornek = '  return _SIGNALS.some(r => r.test(text));';
+    expect(_hamSomeTestSatirlari(ornek)).toHaveLength(1);
+  });
+
+  it('reTest(...) üzerinden geçen satır ihlal SAYILMAZ', () => {
+    const ornek = '  return reTest(_SIGNALS, text);';
+    expect(_hamSomeTestSatirlari(ornek)).toHaveLength(0);
+  });
+
+  it('rolleri TERS olan .some() (13D:173 emsali) ihlal SAYILMAZ', () => {
+    // Burada sabit olan regex, değişen adaylar listesidir — reTest'in
+    // çözdüğü "LISTE.some(desen => desen.test(METIN))" şeklinin tersi.
+    const ornek = "  const ekVar = sonra.some(k => _OLUMSUZ_EK_RE.test(k));";
+    expect(_hamSomeTestSatirlari(ornek)).toHaveLength(0);
+  });
+});
+
+/* ─── 4b. GÖÇÜN DAVRANIŞSAL KİLİDİ — gerçek fonksiyon çağrısı ────────────
+   Kaynak taraması bir satırın BİÇİMİNİ doğrular, DAVRANIŞINI değil. Burada
+   gerçek dışa açık fonksiyonlar/sabitler büyük-İ'li girdiyle çağrılır —
+   fix öncesi üçü de ham `.some()` üzerinden `false`/`0` dönerdi. */
+/* ─── ÜÇÜNCÜ KALIP — for…of + .test() (FAZ 2e denetimi) ────────────────
+   `reTest` `LISTE.some(r => r.test(t))` biçimini kapattı; ama aynı tuzağın
+   üçüncü bir kod şekli var: deseni tek tek gezip eşleşeni kullanan döngü.
+   İmza `reTest`e uymaz (döngü `pat`'a ya da `break`'e ihtiyaç duyar), o
+   yüzden çözüm HEDEFİ normalize etmek oldu. Kaynak taramasıyla güvenilir
+   biçimde yakalanamayacağı için kapı DAVRANIŞSALDIR.
+   Buradaki ilk test bu sprintin tez cümlesidir: uygulama "yeni kişi"
+   seçimini tanımak için var ve `/ilk kez/i` deseni yüzünden tam o cümleyi
+   kaçırıyordu. */
+describe('büyük-İ tuzağı kapısı — üçüncü kalıp: for…of döngüleri (davranışsal)', () => {
+  /* ÖLÇEBİLDİĞİMİZ ve ÖLÇEMEDİĞİMİZ — açıkça yazılıyor (§6.10'un test
+     karşılığı). `dfGetChoiceStats()` yalnız {count, newRatio} döndürür;
+     seçimin TÜRÜNÜ ve kaydedilen kanıt metnini dışa açmaz. Yalnız test
+     görsün diye yeni bir export açmadım — bir kapı, ölçtüğü yüzeyi
+     kendisi için genişletmemeli. Bu yüzden burada kanıtlanan şey
+     "sayaç arttı", yani cümle TANINDI; kanıt metninin orijinalden
+     kesildiği ise `dfAnalyzeChoices`'ın kendi satırında görünür
+     (`text.substring(0,100)` — normalize edilen `hedef` DEĞİL) ve
+     konum-duyarlı yolun aynı sözleşmesi 13D testinde ölçülüyor. */
+  const sayi = () => dfGetChoiceStats().count;
+
+  it('"İlk kez söyledim." bir seçim olarak TANINIYOR (eskiden hiç sayılmıyordu)', () => {
+    S._currentLang = 'tr';
+    const once = sayi();
+    dfAnalyzeChoices('İlk kez söyledim ona, korkmadan.');
+    expect(sayi()).toBe(once + 1);
+  });
+
+  it('küçük i biçimi zaten çalışıyordu — düzeltme onu bozmadı', () => {
+    S._currentLang = 'tr';
+    const once = sayi();
+    dfAnalyzeChoices('ilk kez söyledim ona, korkmadan.');
+    expect(sayi()).toBe(once + 1);
+  });
+
+  it('test boş değil — eşleşmeyen cümle sayacı ARTIRMIYOR', () => {
+    // Negatif kontrol: sayaç her cümlede artsaydı yukarıdaki ikisi de
+    // hiçbir şey kanıtlamazdı (vakumla geçen kapı, kapı değildir).
+    S._currentLang = 'tr';
+    const once = sayi();
+    dfAnalyzeChoices('Bugün hava çok güzel, yürüyüşe çıktım.');
+    expect(sayi()).toBe(once);
+  });
+});
+
+describe('büyük-İ tuzağı kapısı — reTest göçünün davranışsal kilidi (FAZ 2e)', () => {
+  it('09a: _DEFENSE_PATTERNS.denial büyük-İ ile başlayan inkârı yakalıyor', () => {
+    // "İyiyim, teşekkürler." — eskiden ham .some(r => r.test()) bunu
+    // KAÇIRIYORDU (İ, /i/ bayrağıyla küçük i'ye katlanmıyor).
+    expect(reTest(_DEFENSE_PATTERNS.denial, 'İyiyim, teşekkürler.')).toBe(true);
+  });
+
+  it('09b: dfDetectKalpZihinState büyük-İ ile başlayan "kalp konuşuyor" sinyalini yakalıyor', () => {
+    expect(dfDetectKalpZihinState('İçimde bir bilme var.')).toBe('kalp_speaking');
+  });
+
+  it('09a: p4DetectExplicitFeedback büyük-İ ile başlayan olumlu geri bildirimi yakalıyor', () => {
+    // "İyi geldi bu." — _EXPLICIT_FEEDBACK_POSITIVE'deki /iyi\s+geldi/i
+    // eskiden ham .some() üzerinden hiç eşleşmiyordu, skor 0 kalırdı.
+    expect(p4DetectExplicitFeedback('İyi geldi bu.')).toBe(5);
   });
 });

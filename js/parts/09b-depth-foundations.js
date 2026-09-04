@@ -2,7 +2,7 @@ import { S } from '../state.js';
 import { sb, EDGE_FN_BASE, SUMMARY_MODEL } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, showToast, localISODate, SecureStorage } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
-import { p, dp, reTest } from './16-i18n-prompts.js';
+import { p, dp, reTest, dpNormalize } from './16-i18n-prompts.js';
 import { callLLM } from './04-llm-hero-history.js';
 import { getSuggestedArchetype } from './12a-archetypes.js';
 
@@ -1300,16 +1300,22 @@ export function dfAnalyzeBeliefs(text) {
   const lang = S._currentLang === 'en' ? 'en' : 'tr';
   const now = new Date().toISOString();
   let detected = [];
+  /* Büyük-İ tuzağı, ÜÇÜNCÜ kalıp (FAZ 2e denetimi, 2026-09-04). `reTest`
+     `LISTE.some(...)` biçimini kapattı; bu döngüler ise deseni tek tek
+     gezer ve eşleşeni kullanır — imza uymaz, ama tuzak aynıdır. Çözüm
+     döngüyü bozmak değil HEDEFİ normalize etmek: eşleşme normalize metinde
+     aranır, kaydedilen şey (burada `pat.belief`) değişmez. */
+  const hedef = dpNormalize(text);
 
   // Sınırlandırıcı inançları tara
   for (const pat of _BELIEF_PATTERNS.limiting[lang]) {
-    if (pat.regex.test(text)) {
+    if (pat.regex.test(hedef)) {
       detected.push({ text: pat.belief, type: 'limiting' });
     }
   }
   // Güçlendirici inançları tara
   for (const pat of _BELIEF_PATTERNS.empowering[lang]) {
-    if (pat.regex.test(text)) {
+    if (pat.regex.test(hedef)) {
       detected.push({ text: pat.belief, type: 'empowering' });
     }
   }
@@ -1412,15 +1418,23 @@ export function dfAnalyzeChoices(text) {
   const today = localISODate();          // yerel gün anahtarı — günlük gruplama
   let detected = [];
 
+  /* Büyük-İ tuzağı (FAZ 2e denetimi): eşleşme normalize metinde aranır ama
+     KAYDEDİLEN kanıt orijinal cümledir (§6.10). Bu fonksiyon uygulamanın en
+     ağır anlarından birini tanır — "eski kişi" mi "yeni kişi" mi seçildi —
+     ve `/ilk kez/i` deseni yüzünden **"İlk kez söyledim."** cümlesi bugüne
+     dek hiç sayılmıyordu: uygulama, var olma sebebi olan anı tam da o an
+     fark etmiyordu. */
+  const hedef = dpNormalize(text);
+
   for (const pat of _CHOICE_PATTERNS.old_person[lang]) {
-    if (pat.test(text)) {
+    if (pat.test(hedef)) {
       detected.push({ text: text.substring(0, 100), type: 'old_person', date: now });
       break; // Bir mesajda bir tip yeter
     }
   }
   if (!detected.length) {
     for (const pat of _CHOICE_PATTERNS.new_person[lang]) {
-      if (pat.test(text)) {
+      if (pat.test(hedef)) {
         detected.push({ text: text.substring(0, 100), type: 'new_person', date: now });
         break;
       }
@@ -1771,11 +1785,12 @@ const _BOLLUK_FINANCIAL_SIGNALS = {
 // Mevcut bolluk score'una finansal/mesleki sinyaller de eklensin
 function dfAnalyzeFinancialAbundance(text) {
   const obj = S._foundationsProfile.bolluk;
+  const hedef = dpNormalize(text);   // büyük-İ tuzağı, üçüncü kalıp (FAZ 2e denetimi)
   for (const r of _BOLLUK_FINANCIAL_SIGNALS.low) {
-    if (r.test(text)) { _dfUpdateScore(obj, true, text.slice(0, 60)); break; }
+    if (r.test(hedef)) { _dfUpdateScore(obj, true, text.slice(0, 60)); break; }
   }
   for (const r of _BOLLUK_FINANCIAL_SIGNALS.high) {
-    if (r.test(text)) { _dfUpdateScore(obj, false, text.slice(0, 60)); break; }
+    if (r.test(hedef)) { _dfUpdateScore(obj, false, text.slice(0, 60)); break; }
   }
 }
 

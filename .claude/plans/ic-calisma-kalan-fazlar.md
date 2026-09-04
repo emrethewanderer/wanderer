@@ -588,6 +588,116 @@ sprintin kapsamı değil. Sessizce düşmesin diye burada duruyor.
   Kapı: build ✅ · hedefli süit ✅ 38/38 (i18n paritesi + aria dahil) ·
   `kapi:genel` ✅ 329/329 · `dogrula` ✅ exit 0 "Konsol temiz."
 
+- **FAZ 4 denetimi (Sonnet) · KAPANDI** (2026-09-04). İlk deneme kota
+  duvarına çarpıp yarıda öldü (§3.3'ün yeni "denetim borcu" maddesi tam bu
+  vakadan doğdu); ikinci deneme tamamlandı. Dört iddia canlı koşuldu ve
+  dördü de temiz: geçersiz girdi altı kenar durumda hiçbir şey yazmıyor ·
+  seçenekler üç render'da katlanmıyor · varsayılan şemayla birebir ·
+  ve en önemlisi **kapsam daraltmasının gerekçesi kaynağa karşı doğru**
+  (`send-push:439,445` `user_engagement`'ı okuyor, tip kolonu yok). Bir işi
+  YAPMAMAK için verilen gerekçe yanlış olsaydı, işi sessizce düşürmekten
+  kötü olurdu.
+  **Tek bulgu — register:** EN `bld.quiet.lead` *"leave you alone"* TR'nin
+  *"sana dokunmayalım"* sıcaklığını taşımıyordu; deyim uygulamanın hiçbir
+  yerinde kullanılmıyor (kurulu bir ses değil) ve İngilizcede çoğunlukla
+  itici bir bağlamda duyuluyor. Ayrıca TR'nin **"Gece"**si EN'de hiç yoktu.
+  **Düzeltildi:** *"At night, after what hour should we let you be?"*
+
+- **FAZ 2e · BİTTİ** (2026-09-04). `uygulayici`da (🅢) + parent'ın denetimi.
+  51 çağrının 50'si `reTest`'e geçti (`09b`×31 · `09a`×17 · `10-features-w2` ·
+  `01-prompts-modes`); kapı `tests/i-tuzagi-kapisi.test.js`'e girdi ve
+  tarayıcı **geri-referanslı** yazıldı — `X.some(ad => ad.test(` kalıbını
+  ararken `ad`'ın aynı olmasını şart koşuyor.
+
+  **Denetim (parent · Opus) — üç Durak, üçü de karara bağlandı:**
+  1. `13D:173` `sonra.some(k => _OLUMSUZ_EK_RE.test(k))` **bilerek
+     bırakıldı ve doğru bırakıldı**: roller ters (tek desen, çok belirteç),
+     `reTest`'in imzası uymuyor. Ayrıca `_OLUMSUZ_EK_RE`'nin bütün
+     alternatifleri `m` ile başlıyor — orada İ tuzağı zaten yok. Kapı onu
+     ihlal SAYMAYAN bir testle mühürledi. Benim ilk gevşek grep'im bu satırı
+     ihlal sanmıştı; ajanın tarayıcısı benden isabetliydi.
+  2. **ÜÇÜNCÜ KALIP bulundu ve bu turda kapatıldı.** Planın kendi tez
+     örneği — `/ilk kez/i`, "yeni kişi" seçimi — bu fazla düzelmiyordu:
+     gerçek tüketici `.some()` değil `for (const pat of …) { if (pat.test(…)) }`
+     kullanıyor. Yani **planın giriş paragrafı fazla söz vermişti** ve ajan
+     bunu Durak olarak geri döndürdü. Üç fonksiyon düzeltildi
+     (`dfAnalyzeBeliefs` · `dfAnalyzeChoices` · `dfAnalyzeFinancialAbundance`):
+     döngü bozulmadı, **hedef** normalize edildi, kaydedilen kanıt orijinal
+     kaldı. Kapı davranışsal — kaynak taramasıyla güvenilir yakalanamaz.
+  3. Aşağıdaki süreç hatası.
+
+  Kapı: build ✅ · hedefli süit ✅ 561/561 (17 dosya) ·
+  `kapi:genel` ✅ 339/339 · `dogrula` ✅ exit 0 "Konsol temiz."
+
+## Opus öz-denetimi — 2026-09-04 · sprint ortası (Emre'nin talebi)
+
+Emre *"buraya kadar yaptıklarını analiz edip sorunları giderip geliştirmeleri
+yapıp üstelik çalışmayı en iyileyip continue"* dedi; §3.7 bu hâlde tek başına
+koşar ve kapsamı Emre'nin adlandırdığı iştir — bu oturumun tamamı.
+**Plan KAPANMADI**, kapanış kaydı ayrıca yazılacak.
+
+**Plana karşı.** On dokuz fazın altısı teslim edildi (1 · 2 · 2c · 2d · 3 · 4),
+biri bu denetimden doğdu ve teslim edildi (2e). Her fazın **Yeni:/Değişen:**
+listesi ağaca karşı okundu. Sapmalar: (a) FAZ 4'ün denetimi kotayla yarıda
+kaldı, borç işaretlendi ve kapandı; (b) FAZ 2d parent'ta uygulandı,
+`Devir dışı:` gerekçesi yazılı; (c) FAZ 4'ün kapsamı daraltıldı, gerekçesi
+denetimde kaynağa karşı doğrulandı; (d) **planın FAZ 2e giriş paragrafı
+fazla söz verdi** — düzeltilmeyecek bir örneği düzelecek gibi gösterdi;
+ajan yakaladı, örnek bu turda gerçekten düzeltildi.
+
+**Koda karşı.** Kapıların görmediği yer gerçekten vardı ve iki kez bulundu:
+büyük-İ tuzağı `dp()` dışında da yaşıyordu (FAZ 2e), ve `.some()` dışında
+üçüncü bir kod şekli daha vardı (2e denetimi). Tarama 16 aday döndürdü,
+onu yanlış pozitifti (CSS sınıfı, İngilizce sözcük) ve sayı şişirilmedi.
+Tek-kaynak motorun ikizi konusu **büyüdü ve kayıtta**: `09a`/`09b` kendi
+sözlüklerini taşıyor, `16c`'deki karşılıkları ölü. Bu turda birleştirilmedi
+— eşleştirme birleştirildi, sözlük değil.
+
+**Vizyona karşı.** Bu sprintin teze en yakın işi bir özellik değil bir
+**düzeltme**: uygulama, cümlesine büyük İ ile başlayan Türkçe kullanıcıyı
+sistematik olarak daha az tanıyordu — iyi-hâl beyanını okumuyor, atılımını
+saymıyor, ve en ağırı, **"İlk kez söyledim." diyen birini yeni-kişi seçimi
+saymıyordu.** Uygulamanın var olma sebebi tam da o anı görmek. Kart değil
+kaldıraç ölçüsü burada net. Register korundu; tek kayma EN'de bulundu ve
+düzeltildi (yukarıda). Sayaç dili yok, manevi register sekülerleşmedi.
+
+**Sürece karşı.** İki kural boşluğu bulundu, ikisi de **protokole** yazıldı:
+§6.6'ya **üçüncü basamak** (kapıya bağlanamayan kural yeniden keşfedilmeyi
+bekler; çıkış yolu kodun biçimini kapı kurulabilecek hâle getirmek) ve
+§3.3'e **denetim borcu** (karşı model erişilemezse denetim atlanmaz,
+ertelenir ve işaretlenir; ve önce mekanizmayı yokla). Ayrıca §3.7'nin
+dördüncü ekseni artık üç soruyla başlıyor.
+
+**Bulgular.** 6 — düzeltildi 5 · plana taşındı 1 · reddedildi 0
+- `js/parts/16c…` üstünden 12 `dp` anahtarı — İ tuzağı — **düzeltildi** (FAZ 2c)
+- `13D` · `00-config` konum-duyarlı tüketiciler — kanıt kayması riski — **düzeltildi** (FAZ 2d)
+- `09a`/`09b`/`10-features-w2` 50 çağrı — İ tuzağı, `.some()` biçimi — **düzeltildi** (FAZ 2e)
+- `09b:1306,1416,1775` — İ tuzağı, `for…of` biçimi — **düzeltildi** (2e denetimi)
+- `js/parts/15e-i18n-dict-en.js:2959` — register kayması — **düzeltildi**
+- `09a`/`09b` paralel sözlükleri (`16c` karşılıkları ölü) — §1.3 ikiz motor — **plana taşındı** (`### Taşınan Durak`)
+
+**Sürecin kendi hatası — ve bu turun en dürüst kaydı.** `157a372` commit'i
+"Protokole üçüncü basamak…" başlığını taşıyor ama **FAZ 2e'nin 108 satırlık
+kaynak göçünü de içeriyor**: `git add -A` çalışırken ajan aynı ağaca
+yazıyordu ve commit onu sessizce süpürdü. Üç ayrı kırık: (1) commit mesajı
+taşıdığı işi anlatmıyor, (2) o mesajdaki "kapı yeşil" iddiası göçü
+içermeyen bir ağaçta koşulmuştu, (3) ajanın işi bitmeden commit'lendi.
+Kayıtla gerçek ayrıştı (§6.2) — ve bunu Emre'ye bir mesaj önce hatırlattığım
+kuralın (§3.5 madde 2: *koşulan ağaç, commit'lenen ağaç olmalı*) kendisiydi.
+Geçmiş yeniden yazılmadı: dal push'lu ve CI o commit'te yeşil koştu; kayıt
+düzeltmesi silmekle değil **söylemekle** yapılır.
+**Kuralı:** bir ajan koşarken `git add -A` yapılmaz. Ya ajan biter, ya
+yalnız kendi dosyalarını `git add <yol>` ile stage'lersin. Bu, kapısı
+kurulabilir bir kural değil (commit anında hangi ajanın koştuğunu test
+göremez) — ama §6.6'nın üçüncü basamağının kendi sınırıdır ve o sınır da
+yazılı olmalı: her kural ölçülemez, ölçülemeyen kural belgeye yazılır ve
+**yargıya bırakılanlar** listesine girer.
+
+**Bakılmayan.** Prod durumu (Supabase Dashboard) hiçbir eksende ölçülmedi ve
+ölçülemez. `09a`/`09b`'nin sözlüklerinin `16c` ile ne kadar örtüştüğü
+sayılmadı — ikiz motor bulgusu adlandırıldı, boyu ölçülmedi. FAZ 5–17
+henüz açılmadı; bu kayıt onları kapsamaz.
+
 **İlk hamle (FAZ 5):** `migrations/052`'ye `notif_mark_clicked(p_id)`
 SECURITY DEFINER RPC'si (yalnız kendi satırının `clicked_at`'i, yalnız
 NULL'ken); `send-push` payload'ına `nid`; `sw.js` postMessage'ına `nid`;
