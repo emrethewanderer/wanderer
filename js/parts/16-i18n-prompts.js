@@ -169,18 +169,43 @@ export function dpNormalizeKonum(text) {
   return String(text == null ? '' : text).replace(/İ/g, 'i');
 }
 
+/* TEK EŞLEŞTİRİCİ — desen nerede yaşarsa yaşasın (FAZ 2e).
+   Büyük-İ tuzağı `dp()` sözlüğüne özgü değil: `09a`, `09b`, `10-features-w2`
+   gibi modüller KENDİ Türkçe desen listelerini taşıyor ve onlar da
+   `liste.some(r => r.test(metin))` kalıbıyla çalışıyor — yani aynı tuzak,
+   aynı biçim, başka bir sözlük. Sözlükleri birleştirmek ayrı ve büyük bir
+   karardır (§1.3, plana taşındı); ama EŞLEŞTİRMEYİ birleştirmek bugün
+   yapılabilir ve tuzağı kökten kapatır.
+   Kazancı ikinci ve daha kalıcı: kural artık KARARI VERİLEBİLİR bir kapıya
+   bağlanabiliyor. "Türkçe desenler İ-duyarlı olmalı" cümlesi statik olarak
+   sınanamaz (bir desenin kullanıcı metnine mi CSS sınıfına mı baktığını
+   kaynak söylemez); ama "ham `.some(r => r.test(...))` kullanılmaz" cümlesi
+   sınanır. Kapı: `tests/i-tuzagi-kapisi.test.js`.
+   `lastIndex` sıfırlanır: `/g` bayraklı bir desende `.test()` durum taşır ve
+   ikinci çağrı sessizce false döner — eski çağrı yerlerinde de vardı, burada
+   kapanıyor. */
+export function reTest(desenler, text) {
+  if (!desenler) return false;
+  const liste = Array.isArray(desenler) ? desenler : [desenler];
+  const t = dpNormalize(text);
+  return liste.some(r => {
+    try {
+      if (r.global || r.sticky) r.lastIndex = 0;
+      return r.test(t);
+    } catch (_) { return false; }
+  });
+}
+
 /** dp(key) desenlerinden biri (aktif dilin sözlüğü) normalize edilmiş
  *  metinle eşleşiyor mu — bkz. dpNormalize'in üstündeki büyük-İ notu. */
 export function dpTest(key, text) {
-  const t = dpNormalize(text);
-  return dp(key).some(r => { try { return r.test(t); } catch (_) { return false; } });
+  return reTest(dp(key), text);
 }
 
 /** dpAll(key) desenlerinden biri (dil-BAĞIMSIZ birleşim) normalize edilmiş
  *  metinle eşleşiyor mu — güvenlik taramaları için, bkz. dpAll(). */
 export function dpAllTest(key, text) {
-  const t = dpNormalize(text);
-  return dpAll(key).some(r => { try { return r.test(t); } catch (_) { return false; } });
+  return reTest(dpAll(key), text);
 }
 
 export function pArray(prefix, vars) {

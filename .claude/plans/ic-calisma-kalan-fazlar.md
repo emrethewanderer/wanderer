@@ -179,6 +179,37 @@ eder (ikinci bir kopya YAZILMAZ). Kapı adı `*-kapisi` olduğu için
 **Sınır:** desenlerin kendisi DEĞİŞMEZ — bu faz bir eşleştirme kırığını
 kapatır, sözlüğü genişletmez. Yeni desen yazmak ayrı bir karardır.
 
+### FAZ 2e — Tek eşleştirici: `reTest` · 🅢 · ~1 oturum
+> **Bu faz Opus öz-denetiminden doğdu** (§3.7, 2026-09-04). FAZ 2c `dp()`
+> tüketicilerini kapattı; öz-denetim aynı tuzağın `dp()` DIŞINDA da
+> yaşadığını ölçtü. `09a`, `09b`, `10-features-w2` kendi Türkçe desen
+> listelerini taşıyor ve altı desen bugün kullanıcı metnini kaçırıyor:
+> `09a:84` `/iyiyim/i` (inkâr) · `09a:47` `/istikrar/i` (değer) ·
+> `09a:934` `/istemiyorum/i` (direnç) · `09b:421` `/ilişki…/i` (alan) ·
+> **`09b:1399` `/ilk kez/i` — "yeni kişi" seçimi** · `10:957` `/itiraf/i`.
+>
+> Beşincisi doğrudan teze dokunuyor: uygulama **"İlk kez söyledim."** diyen
+> birini yeni-kişi seçimi olarak saymıyor — yani var olma sebebi olan anı
+> tam da o an fark etmiyor.
+
+**Asıl kazanç kuralın kapıya bağlanabilmesi.** "Türkçe desenler İ-duyarlı
+olmalı" cümlesi statik olarak SINANAMAZ — bir desenin kullanıcı metnine mi
+CSS sınıfına mı baktığını kaynak söylemez. Ama **"ham
+`liste.some(r => r.test(x))` kullanılmaz"** cümlesi sınanır. Kural
+undecidable olmaktan çıkıp decidable hâle gelir (§6.6'nın bir üst basamağı:
+kapısı olmayan kural tavsiyeye döner — kapısı KURULAMAYAN kural ise
+yeniden keşfedilmeyi bekler).
+
+**Değişen:** `js/parts/16-i18n-prompts.js` (`reTest` — parent ekledi,
+`dpTest`/`dpAllTest` onun üstüne bindi) · 51 çağrı yeri / 5 dosya
+(`09b`×31 · `09a`×17 · `13D` · `10-features-w2` · `01-prompts-modes`) ·
+`tests/i-tuzagi-kapisi.test.js` (yeni kapı bloğu)
+
+**Sınır:** sözlükler BİRLEŞTİRİLMEZ. `09a`/`09b`'nin kendi listelerinin
+`16c` ile ikizleşmesi (§1.3) ayrı ve büyük bir karardır ve
+`### Taşınan Durak` altında zaten kayıtlı. Bu faz eşleştirmeyi birleştirir,
+sözlüğü değil. Desenlere de dokunulmaz.
+
 ### FAZ 3 — Paylaşım türü kırılımı · 🅢 · ~0.5 oturum
 **Değişen:** `js/parts/13g-paylasim.js` (`shrShareStory` → `_shareCanvas`) ·
 yedi çağıran · `tests/` ilgili süit
@@ -322,7 +353,7 @@ Devir: 🅞 — "3 ✕ → bugün sus" eşiğinin sayısı ve sözleşmenin öz�
 (✕ "şimdi değil"dir) bozmayacak biçimi üründe kararlaşır. Ölçüm tarafı
 (Gözlemevi sorgusu) veriye bağlıdır; kural tarafı bugün yazılabilir.
 
-**Etiket sayımı:** 🅢 **10** (1·2c·3·5·6·7·9·11·13·15) · 🅞 **8**
+**Etiket sayımı:** 🅢 **11** (1·2c·2e·3·5·6·7·9·11·13·15) · 🅞 **8**
 (2·4·8·10·12·14·16·17) — oran kapısı (§4.4) geçildi: 🅞 ≤ 🅢. Beş faz
 bölünerek bu orana getirildi: gövde 🅢 önce gider, yargı çekirdeği 🅞 üstüne
 biner (1/2 · 7/8 · 9/10 · 11/12 · 13/14).
