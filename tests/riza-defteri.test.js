@@ -270,3 +270,35 @@ describe('hkKabulVarMi — bilinmeyen ≠ kabul etmedi', () => {
     expect(await hkKabulVarMi('')).toBeNull();
   });
 });
+
+
+/* Çapraz denetimin bulduğu şey kodda değil KOPYADAYDI: "yok" dalının metni
+   *"bu sürüm sen okuduktan sonra güncellendi"* diyordu — yani olmayan bir
+   okuma geçmişini iddia ediyordu. Defteri yazan tek yer kayıt akışıdır;
+   bugün hesabı olan herkes o satır eklenmeden önce geçti, yani onlarda
+   `kabul:false` "eskisini okudun" değil "hiç kayıt yok" demek. Kapı
+   cümlenin harfini değil İDDİASINI tutuyor: metin bir geçmiş anlatamaz. */
+describe('rıza durumu kopyası — olmayan bir geçmişi iddia etmez (§6.10)', () => {
+  const tr = readFileSync(join(ROOT, 'js/parts/15b-i18n-dict-core.js'), 'utf8');
+  const en = readFileSync(join(ROOT, 'js/parts/15e-i18n-dict-en.js'), 'utf8');
+  const satir = (src, key) => (src.match(new RegExp(`'${key}':\\s*'([^']*)'`)) || [])[1] || '';
+
+  it('TR "yok" metni bir okuma geçmişi varsaymıyor', () => {
+    const m = satir(tr, 'hk\\.kabul\\.yok');
+    expect(m).toBeTruthy();
+    expect(m).not.toMatch(/okuduktan sonra|güncellendi|değişti/i);
+    expect(m).toContain('kaydımız yok');
+  });
+
+  it('EN "yok" metni de varsaymıyor — çeviri TR ile aynı iddiayı taşır', () => {
+    const m = satir(en, 'hk\\.kabul\\.yok');
+    expect(m).toBeTruthy();
+    expect(m).not.toMatch(/after you (last )?read|changed since/i);
+    expect(m).toMatch(/no record/i);
+  });
+
+  it('hiçbir dilde suçlayıcı değil — "okumadın" demiyor', () => {
+    expect(satir(tr, 'hk\\.kabul\\.yok')).not.toMatch(/okumadın/i);
+    expect(satir(en, 'hk\\.kabul\\.yok')).not.toMatch(/you (have ?n't|did ?n't) read/i);
+  });
+});

@@ -292,7 +292,15 @@ export function mountHukukUI() {
     el.style.cssText = 'font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:4px;';
     el.textContent = durum.kabul
       ? t('hk.kabul.var', 'Bu sürümü okudun.')
-      : t('hk.kabul.yok', 'Bu sürüm sen okuduktan sonra güncellendi — değişeni okumak istersen yukarıdaki başlıklar açık.');
+      /* KAYIT YOKLUĞU BİR ÖYKÜ DEĞİLDİR (çapraz denetim bulgusu, Sonnet).
+         İlk metin "bu sürüm sen okuduktan SONRA güncellendi" diyordu — yani
+         olmayan bir okuma geçmişini iddia ediyordu. Defteri yazan tek yer
+         kayıt akışıdır (`03-auth-shell:732`); bugün hesabı olan HERKES o
+         satır eklenmeden önce geçti, yani onlarda `kabul:false` "eskisini
+         okudun" değil "hiç kayıt yok" demek. Fazın kendi gerekçesinin
+         kopyadaki tekrarı olurdu (§6.10): ölçülmemiş bir şeyi ölçülmüş gibi
+         anlatmak. Cümle artık yalnız bildiğimizi söylüyor. */
+      : t('hk.kabul.yok', 'Bu sürümü okuduğuna dair bir kaydımız yok — başlıklar yukarıda, dilediğin an açık.');
     section.appendChild(el);
   }).catch(() => {});
 }

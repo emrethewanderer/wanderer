@@ -321,6 +321,11 @@ okur/yazar. Mevcut `bulten_izin_surum` **korunur** — o ayrı bir rızadır ve
 bu defter onun yerine geçmez.
 
 ### FAZ 8 — Sürüm-değişim banner'ı + HK 1.4 · 🅞 · ~0.5 oturum
+> **BÖLÜNDÜ (2026-09-04):** `8a` defteri okuyan taraf — **bitti**.
+> `8b` saklama cümlesi + `HK_VERSION` `1.4` + uygulama-geneli banner —
+> **ELLE'ye bağlı**: `053` koşulup `usage_events_prune(90)` periyodik hâle
+> gelmeden metin yanlış olur ve sürüm artışı, işlemeyen bir vaadi kullanıcıya
+> "okumuş" saydırır. Ayrıntı `## Durum` kaydında.
 Devir: 🅞 — banner'ın tonu yargıdır: "yeniden onayla" bir kapı kurar, oysa
 doğru cümle "değişeni oku"dur; ve saklama süresi cümlesinin hukuk metnindeki
 yeri ile dili (KVKK "gerekli süre kadar" beklentisi) mühür ister.
@@ -802,7 +807,13 @@ henüz açılmadı; bu kayıt onları kapsamaz.
 
   **8b (yapılmadı):** saklama süresi cümlesi + `HK_VERSION` `1.3 → 1.4`.
   Gizlilik metnine *"kullanım ölçümleri 90 gün sonra silinir"* yazmak,
-  bugün **yanlış bir cümledir** — `053` koşulmadı ve hiçbir şey silmiyor.
+  bugün **yanlış bir cümledir**. Gerekçenin dili çapraz denetimde
+  keskinleşti: `053`'ün koşulup koşulmadığı **repodan görünmez**
+  (`migrations/README.md:38`), yani "koşulmadı" bir gözlem değil §6.5'in
+  varsayımıdır. Ama sonuç varsayımdan bağımsız olarak sağlam: `053` bugün
+  koşulmuş OLSA BİLE cümle yanlış kalırdı, çünkü `usage_events_prune`'u
+  çağıran hiçbir yer yok — `pg_cron` kurulu değil ve fonksiyon periyodik
+  değil. Yani silen bir şey yok.
   Bir gizlilik politikası bir taahhüttür; tutulmayan taahhüt bir metin
   hatası değil bir uyum açığıdır (§6.2 · §6.5: deploy edilmiş varsayılmaz).
   Üstelik sürüm artışı yeniden-bildirimi tetikler: kullanıcı, işlemeyen bir
@@ -829,7 +840,63 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   Kapı: build ✅ 716KB · hedefli süit ✅ 34/34 (i18n paritesi dahil) ·
   `kapi:genel` ✅ 339/339 · `dogrula` ✅ exit 0 "Konsol temiz."
 
-**İlk hamle (FAZ 9):** `13a-arac-motoru.js`'te `_ARAC_DEFS` kayıtları
+- **FAZ 8a denetimi kapandı** (çapraz · Sonnet). Üç bulgu, üçü de düzeltildi.
+  En ağırı **kodda değil KOPYADAYDI**: "yok" dalı *"bu sürüm sen okuduktan
+  sonra güncellendi"* diyordu — yani olmayan bir okuma geçmişini iddia
+  ediyordu. Defteri yazan tek yer kayıt akışıdır (`03:732`) ve bugün hesabı
+  olan herkes o satır eklenmeden geçti; onlarda `kabul:false` "eskisini
+  okudun" değil **"hiç kayıt yok"** demek. Fazın kendi gerekçesinin
+  kopyadaki tekrarı (§6.10). Metin artık yalnız bildiğimizi söylüyor ve üç
+  test cümlenin **harfini değil iddiasını** tutuyor (geçmiş anlatamaz,
+  suçlayıcı olamaz). İkinci bulgu: planda "`053` koşulmadı" demişim, oysa
+  `README.md:38` *"repodan görünmez"* diyor — gözlem değil §6.5 varsayımı;
+  dil düzeltildi (sonuç değişmedi: prune periyodik olmadığı için cümle
+  yine yanlış olurdu). Üçüncüsü: `### FAZ 8` başlığı 8a/8b bölünmesini
+  göstermiyordu, işlendi.
+
+- **FAZ 9 · BİTTİ** (2026-09-04). `uygulayici`da (🅢) + parent'ın denetimi.
+  `_ARAC_DEFS` `{ marker, parse, label?, cta?, run? }`'a genişledi; dört
+  `[ARAC]` aracının davranışı birebir korundu; `kart`/`nisan` kayıtları
+  chip üretmiyor (`run` taşımıyor) ve `aracRunTool`/`_renderToolChip`
+  guard'ları `!def?.run`'a çevrildi — model yanlışlıkla `[ARAC:kart]`
+  üretirse eskiden `def.label(...)` patlardı.
+
+  **Ajanın keşfi:** tüketicileri `13a`'ya statik bağlamak gerçek bir import
+  DÖNGÜSÜ açıyor (`13a → 06/13-extras → 03 → 10B/12e → 13a`) ve iki test
+  kırılıyor. Doğru teşhis; çözümü `window.arac*` köprüsüne geçmek oldu.
+
+  **Denetim (parent · Opus) — o çözümün sessiz bedeli bulundu ve kapatıldı.**
+  Köprü boşsa `_extractKartTag` null döner, `_kartRe` undefined olur ve
+  **`[KART: …]` artığı EKRANDA KALIR.** Oda 09'un Korunanlar'ı ise tek
+  cümle: *protokol blokları finalize/history/DB'den DAİMA sıyrılır.*
+  "Daima" bir koşul kabul etmez — köprü, o sözleşmeyi "13a yüklendiyse"ye
+  çeviriyordu. Yani döngü kapanırken korunan bir sözleşme delinmişti.
+
+  Doğru kesme yeri **saf yapraktı**: `js/parts/13a1-arac-etiketleri.js`
+  hiçbir şey import etmez, bu yüzden onu import etmek döngü doğurmaz.
+  Tüketiciler yaprağı **statik** alır ve garanti çalışma zamanına değil
+  **derleme zamanına** bağlanır. Yan kazanç: ajanın test dosyalarına
+  eklemek zorunda kaldığı iki yan-etki importu (`## Duraklar` maddesi 2)
+  gereksizleşti, kaldırıldı. Yetim kalan `window.aracEtiketCoz/Regex`
+  köprüleri ve yetim `aracEtiketRegex` export'u da silindi — durmaları
+  `window` yolunun hâlâ desteklendiğini ima eder ve bir sonraki tüketiciyi
+  aynı kırılgan yola davet ederdi (§3.5/3).
+  Kapı: **`tests/etiket-siyirma-kapisi.test.js`** — sıyırma yolunun
+  `window`'a bağlanmasını, yaprağın yaprak kalmasını ve tüketicilerde ikiz
+  regex doğmasını yasaklar; adı `*-kapisi` olduğu için `kapi:genel`
+  desenine kendiliğinden girdi (22 → 23 dosya).
+  Durak 1 (`aracPromptGuide`) gerekçeli, kabul: `[KART]`/`[NISAN]`
+  rehberleri bugün de orada değil; taşımak yeni cümle icadı ya da plan dışı
+  sözlük değişikliği isterdi.
+
+  Kapı: build ✅ 716KB · hedefli süit ✅ 337/337 · `kapi:genel` ✅ 346/346 ·
+  `dogrula` ✅ exit 0 "Konsol temiz."
+
+**İlk hamle (FAZ 10):** registry üzerinde yeni araçlar — 🅞. Hangi üç
+ritüelin LLM'in eline verileceği ve chip cümlelerinin kitap-köklü hâli
+üründe bulunur. Onay-chip'i ilkesi gevşetilmez.
+
+**Eski İlk hamle (FAZ 9, tamamlandı):** `13a-arac-motoru.js`'te `_ARAC_DEFS` kayıtları
 `{ marker, parse, label, cta, run }`'a genişler; `[KART]` (`10B:126`
 `_IK_KART_TAG_RE`) ve `[NISAN]` (`12e:117` `ISIK_TAG_RE`) kendi regex'lerini
 registry'ye taşır. `[ARAC:x]{json}` biçimi ve `aracExtract`/`aracAfterReply`/

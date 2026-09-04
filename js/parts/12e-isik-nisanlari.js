@@ -26,11 +26,19 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { SafeStorage, escapeHTML, showToast, localISODate } from './00a-infrastructure.js';
+import { etiketCoz, etiketRegex } from './13a1-arac-etiketleri.js';
 import { t } from './15-i18n.js';
 import { p } from './16-i18n-prompts.js';
 import { awardElmas } from './10g-w2-wanderer-game.js';
 import { ikvEnsureStyles } from './12c-kart-gorsel.js';
 import { NISANLAR, ISIK_TEMALAR } from './12e1-isik-veri.js';
+// 13a-arac-motoru.js STATİK import EDİLMEZ: 06-summary-chat + 13-extras
+// üstünden 03-auth-shell'e (bu dosyayı zaten import eden modül) döngü
+// kapatır — 10B'nin aynı gerekçesi (bkz. 10B-ilham-karti.js). 13a boot'ta
+// Etiket kaydı 13a1'de (SAF YAPRAK) — statik import, döngü yok.
+// sonunda mühürlüyor; 12e zaten 06-summary-chat için aynı döngü riskini
+// dinamik import ile çözüyor (bkz. isikInit) — burada window köprüsü yeterli
+// çünkü çağrı senkron olmak zorunda (isikExtractTag).
 
 /* Veri 12e1 yaprağına taşındı (kart üretim motoru 12c/12d de besleniyor;
    12e→12c importu yüzünden 12c bu veriyi buradan çekemezdi). Mevcut
@@ -114,12 +122,14 @@ export function isikMatchNisan(text) {
   return null;
 }
 
-const ISIK_TAG_RE = /\[NISAN:\s*([a-z_]+)\s*\]/i;
+/* Regex artık 13a'nın registry'sinde tutulur (İç Çalışma 09 · K5) — ikinci
+   bir kopyası burada YAZILMAZ. Registry yalnız ham id'yi çözer; NISANLAR'a
+   karşı doğrulama (bu domain'in kendi verisi) bilerek burada kalır. */
 export function isikExtractTag(raw) {
-  const m = String(raw || '').match(ISIK_TAG_RE);
-  if (!m) return null;
-  const nis = NISANLAR.find(n => n.id === m[1].toLowerCase());
-  return nis ? { nisan: nis, tag: m[0] } : null;
+  const hit = etiketCoz('nisan', raw);
+  if (!hit) return null;
+  const nis = NISANLAR.find(n => n.id === hit.id);
+  return nis ? { nisan: nis, tag: hit.tag } : null;
 }
 
 let _isikChipUsed = false;   // seans başına 1 — nur nadirdir, chip değersizleşmesin
@@ -134,7 +144,10 @@ export function _isikOnEmreFinalized(msgEl, rawText) {
     if (!body) return;
     // Etiket görünür metinden her koşulda temizlenir (protokol artığı kalmasın)
     if (found) {
-      try { body.innerHTML = body.innerHTML.replace(ISIK_TAG_RE, '').trim(); } catch (_) {}
+      const _nisanRe = etiketRegex('nisan');
+      if (_nisanRe) {
+        try { body.innerHTML = body.innerHTML.replace(_nisanRe, '').trim(); } catch (_) {}
+      }
     }
     if (!found || _isikChipUsed) return;
     _isikChipUsed = true;

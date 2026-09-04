@@ -279,7 +279,7 @@ export const I18N_CORE = {
     'hk.section': 'Hukuki Çerçeve',
     'hk.section_desc': 'Wanderer ile aranızdaki sözleşme, verinin nasıl korunduğu ve eserin hakları.',
     'hk.kabul.var': 'Bu sürümü okudun.',
-    'hk.kabul.yok': 'Bu sürüm sen okuduktan sonra güncellendi — değişeni okumak istersen yukarıdaki başlıklar açık.',
+    'hk.kabul.yok': 'Bu sürümü okuduğuna dair bir kaydımız yok — başlıklar yukarıda, dilediğin an açık.',
     'hk.eyebrow': 'WANDERER · HUKUKİ ÇERÇEVE',
     'hk.terms': 'Kullanım Koşulları',
     'hk.privacy': 'Gizlilik Politikası',

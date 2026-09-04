@@ -8,6 +8,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+// Yan-etki: [NISAN] etiketinin regex/parse'ı artık 13a'nın registry'sinde
+// (İç Çalışma 09 · K5) ve 12e'ye 13a1'in saf yaprak çözücüleri
+// köprüsüyle gelir (12e-isik-nisanlari.js'in döngü gerekçesine bkz.) —
+// bu import olmadan window köprüsü kurulmaz, isikExtractTag hep null döner.
 import {
   NISANLAR,
   isikExtractTag,
