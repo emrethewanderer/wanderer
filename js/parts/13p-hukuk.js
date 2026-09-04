@@ -23,6 +23,27 @@ export const HK_VERSION = '1.3'; // 1.3: Kod kapısı — şifresiz giriş, kull
 const HK_EFFECTIVE = '2026-08-27'; // yürürlük tarihi (ISO) — metin güncellenince artır
 const HK_CONTACT   = 'emre.gulluce.eg@gmail.com';
 
+/* DEFTERİ OKUYAN TARAF (FAZ 8a) — ve buradaki tek karar şu:
+   **BİLİNMEYEN, "KABUL ETMEDİ" DEĞİLDİR.**
+   `054` ELLE bekliyor; tablo yokken sorgu hata döner. O hatayı `false`'a
+   çevirmek, defteri hiç okunmamış her kullanıcıyı "bu sürümü kabul etmedi"
+   diye damgalardı — ölçülmemiş bir şeyi ölçülmüş gibi göstermek (§6.10).
+   Bu yüzden üç hâl var, iki değil: `true` (satır var) · `false` (tablo var,
+   satır yok) · `null` (bilmiyoruz). Çağıran taraf `null`'da SUSAR. */
+export async function hkKabulVarMi(surum) {
+  if (!surum) return null;
+  try {
+    const { data } = await sb.auth.getSession();
+    const uid = data?.session?.user?.id;
+    if (!uid) return null;                       // oturum yok — hüküm de yok
+    const { data: rows, error } = await sb
+      .from('hukuk_kabul').select('kabul_at')
+      .eq('user_id', uid).eq('surum', surum).limit(1);
+    if (error) return null;                      // tablo yok / ağ — BİLMİYORUZ
+    return { kabul: !!(rows && rows.length), tarih: rows?.[0]?.kabul_at || null };
+  } catch (_) { return null; }
+}
+
 /* ─────────────────────────────────────────────────────────────
    RIZA DEFTERİ — "hangi kullanıcı hangi sürümü ne zaman kabul etti"
    `bulten_izin_surum` (03-auth-shell) tek satırlık, üzerine yazılan bir
@@ -260,6 +281,20 @@ export function mountHukukUI() {
   }
   section.querySelectorAll('.hk-settings-row').forEach(b =>
     b.addEventListener('click', () => hkOpen(b.dataset.kind)));
+
+  /* Rıza durumu — var olan sürüm satırının altına, YALNIZ bildiğimizde.
+     Bilinmiyorsa (tablo yok / oturum yok / ağ) hiçbir şey yazılmaz: bir
+     ayar da, bir kart da, neyi bilmediğini söylemekle neyi bildiğini
+     söylemek arasındaki farkı korur (§6.10 · FAZ 4 emsali). */
+  hkKabulVarMi(HK_VERSION).then((durum) => {
+    if (!durum || !section.isConnected) return;
+    const el = document.createElement('p');
+    el.style.cssText = 'font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:4px;';
+    el.textContent = durum.kabul
+      ? t('hk.kabul.var', 'Bu sürümü okudun.')
+      : t('hk.kabul.yok', 'Bu sürüm sen okuduktan sonra güncellendi — değişeni okumak istersen yukarıdaki başlıklar açık.');
+    section.appendChild(el);
+  }).catch(() => {});
 }
 
 /* Inline onclick erişimi — minify'a dayanıklı */
@@ -267,3 +302,4 @@ window.hkOpen  = hkOpen;
 window.hkClose = hkClose;
 window.mountHukukUI = mountHukukUI;
 window.hkKabulYaz = hkKabulYaz;
+window.hkKabulVarMi = hkKabulVarMi;

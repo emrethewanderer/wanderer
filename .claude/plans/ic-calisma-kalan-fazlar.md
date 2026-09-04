@@ -797,7 +797,45 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   `dogrula` ✅ exit 0 "Konsol temiz."
   **ELLE bekleyen:** `054` migration'ı (redeploy gerekmiyor).
 
-**İlk hamle (FAZ 8):** `13p-hukuk.js`'te `HK_VERSION` `1.3 → 1.4`; gizlilik
+- **FAZ 8a · BİTTİ · FAZ 8b · ELLE'YE BAĞLI** (2026-09-04). 🅞, parent'ta.
+  **Faz ikiye bölündü ve sebebi bir dürüstlük kısıtıdır, bir gecikme değil.**
+
+  **8b (yapılmadı):** saklama süresi cümlesi + `HK_VERSION` `1.3 → 1.4`.
+  Gizlilik metnine *"kullanım ölçümleri 90 gün sonra silinir"* yazmak,
+  bugün **yanlış bir cümledir** — `053` koşulmadı ve hiçbir şey silmiyor.
+  Bir gizlilik politikası bir taahhüttür; tutulmayan taahhüt bir metin
+  hatası değil bir uyum açığıdır (§6.2 · §6.5: deploy edilmiş varsayılmaz).
+  Üstelik sürüm artışı yeniden-bildirimi tetikler: kullanıcı, işlemeyen bir
+  vaadi okumuş sayılırdı. **Tek adımlık kilit:** Emre `053`'ü koşup
+  `usage_events_prune(90)`'ı periyodik hâle getirdiği gün cümle doğru olur
+  ve 8b açılır.
+
+  **8a (yapıldı) — defteri OKUYAN taraf.** `hkKabulVarMi(surum)` eklendi ve
+  tek kararı taşıyor: **bilinmeyen, "kabul etmedi" değildir.** `054` ELLE
+  beklediği için tablo yokken sorgu hata döner; o hatayı `false`'a çevirmek
+  defteri hiç okunmamış HER kullanıcıyı "bu sürümü kabul etmedi" diye
+  damgalardı — ölçülmemiş bir şeyi ölçülmüş gibi göstermek (§6.10). Üç hâl
+  var, iki değil: `true` · `false` (tablo var, satır yok) · `null`
+  (bilmiyoruz). Ayarlar satırı `null`'da **susuyor** — FAZ 4'ün varsayılan
+  notuyla aynı ilke, aynı sebep.
+
+  **Uygulama-geneli banner YAZILMADI ve bu bilinçli.** Tetiği `HK_VERSION`
+  artışıdır ve o artış 8b'de; şimdi yazmak, gösterecek hiçbir şeyi olmayan
+  yeni bir sahne yüzeyi kurmak olurdu (§1.1 "kart değil kaldıraç"). Rıza
+  durumu bunun yerine **var olan** Ayarlar → Hukuki Çerçeve bölümünde,
+  sürüm satırının altında görünüyor. Banner 8b ile birlikte gelir ve
+  sözleşmesi şudur: **onay kapısı değil, "değişeni oku" haberi.**
+
+  Kapı: build ✅ 716KB · hedefli süit ✅ 34/34 (i18n paritesi dahil) ·
+  `kapi:genel` ✅ 339/339 · `dogrula` ✅ exit 0 "Konsol temiz."
+
+**İlk hamle (FAZ 9):** `13a-arac-motoru.js`'te `_ARAC_DEFS` kayıtları
+`{ marker, parse, label, cta, run }`'a genişler; `[KART]` (`10B:126`
+`_IK_KART_TAG_RE`) ve `[NISAN]` (`12e:117` `ISIK_TAG_RE`) kendi regex'lerini
+registry'ye taşır. `[ARAC:x]{json}` biçimi ve `aracExtract`/`aracAfterReply`/
+`aracPromptGuide` imzaları KORUNAN sözleşmedir — dokunulmaz.
+
+**Eski İlk hamle (FAZ 8, tamamlandı):** `13p-hukuk.js`'te `HK_VERSION` `1.3 → 1.4`; gizlilik
 metnine saklama süresi cümlesi (90 gün ham + günlük agregat, `053`'ün
 gerçeğiyle birebir); sürüm-değişim banner'ı — **onay kapısı değil**, "değişeni
 oku" haberi. Banner `hukuk_kabul`'de o sürümün satırı YOKSA görünür (defter

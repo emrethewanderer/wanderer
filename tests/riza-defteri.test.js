@@ -200,3 +200,73 @@ describe('K4 — HK_VERSION bu fazda artmaz (sürüm artışı FAZ 8\'in işi)',
     expect(HK_VERSION).toBe('1.3');
   });
 });
+
+
+/* ═══ FAZ 8a — DEFTERİ OKUYAN TARAF ═══════════════════════════════════════
+   Buradaki tek karar şudur ve testlerin çoğu onu koruyor: **bilinmeyen,
+   "kabul etmedi" DEĞİLDİR.** `054` ELLE bekliyor; tablo yokken sorgu hata
+   döner ve o hatayı `false`'a çevirmek, defteri hiç okunmamış her
+   kullanıcıyı "bu sürümü kabul etmedi" diye damgalardı — ölçülmemiş bir
+   şeyi ölçülmüş gibi göstermek (§6.10). Üç hâl var, iki değil. */
+describe('hkKabulVarMi — bilinmeyen ≠ kabul etmedi', () => {
+  let hkKabulVarMi;
+  const kur = (cfg) => {
+    globalThis.__sbSahte = cfg;
+  };
+
+  beforeEach(async () => {
+    vi.resetModules();
+    // Gerçek config'i KORU, yalnız sb'yi değiştir — dar bir mock, modülün
+    // öteki dışa aktarımlarını (AI_MODES vb.) sessizce yok ederdi.
+    vi.doMock('../js/config.js', async (importOriginal) => ({
+      ...(await importOriginal()),
+      sb: {
+        auth: { getSession: () => Promise.resolve(globalThis.__sbSahte.session) },
+        from: () => ({
+          select: () => ({
+            eq: () => ({
+              eq: () => ({ limit: () => Promise.resolve(globalThis.__sbSahte.rows) }),
+            }),
+          }),
+          upsert: () => Promise.resolve({ error: null }),
+        }),
+      },
+    }));
+    ({ hkKabulVarMi } = await import('../js/parts/13p-hukuk.js'));
+  });
+
+  it('oturum yoksa null döner — hüküm verilmez', async () => {
+    kur({ session: { data: { session: null } }, rows: { data: [], error: null } });
+    expect(await hkKabulVarMi('1.3')).toBeNull();
+  });
+
+  it('tablo yoksa (sorgu hatası) null döner — "kabul etmedi" DEMEZ', async () => {
+    kur({
+      session: { data: { session: { user: { id: 'u1' } } } },
+      rows: { data: null, error: { message: 'relation "hukuk_kabul" does not exist' } },
+    });
+    // false olsaydı ayar satırı herkese "bu sürümü okumadın" derdi.
+    expect(await hkKabulVarMi('1.3')).toBeNull();
+  });
+
+  it('tablo var + satır yok → kabul:false (BİLİNEN bir olumsuzluk)', async () => {
+    kur({
+      session: { data: { session: { user: { id: 'u1' } } } },
+      rows: { data: [], error: null },
+    });
+    expect(await hkKabulVarMi('1.3')).toEqual({ kabul: false, tarih: null });
+  });
+
+  it('satır varsa kabul:true ve tarihi taşır', async () => {
+    kur({
+      session: { data: { session: { user: { id: 'u1' } } } },
+      rows: { data: [{ kabul_at: '2026-09-04T10:00:00Z' }], error: null },
+    });
+    expect(await hkKabulVarMi('1.3')).toEqual({ kabul: true, tarih: '2026-09-04T10:00:00Z' });
+  });
+
+  it('sürüm verilmezse hiç sorgu yapılmaz', async () => {
+    kur({ session: { data: { session: { user: { id: 'u1' } } } }, rows: { data: [], error: null } });
+    expect(await hkKabulVarMi('')).toBeNull();
+  });
+});
