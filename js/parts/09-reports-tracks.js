@@ -3,7 +3,7 @@ import { sb, EDGE_FN_BASE, ADMIN_EMAIL, SUMMARY_MODEL } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, MemCache, SecureStorage, showToast, createHookRegistry, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { dgIsabetGuncelle, dgIklimKaydet } from './13D-duygu-motoru.js';
 import { t } from './15-i18n.js';
-import { p, dp } from './16-i18n-prompts.js';
+import { p, dpTest } from './16-i18n-prompts.js';
 import { callLLM, calculateStreak, getSessionLastActivity } from './04-llm-hero-history.js';
 import { invalidateContextCache } from './01-prompts-modes.js';
 import { nowTR } from './00-config-tracking.js';
@@ -886,7 +886,7 @@ export function refreshRoadmapRecommendations() {
 // BREAKTHROUGH_PATTERNS → dp('detect.breakthrough') — 13-dil desteği
 
 export function detectBreakthrough(text) {
-  return dp('detect.breakthrough').some(r => r.test(text));
+  return dpTest('detect.breakthrough', text);
 }
 
 export async function saveBreakthroughMoment(text) {

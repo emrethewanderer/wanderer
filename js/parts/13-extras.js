@@ -2,7 +2,7 @@ import { S } from '../state.js';
 import { AI_MODES } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, SecureStorage, AnimUtils, escapeHTML, showToast, localISODate, localDayKey } from './00a-infrastructure.js';
 import { t, getCurrentLanguage } from './15-i18n.js';
-import { dp, dpAll, p } from './16-i18n-prompts.js';
+import { dpTest, dpAllTest, dpNormalize, p } from './16-i18n-prompts.js';
 import { switchViewHooks } from './03-auth-shell.js';
 import { appendMsgHooks, sendMessageHooks, startStreamingFinalizeHooks, sendMessage } from './06-summary-chat.js';
 import { updateModeBadge as _origUpdateModeBadge, nowTR, onModeBadgeUpdate, resolveCommitment, getCleanCommitments, getAllMessages } from './00-config-tracking.js';
@@ -601,9 +601,9 @@ export function vesperTap() {
    DİRENÇ NOKTASI — kullanıcı mesajlarında
 ══════════════════════════════════════════ */
 export function msgIntensityLevel(text) {
-  if (dp('detect.intensity.high').some(r => r.test(text)))     return 5;
-  if (dp('detect.intensity.medium').some(r => r.test(text)))   return 3;
-  if (dp('detect.intensity.positive').some(r => r.test(text))) return 1;
+  if (dpTest('detect.intensity.high', text))     return 5;
+  if (dpTest('detect.intensity.medium', text))   return 3;
+  if (dpTest('detect.intensity.positive', text)) return 1;
   return 2;
 }
 
@@ -811,44 +811,22 @@ export async function w3RequestNotificationPermission() {
    ═══════════════════════════════════════════════════ */
 // CRISIS_PATTERNS → dp('detect.crisis') — 13-dil desteği
 
-/* TÜRKÇE BÜYÜK-İ TUZAĞI — desenler küçük harfle yazılıdır ve `/i` bayrağı
-   Türkçenin noktalı İ'sini KATLAMAZ: JS'in canonicalize'ı toUpperCase
-   kullanır, 'İ'(U+0130).toUpperCase() yine 'İ' iken 'i'.toUpperCase() 'I'
-   verir — ikisi eşleşmez. Türkçede cümle başındaki her `i` sözcüğü büyük
-   İ ile yazıldığı için /intihar/i "İntihar etmeyi düşünüyorum" cümlesini,
-   /ilaç.*fazla al/i ise "İlaçları fazla aldım" cümlesini KAÇIRIYORDU:
-   kriz kartı hiç açılmıyordu. Kırığı `tests/kriz-eval.test.js` korpusu
-   buldu (2026-09-04) — desene bakarak değil, cümleye bakarak.
-   toLowerCase() tek başına yetmez: 'İ'.toLowerCase() 'i'+U+0307 (birleşen
-   nokta) döndürür ve desen yine tutmaz; NFD ile ayrışmış "i + U+0307" biçimi
-   de aynı sebeple kaçar, o yüzden ikinci adım onu birleştirir.
-   Yalnız U+0130'a dokunulur — ASCII 'I' zaten 'i'ye katlanıyor, ona
-   dokunmak İngilizce desenleri bozardı.
-   İkinci adım KONUM-BAĞLI yazıldı (çapraz denetim bulgusu, Sonnet):
-   U+0307'yi metnin her yerinden silmek, desteklenen on üç dilin dışında
-   NFD ile ayrışmış başka bir harfi (ör. Lehçe ż, Litvanyaca ė) sessizce
-   hedef harfe indirgerdi. Bugünkü dillerde çakışma yok — ama bir normalize
-   ancak hedeflediğini değiştirdiğinde normalizedir.
-   Lookbehind kullanılmadı: yakalama grubu aynı işi görür ve eski iOS
-   Safari'de (Capacitor kabuğu) desteklenmeme riski taşımaz. */
-export function krizMetniNormalize(text) {
-  return String(text == null ? '' : text)
-    .replace(/İ/g, 'i')
-    .replace(/([iI])\u0307/g, '$1');
-}
+// GERİYE UYUMLULUK: `tests/kriz-eval.test.js` bu adı 13-extras'tan import
+// ediyor; büyük-İ tuzağının normalize gövdesi artık TEK NOKTADA
+// (16-i18n-prompts.js, dpNormalize — FAZ 2c) — ikinci bir kopya yazılmadı,
+// yalnız eski ad buradan re-export edilir (§1.3).
+export { dpNormalize as krizMetniNormalize };
 
 // dpAll: kriz taraması dil-BAĞIMSIZDIR — arayüz TR/EN olsa da kullanıcı
 // mesajını başka dilde yazabilir; tüm dillerin desenleri birlikte taranır.
 export function detectCrisis(text) {
-  const t = krizMetniNormalize(text);
-  return dpAll('detect.crisis').some(r => r.test(t));
+  return dpAllTest('detect.crisis', text);
 }
 
 // Yumuşak sinyal: mecaz payı yüksek ifadeler — tek başına kriz sayılmaz,
 // sessiz LLM teyidine gider (_confirmCrisisWithLLM).
 export function detectCrisisSoft(text) {
-  const t = krizMetniNormalize(text);
-  return dpAll('detect.crisis_soft').some(r => r.test(t));
+  return dpAllTest('detect.crisis_soft', text);
 }
 
 export function showCrisisCard() {
@@ -1482,7 +1460,7 @@ function getHesapGunuContext() {
 
 function detectWellnessClaim(text) {
   const trimmed = text.trim();
-  return dp('detect.wellness_claim').some(r => r.test(trimmed));
+  return dpTest('detect.wellness_claim', trimmed);
 }
 
 function _getWeekKey() {
@@ -1517,8 +1495,8 @@ function getWellnessContradictionContext(text) {
     const recentHard = allUserMsgs
       .filter(m => new Date(m.created_at) > new Date(Date.now() - 7 * 86400000))
       .some(m =>
-        dp('detect.emotional_spike').some(r => r.test(m.content)) ||
-        dp('detect.vulnerability').some(r => r.test(m.content))
+        dpTest('detect.emotional_spike', m.content) ||
+        dpTest('detect.vulnerability', m.content)
       );
 
     const lastClaim = pastClaims[0];

@@ -2,7 +2,7 @@ import { S } from '../state.js';
 import { sb, AI_MODES, ADMIN_EMAIL, EMRE_IMG } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, SecureStorage, ErrorBoundary, showToast, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
-import { p, dp, pArray } from './16-i18n-prompts.js';
+import { p, dpTest, pArray } from './16-i18n-prompts.js';
 import { appendMsg } from './06-summary-chat.js';
 import { updateModeBadge, nowTR, detectMessageTone, getAllMessages } from './00-config-tracking.js';
 
@@ -294,7 +294,7 @@ export function resetSilencePressure() {
 // EMOTIONAL_SPIKE_PATTERNS → dp('detect.emotional_spike') — 13-dil desteği
 
 export function detectEmotionalSpike(text) {
-  return dp('detect.emotional_spike').some(r => r.test(text));
+  return dpTest('detect.emotional_spike', text);
 }
 
 export function handleEmotionalSpike(text) {

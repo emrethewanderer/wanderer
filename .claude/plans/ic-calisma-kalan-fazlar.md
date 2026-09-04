@@ -416,6 +416,58 @@ hiç görünmez — orada ton değil **doğruluk** ölçülür.
   `dogrula` ✅ exit 0 "Konsol temiz." · CI Kapı #70 ✅ (önceki commit).
   Çapraz denetim (`denetci` · Sonnet) koşuldu — bulguları aşağıda.
 
+- **FAZ 2c+2d · BİTTİ** (2026-09-04). 2c `uygulayici`da (🅢), 2d parent'ta.
+  `Devir dışı (2d):` bu faz 2c'nin **Duraklar** listesinden doğdu ve kararı
+  bir tasarım yargısıydı — kanıt alıntısının kullanıcının kendi cümlesi
+  kalması (§6.10) için normalize'ın konum koruması gerekiyordu; ajan o
+  kararı veremezdi, tam da onu Durak olarak geri döndürdü.
+
+  Kök çözüm tek noktada: `dpTest`/`dpAllTest` (16-i18n-prompts) metni bir
+  kez normalize eder; `krizMetniNormalize` oraya taşındı, `13-extras` onu
+  **re-export** ediyor — ikinci kopya yazılmadı (§1.3). 17 çağrı yeri /
+  8 dosya geçti. Kapı `tests/i-tuzagi-kapisi.test.js`: kapsam listesi
+  **sözlükten türetiliyor**, elle yazılmıyor — yeni bir desen eklendiğinde
+  kapı kendiliğinden büyür (§3.3'ün "liste değil desen" dersi).
+
+  **2d — konum koruyan normalize.** İki tüketici deseni değişkene alıp
+  `.exec()`/`.match()` çağırıyor ve eşleşmenin YERİNİ kullanıyor:
+  `13D _adaylariBul` kanıt alıntısını, `00-config captureCommitments` sözün
+  metnini o indeksle ORİJİNAL metinden kesiyor. `dpNormalize`'ın ikinci
+  adımı (NFD birleştirme) metni kısaltır, yani indeksleri bozardı.
+  `dpNormalizeKonum` yalnız U+0130 → `i` yapar ve bu **uzunluk korur** —
+  ikisi de tek UTF-16 kod birimi. Böylece desen normalize metinde eşleşir,
+  kanıt orijinalden kesilir: kullanıcı ekranda **kendi cümlesini** görür.
+  Ayrım gerçekti: `detect.duygu.huzur`'da `/içim rahat/`, `umut`'ta
+  `/inancım var/` var — "İçim rahat." yazan biri bugüne dek hiç
+  tanınmıyordu. `captureCommitments` ise **gizli** bir risktir (bugünkü
+  dört desenin hiçbiri `i` ile başlamıyor); dikiş yine de atıldı.
+
+  **Denetim (parent · Opus) — üç Durak da doğrulandı, üçü de karara bağlandı:**
+  ikisi bu turda düzeltildi (yukarıda), üçüncüsü aşağıya taşındı. Ayrıca
+  parent'ın kendi ilk davranışsal testi **yanlıştı ve kendini yakaladı**:
+  `dgNabiz`'in dönüş şekli `{adaylar:[…]}`, `{aile}` değil; ve seçtiğim
+  cümle (`"İçim rahat, yük kalktı üstümden."`) `/yük kalktı/` üstünden
+  eşleşiyordu — yani kapı yeşil yanarken İ'yi hiç sınamıyordu. Cümleler
+  tek desenli hâle getirildi: **sınav, sınadığını sınamalıdır.**
+
+  Kapı: build ✅ · hedefli süit ✅ **1796/1796** (64 dosya — paylaşılan motor
+  değiştiği için tüketicileri de girdi) · `kapi:genel` ✅ 329/329 ·
+  `dogrula` ✅ exit 0 "Konsol temiz."
+
+### Taşınan Durak — `09b`'nin paralel sözlüğü · plana yazıldı, uygulanmadı
+`js/parts/09b-depth-foundations.js:1237,1389` kendi `_BELIEF_PATTERNS` ve
+`_CHOICE_PATTERNS` sözlüklerini taşıyor ve `dp()`'den tamamen bağımsız
+çalışıyor. Doğrulandı: `detect.belief.*` / `detect.choice.*` anahtarlarını
+`dp()`/`dpAll()` ile çağıran **hiçbir yer yok** — yani `16c`'deki o
+girdiler bugün **ölü**, gerçek tüketici 09b'nin kendi kopyası.
+
+Bu iki bulguyu birden taşır: (1) aynı büyük-İ tuzağı orada da açık,
+(2) **tek-kaynak motorun ikizi çoktan doğmuş** (§1.3). İkincisi
+birincisinden ağırdır ve düzeltmesi bir birleştirme kararıdır: 09b'nin
+sözlüğü `16c`'ye mi taşınacak, yoksa `16c`'nin ölü girdileri mi silinecek?
+İkisi de kanıt ister (`grep -rn` ile yetim kontrolü, §3.1) ve ikisi de bu
+sprintin kapsamı değil. Sessizce düşmesin diye burada duruyor.
+
 **İlk hamle (FAZ 3):** `13g-paylasim.js`'te `_shareCanvas(cv, title)` üçüncü
 parametreyi (`tur`) alsın, `shrShareStory` onu `params.tur`'dan geçirsin;
 `13g:301`'in sabit `tur:'kart'`'ı o değere devredilsin; yedi çağırana

@@ -31,7 +31,7 @@ import { S } from '../state.js';
 import { sb, SUMMARY_MODEL } from '../config.js';
 import { SafeStorage, localISODate, localDayKey, getActivityDays, escapeHTML } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
-import { p, dp } from './16-i18n-prompts.js';
+import { p, dpTest } from './16-i18n-prompts.js';
 import { callLLM } from './04-llm-hero-history.js';
 import { getModeEffectivenessScores } from './00-config-tracking.js';
 import { kokenAlinti, kokenSozBlok, kokenAlintiCoz, kokenKullaniciMesajlari } from './13y-koken.js';
@@ -175,12 +175,10 @@ function _todayMood(today) {
   } catch (_) { return null; }
 }
 
-/** dp() regex listesine güvenli isabet testi. */
+/** dp() regex listesine güvenli isabet testi — büyük-İ normalize'i dpTest
+ *  üzerinden gelir (FAZ 2c: kendi kopyasını yazmak yeni bir ikiz açardı). */
 function _hits(dpKey, text) {
-  try {
-    const regs = dp(dpKey);
-    return Array.isArray(regs) && regs.some((r) => { try { return r.test(text); } catch (_) { return false; } });
-  } catch (_) { return false; }
+  try { return dpTest(dpKey, text); } catch (_) { return false; }
 }
 
 /** Bu seansın kullanıcı cümlelerinden kanıt alıntıları (≤2/gün, ≤120 kr). */

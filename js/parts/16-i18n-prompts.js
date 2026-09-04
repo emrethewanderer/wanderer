@@ -121,6 +121,68 @@ export function dpAll(key) {
   return out;
 }
 
+/* TÜRKÇE BÜYÜK-İ TUZAĞI — desenler küçük harfle yazılıdır ve `/i` bayrağı
+   Türkçenin noktalı İ'sini KATLAMAZ: JS'in canonicalize'ı toUpperCase
+   kullanır, 'İ'(U+0130).toUpperCase() yine 'İ' iken 'i'.toUpperCase() 'I'
+   verir — ikisi eşleşmez. Türkçede cümle başındaki her `i` sözcüğü büyük
+   İ ile yazıldığı için /intihar/i "İntihar etmeyi düşünüyorum" cümlesini,
+   /ilk kez/i ise "İlk kez cesaret ettim" cümlesini KAÇIRIYORDU — yalnız
+   kriz yolunda değil, `dp()`/`dpAll()` sonucunu `.test()` ile kullanan HER
+   yerde (FAZ 2c denetimi, 2026-09-04: on iki ayrı `detect.*` anahtarı canlı
+   regex koşusuyla doğrulandı). Kırığı `tests/kriz-eval.test.js` korpusu
+   buldu — desene bakarak değil, cümleye bakarak. Düzeltme TEK NOKTADA
+   toplandı (§1.3): `dpTest`/`dpAllTest` metni bir kez normalize eder,
+   çağrı yerleri kendi kopyasını yazmaz.
+   toLowerCase() tek başına yetmez: 'İ'.toLowerCase() 'i'+U+0307 (birleşen
+   nokta) döndürür ve desen yine tutmaz; NFD ile ayrışmış "i + U+0307" biçimi
+   de aynı sebeple kaçar, o yüzden ikinci adım onu birleştirir.
+   Yalnız U+0130'a dokunulur — ASCII 'I' zaten 'i'ye katlanıyor, ona
+   dokunmak İngilizce desenleri bozardı.
+   İkinci adım KONUM-BAĞLI yazıldı (çapraz denetim bulgusu, Sonnet):
+   U+0307'yi metnin her yerinden silmek, desteklenen on üç dilin dışında
+   NFD ile ayrışmış başka bir harfi (ör. Lehçe ż, Litvanyaca ė) sessizce
+   hedef harfe indirgerdi. Bugünkü dillerde çakışma yok — ama bir normalize
+   ancak hedeflediğini değiştirdiğinde normalizedir.
+   Lookbehind kullanılmadı: yakalama grubu aynı işi görür ve eski iOS
+   Safari'de (Capacitor kabuğu) desteklenmeme riski taşımaz.
+   (Taşındı: eskiden `13-extras.js`'te `krizMetniNormalize` adıyla yalnız
+   kriz yolunu korurdu; 13-extras artık bu fonksiyonu buradan re-export
+   ediyor — ikinci bir kopya yazılmadı.) */
+export function dpNormalize(text) {
+  return String(text == null ? '' : text)
+    .replace(/İ/g, 'i')
+    .replace(/([iI])\u0307/g, '$1');
+}
+
+/* KONUM KORUYAN NORMALİZE — eşleşmenin YERİ lazım olduğunda (FAZ 2d).
+   `dpNormalize` iki adımlıdır ve ikinci adımı (NFD "i+U+0307" → "i") metni
+   KISALTIR: eşleşme indeksleri orijinal metne artık uymaz. Kanıt alıntısını
+   `m.index` ile ORİJİNAL metinden kesen tüketiciler (13D `_adaylariBul`,
+   00-config `captureCommitments`) bu yüzden onu kullanamaz.
+   Bu sürüm yalnız U+0130 → 'i' yapar ve bu dönüşüm UZUNLUK KORUR — ikisi de
+   tek UTF-16 kod birimidir. Böylece desen normalize metinde eşleşir, kanıt
+   ORİJİNAL metinden kesilir: kullanıcı ekranda kendi yazdığı cümleyi görür,
+   motorun onu nasıl okuduğunu değil (§6.10 — kanıt kullanıcının kendi
+   cümlesidir). NFD hâli bu yolda kapsanmaz; kapsamak konum kaydırmak
+   demektir ve alıntıyı bozmak, bir eşleşmeyi kaçırmaktan pahalıdır. */
+export function dpNormalizeKonum(text) {
+  return String(text == null ? '' : text).replace(/İ/g, 'i');
+}
+
+/** dp(key) desenlerinden biri (aktif dilin sözlüğü) normalize edilmiş
+ *  metinle eşleşiyor mu — bkz. dpNormalize'in üstündeki büyük-İ notu. */
+export function dpTest(key, text) {
+  const t = dpNormalize(text);
+  return dp(key).some(r => { try { return r.test(t); } catch (_) { return false; } });
+}
+
+/** dpAll(key) desenlerinden biri (dil-BAĞIMSIZ birleşim) normalize edilmiş
+ *  metinle eşleşiyor mu — güvenlik taramaları için, bkz. dpAll(). */
+export function dpAllTest(key, text) {
+  const t = dpNormalize(text);
+  return dpAll(key).some(r => { try { return r.test(t); } catch (_) { return false; } });
+}
+
 export function pArray(prefix, vars) {
   const count = parseInt(p(prefix + '_count'), 10) || 0;
   const arr = [];

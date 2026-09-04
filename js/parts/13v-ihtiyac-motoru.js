@@ -20,7 +20,7 @@
 
 import { S } from '../state.js';
 import { kkComputeSignals } from './10q-w2-kisi-karti.js';
-import { dp } from './16-i18n-prompts.js';
+import { dpTest } from './16-i18n-prompts.js';
 
 /* ─── 1. EKSENLER VE ALANLAR ─── */
 
@@ -134,10 +134,7 @@ function _maddeMetni(madde) {
 
 /** Metin bu ekseni çağırıyor mu? Desenler dile duyarlı (16c DETECT_I18N). */
 function _eksenEslesir(metin, eksen) {
-  try {
-    const desenler = dp(`detect.eksen.${eksen}`) || [];
-    return desenler.some(rx => { try { return rx.test(metin); } catch (_) { return false; } });
-  } catch (_) { return false; }
+  try { return dpTest(`detect.eksen.${eksen}`, metin); } catch (_) { return false; }
 }
 
 /** Alıntıyı kelime sınırında kırp — kanıt cümlesi taşmasın. */
