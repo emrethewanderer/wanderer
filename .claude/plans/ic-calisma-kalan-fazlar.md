@@ -125,6 +125,18 @@ raporlar: **kaçırma** (beklenen `kriz`, ikisi de false) ve **yanlış-alarm**
 Boş korpusla test **geçmez** — `korpus.length >= 30` bir iddiadır ve kapıdır.
 
 ### FAZ 2 — Kriz korpusu · 🅞 · ~0.5 oturum
+> **Keşifte çıkan bulgu (2026-09-04) — bu faz onu ölçüye bağlar.**
+> `detect.crisis` **on üç** dilde tanımlı (`16c-i18n-detect-dict.js`);
+> `detect.crisis_soft` yalnız **iki** dilde: `tr` (`:12`) ve `en` (`:89`).
+> Yani Almanca yazan biri sert bir kalıba basmazsa, yumuşak sinyalin LLM
+> teyidine (`_confirmCrisisWithLLM`) **hiç ulaşmaz** — kapı o dilde tek
+> katmanlıdır. Bu bir kırık mı bilinçli bir sınır mı, repodan okunamaz;
+> plan onu **uydurmuyor**, TABAN olarak beyan ediyor: korpus bugünkü
+> kapsamayı sayıya bağlar, büyümesi serbest, **daralması yasak**
+> (kalıp: `tests/referans-butunlugu.test.js`). Yumuşak desenleri on bir
+> dile yazmak ayrı bir karardır ve Emre'nin masasına çıkar (§6.10: kanıtı
+> olmayan değer yoktur — uydurulmuş bir emniyet deseni de öyle).
+
 Devir: 🅞 — hangi cümlenin kriz, hangisinin mecaz, hangisinin masum sayılacağı
 plandan okunamaz; korpusun kendisi yargıdır ve yanlış bir cümle, insan
 güvenliği kapısını yanlış kurar. Ayrıca on bir dilde register kararıdır.
@@ -134,11 +146,33 @@ Kapsam: ≥30 senaryo, `dp('detect.crisis')`'in tanıdığı dillerden en az alt
 şarkı sözü, "ölesiye yoruldum", "bu işi öldürdüm").
 
 ### FAZ 3 — Paylaşım türü kırılımı · 🅢 · ~0.5 oturum
-**Değişen:** `js/parts/13g-*.js` (`shrShareStory` imzası + `_shareCanvas`) ·
-altı çağıran · `tests/` ilgili süit
-`shrShareStory(..., tur)` altı çağırandan türünü alır (`kart`·`seri`·`yol`·
-`wrapped`·`hazine`·`olus`); `wtLogPaylasim`'in `meta.tur`'u dolar. Tür
-geçirilmezse **null kalır** — uydurulmuş varsayılan yazılmaz (§6.10).
+**Değişen:** `js/parts/13g-paylasim.js` (`shrShareStory` → `_shareCanvas`) ·
+yedi çağıran · `tests/` ilgili süit
+
+Keşif düzeltmesi (2026-09-04): rapor "altı çağıran" diyor, repoda **yedi**
+var — `13t:553` gözden kaçmış (`gbPaylasimKarti` sonucunu doğrudan geçiyor).
+Ve `_PAY_TUR` kapalı kümesi **üç** değerdir (`kart`·`rapor`·`film`,
+`00f:767`), altı değil: iş yeni değer eklemek değil, yedi çağıranı bu üçe
+**eşlemektir**. Küme genişletilirse `051`'in `paylasim_pulse` bloğu da
+bilmek zorunda kalır — genişletilmiyor.
+
+Eşleme (koddan okundu, uydurulmadı):
+`13t` dönüşüm aynası → `kart` · `10q:1538` kişi kartı → `kart` ·
+`10t:464` kilometre taşı → `kart` · `12f:645` hazine tacı → `kart` ·
+`10q4:462` oluş mührü → `kart` · `10f:803` yol özeti → `rapor` ·
+`13j:400` AYIN FİLMİ → `film`.
+
+`tur` `params` nesnesine girer (`shrShareStory({…, tur})`) — imza
+değişmez, "TEK GİRİŞ: window.shrShareStory(params)" sözleşmesi korunur;
+`_shareCanvas(cv, title, tur)` üçüncü parametreyle alır.
+
+**Ve bu fazın asıl bulgusu:** `13g:301` bugün `wtLogPaylasim('indir',
+{ tur: 'kart' })` yazıyor — **sabit**. Oysa o dal `shrShareStory`'nin
+indirme düşüşüdür ve paylaşılan şey pekâlâ `film` (Wrapped) ya da `rapor`
+(Yol) olabilir. Yani kartın "tür" sütunu bugün yalnız eksik değil, indirme
+satırlarında **yanlış**. Sabit değer aynı `tur`'a devredilir.
+
+Tür geçirilmezse **null kalır** — uydurulmuş varsayılan yazılmaz (§6.10).
 
 ### FAZ 4 — Bildirim tercihleri yüzeyi · 🅞 · ~1 oturum
 Devir: 🅞 — sessiz saat seçicisinin biçimi (iki saat mi, hazır aralık mı) ve
