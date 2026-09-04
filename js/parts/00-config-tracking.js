@@ -874,12 +874,17 @@ export function captureCommitments(text) {
     if (!re) return;
     const m = hedef.match(re);
     if (!m) return;
-    // Eşleşmenin ham (orijinal) karşılığı — indeksler birebir uyar.
-    // `extract` sözleşmesi korunur: bugünkü dört tanımın hepsi m[0] kullanıyor
-    // ama biri yarın grup okursa diye fonksiyon yine çağrılır; ona verilen
-    // dizide m[0] ORİJİNAL dilimdir.
+    /* Eşleşmenin ham (orijinal) karşılığı — indeksler birebir uyar.
+       SÖZLEŞMENİN TAM SINIRI (çapraz denetim bulgusu, Sonnet): `extract`
+       yine çağrılır ve verilen dizide **m[0] ORİJİNALDİR**; `index`,
+       `input` ve `groups` da elle taşınır (`[...m]` spread'i `groups`'u
+       DÜŞÜRÜR — ampirik doğrulandı). Ama numaralı gruplar (`m[1]`, `m[2]`)
+       hâlâ NORMALİZE metinden gelir: bir gün bir `extract` onları okursa
+       değeri İ yerine i taşır. Bugün böyle bir tanım yok — dördü de m[0]
+       kullanıyor (16c:31-36 ve :108-113) — ama "sözleşme tamamen korunur"
+       demek fazla iddialı olurdu ve bu yorum onu demiyor. */
     const ham = text.slice(m.index, m.index + m[0].length);
-    const mHam = Object.assign([...m], { index: m.index, input: text });
+    const mHam = Object.assign([...m], { index: m.index, input: text, groups: m.groups });
     mHam[0] = ham;
     const extracted = entry.extract ? entry.extract(mHam) : ham;
     commitments.push(String(extracted).slice(0, 100));
