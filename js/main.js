@@ -74,6 +74,7 @@ import './parts/13p-hukuk.js'; // Hukuki Çerçeve (Koşullar/Gizlilik/Fikri Mü
 import './parts/10-features-w2.js';
 import './parts/10A-gecis-karti.js'; // GEÇİŞ KARTIM (iç ad gecis-karti) — TEK Atölye (Bugün + Sohbet kapıları), paylaşım, koleksiyon — window.ak* + loadKendiKoleksiyonumView açar
 import './parts/10B-ilham-karti.js'; // SOHBET KÖPRÜSÜ (eski İlham Kartı; 2026-06-21 10A omurgasına gömüldü) — yalnız ilhamRumuz + Emre chip → gkOnboard(seed,{source:'sohbet'})
+import './parts/10F-on-suzgec.js'; // ÖN SÜZGEÇ — yayın öncesi tek bakış (kimlik + kriz); window.szDenetle, 10C/10A çağırır
 import './parts/10C-sosyal-feed.js'; // KİŞİLERİN KİŞİLERİ — sosyal feed (beğeni/yorum/koleksiyona) — window.sf* + loadSosyalView açar
 import './parts/10D-olmak-istedigin.js'; // OLMAK İSTEDİĞİN KİŞİ — kendi tasarladığın hedef kimlik + Geçiş Protokolü ritüeli (Geçiş Alanı 10j halefi) — window.oik* açar
 import './parts/10p-w2-meclis.js';

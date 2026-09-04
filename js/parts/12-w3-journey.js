@@ -1,6 +1,6 @@
 import { S } from '../state.js';
 import { sb, SUPABASE_URL, SUPABASE_ANON, EDGE_FN_BASE, ADMIN_EMAIL, SUMMARY_MODEL } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, MemCache, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast } from './00a-infrastructure.js';
+import { STORAGE_KEYS, SafeStorage, MemCache, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast, localDayKey, parseDayKey } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { callLLM, loadRemainingHistory } from './04-llm-hero-history.js';
 
@@ -36,12 +36,17 @@ export function w3GetDaySessionId(dateObj) {
 
 export function w3GetDayKey(dateOrISO) {
   const d = (dateOrISO instanceof Date) ? dateOrISO : new Date(dateOrISO);
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  return localDayKey(d);
 }
 
+/** Gün anahtarı → Date. Defter w3GetDayKey (= localDayKey) biçimindedir,
+ *  yani AY 0-TABANLI — `taban0` bayrağı bunu söyler (İç Çalışma 10 · B).
+ *  SÖZLEŞME KORUNUR: bu fonksiyon daima bir Date döner, asla null — iki
+ *  çağıranı (`:228` ve `:372`) dönüşü doğrudan kullanır. parseDayKey
+ *  çözemediğinde Invalid Date'e düşer; eski elle-parse'ın bozuk girdide
+ *  ürettiği şeyin aynısı. */
 export function w3DayKeyToDate(dayKey) {
-  const [y, m, d] = dayKey.split('-').map(Number);
-  return new Date(y, m, d);
+  return parseDayKey(dayKey, { taban0: true }) || new Date(NaN);
 }
 
 export function w3FormatTurkishDate(date, opts = {}) {

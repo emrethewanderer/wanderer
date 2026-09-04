@@ -126,7 +126,10 @@ Deno.serve(async (req) => {
     if (error) errors.push({ table: 'profiles', message: error.message });
   }
 
-  // Storage temizliği — chat-images/{uid}/* ve avatars/avatars/{uid}.*
+  // Storage temizliği — chat-images/{uid}/* (sohbet görselleri),
+  // chat-images/hayal/{uid}/* (Hayalini Resmet sahne görselleri — AYNI bucket,
+  // ayrı önek; js/parts/10i-w2-hayal-alemi.js:346-347 buraya yazar, o yüzden
+  // ikinci bucket değil ikinci list/remove çifti gerekir) ve avatars/avatars/{uid}.*
   try {
     const { data: imgs } = await admin.storage.from('chat-images')
       .list(user.id, { limit: 1000 });
@@ -136,6 +139,16 @@ Deno.serve(async (req) => {
     }
   } catch (e) {
     errors.push({ table: 'storage:chat-images', message: (e as Error)?.message || 'list/remove failed' });
+  }
+  try {
+    const { data: hayaller } = await admin.storage.from('chat-images')
+      .list(`hayal/${user.id}`, { limit: 1000 });
+    if (hayaller?.length) {
+      await admin.storage.from('chat-images')
+        .remove(hayaller.map((f) => `hayal/${user.id}/${f.name}`));
+    }
+  } catch (e) {
+    errors.push({ table: 'storage:chat-images:hayal', message: (e as Error)?.message || 'list/remove failed' });
   }
   try {
     const { data: avs } = await admin.storage.from('avatars')

@@ -342,6 +342,8 @@ function _isUserCancel(e) {
 async function _purchaseSku(skuId) {
   if (!S.currentUser) { showToast(t('toast.login_first'), true); return false; }
   if (storePlatform() === 'web') {
+    // Kota Nabzı: abonelik sheet'i gerçekten açıldı (16·C) — tier SKU'nun kendi önekinden okunur.
+    try { window.wtLogKota?.('sheet', { tier: skuId.startsWith('max') ? 'max' : 'pro' }); } catch (_) {}
     document.getElementById('payment-overlay')?.classList.add('open');
     return false;
   }
@@ -385,6 +387,8 @@ export function openGateOverlay() {
   if (panelB) panelB.style.display = state === 'offer_b' ? '' : 'none';
 
   if (state === 'offer_a') _tickGateCountdown();
+  // Kota Nabzı: hangi giriş teklifi (A/B) gerçekten gösterildi — huninin ilk basamağı (16·C).
+  try { window.wtLogKota?.('gate', { dal: state === 'offer_a' ? 'a' : 'b', tier: S.isPremiumPlus ? 'max' : S.isPremium ? 'pro' : 'free' }); } catch (_) {}
   overlay.classList.add('open');
 }
 
@@ -411,6 +415,8 @@ function _tickGateCountdown() {
 /* ── Genel satın alma — aktif abone yükseltmesi / winback (Kapı Aralık, liste) ── */
 export async function startPayment(tier = 'pro', cadence = 'monthly') {
   if (storePlatform() === 'web') {
+    // Kota Nabzı: abonelik sheet'i gerçekten açıldı (16·C) — tier çağıranın verdiği hedef katman.
+    try { window.wtLogKota?.('sheet', { tier: tier === 'max' ? 'max' : 'pro' }); } catch (_) {}
     document.getElementById('payment-overlay')?.classList.add('open');
     return;
   }
@@ -469,6 +475,8 @@ export function openCancelIntent() {
   const downgradeBtn = document.getElementById('ci-downgrade-btn');
   if (downgradeBtn) downgradeBtn.style.display = S.isPremiumPlus ? '' : 'none';
 
+  // Kota Nabzı: Ayrılık Eşiği'ne kaç kişi geldi — hunideki tek çıkış ölçümü (16·C).
+  try { window.wtLogKota?.('iptal', { tier: S.isPremiumPlus ? 'max' : S.isPremium ? 'pro' : 'free' }); } catch (_) {}
   document.getElementById('cancel-intent-overlay')?.classList.add('open');
 }
 export function closeCancelIntent() {

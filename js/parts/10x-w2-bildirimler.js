@@ -384,10 +384,38 @@ export function _buildEngagementSnapshot() {
     last_active_date: localISODate(),
     last_sealed_date: lastSealed || null,
     pending_soz_text: pendingSoz || null,
-    quiet_start: 23,  // yerel saat — bu aralıkta bildirim gönderilmez
-    quiet_end: 8,
+    // SESSİZ SAAT — buraya YALNIZ gerçek bir kullanıcı tercihi girer
+    // (İç Çalışma 11 · boşluk C). Eskiden burada `quiet_start: 23, quiet_end: 8`
+    // literal olarak duruyordu ve her senkron, tabloda ne yazarsa yazsın onu
+    // geri eziyordu — yani mesele "hardcode" değil, tercihi aktif olarak YOK
+    // ETMEKTİ. Anahtar hiç gönderilmezse upsert onu yazmaz: INSERT'te DB
+    // varsayılanı (23/8, mig 000) devreye girer, UPDATE'te mevcut değer
+    // korunur. Gece vardiyasında çalışan biri için 07:00 "sabah daveti"
+    // rahatsızlıktır ve tek çıkışı izni tamamen kapatmak olmamalı.
+    // AYARLAR YÜZEYİ HENÜZ YOK: o gelene dek `_sessizSaatTercihi()` daima
+    // null döner ve davranış bugünküyle BİREBİR aynıdır (23/8) — fark şu ki
+    // artık ezilmiyor.
+    ..._sessizSaatTercihi(),
     lang: getCurrentLanguage() || 'tr', // push dil kilidi (mig 037) — sohbetle aynı dil
   };
+}
+
+/* Kullanıcının sessiz saat tercihi — hesap verisi olduğu için SafeStorage
+   per-uid (§5.2 konvansiyonu). Tercih yoksa ya da bozuksa BOŞ nesne döner:
+   payload'a hiçbir anahtar girmez, DB'deki değer korunur. Saatler 0-23
+   tamsayı olmalı; aralığın kendisi (23→8 gibi ters sarma) sunucunun işidir,
+   burada yalnız biçim doğrulanır. */
+const SESSIZ_KEY = 'etw_sessiz_saat_v1';
+function _sessizSaatTercihi() {
+  try {
+    const uid = S.currentUser?.id || 'anon';
+    const t = SafeStorage.get(`${SESSIZ_KEY}_${uid}`);
+    if (!t || typeof t !== 'object') return {};
+    const s = Number(t.start), e = Number(t.end);
+    if (!Number.isInteger(s) || !Number.isInteger(e)) return {};
+    if (s < 0 || s > 23 || e < 0 || e > 23) return {};
+    return { quiet_start: s, quiet_end: e };
+  } catch (_) { return {}; }
 }
 
 async function _setEngagement(patch) {

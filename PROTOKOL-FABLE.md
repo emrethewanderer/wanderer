@@ -197,6 +197,18 @@ gerekçesini taşıyan bir liste (`GURULTU`) ile ağır sayılmayan türler
 TAM listelenir — yutulan şey denetlenemiyorsa filtre bir kapı değil bir
 perdedir. `--izin <desen>` o koşuya özel ekleme yapar.
 
+**Üç kova tarayıcıya özel değildir — HER kapının kuralıdır.** Bir kapı
+kırmızıya döndüğünde ilk soru "ne kırıldı" değil, **"kırık kimin"**dir. Ağacın
+kırığı kapıyı kırar; bir dış servisin kesintisi kırmaz ama **sessizce de
+geçmez** — adıyla raporlanır. Bu ayrımı yapmayan bir kapı iki yönden birden
+bozulur: gerçek kırıkları gürültüye boğar, ya da gürültüyü kırık sayıp turu
+durdurur. Ölçüldü — 2026-09-03, CI koşusu #64: 171 dosya / 3857 testin hepsi
+yeşil geçti, sonra `npm audit` npm registry'nin 503'ü yüzünden exit 1 verdi ve
+kapı kırmızı kapandı. Aynı commit'in push koşusu (#63) bir saat önce yeşildi;
+**fark ağaçta değil zamandaydı.** Düzeltme adımı üç kovaya ayırdı ve kapısı
+`tests/kapi-workflow.test.js`'tedir — betik metin olarak değil, sahte bir
+`npm` ile GERÇEKTEN koşturularak sınanır (§10.6).
+
 **`console.warn` bu repoda GÜRÜLTÜ DEĞİLDİR — ihlaldir.** Sebebi §5.2'nin
 savunmacı stilidir: yakalanan hata `catch (e) { console.warn('fxSave:', …) }`
 ile loglanır ve `js/` altında 305 gerçek kullanımı vardır. Uyarıyı yutan bir
@@ -264,6 +276,26 @@ ya da paylaşılan bir motor değiştiyse **onu tüketenlerin** testleri de
 girer (`grep -rn <fnAdı> js/` ile bulunur). Tam süit **yalnız sprint
 kapanışında** koşar (§3.5) ve orada pazarlıksızdır. Hedefli süiti de
 atlamak yasak: "muhtemelen geçer" bir kapı değildir.
+
+**Ama önek kuralının bir kör noktası var ve ölçüldü (2026-09-03): REPO-GENELİ
+kapılar hiçbir önekle bulunmaz.** `tests/xss-kapisi.test.js` bir modülün değil
+**bütün ağacın** kapısıdır; `git diff` ona hiç işaret etmez. Bedeli dört
+kırmızı CI koşusudur: FAZ 5 `js/parts/13q-*` değiştirdi, hedefli süit
+`tests/13q-*` koştu ve yeşil bastı — oysa aynı faz XSS tabanını 23
+interpolasyonla büyütmüştü. Kırık #57'de doğdu, #58–#60'ta taşındı; Emre dört
+uyarı e-postası aldı, oturum hiçbirini görmedi. Kapı kağıtta vardı, hedefte
+yoktu.
+
+Bu yüzden faz kapısının ikinci adımı **iki koşudur**, biri değil:
+
+    npx vitest run tests/<önek>*   # o fazın modülleri
+    npm run kapi:genel             # repo-geneli kapılar — desene bağlı, listeye değil
+
+`kapi:genel` = `vitest run kapisi kapi-workflow`: 20 dosya, 284 test, **~17
+saniye**. Elle bakımlı bir liste değil bir DESEN olması kasıtlıdır — liste
+bayatlar, yeni bir kapı ona kendiliğinden girmez ve kapı sessizce eksilir.
+Ucuzluğu ölçüldü çünkü ucuz olmayan bir kural yine atlanırdı: §3.3'ün tam
+süiti faz sonundan tam bu sebeple çıkarılmıştı.
 
 **Faz denetimi ÇAPRAZ MODELDİR (Emre'nin kararı, 2026-08-23).** Bir fazın
 öz-denetimini o fazı YAZAN model yapmaz — **öteki model** yapar:
@@ -511,7 +543,9 @@ düşer, yani kural kendi gerekçesini yer.
    kullanıcı hakkında söylediği her şeyin kökeni yine kullanıcı mı (§6.10).
    Bulgunun tipik biçimi şudur: **kod doğru, iş yanlış.**
 4. **Sürece karşı — "bu kırığı üreten kural hangisi?"** Turun asıl kazancı
-   burasıdır. Bulunan kırık bir **kural boşluğuysa** düzeltme koda değil
+   burasıdır. İlk alt soru şudur ve sırası önemlidir: **kural YOK muydu, yoksa
+   YANLIŞ YERDE mi duruyordu?** İkincisi çok daha sıktır ve daha sinsidir —
+   çünkü ilkinde bir boşluk görünür, ikincisinde bir güven görünür (§6.6). Bulunan kırık bir **kural boşluğuysa** düzeltme koda değil
    **protokole** yazılır; aynı kırık iki sprintte iki kez çıktıysa mesele o
    kırık değil onu üreten kuraldır. §6.6'nın cümlesi burada işler: *kapısı
    olmayan kural, zamanla tavsiyeye döner* — ölçülebilir bir kural bulduysan
@@ -914,6 +948,16 @@ Felsefe-önce başlık imzadır — kod bile teze bağlanır. Bölüm ayraçlar�
    madde (§3 eriyen kenar, §5 reduced-motion, §8 z-index) yazılı oldukları
    hâlde sırasıyla 0 / 6 dosya / 38 yerde uygulanmamış çıktı. **Kapısı olmayan
    kural, zamanla tavsiyeye döner.**
+
+   **Ve bir basamak daha var: YANLIŞ YERDE duran kapı, kapısızlıktan kötüdür**
+   (2026-09-03 ölçümü). O gün bir oturumda beş süreç kırığı çıktı ve beşinde de
+   kural VARDI — eksik olan yeriydi: XSS kapısı vardı ama hedefli süitin
+   önekiyle seçilmiyordu · "kırmızı Kapı'yı oku" maddesi vardı ama faz değil
+   sprint listesindeydi · bekleme döngüsünün mantığı vardı ama tavanı yoktu ·
+   `npm audit` kapısı vardı ama kırığın kimin olduğunu ayırt etmiyordu ·
+   PR guard'ı vardı ama dal koşusundan önce koşuyordu. Hiçbiri "kural yok"
+   değildi. Kapısız bir kural en azından kendini kural sanmaz; **yanlış yerde
+   duran kapı ise koruduğunu sanır ve o güveni boşa harcatır.**
 7. **Bundle diyeti:** yeni büyük sözlük/veri → sidecar (ayrı asset +
    `ensureExt`/`loadExtScript` deseni); build.sh boyut kapısına takılma.
 8. **i18n paritesi:** her yeni UI string TR+EN sözlüğe girer; `t(key,
@@ -1059,6 +1103,9 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] `./build.sh 2>&1 | tail -20` yeşil
 - [ ] **Hedefli** süit yeşil — o fazın dokunduğu testler (`git diff
       --name-only` → `tests/<önek>*`). Tam süit BURADA DEĞİL, §3.5'te
+- [ ] **`npm run kapi:genel` yeşil** — repo-geneli kapılar hiçbir önekle
+      bulunmaz, o yüzden ayrı koşar (~17 sn). Atlanırsa kırık CI'da doğar:
+      2026-09-03'te tam bu oldu, dört koşu üst üste kırmızı bastı (§3.3)
 - [ ] Faz denetimi **öteki modelde** koşturuldu (§3.3) — yazan denetlemez:
       Opus'un yazdığı fazı Sonnet, Sonnet'in yazdığı fazı Opus denetler
       (`denetci` çağrısında `model` parametresiyle); bulgusu bu turda düzeltilir
@@ -1078,6 +1125,14 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] Commit atıldı (push yok) — Stop kancası `.claude/DEVIR.md`'yi kendi yazar
 - [ ] Kısa durum bildirimi yazıldı ve **sorusuz sonraki faza geçildi** —
       faz sonunda durup "devam edeyim mi?" beklemek yasak (§3.4 madde 5)
+- [ ] **Uzak oturumda push edildiyse: o push'un Kapı koşusu OKUNDU** —
+      sprint sonunda değil, burada. Kırmızıysa sonraki faz açılmaz (§10.4).
+      Madde eskiden yalnız sprint kapanışındaydı; oysa push her fazda olur ve
+      dört faz boyunca kırmızı bir Kapı görülmedi (2026-09-03)
+- [ ] Kapı **YOKLANDI, beklenmedi** — `mcp__github__actions_get`; `in_progress`
+      ise iş sürer, sonraki duraksamada tekrar yoklanır. Kabukta bekleme
+      döngüsü YOK, doğrudan `api.github.com` YOK (§10.6 — ikisi birleşince
+      40 dakika sessizce yendi)
 
 **Kota %95 + kalan pay yetmiyorsa (iki koşul birlikte — §3.6)**
 - [ ] Eşik gerçekten doğru mu: %95 **ve** kalan iş kalan paya sığmıyor —
@@ -1174,7 +1229,13 @@ yoksa bir komut mu üretti?* İnsan yazdıysa commit edilir.
 
 | Madde | Lokalde | Uzak oturumda |
 |---|---|---|
-| **§3.5/2 tam süit** | süit senin makinende koşar; kırmızıyı ekranda görür, turu orada durdurursun | süit **CI'da da koşar** (`.github/workflows/kapi.yml` — doğrulama tarayıcısının duman koşusu da orada bir adımdır) ve sonucu e-postayla gelir. Kırmızı Kapı bir bildirim değil **iştir**: görüldüğü an fazın devamı durur, kırık düzeltilir, sonra devam edilir. Ölçü 2026-09-02'nin iki kırmızı koşusudur ve ikisi zıt yönü gösterir: birincisinde kapı OKUNDU — `58b645a` başlığı bunu yazar ("CI'ın ilk koşusunun bulduğu kırık") ve kırık 10 dakikada kapandı. İkincisinde okunmadı: kırmızı 09:21'de düştü (Actions koşu #15'in tamamlanma damgası) ama düzeltme zaten 09:01'de açılmış bir fazın (`6242fd3`) yan ürünü olarak geldi, önce cümleyi yeniden yazan bir KAÇINMAYLA (`9c636bd`), gerçek düzeltme 10:08'de (`8ab08a0`). Aradaki fark 10 dakika ile 50 dakika değil yalnız; biri kapıyı bir iş sayar, öteki bir bildirim |
+| **§3.5/2 tam süit** | süit senin makinende koşar; kırmızıyı ekranda görür, turu orada durdurursun | süit **CI'da da koşar** (`.github/workflows/kapi.yml` — doğrulama tarayıcısının duman koşusu da orada bir adımdır) ve sonucu e-postayla gelir. Kırmızı Kapı bir bildirim değil **iştir**: görüldüğü an fazın devamı durur, kırık düzeltilir, sonra devam edilir. Ölçü 2026-09-02'nin iki kırmızı koşusudur ve ikisi zıt yönü gösterir: birincisinde kapı OKUNDU — `58b645a` başlığı bunu yazar ("CI'ın ilk koşusunun bulduğu kırık") ve kırık 10 dakikada kapandı. İkincisinde okunmadı: kırmızı 09:21'de düştü (Actions koşu #15'in tamamlanma damgası) ama düzeltme zaten 09:01'de açılmış bir fazın (`6242fd3`) yan ürünü olarak geldi, önce cümleyi yeniden yazan bir KAÇINMAYLA (`9c636bd`), gerçek düzeltme 10:08'de (`8ab08a0`). Aradaki fark 10 dakika ile 50 dakika değil yalnız; biri kapıyı bir iş sayar, öteki bir bildirim. **Üçüncü hâl 2026-09-03'te
+ölçüldü ve ikisinden de kötüdür: kapı HİÇ okunmadı.** Dört koşu üst üste
+kırmızı bastı (#57–#60), Emre dört e-posta aldı, oturum hiçbirini görmedi —
+çünkü push sonrası koşuya bakmak listede sprint kapanışına yazılmıştı, oysa
+push her fazda oluyordu. Kırmızıyı bir iş saymak için önce onu GÖRMEK gerekir;
+bakılmayan kapı, kırmızı bile olsa sessizdir. Madde artık faz kapanışında da
+duruyor (§9) |
 | **§3.5/6 commit** | "commit at, **push YOK**" — iş diskte güvende, push ayrı onay ister | kap geçicidir: **commit edilmeyen iş oturumla birlikte ölür.** Belirlenmiş dala push, kaydın kendisidir; onayı oturumun görev tanımı verir |
 | **§3.3 tarayıcı** | `node scripts/dogrula.mjs` — tek origin `:3030`, Chromium sistemden çözülür (yoksa `npx playwright install chromium`). Preview aracı hâlâ var; ama göz için, kapı için değil | **AYNI KOMUT.** Chromium `/opt/pw-browsers/chromium`'dan çözülür, kap onunla gelir. Bu satır 2026-09-02'ye kadar şöyleydi: *"preview aracı yüklü olmayabilir, o zaman kapı atlanmaz ama ortamı adlandırılır — 'preview bu oturumda yok, X sınanamadı'"*. O muafiyet **KALDIRILDI**: kapı artık ortama değil repoya bağlı. Tarayıcı gerçekten bulunamıyorsa koşucu hata verir (exit 1) ve faz KAPANMAZ — "sınanamadı" bir kapanış hâli değildir |
 | **§4.4 devir** | `.claude/agents/` diskte, adlar hep yüklü | ajan dosyasını yazmak yetmez, **commit edilmelidir** — ve tanınması ânında olmayabilir: 2026-09-02'de commit'ten ~1,5 saat sonra, aynı oturum içinde etkinleşti. Ad henüz tanınmıyorken devir gerekiyorsa sözleşmeyi çağrının prompt'una elle yükle ve bunu **sapma olarak raporla**; tanınıyorsa gerçek adı kullan (nabız yalnız gerçek adı sayar, §10.5) |
@@ -1194,6 +1255,40 @@ başarısız denemeydi, gerçekte yapılan beş devir sayılmadı.
 Ders `tests/devir-nabzi.test.js`'in kendi cümlesidir: *"Ölçen aletin kendisi
 ölçülmezse ölçüm bir teselli olur."* Bir nabız kırmızı bastığında önce
 **aletin o ortamda ne ölçebildiğini** sor, sonra kuralın öldüğüne hükmet.
+
+### 10.6 Kapı YOKLANIR, beklenmez — ve hiçbir döngü tavansız kurulmaz
+
+**Kural tek cümledir: bir koşunun bitmesi BEKLENMEZ, durumu YOKLANIR.**
+Push'tan sonra `mcp__github__actions_list` / `actions_get` ile durum okunur.
+`in_progress` ise iş devam eder ve bir sonraki doğal duraksamada tekrar
+yoklanır. Kapı koşusu dört dakika sürer; onu beklemek için kurulan bir kabuk
+döngüsü, kazandığından çoğunu geri verir.
+
+**İki yasak, ve ikisi 2026-09-03'te birleşip 40 dakika yedi:**
+
+1. **Doğrudan GitHub API yasak.** Uzak oturumda `GITHUB_TOKEN` bir yer
+   tutucudur (`"proxy-injected"`, 14 karakter) ve `api.github.com` **403**
+   döner: *"GitHub access is not enabled for this session."* Erişim yalnız
+   `mcp__github__*` araçlarındadır — sistem talimatı bunu zaten söyler, ve
+   ihlalin cezası bir hata değil bir SESSİZLİKTİR.
+2. **Tavansız bekleme döngüsü yasak.** Her `until`/`while true` + `sleep`
+   bir çıkış tavanı taşır (deneme sayacı, `--max-time`, `SECONDS`) ve tavan
+   dolunca **gürültülü** biter — sessizce değil.
+
+Birleşme şöyle işledi: `curl` 403 döndü, dönen JSON'da `status` alanı yoktu,
+`.get('status','')` boş string verdi ve `'' != "completed"` sonsuza kadar doğru
+kaldı. Ne hata basıldı, ne döngü kırıldı. Üstelik **koşu çoktan yeşil
+bitmişti** — bekleyen sorgu bunu asla göremedi, çünkü bakamıyordu.
+
+Ders §6.2'nin kardeşidir: *sahte başarı yasaktır* — sessiz bir sonsuz döngü
+hiçbir şeyi yanlış RAPORLAMAZ, yalnız hiç bitmez. Dürüstlük yalnız çıktının
+değil, **durmanın** da sözleşmesidir.
+
+Kapı: `tests/bekleme-dongusu-kapisi.test.js` — kabuk yüzeylerinde (`scripts/`,
+`.github/`, `.claude/hooks/`) iki deseni de arar; tabanı **sıfırdır** ve
+büyümesi yasaktır. Kapı kendi ihlalini de sınar (§10.5: ölçen alet de
+ölçülür). Adı `*-kapisi` olduğu için `npm run kapi:genel`
+desenine kendiliğinden girer.
 
 ---
 

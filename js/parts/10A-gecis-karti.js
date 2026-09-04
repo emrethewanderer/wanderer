@@ -1295,6 +1295,22 @@ export async function gkShare(id) {
     duygular:    Array.isArray(lapis.duygular)    ? lapis.duygular    : [],
     davranislar: Array.isArray(lapis.davranislar) ? lapis.davranislar : [],
   };
+  /* Ön süzgeç (10F) — kartın SERBEST METİN alanlarının tamamı bakılır, yalnız
+     başlığı değil: kullanıcının kendi cümleleri `seed_text`, `whisper` ve dört
+     dizinin içindedir ve hepsi feed'de görünür (İç Çalışma 12·A).
+     Geçmezse INSERT hiç denenmez — yayınlanmış bir kartı geri almak, alınmış
+     bir ekran görüntüsünü geri almaz. */
+  const _szMetin = [
+    snapshot.seed_text, snapshot.baslik, snapshot.whisper,
+    ...snapshot.dusunceler, ...snapshot.inanclar,
+    ...snapshot.duygular, ...snapshot.davranislar,
+  ].filter(Boolean).join('\n');
+  const _sz = window.szDenetle?.(_szMetin);
+  if (_sz && _sz.gecer === false) {
+    try { showToast(_sz.mesaj, true); } catch (_) {}
+    return false;
+  }
+
   try {
     // kind:'benim' — kart artık adıyla paylaşılır (eski 'ilham' satırları
     // feed'de aynen okunur; okuma tarafı kind'a bakmaz). Rumuz alanları

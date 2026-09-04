@@ -329,6 +329,44 @@ export function localISODate(d = new Date()) {
   return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
 }
 
+/** GÜN ANAHTARI OKUYUCUSU — iki yazım biçimini de çözer (İç Çalışma 10 · B).
+ *
+ *  Bu repoda gün anahtarının iki biçimi var ve ikisi de bilinçli:
+ *    localDayKey()  → 'YYYY-M-D'   ay 0-TABANLI, pad'siz  (aktivite defteri)
+ *    localISODate() → 'YYYY-MM-DD' ay 1-tabanlı, padded   (10t/10u defterleri)
+ *
+ *  NEDEN PARAMETRE ALIYOR — otomatik ayrım MÜMKÜN DEĞİL. `'2026-11-25'` iki
+ *  biçimde de geçerlidir ama FARKLI ayı gösterir: 0-tabanlı okumada Aralık,
+ *  1-tabanlı okumada Kasım. Pad'e bakmak da kurtarmaz, çünkü 11 ve 25 zaten
+ *  iki hanelidir. Sessizce tahmin eden bir okuyucu yılın çoğunda doğru, bazı
+ *  günlerinde bir ay şaşardı — ve o hata Wrapped'in "aktif gün" sayısında
+ *  görünmeden yaşardı. Bu yüzden çağıran taraf hangi defteri okuduğunu
+ *  SÖYLEMEK zorundadır; belirsizliği fonksiyon değil çağıran çözer.
+ *
+ *  Bu bir FORMAT GÖÇÜ DEĞİLDİR: yazıcılar olduğu gibi kalır (göç, cihazlarda
+ *  duran gerçek defterleri yeniden yazmak demektir — riskli ve gereksiz).
+ *  Değişen yalnız okuma tarafının tek elde toplanmasıdır.
+ *
+ *  Dönüş: YEREL gece yarısına kurulmuş `Date`, ya da çözülemezse `null`.
+ *  `new Date('2026-1-5')` gibi string parse YOK — o yol tarayıcıya göre UTC
+ *  yorumlanabilir ve TR'de günü kaydırır ([[yerel-tarih-anahtari]]); sayısal
+ *  kurucu (`new Date(y, m, d)`) daima yereldir. */
+export function parseDayKey(k, { taban0 = false } = {}) {
+  const p = String(k == null ? '' : k).split('-');
+  if (p.length !== 3) return null;
+  const y  = parseInt(p[0], 10);
+  const mo = parseInt(p[1], 10);
+  const d  = parseInt(p[2], 10);
+  if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return null;
+  const ayIdx = taban0 ? mo : mo - 1;            // Date'in beklediği 0-tabanlı ay
+  if (ayIdx < 0 || ayIdx > 11 || d < 1 || d > 31) return null;
+  const dt = new Date(y, ayIdx, d);
+  // Taşma kapısı: new Date(2026, 1, 31) sessizce 3 Mart'a kayar. Anahtar
+  // gerçekten o günü göstermiyorsa null dönmek, yanlış günü döndürmekten iyidir.
+  if (dt.getFullYear() !== y || dt.getMonth() !== ayIdx || dt.getDate() !== d) return null;
+  return dt;
+}
+
 /** ZAMAN AĞIRLIĞI — üstel çürüme yardımcısı (Tanıma Motoru K5, 2026-08-09).
  *  "En son ne zamandı" sorusunu 0-1 ağırlığa çevirir: `2^(-yaş/yarıÖmür)`.
  *  Kaynak formül `13l-kimlik-motoru.js`'in erdem vektöründeydi

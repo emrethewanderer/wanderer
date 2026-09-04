@@ -1,6 +1,6 @@
 import { S } from '../state.js';
 import { sb, SUPABASE_URL, SUPABASE_ANON, EDGE_FN_BASE, ADMIN_EMAIL, SUMMARY_MODEL, EMRE_IMG } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, MemCache, ErrorBoundary, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast, createHookRegistry } from './00a-infrastructure.js';
+import { STORAGE_KEYS, SafeStorage, MemCache, ErrorBoundary, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast, createHookRegistry, localDayKey } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { callLLM } from './04-llm-hero-history.js';
 import { toTR } from './00-config-tracking.js';
@@ -27,7 +27,7 @@ function _w2ChatRenderKey() {
   const d = new Date();
   return [
     String(S.currentSessId || ''),
-    `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
+    localDayKey(d),
     String(S._currentLang || '')
   ].join('|');
 }
@@ -76,14 +76,14 @@ function _w2RenderInfiniteChatBody() {
   const byDay = new Map();
   allMsgs.forEach(m => {
     const d = new Date(m.created_at);
-    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const key = localDayKey(d);
     if (!byDay.has(key)) byDay.set(key, { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), msgs: [] });
     byDay.get(key).msgs.push(m);
   });
 
   // Bugünün anahtarı
   const now = new Date();
-  const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const todayKey = localDayKey(now);
 
   // Özet listesi (hangi günün özeti var)
   const summariesByDay = w2GetSummariesByDay();
@@ -212,7 +212,7 @@ export async function w2LoadSummariesCache() {
         let key = w2DayKeyFromSession(s.session_id);
         if (!key) {
           const d = new Date(s.created_at);
-          key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          key = localDayKey(d);
         }
         if (!map.has(key)) map.set(key, []);
         map.get(key).push(s);
@@ -370,7 +370,7 @@ export async function w2CheckAndSummarizeYesterday() {
   try {
     const now = new Date();
     const yesterday = new Date(now.getTime() - 86400000);
-    const yKey = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
+    const yKey = localDayKey(yesterday);
 
     // Otomatik kapanış cezası — gün manuel kapatılmadıysa bir kez −3 elmas
     // (idempotent; gece-yarısı timer'ı bu sürümü çağırdığından burada da uygulanır).
@@ -654,7 +654,7 @@ function _chGunler() {
   }
 
   const b = new Date();
-  const bugunKey = `${b.getFullYear()}-${b.getMonth()}-${b.getDate()}`;
+  const bugunKey = localDayKey(b);
   for (const [sid, msgs] of Object.entries(S.allSessions || {})) {
     if (!Array.isArray(msgs) || !msgs.length) continue;
     const key = _chDayKeyFromSid(sid);

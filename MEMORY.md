@@ -156,3 +156,19 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   şifre istemez ve aynı hamlede DOĞRULANMIŞ posta adresi kazandırır ("tek
   adres, tek gerçek"); Magic Link şablonu `{{ .Token }}` içermezse kod yerine
   BAĞ gider — ELLE iş
+- [[repo-geneli-kapilar]] — hedefli süitin önek kuralı `xss/tasarim/gerceklik/
+  bundle/bagsiz-ad` gibi **bütün ağacın** kapılarını asla seçmez; `npm run
+  kapi:genel` (desen, liste değil — ~17 sn) o kör noktayı kapatır. Ölçü: FAZ 5
+  yeşil bastı, CI dört koşu kırmızı
+- [[kirmizi-kapi-okunmali]] — kırmızı Kapı'nın üçüncü hâli: hiç okunmamak.
+  Kural §9'da vardı ama *sprint kapanışı* listesindeydi; oysa uzak oturumda
+  push her fazda olur. **Kapının yeri, varlığından önemlidir**
+- [[kapi-yoklanir-beklenmez]] — CI koşusu **yoklanır, beklenmez**; uzak
+  oturumda `GITHUB_TOKEN` yer tutucudur ve `api.github.com` 403 döner. Tavansız
+  bir `until` bunu sessizce sonsuza çevirdi (40 dk, koşu çoktan yeşildi).
+  Kapı: `tests/bekleme-dongusu-kapisi.test.js`
+- [[dis-origin-kapiyi-kirmaz]] — bir kapı kırmızıya dönünce ilk soru **"kırık
+  kimin"**; dış servis kesintisi kapıyı kırmaz ama sessizce de geçmez. npm
+  registry 503'ü CI'ı kırmızı bastı, testlerin hepsi yeşildi. Üç kova
+  tarayıcıya özel değil, HER kapının kuralı
+

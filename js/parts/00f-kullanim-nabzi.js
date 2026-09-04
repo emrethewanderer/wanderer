@@ -657,6 +657,133 @@ export function wtLogModel(olay, { model, oteki, prem } = {}) {
   if (_buf.length > WT_BUF_CAP) _buf.splice(0, _buf.length - WT_BUF_CAP);
 }
 
+/* ── Kota Nabzı (İç Çalışma 16 rev.2 · boşluk C) ──
+   Paywall hunisi bugüne dek kördü: `13m`'in tek çağrısı `crisis_grace`
+   idi (Emniyet Nabzı'na biner) — duvara kaç kişi çarptı, sheet'i kaçı
+   gördü, kaçı bonus'la geçti, kaçı iptal etti hiç sayılmıyordu. Bu kanal
+   yalnız gözlemler; kota sayacının KENDİSİNE dokunmaz (Riskler §4 —
+   olay yazımı bonus/hak mekaniğinin bir parçası DEĞİLDİR).
+   GİZLİLİK SÖZLEŞMESİ (wtLogModel ile birebir aynı kural): buraya yalnız
+   kapalı kümeden sabit kimlikler girer — fiyat, ürün adı, ödeme sağlayıcı,
+   sepet içeriği ASLA girmez; küme dışı değer satırı hiç doğurmaz.
+   screen=olay, prev_screen=dal (paywall varyantı/sebep — kapalı küme),
+   meta={tier}. */
+const _KOTA_OLAY = new Set(['duvar', 'sheet', 'gate', 'iptal', 'bonus']);
+const _KOTA_DAL  = new Set(['a', 'b', 'bonus', 'crisis']);
+const _KOTA_TIER = new Set(['free', 'pro', 'max']);
+
+export function wtLogKota(olay, { dal, tier } = {}) {
+  if (!_inited || !_KOTA_OLAY.has(olay)) return;
+  const uid = S.currentUser?.id;
+  if (!uid) return;
+  _buf.push({
+    user_id:     uid,
+    session_id:  _sessionId,
+    screen:      olay,
+    kind:        'kota',
+    prev_screen: _KOTA_DAL.has(dal) ? dal : null,
+    entered_at:  new Date().toISOString(),
+    duration_ms: 0,
+    meta: {
+      tier: _KOTA_TIER.has(tier) ? tier : null,
+    },
+  });
+  if (_buf.length > WT_BUF_CAP) _buf.splice(0, _buf.length - WT_BUF_CAP);
+}
+
+/* ── Araç Nabzı (İç Çalışma 09 rev.2 · boşluk D) ──
+   `13a`/`13b`'de sıfır `wt*` çağrısı vardı — Araç Motoru'nun önerdiği
+   her şeyin kabul mü ret mi gördüğü, hangi aracın hangisinden daha çok
+   reddedildiği bilinmiyordu. `_ARAC_DEFS` (13a) registry'si zaten var;
+   bu kanal onun üstüne yeni bir motor kurmaz, yalnız üç olayı sayar.
+   GİZLİLİK SÖZLEŞMESİ: araç adı kapalı kümeden gelir — chip'in ürettiği
+   SÖZÜN/NOTUN metni buraya asla girmez, yalnız aracın kendi kimliği.
+   screen=olay, prev_screen=arac (kapalı küme), meta boş — üçüncü bir
+   eksen yok, kabul oranı screen×prev_screen'den SQL'de çıkar (K3). */
+const _ARAC_OLAY = new Set(['oner', 'onayla', 'reddet']);
+const _ARAC_ARAC = new Set(['soz', 'not', 'gecis', 'imge']);
+
+export function wtLogArac(olay, { arac } = {}) {
+  if (!_inited || !_ARAC_OLAY.has(olay)) return;
+  const uid = S.currentUser?.id;
+  if (!uid) return;
+  _buf.push({
+    user_id:     uid,
+    session_id:  _sessionId,
+    screen:      olay,
+    kind:        'arac',
+    prev_screen: _ARAC_ARAC.has(arac) ? arac : null,
+    entered_at:  new Date().toISOString(),
+    duration_ms: 0,
+    meta: {},
+  });
+  if (_buf.length > WT_BUF_CAP) _buf.splice(0, _buf.length - WT_BUF_CAP);
+}
+
+/* ── Bölge Nabzı (İç Çalışma 18 rev.2 · boşluk A) ──
+   `10-features-w2`'de bölge görünürlüğünün hiçbir izi yoktu — ayracın
+   altına kaç kişi indi, galeri/İç Dünya/yolculuk/ocak hiç görüldü mü,
+   sezgiyle biliniyordu, kadrandan değil. Tek parametre kasıtlı: bu bir
+   OLAY değil bir GÖRÜNÜRLÜK'tür — "bölge X görüldü", ikinci bir eksen
+   taşımaz. `gun` bilinçli olarak YOKTUR: Bugün'ün kendi `view` segmenti
+   zaten paydadır, ayrı bir 'gun' olayı aynı şeyi ikinci kez sayıp oranı
+   bozar (K1 — oda 18'in sorusu "ayraç altına kaç kişi indi", "Bugün'e
+   kaç kişi girdi" değil).
+   GİZLİLİK SÖZLEŞMESİ: bölge adı sabit kapalı kümedir, sayfa içeriği
+   (galerideki görsel, İç Dünya notu) buraya asla girmez.
+   screen=bolge, prev_screen=null, meta boş — çağıran taraf (10-features-w2)
+   bölge başına oturumda BİR kez çağırır (Riskler §2), tekrarı bu fonksiyon
+   değil çağıranın `_gorulen` seti önler. */
+const _BOLGE_ID = new Set(['ayrac', 'galeri', 'icdunya', 'yolculuk', 'ocak']);
+
+export function wtLogBolge(bolge) {
+  if (!_inited || !_BOLGE_ID.has(bolge)) return;
+  const uid = S.currentUser?.id;
+  if (!uid) return;
+  _buf.push({
+    user_id:     uid,
+    session_id:  _sessionId,
+    screen:      bolge,
+    kind:        'bolge',
+    prev_screen: null,
+    entered_at:  new Date().toISOString(),
+    duration_ms: 0,
+    meta: {},
+  });
+  if (_buf.length > WT_BUF_CAP) _buf.splice(0, _buf.length - WT_BUF_CAP);
+}
+
+/* ── Paylaşım Nabzı (İç Çalışma 12 rev.2 · boşluk C) ──
+   `13g`/`10C`'de sıfır `wt*` çağrısı vardı — paylaşım hunisi (story mi
+   yazı mı, panoya kopyalama mı, indirme mi) ve neyin paylaşıldığı
+   (kart/rapor/film) sezgiyle biliniyordu, kadrandan değil.
+   GİZLİLİK SÖZLEŞMESİ: yalnız paylaşımın SINIFI girer — paylaşılan kartın
+   metni, kullanıcının yazdığı altyazı, hedef platform ASLA girmez.
+   Paylaşım GERÇEKTEN tetiklendiğinde çağrılır — Share sheet'in açılması
+   ya da kullanıcının vazgeçmesi olay değildir (çağıran tarafın kararı).
+   screen=olay, prev_screen=null, meta={tur} (paylaşılan şeyin sınıfı). */
+const _PAY_OLAY = new Set(['story', 'yazi', 'kopyala', 'indir']);
+const _PAY_TUR  = new Set(['kart', 'rapor', 'film']);
+
+export function wtLogPaylasim(olay, { tur } = {}) {
+  if (!_inited || !_PAY_OLAY.has(olay)) return;
+  const uid = S.currentUser?.id;
+  if (!uid) return;
+  _buf.push({
+    user_id:     uid,
+    session_id:  _sessionId,
+    screen:      olay,
+    kind:        'paylasim',
+    prev_screen: null,
+    entered_at:  new Date().toISOString(),
+    duration_ms: 0,
+    meta: {
+      tur: _PAY_TUR.has(tur) ? tur : null,
+    },
+  });
+  if (_buf.length > WT_BUF_CAP) _buf.splice(0, _buf.length - WT_BUF_CAP);
+}
+
 /* ── gönderim + dayanıklılık ── */
 
 async function _flush() {
@@ -763,4 +890,4 @@ export function wtInit() {
 
 // Tören portalları + Mod Nabzı window üzerinden 1 satırla enstrümante edilir
 // (window.wtOverlayOpen?.('seri-muhru') / window.wtLogMode?.(...) — TDZ-güvenli, modül import'suz).
-Object.assign(window, { wtOverlayOpen, wtOverlayClose, wtTorenSonuc, wtLogMode, wtLogSafety, wtLogLatency, wtLogMemory, wtLogCtx, wtLogKart, wtLogRitus, wtLogEsik, wtLogDuygu, wtLogKimlik, wtLogModel });
+Object.assign(window, { wtOverlayOpen, wtOverlayClose, wtTorenSonuc, wtLogMode, wtLogSafety, wtLogLatency, wtLogMemory, wtLogCtx, wtLogKart, wtLogRitus, wtLogEsik, wtLogDuygu, wtLogKimlik, wtLogModel, wtLogKota, wtLogArac, wtLogBolge, wtLogPaylasim });

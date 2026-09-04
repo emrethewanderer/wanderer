@@ -20,6 +20,18 @@ import { escapeHTML as esc, showToast } from './00a-infrastructure.js';
 import { callLLM } from './04-llm-hero-history.js';
 import { p } from './16-i18n-prompts.js';
 
+/* ── sayı yazıcısı — nabız kartlarının tek sayısal çıkışı ──────────────
+   Nabız değerleri SQL agregasından gelir ve her kartın başında `Number(v) || 0`
+   ile zorlanır; yani doğrudan basmak bugün güvenlidir. Sorun şu ki XSS kapısı
+   STATİKTİR: interpolasyon yerinde ne gördüğüne bakar, üç satır yukarıdaki
+   zorlamayı göremez — ve haklıdır. Aradaki satırlarda bir aritmetik, bir
+   `||` yedeği ya da yeni bir alan o değeri sessizce string'e çevirebilir;
+   o gün kaçış kaydı OLMAYAN bir interpolasyon HTML'e ham veri taşır.
+   Zorlamayı yazma anına taşımak kaydı ve garantiyi aynı yere koyar.
+   Kökeni: 2026-09-03, CI'ın dört koşu üst üste kırmızı bastığı kırık —
+   FAZ 5'in yedi kartı 23 korumasız interpolasyonla tabanı büyütmüştü. ── */
+const gzSayi = (v) => String(Number(v) || 0);
+
 /* ── ekran adları sözlüğü (view + tören) — bilinmeyen ad kendisi kalır ── */
 const GZ_EKRAN = {
   bugun: 'Bugün', chat: 'Sohbet (Wanderer)', history: 'Geçmiş Günler',
@@ -204,6 +216,13 @@ function _renderAll(d) {
     ${_esikNabzi(d.esik_pulse)}
     ${_duyguNabzi(d.duygu_pulse)}
     ${_donusumNabzi(d.kimlik_pulse, d.ritus_pulse)}
+    ${_emniyetNabzi(d.safety_pulse)}
+    ${_hataNabzi(d.error_pulse)}
+    ${_davetNabzi(d.notification_pulse)}
+    ${_gelirNabzi(d.kota_pulse)}
+    ${_aracNabzi(d.arac_pulse)}
+    ${_bolgeNabzi(d.bolge_pulse)}
+    ${_halkaNabzi(d.paylasim_pulse)}
     ${_sondaShell(d)}
     ${_gezginler(d.users)}
     ${_sessizler(d.silent_users)}
@@ -886,6 +905,349 @@ function _kpKol(k) {
   return k === 'hazine' ? 'bilgelik' : 'kimlik';
 }
 
+/* ── 6f5. Emniyet Nabzı — kriz sinyali gerçekten karta, karttan lütfa
+   düşüyor mu (On İki Odanın Denetimi · İç Çalışma 15 rev.2 · boşluk B).
+   Veri: kind='safety' (00f wtLogSafety; 13-extras.js:874/879 sinyal+kart,
+   13m-kota.js:115 lütuf). Üç olay bir huniyi anlatır: crisis_signal
+   (fark edildi) → crisis_card (gösterildi) → crisis_grace (kota affı
+   devreye girdi). TUZAK: bu kanal KAÇIRMA oranını asla ölçemez —
+   yakalanmayan sinyal tanım gereği sayılamaz; kart bunu altında sabit
+   metinle söyler, yoksa panel ölçmediği şeyi ölçüyor sanılır (§6.10).
+
+   SIFIR GÖSTERİMİ — bu ve sonraki altı kartın ortak kuralı, ve _sesNabzi'den
+   BİLEREK ayrılır: ölçülmüş sıfır `0` basar, `—` basmaz. `—` "bilmiyoruz"
+   demektir; `0` ise "ölçtük, hiç olmadı" der ve bu bir bilgidir — kriz kartının
+   hiç gösterilmediğini `—` ile örtmek, §6.10'u ters yönden ihlal eder (kanıtı
+   OLAN değeri gizlemek). Kart zaten yalnız veri varken çiziliyor (`!sp.total`
+   guard'ı), yani buradaki her sıfır kanıtlıdır. _sesNabzi'nin `kose(n||null)`
+   kalıbı ikisini birbirine karıştırır; o satır bu turda değiştirilmedi
+   (kapsam), ama bu kartlar onu emsal ALMAZ. ── */
+const _SAFETY_AD = { crisis_signal: 'Sinyal', crisis_card: 'Kart', crisis_grace: 'Lütuf' };
+export function _emniyetNabzi(sp) {
+  if (!sp || !sp.total) return '';
+  const olaylar = Array.isArray(sp.olaylar) ? sp.olaylar : [];
+  const say = (k) => { const x = olaylar.find(o => o.olay === k); return x ? (Number(x.n) || 0) : 0; };
+  const sinyal = say('crisis_signal');
+  const kart   = say('crisis_card');
+  const lutuf  = say('crisis_grace');
+
+  /* Tek teşhis — yarışacak ikinci bir eşik yok. */
+  let tani = '';
+  if (sinyal && !kart) {
+    tani = ' <span class="gz-n">— sinyal yakalanıyor ama kart gösterilmiyor: 20 dk soğuma penceresi mi yutuyor?</span>';
+  }
+
+  const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
+    <div class="stat-num">${n}</div>
+    <div class="stat-label">${esc(ad)}</div>
+  </div>`;
+
+  return `<div class="gz-sec">Emniyet Nabzı — sinyal karta, kart lütfa geçiyor mu</div>
+    <div class="gz-flow"><div>Sinyal <b>${gzSayi(sinyal)}</b> · Kart <b>${gzSayi(kart)}</b> · Lütuf <b>${gzSayi(lutuf)}</b>${tani}</div></div>
+    <div class="admin-stat-row">
+      ${kose(sinyal, _SAFETY_AD.crisis_signal)}
+      ${kose(kart, _SAFETY_AD.crisis_card)}
+      ${kose(lutuf, _SAFETY_AD.crisis_grace)}
+    </div>
+    <div class="gz-flow"><div class="gz-n">Emniyet Nabzı kaçırma oranını ölçmez: yakalanmayan sinyal tanım gereği sayılamaz; asıl korkulacak sayı budur ve ancak sentetik bir kriz eval setiyle ölçülür.</div></div>`;
+}
+
+/* ── 6f6. Hata Nabzı — hangi hata en çok tekrarlıyor, kaç gezgini etkiliyor
+   (On İki Odanın Denetimi · İç Çalışma 14 rev.2 · boşluk B). Veri:
+   error_logs — bir aydır yazılıyordu, hiç okunmuyordu (mig 051,
+   to_regclass kapısının arkasından). MUTLAK KURAL: error_message/
+   error_stack/context/user_agent rapora hiç girmez (mig 051 başlık
+   notu) — kart bunları hiç isteyemez, yalnız geliştiricinin sabit
+   `label` etiketini gösterir. ── */
+export function _hataNabzi(ep) {
+  if (!ep || !ep.total) return '';
+  const etiketler = Array.isArray(ep.top_labels) ? ep.top_labels : [];
+  const enSik = etiketler[0] || null;
+  const total = Number(ep.total) || 0;
+  const etkilenen = Number(ep.affected_users) || 0;
+
+  let tani = '';
+  if (enSik) {
+    const pay = total ? Math.round((Number(enSik.n) || 0) / total * 100) : 0;
+    if (pay >= 40) {
+      tani = ` <span class="gz-n">— hataların %${gzSayi(pay)}'i tek etikette toplanıyor: <code>${esc(enSik.label)}</code></span>`;
+    }
+  }
+
+  const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
+    <div class="stat-num">${n}</div>
+    <div class="stat-label">${esc(ad)}</div>
+  </div>`;
+
+  const max = Math.max(1, ...etiketler.map(x => Number(x.n) || 0));
+  const rows = etiketler.map(x => `<div class="gz-bar-row">
+    <span class="gz-bar-name">${esc(x.label)}</span>
+    <span class="gz-bar-track"><span class="gz-bar" style="width:${Math.max(1.5, (Number(x.n) || 0) / max * 100)}%"></span></span>
+    <span class="gz-bar-val">${Number(x.n) || 0}</span>
+  </div>`).join('');
+
+  return `<div class="gz-sec">Hata Nabzı — hangi hata tekrarlıyor</div>
+    <div class="gz-flow"><div><b>${gzSayi(total)}</b> hata · <b>${gzSayi(etkilenen)}</b> etkilenen gezgin${tani}</div></div>
+    <div class="admin-stat-row">
+      ${kose(total, 'Hata')}
+      ${kose(etkilenen, 'Etkilenen gezgin')}
+      ${kose(enSik ? esc(enSik.label) : '—', 'En sık etiket')}
+    </div>
+    ${rows}`;
+}
+
+/* ── 6f7. Davetin Nabzı — bildirim motoru koşuyor mu, giden davet dönüş
+   alıyor mu (On İki Odanın Denetimi · İç Çalışma 11 rev.2 · boşluk B).
+   Veri: notification_log — bir aydır yazılıyordu, hiç okunmuyordu (mig
+   051, to_regclass kapısının arkasından). MUTLAK KURAL: title/body
+   rapora hiç girmez (mig 051 başlık notu, LLM'in yazdığı kişisel metin) —
+   kart yalnız tip + gönderim/tıklanma SAYISINI gösterir.
+
+   DÜRÜSTLÜK SINIRI — TIK SÜTUNU BUGÜN ÖLÇÜLMÜYOR (2026-09-03'te doğrulandı):
+   `notification_log.clicked_at` kolonu şemada var ama onu YAZAN hiçbir yer
+   yok. `sw.js:140` `notificationclick`'i bildirimi kapatır, pencereyi öne
+   alır ve deep-link mesajı yollar — kaydı güncellemez. Yani buradaki sıfır
+   "kimse tıklamadı" DEĞİL, "ölçmüyoruz" demektir; kart bunu altında sabit
+   metinle söyler. §6.10'un en ince ihlali tam burada olurdu: ölçülmeyen bir
+   şeyi ölçülmüş gibi gösteren bir sütun, kanıtsız sıfırdan daha yanıltıcıdır
+   — çünkü kanıtlı görünür. Atıf takılınca bu not ve teşhis düşer. ── */
+export function _davetNabzi(np) {
+  // Kol tekil ama net: `tip_dagilim` dizisinin VARLIĞI sorgunun gerçekten
+  // koştuğunun kanıtıdır (RPC her zaman en az [] döner) — yokluğu, alanın
+  // hiç gelmediği (migration 051 uygulanmamış) ya da bozuk girdi demektir.
+  // `total` 0 olabilir (bu kartın kendi teşhisi) ama dizi yoksa kanıt da yok.
+  if (!np || !Array.isArray(np.tip_dagilim)) return '';
+  const dagilim = np.tip_dagilim;
+  const total = Number(np.total) || 0;
+  const tiklanma = dagilim.reduce((a, x) => a + (Number(x.tiklanma) || 0), 0);
+
+  /* En ağır olan önce: motor hiç koşmamışsa "dönüş yok" teşhisi anlamsız. */
+  let tani = '';
+  if (!total) {
+    tani = ' <span class="gz-n">— motor bu pencerede hiç koşmamış — pg_cron kurulu mu?</span>';
+  } else if (!tiklanma) {
+    /* Tahmin değil olgu: atıf takılı DEĞİL (yukarıdaki dürüstlük sınırı). */
+    tani = ' <span class="gz-n">— tık sütunu ölçülmüyor: notificationclick atıfı takılı değil, bu sıfır bir sonuç değil bir boşluk</span>';
+  }
+
+  const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
+    <div class="stat-num">${n}</div>
+    <div class="stat-label">${esc(ad)}</div>
+  </div>`;
+
+  const max = Math.max(1, ...dagilim.map(x => Number(x.gonderim) || 0));
+  const rows = dagilim.map(x => `<div class="gz-bar-row">
+    <span class="gz-bar-name">${esc(x.tip)}</span>
+    <span class="gz-bar-track"><span class="gz-bar" style="width:${Math.max(1.5, (Number(x.gonderim) || 0) / max * 100)}%"></span></span>
+    <span class="gz-bar-val">${Number(x.gonderim) || 0} gönderim · ${Number(x.tiklanma) || 0} tık</span>
+  </div>`).join('');
+
+  return `<div class="gz-sec">Davetin Nabzı — davet gidiyor mu, dönüyor mu</div>
+    <div class="gz-flow"><div><b>${gzSayi(total)}</b> gönderim · <b>${gzSayi(tiklanma)}</b> tıklanma${tani}</div></div>
+    <div class="admin-stat-row">
+      ${kose(total, 'Gönderim')}
+      ${kose(tiklanma, 'Tık')}
+    </div>
+    ${rows}
+    <div class="gz-flow"><div class="gz-n">Tık sütunu bugün ölçülmüyor: <code>notification_log.clicked_at</code> kolonu var ama onu yazan yok (sw.js notificationclick atıfı takılı değil). Buradaki sıfır "kimse tıklamadı" değil "ölçmüyoruz" demektir.</div></div>`;
+}
+
+/* ── 6f8. Gelirin Nabzı — paywall hunisinin ilk basamakları: duvar → kapı
+   (teklif) → sheet → iptal (On İki Odanın Denetimi · İç Çalışma 16 rev.2 ·
+   boşluk C). Veri: kind='kota' (00f wtLogKota; 13m-kota.js duvar/bonus,
+   08-trends-payment.js sheet/gate/iptal). DÜRÜSTLÜK SINIRI: satın alma
+   sayısını ÖLÇMEZ — o RevenueCat'in defteridir, bu kart yalnız client'ın
+   GÖRDÜĞÜNÜ sayar; huninin son basamağı burada yoktur (sabit metin
+   aşağıda, §6.10). ── */
+const _KOTA_OLAY_AD = { duvar: 'Duvar', gate: 'Kapı', sheet: 'Sheet', iptal: 'İptal', bonus: 'Bonus' };
+export function _gelirNabzi(kp) {
+  if (!kp || !kp.total) return '';
+  const huni = Array.isArray(kp.huni) ? kp.huni : [];
+  const say = (k) => { const x = huni.find(o => o.olay === k); return x ? (Number(x.n) || 0) : 0; };
+  const duvar = say('duvar');
+  const kapi  = say('gate');
+  const sheet = say('sheet');
+  const iptal = say('iptal');
+
+  /* En ağır olan önce: duvara çarpıp teklifi hiç görmemek, teklifi görüp
+     sheet'e geçmemekten daha erken bir huni kaybıdır. */
+  let tani = '';
+  if (duvar && !kapi) {
+    tani = ' <span class="gz-n">— duvara çarpılıyor ama teklif hiç açılmıyor</span>';
+  } else if (kapi && !sheet) {
+    tani = " <span class=\"gz-n\">— teklif görülüyor, sheet'e geçilmiyor</span>";
+  }
+
+  const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
+    <div class="stat-num">${n}</div>
+    <div class="stat-label">${esc(ad)}</div>
+  </div>`;
+
+  const max = Math.max(1, ...huni.map(x => Number(x.n) || 0));
+  const rows = huni.map(x => `<div class="gz-bar-row">
+    <span class="gz-bar-name">${esc(_KOTA_OLAY_AD[x.olay] || x.olay)}</span>
+    <span class="gz-bar-track"><span class="gz-bar" style="width:${Math.max(1.5, (Number(x.n) || 0) / max * 100)}%"></span></span>
+    <span class="gz-bar-val">${Number(x.n) || 0} · ${Number(x.gezgin) || 0} gezgin</span>
+  </div>`).join('');
+
+  return `<div class="gz-sec">Gelirin Nabzı — paywall hunisinin ilk basamakları</div>
+    <div class="gz-flow"><div>Duvar <b>${gzSayi(duvar)}</b> · Kapı <b>${gzSayi(kapi)}</b> · Sheet <b>${gzSayi(sheet)}</b> · İptal <b>${gzSayi(iptal)}</b>${tani}</div></div>
+    <div class="admin-stat-row">
+      ${kose(duvar, 'Duvar')}
+      ${kose(kapi, 'Kapı')}
+      ${kose(sheet, 'Sheet')}
+      ${kose(iptal, 'İptal')}
+    </div>
+    ${rows}
+    <div class="gz-flow"><div class="gz-n">Gelirin Nabzı satın alma sayısını ölçmez. O RevenueCat'in defteridir; bu kart yalnız client'ın gördüğünü sayar. Huninin son basamağı burada yok.</div></div>`;
+}
+
+/* ── 6f9. Araç Nabzı — chip önerisi kabul mü ret mi görüyor, hangi araç
+   sessizce kayboluyor (On İki Odanın Denetimi · İç Çalışma 09 rev.2 ·
+   boşluk D). Veri: kind='arac' (00f wtLogArac; 13a-arac-motoru.js
+   `_ARAC_DEFS` registry'sinin üstüne biner, yeni motor kurmaz). Kabul
+   oranı BURADA HESAPLANMAZ (K3) — matris ham sayı döner, oranı panel
+   kurar. ── */
+const _ARAC_AD = { soz: 'Söz', not: 'Not', gecis: 'Geçiş', imge: 'İmge' };
+export function _aracNabzi(ap) {
+  if (!ap || !ap.total) return '';
+  const matris = Array.isArray(ap.matris) ? ap.matris : [];
+  const toplam = (olay) => matris.filter(x => x.olay === olay).reduce((a, x) => a + (Number(x.n) || 0), 0);
+  const oner   = toplam('oner');
+  const onayla = toplam('onayla');
+  const reddet = toplam('reddet');
+
+  let tani = '';
+  if (oner && !onayla && !reddet) {
+    tani = ' <span class="gz-n">— chip çiziliyor ama kimse dokunmuyor: öneri ne kabul ne ret alıyor, sessizce kayboluyor</span>';
+  }
+
+  const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
+    <div class="stat-num">${n}</div>
+    <div class="stat-label">${esc(ad)}</div>
+  </div>`;
+
+  /* araç bazında çubuk — her aracın öneri/onay/ret dağılımı yan yana. */
+  const aracKume = [...new Set(matris.map(x => x.arac))];
+  const aracToplam = (arac) => matris.filter(x => x.arac === arac).reduce((a, x) => a + (Number(x.n) || 0), 0);
+  const max = Math.max(1, ...aracKume.map(aracToplam));
+  const rows = aracKume
+    .sort((a, b) => aracToplam(b) - aracToplam(a))
+    .map(arac => {
+      const o  = matris.find(x => x.arac === arac && x.olay === 'oner');
+      const on = matris.find(x => x.arac === arac && x.olay === 'onayla');
+      const r  = matris.find(x => x.arac === arac && x.olay === 'reddet');
+      return `<div class="gz-bar-row">
+        <span class="gz-bar-name">${esc(_ARAC_AD[arac] || arac)}</span>
+        <span class="gz-bar-track"><span class="gz-bar" style="width:${Math.max(1.5, aracToplam(arac) / max * 100)}%"></span></span>
+        <span class="gz-bar-val">${Number(o?.n) || 0} öneri · ${Number(on?.n) || 0} onay · ${Number(r?.n) || 0} ret</span>
+      </div>`;
+    }).join('');
+
+  return `<div class="gz-sec">Araç Nabzı — öneri kabul mü ret mi görüyor</div>
+    <div class="gz-flow"><div>Öneri <b>${gzSayi(oner)}</b> · Onay <b>${gzSayi(onayla)}</b> · Ret <b>${gzSayi(reddet)}</b>${tani}</div></div>
+    <div class="admin-stat-row">
+      ${kose(oner, 'Öneri')}
+      ${kose(onayla, 'Onay')}
+      ${kose(reddet, 'Ret')}
+    </div>
+    ${rows}`;
+}
+
+/* ── 6f10. Bölge Nabzı — Bugün'e giren kaç gezgin ayracın altına iniyor,
+   Galeri/İç Dünya/Yolculuk/Ocak hiç görülüyor mu (On İki Odanın Denetimi ·
+   İç Çalışma 18 rev.2 · boşluk A). Veri: kind='bolge' (00f wtLogBolge;
+   10-features-w2.js IntersectionObserver, bölge başına oturumda bir kez).
+   PAYDA `bugun_gorenler`dir — payda 0 ise kart hiç çizilmez, uydurma
+   yüzde yok (§6.10, K3). Bar genişliği doğrudan yüzdedir: "erişim yüzdesi"
+   burada gerçekten ölçeğin kendisidir, ayrı bir max-normalize gerekmez. ── */
+const _BOLGE_AD = { ayrac: 'Ayraç', galeri: 'Galeri', icdunya: 'İç Dünya', yolculuk: 'Yolculuk', ocak: 'Ocak' };
+export function _bolgeNabzi(bp) {
+  const gorenler = Number(bp && bp.bugun_gorenler) || 0;
+  if (!bp || !gorenler) return '';
+  const bolgeler = Array.isArray(bp.bolgeler) ? bp.bolgeler : [];
+  const gez = (k) => { const x = bolgeler.find(o => o.bolge === k); return x ? (Number(x.gezgin) || 0) : 0; };
+  const ayracPct = Math.round(gez('ayrac') / gorenler * 100);
+
+  let tani = '';
+  if (ayracPct < 50) {
+    tani = ` <span class="gz-n">— Bugün'e giren ${gzSayi(gorenler)} gezginin yalnız %${gzSayi(ayracPct)}'i ayracın altına indi: STÜDYO fold altında kalıyor</span>`;
+  }
+
+  const rows = bolgeler.map(x => {
+    const g = Number(x.gezgin) || 0;
+    const pct = Math.round(g / gorenler * 100);
+    return `<div class="gz-bar-row">
+      <span class="gz-bar-name">${esc(_BOLGE_AD[x.bolge] || x.bolge)}</span>
+      <span class="gz-bar-track"><span class="gz-bar gz-bar--lapis" style="width:${Math.max(1.5, pct)}%"></span></span>
+      <span class="gz-bar-val">%${gzSayi(pct)} · ${gzSayi(g)} gezgin</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="gz-sec">Bölge Nabzı — Bugün'ün altına kaç kişi iniyor</div>
+    <div class="gz-flow"><div><b>${gzSayi(gorenler)}</b> gezgin bu pencerede Bugün'e girdi${tani}</div></div>
+    ${rows}`;
+}
+
+/* ── 6f11. Halkanın Nabzı — paylaşım story mi yazı mı, panoya mı iniyor,
+   yoksa indirmeye mi düşüyor (On İki Odanın Denetimi · İç Çalışma 12
+   rev.2 · boşluk C). Veri: kind='paylasim' (00f wtLogPaylasim;
+   13g-paylasim.js story/yazi/indir, 10C-sosyal-feed.js kopyala).
+   `tur_dagilim` çoğu satırda boştur (FAZ 2+3 Durak 3 — altı çağıranın
+   kendi 'tur'unu geçirmesi ayrı bir fazın işi); boşsa bu kırılım hiç
+   çizilmez, uydurulmaz. Dördü de köşede zaten adıyla göründüğü için ayrı
+   bir huni-bazlı çubuk listesi tekrar etmez — kartın tek kırılımı budur. ── */
+export function _halkaNabzi(pp) {
+  if (!pp || !pp.total) return '';
+  const huni = Array.isArray(pp.huni) ? pp.huni : [];
+  const say = (k) => { const x = huni.find(o => o.olay === k); return x ? (Number(x.n) || 0) : 0; };
+  const story   = say('story');
+  const yazi    = say('yazi');
+  const kopyala = say('kopyala');
+  const indir   = say('indir');
+
+  let tani = '';
+  if (indir > story) {
+    tani = " <span class=\"gz-n\">— paylaşım çoğunlukla indirmeye düşüyor: Share sheet'i olmayan cihazlar mı, vazgeçme mi?</span>";
+  }
+
+  const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
+    <div class="stat-num">${n}</div>
+    <div class="stat-label">${esc(ad)}</div>
+  </div>`;
+
+  const turDag = Array.isArray(pp.tur_dagilim) ? pp.tur_dagilim : [];
+  const maxTur = Math.max(1, ...turDag.map(x => Number(x.n) || 0));
+  const turRows = turDag.map(x => `<div class="gz-bar-row">
+    <span class="gz-bar-name">${esc(x.tur)}</span>
+    <span class="gz-bar-track"><span class="gz-bar gz-bar--lapis" style="width:${Math.max(1.5, (Number(x.n) || 0) / maxTur * 100)}%"></span></span>
+    <span class="gz-bar-val">${Number(x.n) || 0}</span>
+  </div>`).join('');
+
+  /* Aşağıdaki blokta kaçışsız İKİ interpolasyon kalır ve ikisi de kaçırılamaz,
+     çünkü ikisi de HTML PARÇASIDIR, metin değil — esc()'ten geçirmek çubukları
+     ve teşhis cümlesini ekrana kod olarak yazdırırdı:
+       `turRows` — içindeki iki dinamik değer üretildiği yerde zaten korunuyor
+                   (`esc(x.tur)` ve `Number(x.n) || 0`, yukarı bkz.)
+       `tani`    — bu dosyada üretilen sabit cümle; dışarıdan hiçbir değer
+                   taşımaz, yalnız iki sayının karşılaştırmasıyla seçilir
+     İkisinin de emsali _sesNabzi'nin aynı deseni (bu dosyada, tabanda).
+     Beyan bloğun TAMAMINI kapsar — dar tutulamaz, denetçi satır değil blok
+     ölçer (audit-innerhtml.mjs:209). Bedeli şudur: buraya yeni bir
+     interpolasyon eklenirse kapı onu GÖREMEZ. Kural elle taşınır — sayılar
+     `gzSayi()` üstünden basılır, serbest metin `esc()` ile sarılır.
+     XSS-MUAF: turRows + tani — kaçışlı parçalardan kurulmuş HTML (gerekçe üstte). */
+  return `<div class="gz-sec">Halkanın Nabzı — paylaşım nereye düşüyor</div>
+    <div class="gz-flow"><div>Story <b>${gzSayi(story)}</b> · Yazı <b>${gzSayi(yazi)}</b> · Kopyala <b>${gzSayi(kopyala)}</b> · İndir <b>${gzSayi(indir)}</b>${tani}</div></div>
+    <div class="admin-stat-row">
+      ${kose(story, 'Story')}
+      ${kose(yazi, 'Yazı')}
+      ${kose(kopyala, 'Kopyala')}
+      ${kose(indir, 'İndir')}
+    </div>
+    ${turRows ? `<div class="gz-flow"><div class="gz-n">paylaşılan şeyin sınıfı — çoğu satır boş, tur alanı henüz her çağırandan gelmiyor</div></div>${turRows}` : ''}`;
+}
+
 /* ── 6g. Şema Sondası — sessiz fallback'in sesi (İç Çalışma 04 rev.2 · Y5,
    Atlas D1). Kart evreninin kalıcılığı ELLE uygulanan şemaya yaslanır ve
    client 42P01/42703'ü YUTUP KV-only moda düşecek kadar zarifti: hiçbir şey
@@ -953,6 +1315,16 @@ export function _sondaHTML(sonuclar, d, icerik) {
   const duyguPulse  = alan('duygu_pulse');
   const kimlikPulse = alan('kimlik_pulse');
   const modelPulse  = alan('model_pulse');
+  /* On İki Odanın Denetimi · FAZ 4/5: yedi yeni nabız tek migration'da
+     (051) doğdu — 051 uygulanmadığında yedi kartın SESSİZCE yok olması
+     değil, sondanın adıyla söylemesi gerekir (aynı sözleşmenin devamı). */
+  const safetyPulse       = alan('safety_pulse');
+  const errorPulse        = alan('error_pulse');
+  const notificationPulse = alan('notification_pulse');
+  const kotaPulse         = alan('kota_pulse');
+  const aracPulse         = alan('arac_pulse');
+  const bolgePulse        = alan('bolge_pulse');
+  const paylasimPulse     = alan('paylasim_pulse');
   /* TEK KAYNAK (denetim 2026-08-31): satırın hükmü ile borç sayacı aynı
      ifadeden okunur. Ayrı yazıldığında `toplam === 0` hâli — tablo VAR ama
      INSERT hiç koşmamış — satırda ✗ görünüyor, sayaçta görünmüyordu: kadran
@@ -961,6 +1333,9 @@ export function _sondaHTML(sonuclar, d, icerik) {
   const eksik = (sonuclar || []).filter(x => !x.ok).length
     + (kartPulse ? 0 : 1) + (ritusPulse ? 0 : 1) + (esikPulse ? 0 : 1)
     + (duyguPulse ? 0 : 1) + (kimlikPulse ? 0 : 1) + (modelPulse ? 0 : 1)
+    + (safetyPulse ? 0 : 1) + (errorPulse ? 0 : 1) + (notificationPulse ? 0 : 1)
+    + (kotaPulse ? 0 : 1) + (aracPulse ? 0 : 1) + (bolgePulse ? 0 : 1)
+    + (paylasimPulse ? 0 : 1)
     + (icerik && !icerikOk ? 1 : 0);
   const ozet = eksik
     ? `<span class="gz-n">— ${eksik} şema borcu açık: Supabase SQL editöründe ELLE uygulanmalı</span>`
@@ -974,6 +1349,13 @@ export function _sondaHTML(sonuclar, d, icerik) {
     ${satir('Yanılma Nabzı (migration 048)', duyguPulse, 'kadran yanılma defterini okuyamaz')}
     ${satir('Dönüşümün Nabzı (migration 049)', kimlikPulse, 'kadran üçgenin kaymalarını okuyamaz')}
     ${satir('Üç Sesin Nabzı (migration 050)', modelPulse, 'kadran eksen seçimlerini okuyamaz')}
+    ${satir('Emniyet Nabzı (migration 051)', safetyPulse, 'kadran kriz sinyali/kart/lütuf olaylarını okuyamaz')}
+    ${satir('Hata Nabzı (migration 051)', errorPulse, 'kadran error_logs tablosunu okuyamaz')}
+    ${satir('Davetin Nabzı (migration 051)', notificationPulse, 'kadran notification_log tablosunu okuyamaz')}
+    ${satir('Gelirin Nabzı (migration 051)', kotaPulse, 'kadran paywall hunisini okuyamaz')}
+    ${satir('Araç Nabzı (migration 051)', aracPulse, 'kadran araç öneri/onay/ret olaylarını okuyamaz')}
+    ${satir('Bölge Nabzı (migration 051)', bolgePulse, 'kadran bölge görünürlüğünü okuyamaz')}
+    ${satir('Halkanın Nabzı (migration 051)', paylasimPulse, 'kadran paylaşım hunisini okuyamaz')}
     ${icerik ? satir('Üç sesin içeriği', icerikOk,
         `${icerik.dolu}/${icerik.toplam} eksen dolu — kalan eksenler davranışsız konuşuyor`) : ''}`;
 }

@@ -174,6 +174,70 @@ describe('ktGate — karar mantığı', () => {
     expect(res.allowed).toBe(false);
     expect(res.reason).toBe('week');
   });
+
+  /* KOTA NABZI — huninin dip noktası İKİ yoldan iniyor ve ikisi de sayılmalı.
+     Bulgu (2026-09-03, FAZ 2+3 denetimi): duvar olayı yalnız `server_enforced`
+     dalına takılmıştı. Ama İç Çalışma 16 · boşluk B'nin kendisi söylüyor ki
+     `server_enforced` bugün KAPALI (llm-chat vendorlanana dek açılamaz) — yani
+     enstrümante edilen dal prod'da hiç koşmuyor, koşan dal (quota_consume RPC)
+     ise sayılmıyordu. Panel "duvara kimse çarpmıyor" diye okunurdu: kanıtsız
+     bir sıfır değil, YANLIŞ bir sıfır — §6.10'un tam ihlali. */
+  it('KOTA NABZI: RPC yolunda duvar inince de wtLogKota("duvar") yazılır', async () => {
+    await mockSb((name) => {
+      if (name === 'quota_status') {
+        return { data: { used_5h: 1, limit_5h: 5, used_week: 5, limit_week: 50, server_enforced: false }, error: null };
+      }
+      if (name === 'quota_consume') {
+        return { data: { used_5h: 5, limit_5h: 5, used_week: 50, limit_week: 50, allowed: false, reason: 'week' }, error: null };
+      }
+      return { data: null, error: null };
+    });
+    const { S, kt } = await freshModule();
+    S.currentUser = { id: 'u1' };
+    const nabiz = vi.fn();
+    window.wtLogKota = nabiz;
+    try {
+      await kt.ktGate();
+      expect(nabiz).toHaveBeenCalledWith('duvar', expect.objectContaining({ tier: 'free' }));
+    } finally { delete window.wtLogKota; }
+  });
+
+  it('KOTA NABZI: server_enforced dalında duvar inince de yazılır (iki yol da kapalı)', async () => {
+    await mockSb((name) => {
+      if (name === 'quota_status') {
+        return { data: { used_5h: 5, limit_5h: 5, used_week: 50, limit_week: 50, server_enforced: true }, error: null };
+      }
+      return { data: null, error: null };
+    });
+    const { S, kt } = await freshModule();
+    S.currentUser = { id: 'u1' };
+    const nabiz = vi.fn();
+    window.wtLogKota = nabiz;
+    try {
+      await kt.ktGate();
+      expect(nabiz).toHaveBeenCalledWith('duvar', expect.objectContaining({ tier: 'free' }));
+    } finally { delete window.wtLogKota; }
+  });
+
+  it('KOTA NABZI: duvar inmediğinde hiç yazılmaz (yanlış pozitif yok)', async () => {
+    await mockSb((name) => {
+      if (name === 'quota_status') {
+        return { data: { used_5h: 1, limit_5h: 5, used_week: 5, limit_week: 50, server_enforced: false }, error: null };
+      }
+      if (name === 'quota_consume') {
+        return { data: { used_5h: 2, limit_5h: 5, used_week: 6, limit_week: 50, allowed: true }, error: null };
+      }
+      return { data: null, error: null };
+    });
+    const { S, kt } = await freshModule();
+    S.currentUser = { id: 'u1' };
+    const nabiz = vi.fn();
+    window.wtLogKota = nabiz;
+    try {
+      await kt.ktGate();
+      expect(nabiz).not.toHaveBeenCalledWith('duvar', expect.anything());
+    } finally { delete window.wtLogKota; }
+  });
 });
 
 describe('ktGrantUltraBonus — günde-bir guard', () => {

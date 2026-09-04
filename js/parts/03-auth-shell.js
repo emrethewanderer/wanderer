@@ -1,6 +1,6 @@
 import { S } from '../state.js';
 import { sb, SUPABASE_URL, ADMIN_EMAIL, AI_MODES, IS_ADMIN_PAGE } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, ErrorBoundary, showToast, storageInit, createHookRegistry, localISODate } from './00a-infrastructure.js';
+import { STORAGE_KEYS, SafeStorage, ErrorBoundary, showToast, storageInit, createHookRegistry, localISODate, localDayKey } from './00a-infrastructure.js';
 import { bnMark, bnSar, bnHazir } from './00h-boot-nabzi.js';
 import { kbSerbest } from './00i-kanit-bekleyen.js';
 import { t } from './15-i18n.js';
@@ -1471,11 +1471,11 @@ export async function initApp(user) {
       // session_id day_… anahtarıyla uyuşmayabilir (legacy/uuid kayıtlar) —
       // bugünün mesajlarını created_at ile bul (newSession'daki kalıp)
       const d = new Date();
-      const todayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      const todayKey = localDayKey(d);
       const found = Object.values(S.allSessions || {}).flat().filter(m => {
         if (!m.created_at) return false;
         const md = new Date(m.created_at);
-        return `${md.getFullYear()}-${md.getMonth()}-${md.getDate()}` === todayKey;
+        return localDayKey(md) === todayKey;
       }).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
       if (found.length) msgs = found;
     }
@@ -1850,13 +1850,13 @@ export async function newSession() {
     // Bugün için hiç emre opener gelmediyse hoş geldin mesajı üret
     const todayKey = (() => {
       const d = new Date();
-      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      return localDayKey(d);
     })();
     const todayMsgs = Object.values(S.allSessions || {}).flat()
       .filter(m => {
         if (!m.created_at) return false;
         const d = new Date(m.created_at);
-        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}` === todayKey;
+        return localDayKey(d) === todayKey;
       });
     const todayHasUserMsg = todayMsgs.some(m => m.role === 'user');
     const todayHasEmreMsg = todayMsgs.some(m => m.role === 'assistant');
