@@ -811,16 +811,34 @@ export async function w3RequestNotificationPermission() {
    ═══════════════════════════════════════════════════ */
 // CRISIS_PATTERNS → dp('detect.crisis') — 13-dil desteği
 
+/* TÜRKÇE BÜYÜK-İ TUZAĞI — desenler küçük harfle yazılıdır ve `/i` bayrağı
+   Türkçenin noktalı İ'sini KATLAMAZ: JS'in canonicalize'ı toUpperCase
+   kullanır, 'İ'(U+0130).toUpperCase() yine 'İ' iken 'i'.toUpperCase() 'I'
+   verir — ikisi eşleşmez. Türkçede cümle başındaki her `i` sözcüğü büyük
+   İ ile yazıldığı için /intihar/i "İntihar etmeyi düşünüyorum" cümlesini,
+   /ilaç.*fazla al/i ise "İlaçları fazla aldım" cümlesini KAÇIRIYORDU:
+   kriz kartı hiç açılmıyordu. Kırığı `tests/kriz-eval.test.js` korpusu
+   buldu (2026-09-04) — desene bakarak değil, cümleye bakarak.
+   toLowerCase() tek başına yetmez: 'İ'.toLowerCase() 'i'+U+0307 (birleşen
+   nokta) döndürür ve desen yine tutmaz; U+0307 ayrıca silinir.
+   Yalnız U+0130'a dokunulur — ASCII 'I' zaten 'i'ye katlanıyor, ona
+   dokunmak İngilizce desenleri bozardı. */
+export function krizMetniNormalize(text) {
+  return String(text == null ? '' : text).replace(/İ/g, 'i').replace(/̇/g, '');
+}
+
 // dpAll: kriz taraması dil-BAĞIMSIZDIR — arayüz TR/EN olsa da kullanıcı
 // mesajını başka dilde yazabilir; tüm dillerin desenleri birlikte taranır.
 export function detectCrisis(text) {
-  return dpAll('detect.crisis').some(r => r.test(text));
+  const t = krizMetniNormalize(text);
+  return dpAll('detect.crisis').some(r => r.test(t));
 }
 
 // Yumuşak sinyal: mecaz payı yüksek ifadeler — tek başına kriz sayılmaz,
 // sessiz LLM teyidine gider (_confirmCrisisWithLLM).
 export function detectCrisisSoft(text) {
-  return dpAll('detect.crisis_soft').some(r => r.test(text));
+  const t = krizMetniNormalize(text);
+  return dpAll('detect.crisis_soft').some(r => r.test(t));
 }
 
 export function showCrisisCard() {
