@@ -28,7 +28,7 @@ import { loadFeatureVideos } from './10o-w2-feature-gate.js';
 import { w2LoadSummariesCache, w2ScheduleMidnightSummary, w2RenderInfiniteChat } from './11-w2-chat-cal.js';
 import { w3MaybeRunMigration, w3GetDaySessionId, w2CheckAndSummarizeYesterday } from './12-w3-journey.js';
 import { personalizationLoad } from './09a-personalization-engine.js';
-import { HK_VERSION } from './13p-hukuk.js';
+import { HK_VERSION, hkKabulYaz } from './13p-hukuk.js';
 // 08-trends-payment.js ve 13-extras.js dairesel bağımlılık oluşturduğundan window üzerinden erişilir
 
 /* ═══════════════════════════════════════════════════════
@@ -726,6 +726,10 @@ export async function authTanismaGonder() {
       }
       return;
     }
+    // Rıza defteri (054, ELLE) — bulten_izin_surum'un YANINA gelir, yerine
+    // geçmez (o ayrı bir rıza). Akışı bloklamaz: migration henüz koşmamışsa
+    // hkKabulYaz sessizce düşer, kayıt yine de tamamlanır.
+    hkKabulYaz(HK_VERSION);
     // Taze metadata ile devam et — initApp'in kapısı artık açılır. getUser
     // boş dönerse elimizdeki kullanıcıya beyanı ELLE işleriz: ham nesneyle
     // dönersek _tanismaGerekli yine "ad yok" der ve kapı kullanıcıyı içeri

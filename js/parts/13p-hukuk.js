@@ -14,6 +14,7 @@ import { S } from '../state.js';
 import { t } from './15-i18n.js';
 import { escapeHTML } from './00a-infrastructure.js';
 import { ensureExt } from './00-ext-loader.js';
+import { sb } from '../config.js';
 
 // export: tanışma paneli (03-auth-shell) bülten rızasının kaynak sürümünü
 // (bulten_izin_surum) buradan okur — ikinci bir sürüm sabiti TANIMLANMAZ,
@@ -21,6 +22,30 @@ import { ensureExt } from './00-ext-loader.js';
 export const HK_VERSION = '1.3'; // 1.3: Kod kapısı — şifresiz giriş, kullanıcı adı, e-posta iletileri + bülten rızası ve teslimat kayıtları
 const HK_EFFECTIVE = '2026-08-27'; // yürürlük tarihi (ISO) — metin güncellenince artır
 const HK_CONTACT   = 'emre.gulluce.eg@gmail.com';
+
+/* ─────────────────────────────────────────────────────────────
+   RIZA DEFTERİ — "hangi kullanıcı hangi sürümü ne zaman kabul etti"
+   `bulten_izin_surum` (03-auth-shell) tek satırlık, üzerine yazılan bir
+   sürümdür ve AYRI bir rızadır (bülten). Bu defter onun yerine geçmez:
+   `hukuk_kabul` tablosu (user_id, surum) birincil anahtarıyla geçmişin
+   TAMAMINI tutar — sürüm arttığında yeni satır doğar, eskisi silinmez.
+   Migration `054_riza_defteri.sql` ELLE uygulanana kadar tablo yoktur;
+   bu yüzden yazma sessizce düşer (§5.2) — kayıt akışını ASLA bloklamaz.
+───────────────────────────────────────────────────────────── */
+export function hkKabulYaz(surum) {
+  if (!surum) return;
+  try {
+    sb.auth.getSession()
+      .then(({ data }) => {
+        const uid = data?.session?.user?.id;
+        if (!uid) return; // oturum yok — kaydedecek kimlik de yok
+        return sb.from('hukuk_kabul')
+          .upsert({ user_id: uid, surum }, { onConflict: 'user_id,surum', ignoreDuplicates: true });
+      })
+      .then((res) => { if (res?.error) console.warn('hkKabulYaz:', res.error.message || res.error); })
+      .catch((e) => console.warn('hkKabulYaz:', e && e.message));
+  } catch (e) { console.warn('hkKabulYaz:', e && e.message); }
+}
 
 /* ─────────────────────────────────────────────────────────────
    BELGELER — markdown-lite format:
@@ -241,3 +266,4 @@ export function mountHukukUI() {
 window.hkOpen  = hkOpen;
 window.hkClose = hkClose;
 window.mountHukukUI = mountHukukUI;
+window.hkKabulYaz = hkKabulYaz;

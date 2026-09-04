@@ -769,7 +769,41 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   **ELLE bekleyen:** `053` migration'ı + periyodik `usage_events_prune(90)`
   koşumu (pg_cron kurulu değil, bilinçli sınır).
 
-**İlk hamle (FAZ 7):** `migrations/054_riza_defteri.sql` —
+- **FAZ 7 · BİTTİ** (2026-09-04). `uygulayici`da (🅢), bir Durak.
+  `054` `hukuk_kabul(user_id, surum, kabul_at)`; PK `(user_id, surum)` —
+  sürüm artınca **yeni satır doğar, eskisi silinmez**. UPDATE/DELETE
+  politikası **bilerek yazılmadı** ve gerekçesi dosyada: *bir rıza kaydı
+  düzeltilmez, yenisi eklenir.* `bulten_izin_surum` dokunulmadan duruyor —
+  o ayrı bir rıza, defter onun yanına geldi. `HK_VERSION` hâlâ `1.3` (K4).
+
+  **Ajanın gerekçeli kararı, denetimde doğrulandı:** `hkKabulYaz` oturumu
+  `S.currentUser?.id` yerine `sb.auth.getSession()` ile okuyor. Sebebi sıra:
+  çağrı `initApp`'ten ÖNCE koşuyor ve `S.currentUser` orada henüz boş —
+  `S`'ye baksaydı defter kayıt anında **hiç yazılmazdı**. Doğru karar.
+
+  **Durak — karara bağlandı: deftere satır eklendi.** Ajan
+  `migrations/README.md`'ye dokunmadı çünkü görev tanımında geçmiyordu ve
+  plan-dışı dosyaya dokunmak sözleşmesine aykırı; doğru davrandı ve Durak
+  olarak geri döndürdü. Ama 052/053 emsali nettir: **defterde olmayan ELLE
+  işi görünmez olur** — ve görünmeyen bir borç, olmayan bir borç gibi
+  okunur (`[[rapor-bayatligi]]`'nin ELLE kuyruğundaki hâli). `054` satırı
+  eklendi, sayaç "on üç" → "on dört".
+
+  Denetimde bir yanlış rapor da düzeltildi: ajan bundle'ı "735.78 KB gzip"
+  diye yazmış; gerçek ölçü **715KB gzip** (733142 byte) — ham boyutu gzip
+  sanmış. Regresyon yok.
+
+  Kapı: build ✅ 715KB · hedefli süit ✅ 109/109 · `kapi:genel` ✅ 339/339 ·
+  `dogrula` ✅ exit 0 "Konsol temiz."
+  **ELLE bekleyen:** `054` migration'ı (redeploy gerekmiyor).
+
+**İlk hamle (FAZ 8):** `13p-hukuk.js`'te `HK_VERSION` `1.3 → 1.4`; gizlilik
+metnine saklama süresi cümlesi (90 gün ham + günlük agregat, `053`'ün
+gerçeğiyle birebir); sürüm-değişim banner'ı — **onay kapısı değil**, "değişeni
+oku" haberi. Banner `hukuk_kabul`'de o sürümün satırı YOKSA görünür (defter
+FAZ 7'de kuruldu, okuyanı burada doğar).
+
+**Eski İlk hamle (FAZ 7, tamamlandı):** `migrations/054_riza_defteri.sql` —
 `hukuk_kabul(user_id, surum, kabul_at)` + RLS (sahibi okur/yazar);
 `03-auth-shell.js` kayıt anında yazar. `bulten_izin_surum` KORUNUR — o ayrı
 bir rızadır ve bu defter onun yerine geçmez. HK_VERSION'a DOKUNULMAZ (K4).

@@ -34,7 +34,7 @@ düzenlemeler ezilmez.
 Yeni şema işleri **041'den** devam eder. Numara git geçmişiyle tutarlı kalsın
 diye 001'e geri dönülmez.
 
-Aşağıdaki on üç dosyanın **hiçbiri otomatik uygulanmaz** (§6.5 — ELLE iştir)
+Aşağıdaki on dört dosyanın **hiçbiri otomatik uygulanmaz** (§6.5 — ELLE iştir)
 ve uygulanıp uygulanmadıkları **repodan görünmez**. Kod hepsinde savunmacı
 yazılmıştır: eksik şema hiçbir yeri kırmaz, ilgili yüzey yalnız sessizce
 çizilmez ya da yerel moda düşer. "Sessizce çizilmemek" bir sözleşmedir —
@@ -84,6 +84,7 @@ her dosyanın bir öncekinin tüm üst-düzey bloklarını taşıdığını sın
 | 051 | `gozlemevi_tek_cam.sql` | Yedi yeni nabız: kota · araç · bölge · paylaşım · emniyet (`usage_events`) + hata · bildirim (`error_logs`/`notification_log`, ilk kez okunuyor) | On İki Odanın Denetimi · FAZ 4 | Panel yedi kartı hiç görmez; `error_logs`/`notification_log` yoksa iki blok `null` döner (`to_regclass` kapısı) |
 | 052 | `tik_atifi.sql` | `notif_mark_clicked(p_id)` RPC — `notification_log.clicked_at`'i yalnız kendi satırında, yalnız ilk tıkta mühürler (SECURITY DEFINER, RLS UPDATE verilmez) | İç Çalışma 11 rev.2 · boşluk B (Kalan Yol Haritası FAZ 5) | Tık atıfı hiç yazılmaz; Davetin Nabzı dürüst "boşluk" notunu göstermeye devam eder — sızıntı yok, yalnız eksik veri |
 | 053 | `saklama_politikasi.sql` | `usage_events_daily` günlük agregat tablosu + geri doldurma + `usage_events_prune(p_gun)` RPC (SECURITY DEFINER, yalnız `service_role`) — ham satır silinmeden önce agregat dolar (K3) | İç Çalışma 17 · boşluk C (Kalan Yol Haritası FAZ 6) | `usage_events` sınırsız büyümeye devam eder; agregat tablo boş kalır — sızıntı yok, yalnız birikim |
+| 054 | `riza_defteri.sql` | `hukuk_kabul(user_id, surum, kabul_at)` — hangi kullanıcının hangi hukuk sürümünü ne zaman kabul ettiğinin defteri; PK `(user_id, surum)`, geçmiş üzerine YAZILMAZ (UPDATE/DELETE politikası bilerek yok) | İç Çalışma 15 · boşluk C (Kalan Yol Haritası FAZ 7) | Kabul kaydı hiç tutulmaz; `hkKabulYaz` sessizce düşer ve KVKK/GDPR "değişiklik bildirimi" beklentisi karşılanamaz — kayıp veri yok, ama kanıt da yok |
 
 ### Durumu nereden görürsün
 
