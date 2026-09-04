@@ -820,11 +820,21 @@ export async function w3RequestNotificationPermission() {
    kriz kartı hiç açılmıyordu. Kırığı `tests/kriz-eval.test.js` korpusu
    buldu (2026-09-04) — desene bakarak değil, cümleye bakarak.
    toLowerCase() tek başına yetmez: 'İ'.toLowerCase() 'i'+U+0307 (birleşen
-   nokta) döndürür ve desen yine tutmaz; U+0307 ayrıca silinir.
+   nokta) döndürür ve desen yine tutmaz; NFD ile ayrışmış "i + U+0307" biçimi
+   de aynı sebeple kaçar, o yüzden ikinci adım onu birleştirir.
    Yalnız U+0130'a dokunulur — ASCII 'I' zaten 'i'ye katlanıyor, ona
-   dokunmak İngilizce desenleri bozardı. */
+   dokunmak İngilizce desenleri bozardı.
+   İkinci adım KONUM-BAĞLI yazıldı (çapraz denetim bulgusu, Sonnet):
+   U+0307'yi metnin her yerinden silmek, desteklenen on üç dilin dışında
+   NFD ile ayrışmış başka bir harfi (ör. Lehçe ż, Litvanyaca ė) sessizce
+   hedef harfe indirgerdi. Bugünkü dillerde çakışma yok — ama bir normalize
+   ancak hedeflediğini değiştirdiğinde normalizedir.
+   Lookbehind kullanılmadı: yakalama grubu aynı işi görür ve eski iOS
+   Safari'de (Capacitor kabuğu) desteklenmeme riski taşımaz. */
 export function krizMetniNormalize(text) {
-  return String(text == null ? '' : text).replace(/İ/g, 'i').replace(/̇/g, '');
+  return String(text == null ? '' : text)
+    .replace(/İ/g, 'i')
+    .replace(/([iI])\u0307/g, '$1');
 }
 
 // dpAll: kriz taraması dil-BAĞIMSIZDIR — arayüz TR/EN olsa da kullanıcı

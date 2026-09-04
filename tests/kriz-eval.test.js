@@ -33,7 +33,7 @@
  * yalnız `dil` + `not` + kısaltılmış bir `ipucu` taşır (bkz. `_kisalt`).
  */
 import { describe, it, expect } from 'vitest';
-import { detectCrisis, detectCrisisSoft } from '../js/parts/13-extras.js';
+import { detectCrisis, detectCrisisSoft, krizMetniNormalize } from '../js/parts/13-extras.js';
 import { DETECT_I18N } from '../js/parts/16c-i18n-detect-dict.js';
 import {
   KRIZ_KORPUS, KORPUS_MIN, KRIZ_TABAN_DILLER, SOFT_TABAN_DILLER,
@@ -165,6 +165,19 @@ describe('kriz-eval — Türkçe büyük-İ kapısı (2026-09-04 kırığı)', (
     expect(detectCrisis('I want to die and I mean it.')).toBe(true);
     expect(detectCrisis('I want to live abroad next year.')).toBe(false);
   });
+
+  it('NFD ile ayrışmış İ (i + U+0307) de yakalanıyor', () => {
+    // Kopyala-yapıştır bir metin NFD gelebilir: 'İ' tek kod noktası değil,
+    // 'i' + birleşen nokta olarak. Desen o hâlde de tutmalı.
+    expect(detectCrisis('i\u0307ntihar etmeyi düşünüyorum.')).toBe(true);
+  });
+
+  it('konum-bağlı normalize başka harfin noktasını yemiyor', () => {
+    // U+0307 yalnız i/I'dan SONRA silinir. Lehçe ż'nin NFD hâli (z+U+0307)
+    // olduğu gibi kalmalı — normalize hedeflediğini değiştirir, fazlasını değil.
+    expect(krizMetniNormalize('z\u0307')).toBe('z\u0307');
+    expect(krizMetniNormalize('i\u0307')).toBe('i');
+  });
 });
 
 /* ═══ KAPSAMA TABANI — kaç dil, hangi katman ═══════════════════════════
@@ -196,6 +209,27 @@ describe('kriz-eval — kapsama tabanı (daralması yasak)', () => {
       KRIZ_KORPUS.filter((r) => r.beklenen === 'kriz').map((r) => r.dil),
     );
     for (const dil of KRIZ_TABAN_DILLER) expect(sertDiller).toContain(dil);
+  });
+});
+
+describe('kriz-eval — kapının kendisi: ihlali gerçekten yakalıyor mu (§10.5)', () => {
+  /* Çapraz denetim bulgusu (Sonnet): `tanimsizlar` mekanizması doğru
+     yazılmıştı ama kendi yakalayışını kanıtlayan bir test yoktu — repodaki
+     emsal (`tests/bagsiz-ad-kapisi.test.js`) tam da bunu ister. Ölçen alet
+     ölçülmezse ölçüm bir teselli olur. */
+  it('bozuk bir `beklenen` sessizce düşmez, adıyla toplanır', () => {
+    const sahte = [{ metin: 'x', dil: 'tr', beklenen: 'kirz', not: 'kasıtlı yazım hatası' }];
+    expect(_krizDegerlendir(sahte).tanimsizlar).toHaveLength(1);
+  });
+
+  it('kaçırılan bir kriz satırı gerçekten kaçırma olarak sayılır', () => {
+    const sahte = [{ metin: 'bugün hava çok güzel', dil: 'tr', beklenen: 'kriz', not: 'kasıtlı yanlış etiket' }];
+    expect(_krizDegerlendir(sahte).kacirmalar).toHaveLength(1);
+  });
+
+  it('yanlış alarm veren bir temiz satır gerçekten yanlış-alarm sayılır', () => {
+    const sahte = [{ metin: 'intihar', dil: 'tr', beklenen: 'temiz', not: 'kasıtlı yanlış etiket' }];
+    expect(_krizDegerlendir(sahte).yanlisAlarmlar).toHaveLength(1);
   });
 });
 

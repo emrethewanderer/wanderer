@@ -145,6 +145,40 @@ Kapsam: ≥30 senaryo, `dp('detect.crisis')`'in tanıdığı dillerden en az alt
 üç kova dengeli. Yanlış-alarm kovası bilinçli olarak zor seçilir (mecaz,
 şarkı sözü, "ölesiye yoruldum", "bu işi öldürdüm").
 
+### FAZ 2c — Büyük-İ tuzağı: `dp` tüketicilerinin tamamı · 🅢 · ~1 oturum
+> **Bu faz plana bir denetim bulgusundan girdi** (çapraz denetim · Sonnet,
+> 2026-09-04). FAZ 2 kriz yolundaki İ tuzağını kapattı; denetim aynı tuzağın
+> **on iki başka `dp` anahtarında** da açık olduğunu canlı regex koşularıyla
+> gösterdi — sayı uydurulmadı, tarandı:
+> `detect.progress` (`/ilk kez/`) · `detect.breakthrough` (`/itiraf/`) ·
+> `detect.wellness_claim` (`/^iyiyim/`) · `detect.intensity.high|positive` ·
+> `detect.topic.work` (`/iş|kariyer/`) · `detect.belief.empowering`
+> (`/inanıyorum/`) · `detect.choice.new_person` · `detect.eksen.oz_saygi` ·
+> `detect.duygu.huzur|umut` · `detect.pekistirici`.
+>
+> Etki can güvenliği kadar ağır değil ama **aynı kökün ürün genelinde
+> tekrarıdır**: "İyiyim, teşekkürler." diyen bir gezginin iyi-hâl beyanı
+> okunmuyor; "İlk kez cesaret ettim." bir atılım sayılmıyor; "İş yerinde
+> zorlandım." konu olarak iş'e bağlanmıyor. Yani uygulama, cümlesine büyük
+> İ ile başlayan bir Türkçe kullanıcıyı sistematik olarak **daha az
+> tanıyor** — ve tezin adı "Mesele Sensin".
+
+**Değişen:** `js/parts/16-i18n-prompts.js` (yeni `dpTest`/`dpAllTest`) ·
+34 çağrı yeri / 6 dosya (`09-reports-tracks` · `09a-personalization-engine` ·
+`00-config-tracking` · `13D-duygu-motoru` · `02-features-onboarding` ·
+`13-extras`) · yeni `tests/i-tuzagi-kapisi.test.js`
+
+Kök çözüm **tek noktadadır**: normalize'ı her çağrı yerine kopyalamak yeni
+bir ikiz üretir (§1.3). `dpAll` desen döndürür, eşleşme yapmaz — bu yüzden
+eşleştirmeyi yapan iki yardımcı eklenir (`dpTest(key, text)` ·
+`dpAllTest(key, text)`), metni bir kez normalize eder ve çağrı yerleri
+onlara geçer. `krizMetniNormalize` oraya taşınır; `13-extras` onu import
+eder (ikinci bir kopya YAZILMAZ). Kapı adı `*-kapisi` olduğu için
+`npm run kapi:genel` desenine kendiliğinden girer.
+
+**Sınır:** desenlerin kendisi DEĞİŞMEZ — bu faz bir eşleştirme kırığını
+kapatır, sözlüğü genişletmez. Yeni desen yazmak ayrı bir karardır.
+
 ### FAZ 3 — Paylaşım türü kırılımı · 🅢 · ~0.5 oturum
 **Değişen:** `js/parts/13g-paylasim.js` (`shrShareStory` → `_shareCanvas`) ·
 yedi çağıran · `tests/` ilgili süit
@@ -267,7 +301,7 @@ Devir: 🅞 — "3 ✕ → bugün sus" eşiğinin sayısı ve sözleşmenin öz�
 (✕ "şimdi değil"dir) bozmayacak biçimi üründe kararlaşır. Ölçüm tarafı
 (Gözlemevi sorgusu) veriye bağlıdır; kural tarafı bugün yazılabilir.
 
-**Etiket sayımı:** 🅢 **9** (1·3·5·6·7·9·11·13·15) · 🅞 **8**
+**Etiket sayımı:** 🅢 **10** (1·2c·3·5·6·7·9·11·13·15) · 🅞 **8**
 (2·4·8·10·12·14·16·17) — oran kapısı (§4.4) geçildi: 🅞 ≤ 🅢. Beş faz
 bölünerek bu orana getirildi: gövde 🅢 önce gider, yargı çekirdeği 🅞 üstüne
 biner (1/2 · 7/8 · 9/10 · 11/12 · 13/14).
