@@ -1,7 +1,7 @@
 import { S } from '../state.js';
 import { sb, SUMMARY_MODEL, AI_MODES } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, localISODate } from './00a-infrastructure.js';
-import { p } from './16-i18n-prompts.js';
+import { p, reTest } from './16-i18n-prompts.js';
 import { t } from './15-i18n.js';
 import { callLLM } from './04-llm-hero-history.js';
 import { nowTR, detectTopics } from './00-config-tracking.js';
@@ -140,7 +140,7 @@ export function p1AnalyzePersonality(text) {
   }
 
   // Metafor kullanımı
-  if (_METAPHOR_PATTERNS.some(r => r.test(text))) {
+  if (reTest(_METAPHOR_PATTERNS, text)) {
     S._personalityMap.communication.metaphor_count++;
   }
 
@@ -175,7 +175,7 @@ export function p1AnalyzePersonality(text) {
 
   // Değerler tespiti
   Object.entries(_VALUE_INDICATORS).forEach(([value, patterns]) => {
-    if (patterns.some(r => r.test(text)) && !_beyanliMi('p1-deger', value)) {
+    if (reTest(patterns, text) && !_beyanliMi('p1-deger', value)) {
       const existing = S._personalityMap.values.find(v => v.value === value);
       if (existing) {
         existing.strength++;
@@ -193,7 +193,7 @@ export function p1AnalyzePersonality(text) {
 
   // İlişki dinamikleri
   Object.entries(_RELATIONSHIP_PATTERNS).forEach(([rel, patterns]) => {
-    if (patterns.some(r => r.test(text))) {
+    if (reTest(patterns, text)) {
       if (!S._personalityMap.relationships[rel]) {
         S._personalityMap.relationships[rel] = {
           mention_count: 0, sentiments: [],
@@ -220,7 +220,7 @@ export function p1AnalyzePersonality(text) {
 
   // Savunma mekanizmaları
   Object.entries(_DEFENSE_PATTERNS).forEach(([mechanism, patterns]) => {
-    if (patterns.some(r => r.test(text)) && !_beyanliMi('p1-savunma', mechanism)) {
+    if (reTest(patterns, text) && !_beyanliMi('p1-savunma', mechanism)) {
       const existing = S._personalityMap.defense_mechanisms.find(d => d.type === mechanism);
       if (existing) {
         existing.count++;
@@ -328,7 +328,7 @@ export function p2RecordEmotionalMoment(text) {
   const topics = detectTopics(text);
   const relationships = [];
   Object.entries(_RELATIONSHIP_PATTERNS).forEach(([rel, patterns]) => {
-    if (patterns.some(r => r.test(text))) relationships.push(rel);
+    if (reTest(patterns, text)) relationships.push(rel);
   });
 
   const intensity = _p2CurrentIntensity();
@@ -372,7 +372,7 @@ export function p2FindSimilarEmotionalMoment(text) {
   const currentTopics = detectTopics(text);
   const currentRelationships = [];
   Object.entries(_RELATIONSHIP_PATTERNS).forEach(([rel, patterns]) => {
-    if (patterns.some(r => r.test(text))) currentRelationships.push(rel);
+    if (reTest(patterns, text)) currentRelationships.push(rel);
   });
 
   // Bugünden ESKİ anları ara (aynı seans değil)
@@ -514,7 +514,7 @@ export function p3RecordPredictionData(text) {
     /çıkış\s+yok/i, /umudum\s+kalmadı/i, /don'?t\s+want\s+to\s+live/i,
     /can'?t\s+go\s+on/i, /no\s+way\s+out/i, /give\s+up/i
   ];
-  if (crisisWords.some(r => r.test(text))) {
+  if (reTest(crisisWords, text)) {
     S._predictionModel.crisis_indicators.push({
       date: now.toISOString(), text: text.slice(0, 100)
     });
@@ -525,7 +525,7 @@ export function p3RecordPredictionData(text) {
     /güzel\s+bir\s+gün/i, /bugün\s+iyi/i, /mutluyum/i, /başardım/i,
     /gurur\s+duyuyorum/i, /teşekkür/i, /good\s+day/i, /i\s+did\s+it/i, /proud/i
   ];
-  if (positiveWords.some(r => r.test(text))) {
+  if (reTest(positiveWords, text)) {
     S._predictionModel.good_day_signals.push({
       date: now.toISOString(), day, timeSlot
     });
@@ -638,8 +638,8 @@ export const _EXPLICIT_FEEDBACK_POSITIVE = [
 ];
 
 export function p4DetectExplicitFeedback(userText) {
-  if (_EXPLICIT_FEEDBACK_NEGATIVE.some(r => r.test(userText))) return -5;
-  if (_EXPLICIT_FEEDBACK_POSITIVE.some(r => r.test(userText))) return +5;
+  if (reTest(_EXPLICIT_FEEDBACK_NEGATIVE, userText)) return -5;
+  if (reTest(_EXPLICIT_FEEDBACK_POSITIVE, userText)) return +5;
   return 0;
 }
 
@@ -711,8 +711,8 @@ export function p4AnalyzeEffectiveness(aiReply, nextUserMsg) {
   if (nextEmotions.some(e => e !== 'karisiklik')) score += 1;
   // Kullanıcı kısa ve savunmacı yanıt verdiyse kötü
   if (nextLength < 20) score -= 2;
-  if (_DEFENSE_PATTERNS.deflection.some(r => r.test(nextUserMsg))) score -= 3;
-  if (_DEFENSE_PATTERNS.denial.some(r => r.test(nextUserMsg))) score -= 2;
+  if (reTest(_DEFENSE_PATTERNS.deflection, nextUserMsg)) score -= 3;
+  if (reTest(_DEFENSE_PATTERNS.denial, nextUserMsg)) score -= 2;
 
   const entry = {
     mode: prevMode,
@@ -751,7 +751,7 @@ export function p4AnalyzeEffectiveness(aiReply, nextUserMsg) {
   });
 
   // Metafor rezonansı: AI metafor kullandıysa ve kullanıcı olumlu yanıt verdiyse
-  if (_METAPHOR_PATTERNS.some(r => r.test(aiReply)) && score >= 3) {
+  if (reTest(_METAPHOR_PATTERNS, aiReply) && score >= 3) {
     const metaphor = aiReply.match(/gibi|sanki|adeta|tıpkı|like\s+a|as\s+if/i);
     if (metaphor) {
       const context = aiReply.slice(
@@ -903,7 +903,7 @@ export function p5UpdateRelationshipMetrics(text) {
     /sana\s+bir\s+şey\s+söyleyeceğim/i, /gizli/i, /kimse\s+bilmiyor/i,
     /never\s+told/i, /first\s+time/i, /secret/i, /ashamed\s+but/i, /confess/i
   ];
-  if (vulnerabilitySignals.some(r => r.test(text))) {
+  if (reTest(vulnerabilitySignals, text)) {
     S._relationshipDepth.trust_score = Math.min(100, S._relationshipDepth.trust_score + 3);
     S._relationshipDepth.vulnerability_moments++;
   }
@@ -925,7 +925,7 @@ export function p5UpdateRelationshipMetrics(text) {
     /doğru\s+söylüyorsun/i, /seni\s+anlıyorum/i, /emre/i,
     /thank/i, /you'?re\s+right/i, /that\s+helped/i, /i\s+needed\s+this/i
   ];
-  if (allianceSignals.some(r => r.test(text))) {
+  if (reTest(allianceSignals, text)) {
     S._relationshipDepth.alliance_strength = Math.min(100, S._relationshipDepth.alliance_strength + 2);
   }
 
@@ -934,7 +934,7 @@ export function p5UpdateRelationshipMetrics(text) {
     /anlamıyorsun/i, /saçmalama/i, /bırak/i, /istemiyorum/i, /konu\s+değiştir/i,
     /you\s+don'?t\s+understand/i, /nonsense/i, /stop/i, /leave\s+me/i
   ];
-  if (resistanceSignals.some(r => r.test(text))) {
+  if (reTest(resistanceSignals, text)) {
     S._relationshipDepth.alliance_strength = Math.max(0, S._relationshipDepth.alliance_strength - 3);
   }
 
@@ -1352,7 +1352,7 @@ export function p6TarihCoz(metin) {
 
 export function p6ExtractOpenLoops(text) {
   const lm = S._lifeMemory;
-  if (!_FUTURE_MARKERS.some(r => r.test(text))) return;
+  if (!reTest(_FUTURE_MARKERS, text)) return;
   const eventRe = _OPEN_LOOP_EVENTS.find(r => r.test(text));
   if (!eventRe) return;
   const eventWord = (text.match(eventRe) || [''])[0].toLocaleLowerCase('tr');

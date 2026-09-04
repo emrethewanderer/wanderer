@@ -2,7 +2,7 @@ import { S } from '../state.js';
 import { sb, EDGE_FN_BASE, SUMMARY_MODEL, AI_MODES, PROMPT_VERSION, TOKEN_LIMITS } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, SecureStorage, localISODate } from './00a-infrastructure.js';
 import { t, getCurrentLanguage } from './15-i18n.js';
-import { p, dp, pArray } from './16-i18n-prompts.js';
+import { p, dp, pArray, reTest } from './16-i18n-prompts.js';
 import { callLLM, getSessionLastActivity } from './04-llm-hero-history.js';
 import { nowTR, getUserMsgCount, getEmotionalFlowInsight, buildModeSelectionGuide, getResistanceInsight, getSilenceInsight, getPendingCommitmentContext, detectTopics } from './00-config-tracking.js';
 import { dfGetActiveDepthTarget, dfGetActiveFoundationTarget, dfGetPersonTransitionContext, dfGetPhilosophyLayersContext } from './09b-depth-foundations.js';
@@ -577,7 +577,7 @@ export function buildSmartRagQuery(userText, chatHistory) {
   const hasEmotionalTopic = currentIntensity >= 3 && topics.length > 0;
 
   // Proaktif RAG: psikolojik anahtar kelime doğrudan eşleşirse tetikle
-  const hasActionableTopic = _RAG_ACTIONABLE_PATTERNS.some(r => r.test(userText));
+  const hasActionableTopic = reTest(_RAG_ACTIONABLE_PATTERNS, userText);
 
   const shouldRAG = seeksConcept || seeksTechnique
     || (hasQuestion && topics.length > 0)

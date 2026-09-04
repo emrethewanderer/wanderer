@@ -278,6 +278,26 @@ K2'ye birebir uyulur: `nid` yoksa hiçbir şey yazılmaz. Kartın "bu sıfır bi
 sonuç değil, bir boşluk" cümlesi **kaldırılmaz** — yerine koşullu hâle gelir:
 veri geldiğinde sütun konuşur, gelmediğinde not durur.
 
+**Keşif kararı — SIRA TERSİNE ÇEVRİLİR (2026-09-04).** `send-push:452-455`
+bugün önce gönderiyor, sonra logluyor: `sendToUser(...)` → `if (sent > 0)`
+→ `notification_log.insert(...)`. Yani payload hazırlanırken **satırın
+kimliği henüz yok** ve `nid` oraya konamaz.
+Doğru sıra: **insert → id al → `nid`'li payload ile gönder → `sent === 0`
+ise satırı SİL.** Silme adımı süs değil sözleşme koruması: bugünkü kod
+yalnız teslim edilen bildirimi logluyor, yani `notification_log`'un satır
+sayısı "denendi" değil "gönderildi" demek. Sırayı çevirip silmezsek o
+sözleşme sessizce değişir ve **Davetin Nabzı'nın gönderim sütunu şişer** —
+kartı düzeltirken kartı bozmuş oluruz.
+
+**RPC sözleşmesi:** `notif_mark_clicked(p_id bigint)` SECURITY DEFINER;
+`UPDATE notification_log SET clicked_at = now() WHERE id = p_id AND
+user_id = auth.uid() AND clicked_at IS NULL`. Üç koşul da gerekli:
+`user_id` başkasının satırını mühürlemeyi keser, `IS NULL` ise **ilk tık
+kazanır** — ikinci açılış "yeni bir tık" değildir ve saydırılmaz.
+Kullanıcıya `notification_log` üzerinde UPDATE yetkisi VERİLMEZ; RLS
+bugünkü hâliyle (yalnız SELECT) kalır, yazma tek kapıdan geçer
+(`quota_consume` emsali).
+
 ### FAZ 6 — Saklama politikası · 🅢 · ~1 oturum
 **Değişen:** `migrations/052_tik_atifi_ve_saklama.sql` (agregat + prune) ·
 `migrations/README.md`
