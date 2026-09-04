@@ -543,7 +543,9 @@ düşer, yani kural kendi gerekçesini yer.
    kullanıcı hakkında söylediği her şeyin kökeni yine kullanıcı mı (§6.10).
    Bulgunun tipik biçimi şudur: **kod doğru, iş yanlış.**
 4. **Sürece karşı — "bu kırığı üreten kural hangisi?"** Turun asıl kazancı
-   burasıdır. Bulunan kırık bir **kural boşluğuysa** düzeltme koda değil
+   burasıdır. İlk alt soru şudur ve sırası önemlidir: **kural YOK muydu, yoksa
+   YANLIŞ YERDE mi duruyordu?** İkincisi çok daha sıktır ve daha sinsidir —
+   çünkü ilkinde bir boşluk görünür, ikincisinde bir güven görünür (§6.6). Bulunan kırık bir **kural boşluğuysa** düzeltme koda değil
    **protokole** yazılır; aynı kırık iki sprintte iki kez çıktıysa mesele o
    kırık değil onu üreten kuraldır. §6.6'nın cümlesi burada işler: *kapısı
    olmayan kural, zamanla tavsiyeye döner* — ölçülebilir bir kural bulduysan
@@ -946,6 +948,16 @@ Felsefe-önce başlık imzadır — kod bile teze bağlanır. Bölüm ayraçlar�
    madde (§3 eriyen kenar, §5 reduced-motion, §8 z-index) yazılı oldukları
    hâlde sırasıyla 0 / 6 dosya / 38 yerde uygulanmamış çıktı. **Kapısı olmayan
    kural, zamanla tavsiyeye döner.**
+
+   **Ve bir basamak daha var: YANLIŞ YERDE duran kapı, kapısızlıktan kötüdür**
+   (2026-09-03 ölçümü). O gün bir oturumda beş süreç kırığı çıktı ve beşinde de
+   kural VARDI — eksik olan yeriydi: XSS kapısı vardı ama hedefli süitin
+   önekiyle seçilmiyordu · "kırmızı Kapı'yı oku" maddesi vardı ama faz değil
+   sprint listesindeydi · bekleme döngüsünün mantığı vardı ama tavanı yoktu ·
+   `npm audit` kapısı vardı ama kırığın kimin olduğunu ayırt etmiyordu ·
+   PR guard'ı vardı ama dal koşusundan önce koşuyordu. Hiçbiri "kural yok"
+   değildi. Kapısız bir kural en azından kendini kural sanmaz; **yanlış yerde
+   duran kapı ise koruduğunu sanır ve o güveni boşa harcatır.**
 7. **Bundle diyeti:** yeni büyük sözlük/veri → sidecar (ayrı asset +
    `ensureExt`/`loadExtScript` deseni); build.sh boyut kapısına takılma.
 8. **i18n paritesi:** her yeni UI string TR+EN sözlüğe girer; `t(key,

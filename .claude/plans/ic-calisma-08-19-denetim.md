@@ -583,3 +583,52 @@ Sayaç dili sızmadı: sayılar yalnız admin kadranında, gezgin yüzeyinde de�
 ölçülemez; kartların canlı `admin_usage_report` çıktısıyla nasıl göründüğü
 sınanmadı — sentetik veriyle sınandı. Oda 18·B (gerçek cihaz turu) bu turda da
 yapılmadı: doğrulama tarayıcısı konsolu okur, gezginin gözünü okumaz.
+
+## Opus öz-denetimi — 2026-09-04 · sprint sonrası süreç turu
+
+Emre "tüm yapılanları baştan sona incele ve sistemi en iyile" dedi; §3.7 bu
+hâlde tek başına koşar ve kapsamı Emre'nin adlandırdığı iştir — bu oturumun
+tamamı (14 commit, `c059803..4847c2b`).
+
+**Plana karşı.** Sekiz fazın sekizi teslim edildi, on iki belge yayında;
+sapmalar bir önceki kayıtta. Bu turda plana yeni bir vaat girmedi.
+
+**Koda karşı.** Sprint kapandıktan sonra üç kırık daha çıktı ve üçü de
+**kapıların kendisindeydi**, üründe değil: bekleme döngüsünün tavansızlığı,
+`npm audit` adımının kırık sahibini ayırt etmemesi, `concurrency` grubunun
+yarış üretmesi. Üçü de düzeltildi ve üçünün de kapısı yazıldı.
+
+**Vizyona karşı.** Bu tur ürüne dokunmadı — kapsamı süreçti. Teze katkısı
+dolaylı ama gerçek: *"Mesele Sensin"* diyen bir uygulamanın kendi kapıları
+yalan söylüyorsa, o cümlenin bedeli düşer. Bir kapının "yeşil" demesi bir
+iddiadır ve iddia kanıt ister (§6.10) — bu turda üç kapı, kanıtı olmadan
+konuştuğu için düzeltildi.
+
+**Sürece karşı — turun asıl bulgusu.** Bu oturumda **beş süreç kırığı** çıktı
+ve ölçüldüğünde hepsinin aynı aileden olduğu görüldü:
+
+| Kırık | Kural var mıydı? | Eksik olan |
+|---|---|---|
+| XSS tabanı büyüdü, hedefli süit görmedi | ✅ vardı | kapının **hedefi** |
+| Kırmızı Kapı dört tur okunmadı | ✅ vardı | maddenin **listesi** |
+| Tavansız döngü 40 dk yedi | ✅ mantık vardı | döngünün **tavanı** |
+| `npm audit` 503'te kırmızı bastı | ✅ vardı | kırığın **sahibi** |
+| PR guard'ı yarışta kanıt bulamadı | ✅ vardı | koşunun **sırası** |
+
+**Beşinde de kural VARDI.** Hiçbiri "kural yok" değildi — hepsi "kural yanlış
+yerde" idi. Bu, §6.6'nın bir üst basamağıdır ve protokole yazıldı: *kapısız
+bir kural en azından kendini kural sanmaz; yanlış yerde duran kapı ise
+koruduğunu sanır ve o güveni boşa harcatır.* §3.7'nin dördüncü ekseni artık
+bu soruyla başlıyor: **kural yok muydu, yoksa yanlış yerde mi duruyordu?**
+
+**Bulgular.** 5 — düzeltildi 5 · plana taşındı 0 · reddedildi 0
+- `tests/` (yoktu) — repo-geneli kapılar önekle bulunmuyordu — **düzeltildi** (`kapi:genel`)
+- `PROTOKOL-FABLE.md` §9 — Kapı okuma maddesi yanlış listedeydi — **düzeltildi**
+- kabuk komutu — tavansız `until` + 403 → 40 dk sessiz sonsuzluk — **düzeltildi** (§10.6 + kapı)
+- `.github/workflows/kapi.yml` — `npm audit` kırık sahibini ayırt etmiyordu — **düzeltildi** (üç kova + davranış kapısı)
+- `.github/workflows/kapi.yml` — `concurrency` grubu yarış üretiyordu — **düzeltildi** (head sha)
+
+**Bakılmayan.** ELLE kuyruğu (`041`–`051`, üç edge redeploy) bu turda da
+ölçülmedi ve ölçülemez. Oda 18·B (gerçek cihaz turu) duruyor. `npm audit`in
+üç kovası sentetik senaryolarla sınandı — gerçek bir 503 anında koşmadı,
+ama kırığın kendisi zaten gerçek bir 503'tü.
