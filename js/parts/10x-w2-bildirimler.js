@@ -93,6 +93,12 @@ async function bildirimNativeInit() {
       const d = e?.detail || {};
       if (d.token) _saveNativeToken(d.token, d.platform);
     });
+    /* Native tık atıfı (FAZ 5 denetimi): 00e dokunuşu duyurur, yazan taraf
+       burasıdır — sorumluluk sınırı 00e'nin başlığında yazılı. K2 kilidi
+       ayrıca `_markNotifClicked`'in içindedir: nid yoksa hiçbir şey yazılmaz. */
+    window.addEventListener('wndr-native-notif-click', (e) => {
+      _markNotifClicked(e?.detail?.nid);
+    });
   } catch (_) {}
   // Daha önce izin verildiyse token'ı sessizce tazele + flag'i doğrula
   try {
@@ -160,12 +166,20 @@ function _bindDeepLink() {
   if (_deepLinkBound || !('serviceWorker' in navigator)) return;
   _deepLinkBound = true;
   navigator.serviceWorker.addEventListener('message', (e) => {
-    if (e.data && e.data.type === 'wndr-notif-click') _routeNotif(e.data.ntype);
+    if (e.data && e.data.type === 'wndr-notif-click') {
+      _routeNotif(e.data.ntype);
+      _markNotifClicked(e.data.nid);
+    }
   });
-  // Soğuk açılış: SW openWindow ettiyse hedef hash'te gelir (#notif=<tip>)
+  // Soğuk açılış: SW openWindow ettiyse hedef hash'te gelir (#notif=<tip>&nid=<id>).
+  // Hash TEK seferde okunur — replaceState onu temizler, ikinci bir match asla
+  // eşleşmeyeceği için nid de aynı okumadan çıkarılır (temizlemeden önce).
   try {
-    const m = (location.hash || '').match(/notif=([^&]+)/);
+    const hash = location.hash || '';
+    const m  = hash.match(/notif=([^&]+)/);
+    const nm = hash.match(/nid=([^&]+)/);
     if (m) { _routeNotif(decodeURIComponent(m[1])); history.replaceState(null, '', location.pathname); }
+    if (nm) _markNotifClicked(decodeURIComponent(nm[1]));
   } catch (_) {}
 }
 
@@ -175,6 +189,22 @@ function _routeNotif(ntype) {
     // Diğer tüm tipler → ana sohbet ekranı (kullanıcıyı akışa sokar)
     if (typeof window.switchView === 'function') window.switchView('chat');
   } catch (_) {}
+}
+
+/* K2 (İç Çalışma 11 · boşluk B, FAZ 5) — "son gönderilen bildirimi tıklanmış
+   say" gibi bir sezgi §6.10 ihlalidir. nid yoksa BU FONKSİYON HİÇBİR ŞEY
+   YAZMAZ; RPC (052, ELLE deploy) migration koşmadıysa da sessizce düşer
+   (42883/PGRST202 — quota_consume'daki _missingFn kalıbı). Export edilmiş
+   olması _buildEngagementSnapshot ile aynı sebepledir: doğrudan test edilir. */
+export function _markNotifClicked(nid) {
+  if (nid == null) return;
+  const p_id = Number(nid);
+  if (!Number.isFinite(p_id)) return;
+  try {
+    sb.rpc('notif_mark_clicked', { p_id })
+      .then(({ error }) => { if (error) console.warn('bldMarkClicked:', error.message || error); })
+      .catch((e) => console.warn('bldMarkClicked:', e && e.message));
+  } catch (e) { console.warn('bldMarkClicked:', e && e.message); }
 }
 
 /* ════════════════════════════════════════════════════════════════════

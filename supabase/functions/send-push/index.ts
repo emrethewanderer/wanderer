@@ -54,7 +54,7 @@ const corsHeaders = {
    tam olarak aradığımız sinyaldir (§6.2 — doğrulanmamış hiçbir şey
    "çalışıyor" diye raporlanmaz). Yeni bir sprint bu dosyaya dokunduğunda
    tarihi ELLE ilerletir. */
-const VERSION = '2026-09-03';
+const VERSION = '2026-09-04';
 
 /* Damga json() içinde: motorun HER yanıtı — engine/test/broadcast ve hata
    dalları dahil — sürümü taşır. Tek yere koymak, yeni bir dönüş yolu
@@ -375,7 +375,14 @@ async function sendFCM(accessToken: string, token: string, payload: any): Promis
     message: {
       token,
       notification: { title: payload.title, body: payload.body },
-      data: { url: String(payload.url || ''), type: String(payload.type || 'generic') },
+      // nid: tık atıfı (FAZ 5). Web sw.js üzerinden alıyordu; native'de bu alan
+      // olmadan tık HİÇ sayılmıyordu ve kart web-only bir oran basardı.
+      // FCM data alanları STRING olmak zorunda — nid yoksa anahtar hiç girmez.
+      data: {
+        url: String(payload.url || ''),
+        type: String(payload.type || 'generic'),
+        ...(payload.nid != null ? { nid: String(payload.nid) } : {}),
+      },
       android: { priority: 'high', notification: { tag: payload.tag || payload.type } },
       apns: { payload: { aps: { sound: 'default', 'thread-id': payload.tag || payload.type } } },
     },
@@ -429,8 +436,11 @@ async function sendToUser(uid: string, payload: any): Promise<number> {
   return sent;
 }
 
-function payloadFor(trigger: string, title: string, body: string) {
-  return { title, body, type: trigger, tag: trigger, url: './index.html', icon: EMRE_IMG };
+// nid: notification_log satır kimliği (İç Çalışma 11 · boşluk B, FAZ 5).
+// Opsiyoneldir — test/broadcast çağrıları geçirmez, JSON.stringify undefined
+// alanı sessizce düşürür. K2: tık atıfı YALNIZ bu kimlik taşındığında yazılır.
+function payloadFor(trigger: string, title: string, body: string, nid?: number | null) {
+  return { title, body, type: trigger, tag: trigger, url: './index.html', icon: EMRE_IMG, nid };
 }
 
 /* ───────────────────────── ENGINE (cron) ───────────────────────── */
@@ -449,10 +459,22 @@ async function runEngine(): Promise<Response> {
 
       const ctx = await loadContext(row.user_id);
       const { title, body } = await generateCopy(trigger, row, ctx);
-      const sent = await sendToUser(row.user_id, payloadFor(trigger, title, body));
+      // SIRA TERSİNE ÇEVRİLDİ (FAZ 5, İç Çalışma 11 · boşluk B): nid payload'a
+      // GÖNDERİMDEN ÖNCE gerekir, yani satır önce açılır. Teslim edilmezse
+      // (sent === 0) satır SİLİNİR — notification_log'un "gönderildi" sözleşmesi
+      // (yalnız teslim edilen loglanır) sırayı çevirirken sessizce bozulmasın.
+      const { data: logRow, error: logErr } = await admin
+        .from('notification_log')
+        .insert({ user_id: row.user_id, type: trigger, title, body })
+        .select('id')
+        .single();
+      if (logErr) console.warn('[send-push] notification_log insert failed, nid yok:', logErr.message);
+      const nid = logRow?.id ?? null;
+      const sent = await sendToUser(row.user_id, payloadFor(trigger, title, body, nid));
       if (sent > 0) {
         delivered++;
-        await admin.from('notification_log').insert({ user_id: row.user_id, type: trigger, title, body });
+      } else if (logRow) {
+        await admin.from('notification_log').delete().eq('id', logRow.id);
       }
     } catch (e) {
       console.warn('[send-push] engine row error:', (e as Error)?.message);

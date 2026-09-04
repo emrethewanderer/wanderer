@@ -1003,14 +1003,16 @@ export function _hataNabzi(ep) {
    rapora hiç girmez (mig 051 başlık notu, LLM'in yazdığı kişisel metin) —
    kart yalnız tip + gönderim/tıklanma SAYISINI gösterir.
 
-   DÜRÜSTLÜK SINIRI — TIK SÜTUNU BUGÜN ÖLÇÜLMÜYOR (2026-09-03'te doğrulandı):
-   `notification_log.clicked_at` kolonu şemada var ama onu YAZAN hiçbir yer
-   yok. `sw.js:140` `notificationclick`'i bildirimi kapatır, pencereyi öne
-   alır ve deep-link mesajı yollar — kaydı güncellemez. Yani buradaki sıfır
-   "kimse tıklamadı" DEĞİL, "ölçmüyoruz" demektir; kart bunu altında sabit
-   metinle söyler. §6.10'un en ince ihlali tam burada olurdu: ölçülmeyen bir
-   şeyi ölçülmüş gibi gösteren bir sütun, kanıtsız sıfırdan daha yanıltıcıdır
-   — çünkü kanıtlı görünür. Atıf takılınca bu not ve teşhis düşer. ── */
+   DÜRÜSTLÜK SINIRI — TIK SÜTUNU KOŞULLUDUR (İç Çalışma 11 · boşluk B, FAZ 5,
+   2026-09-04'te atıf zinciri kuruldu: 052 RPC + send-push nid + sw.js +
+   10x `_markNotifClicked`). Zincir ELLE deploy'a bağlıdır (052 migration +
+   send-push redeploy, §6.5) ve bugünkü rapordan HİÇBİR biçimde "deploy
+   edildi mi" diye sorulamaz — tek kanıt DATANIN KENDİSİDİR: `tiklanma > 0`
+   ise en az bir gerçek tık mühürlenmiş demektir ve sütun kendi verisiyle
+   konuşur. `tiklanma === 0` iki durumu AYIRT EDEMEZ (zincir kurulu ama
+   kimse henüz tıklamadı / zincir hâlâ eksik) — bu yüzden o durumda kart
+   dürüst boşluk notunu KORUR (§6.10: kanıtsız iddiada bulunulmaz). Not
+   "kaldırılmadı, koşullu hâle geldi" — aşağıdaki `notAlt`. ── */
 export function _davetNabzi(np) {
   // Kol tekil ama net: `tip_dagilim` dizisinin VARLIĞI sorgunun gerçekten
   // koştuğunun kanıtıdır (RPC her zaman en az [] döner) — yokluğu, alanın
@@ -1021,13 +1023,19 @@ export function _davetNabzi(np) {
   const total = Number(np.total) || 0;
   const tiklanma = dagilim.reduce((a, x) => a + (Number(x.tiklanma) || 0), 0);
 
-  /* En ağır olan önce: motor hiç koşmamışsa "dönüş yok" teşhisi anlamsız. */
+  /* En ağır olan önce: motor hiç koşmamışsa "dönüş yok" teşhisi anlamsız.
+     tiklanma > 0 → atıf gerçekten çalışıyor, sütun kendi verisiyle konuşur
+     (oran). tiklanma === 0, "atıf kurulu ama kimse tıklamadı" ile "atıf
+     hâlâ eksik"i ayırt edemez — dürüst boşluk notu bu yüzden kalır. */
   let tani = '';
   if (!total) {
     tani = ' <span class="gz-n">— motor bu pencerede hiç koşmamış — pg_cron kurulu mu?</span>';
   } else if (!tiklanma) {
-    /* Tahmin değil olgu: atıf takılı DEĞİL (yukarıdaki dürüstlük sınırı). */
-    tani = ' <span class="gz-n">— tık sütunu ölçülmüyor: notificationclick atıfı takılı değil, bu sıfır bir sonuç değil bir boşluk</span>';
+    /* Tahmin değil olgu: veri henüz gelmedi (yukarıdaki dürüstlük sınırı). */
+    tani = ' <span class="gz-n">— tık sütunu henüz konuşmuyor: atıf zinciri kodda kurulu, 052 + redeploy ELLE bekliyor; bu sıfır bir sonuç değil bir boşluk</span>';
+  } else {
+    const oran = Math.round((tiklanma / total) * 100);
+    tani = ` <span class="gz-n">— dönüş oranı %${gzSayi(oran)}</span>`;
   }
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
@@ -1042,6 +1050,17 @@ export function _davetNabzi(np) {
     <span class="gz-bar-val">${Number(x.gonderim) || 0} gönderim · ${Number(x.tiklanma) || 0} tık</span>
   </div>`).join('');
 
+  // Sabit değildi, KOŞULLU: veri geldiğinde (tiklanma > 0) sütun konuşur,
+  // gelmediğinde dürüst not durur — ama notun METNİ de tazelendi (faz
+  // denetimi): eski cümle "sw.js atıfı takılı değil" diyordu ve o cümle bu
+  // fazda YANLIŞ hâle geldi. Kod içinde [[rapor-bayatligi]]: bir teşhis,
+  // teşhis ettiği kırık kapandığında kendini güncellemez. `kose` gibi çağrı
+  // yerinde fonksiyon çağrısı olarak kalır — XSS denetçisi çağrıyı yapısal
+  // sayar, bare değişken TABAN'ı büyütürdü (scripts/audit-innerhtml.mjs).
+  const notAlt = (t, tot) => t
+    ? `<div class="gz-flow"><div class="gz-n">Tık sütunu artık konuşuyor: <code>notification_log.clicked_at</code> dolmuş — <b>${gzSayi(t)}</b> / <b>${gzSayi(tot)}</b> gönderim tıklanmış.</div></div>`
+    : `<div class="gz-flow"><div class="gz-n">Tık sütunu henüz konuşmuyor: atıf zinciri kodda kurulu (<code>052</code> RPC · send-push <code>nid</code> · sw.js · native köprü) ama ikisi ELLE bekliyor — <code>052</code> migration'ı ve send-push redeploy'u. Buradaki sıfır iki şeyden biri: zincir daha koşmadı, ya da koştu ve kimse tıklamadı. İkisini AYIRT EDEMİYORUZ, o yüzden "kimse tıklamıyor" diye okunmamalı.</div></div>`;
+
   return `<div class="gz-sec">Davetin Nabzı — davet gidiyor mu, dönüyor mu</div>
     <div class="gz-flow"><div><b>${gzSayi(total)}</b> gönderim · <b>${gzSayi(tiklanma)}</b> tıklanma${tani}</div></div>
     <div class="admin-stat-row">
@@ -1049,7 +1068,7 @@ export function _davetNabzi(np) {
       ${kose(tiklanma, 'Tık')}
     </div>
     ${rows}
-    <div class="gz-flow"><div class="gz-n">Tık sütunu bugün ölçülmüyor: <code>notification_log.clicked_at</code> kolonu var ama onu yazan yok (sw.js notificationclick atıfı takılı değil). Buradaki sıfır "kimse tıklamadı" değil "ölçmüyoruz" demektir.</div></div>`;
+    ${notAlt(tiklanma, total)}`;
 }
 
 /* ── 6f8. Gelirin Nabzı — paywall hunisinin ilk basamakları: duvar → kapı

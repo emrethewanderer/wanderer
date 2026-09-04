@@ -859,16 +859,45 @@ describe('Davetin Nabzı — motor koşuyor mu, dönüş var mı (11·B)', () =>
     expect(html).toContain('pg_cron kurulu mu?');
   });
 
-  it("gönderim var tıklanma yoksa \"ölçülmüyor\" der — \"kimse tıklamadı\" DEMEZ", () => {
+  it("gönderim var tıklanma yoksa BOŞLUK der — \"kimse tıklamadı\" DEMEZ", () => {
+    /* Cümle FAZ 5'te tazelendi: eskiden "notificationclick atıfı takılı
+       değil" diyordu ve o iddia atıf zinciri kurulunca YANLIŞ hâle geldi.
+       Test artık cümlenin harfini değil TAAHHÜDÜNÜ ölçüyor: sıfırın bir
+       sonuç değil bir boşluk olduğunu söylemek, ve ELLE bekleyeni adıyla
+       anmak. Harfe bağlı bir test, metin her tazelendiğinde sahte kırmızı
+       verir — ve sahte kırmızı, kapıya olan güveni yer. */
     const html = _davetNabzi({ total: 5, tip_dagilim: [{ tip: 'morning', gonderim: 5, tiklanma: 0 }] });
-    expect(html).toContain('tık sütunu ölçülmüyor');
-    expect(html).toContain('notificationclick atıfı');
+    expect(html).toContain('bu sıfır bir sonuç değil bir boşluk');
+    expect(html).toContain('ELLE bekliyor');
+    /* Olumsuz iddia KELİMEYE değil TAAHHÜDE bağlanır. İlk yazımda
+       `not.toContain('kimse tıklamadı')` yazdım ve test kırmızı verdi —
+       çünkü kart tam da o kelimeleri "ayırt edemediğimiz iki durumdan biri"
+       olarak sayıyor. Yasak olan şey kelimeyi ANMAK değil, o hükmü VERMEK.
+       Kartın taahhüdü tek cümlede: iki durumu ayırt edemediğini söylemek. */
+    expect(html).toContain('AYIRT EDEMİYORUZ');
   });
 
-  it('tıklanma da varsa hiçbir teşhis yazılmaz', () => {
+  it('tıklanma da varsa "motor koşmamış" teşhisi yazılmaz — sütun kendi verisiyle konuşur (FAZ 5)', () => {
     const html = _davetNabzi({ total: 5, tip_dagilim: [{ tip: 'morning', gonderim: 5, tiklanma: 2 }] });
     expect(html).not.toContain('motor bu pencerede');
     expect(html).not.toContain('dönüş yok');
+    expect(html).toContain('dönüş oranı %40');
+  });
+
+  /* FAZ 5 (İç Çalışma 11 · boşluk B) — dürüst not KALDIRILMADI, KOŞULLU
+     hâle geldi: veri geldiğinde (tiklanma > 0) sütun konuşur, gelmediğinde
+     bugünkü not AYNEN durur. */
+  it('tiklanma 0 ise alt not eski dürüst metni AYNEN korur', () => {
+    const html = _davetNabzi({ total: 5, tip_dagilim: [{ tip: 'morning', gonderim: 5, tiklanma: 0 }] });
+    expect(html).toContain('Tık sütunu henüz konuşmuyor');
+    expect(html).toContain('AYIRT EDEMİYORUZ');
+  });
+
+  it('tiklanma > 0 ise alt not "artık konuşuyor"a döner, eski dürüst not YAZILMAZ', () => {
+    const html = _davetNabzi({ total: 5, tip_dagilim: [{ tip: 'morning', gonderim: 5, tiklanma: 2 }] });
+    expect(html).toContain('Tık sütunu artık konuşuyor');
+    expect(html).not.toContain('Tık sütunu henüz konuşmuyor');
+    expect(html).toContain('2');
   });
 
   it('tip alanı esc() üzerinden geçer (sunucudan gelir)', () => {

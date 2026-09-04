@@ -270,7 +270,7 @@ ayar tablosu değil bir **rica** — "bildirim penceresi" değil, *"Gece kaçtan
 sonra sana dokunmayalım?"*
 
 ### FAZ 5 — Tık atıfı · 🅢 · ~1 oturum
-**Yeni:** `migrations/052_tik_atifi_ve_saklama.sql` (RPC bloğu)
+**Yeni:** `migrations/052_tik_atifi.sql` (RPC bloğu)
 **Değişen:** `supabase/functions/send-push/index.ts` (payload'a `nid`) ·
 `sw.js` (postMessage'a `nid`) · `js/parts/14-boot.js` veya mesaj dinleyicisi ·
 `js/parts/13q-gozlemevi.js` (Davetin Nabzı'nın notu)
@@ -299,16 +299,23 @@ bugünkü hâliyle (yalnız SELECT) kalır, yazma tek kapıdan geçer
 (`quota_consume` emsali).
 
 ### FAZ 6 — Saklama politikası · 🅢 · ~1 oturum
-**Değişen:** `migrations/052_tik_atifi_ve_saklama.sql` (agregat + prune) ·
-`migrations/README.md`
+**Yeni:** `migrations/053_saklama_politikasi.sql` (agregat + prune) ·
+**Değişen:** `migrations/README.md`
+> **Numara kararı (FAZ 5 Durak 1, 2026-09-04):** plan üç fazı tek `052`'de
+> topluyordu; FAZ 5 ayrı ve odaklı bir dosya açtı. Karar bu yönde
+> kesinleşti — **her faz kendi migration'ını alır** (`052` tık atıfı ·
+> `053` saklama · `054` rıza defteri). Gerekçe defterin kendisidir:
+> `migrations/README.md` ELLE kuyruğunu dosya dosya sayar ve sıra
+> pazarlıksızdır; üç işi tek dosyaya koymak, birini koşup ikisini
+> koşmamayı imkânsız kılardı — oysa üçünün aciliyeti farklı.
 K3'ün sırası: `usage_events_daily` (user_id, gun, screen, kind, adet,
 toplam_ms) → geri doldurma → `usage_events_prune(p_gun int default 90)`.
 Cron'a bağlanmaz. `admin_usage_report`'a **dokunulmaz** (blok taşıma kuralı
 `051`'de mühürlü; `052` rapora hiç girmiyorsa taşıma borcu doğmaz).
 
 ### FAZ 7 — Rıza defteri · 🅢 · ~1 oturum
-**Değişen:** `migrations/052_*.sql` (`hukuk_kabul` tablosu + RLS) ·
-`js/parts/03-auth-shell.js` (kayıt anında yazım) · `js/parts/13p-hukuk.js`
+**Yeni:** `migrations/054_riza_defteri.sql` (`hukuk_kabul` tablosu + RLS) ·
+**Değişen:** `js/parts/03-auth-shell.js` (kayıt anında yazım) · `js/parts/13p-hukuk.js`
 `hukuk_kabul(user_id, surum, kabul_at)`; kullanıcı yalnız kendi satırını
 okur/yazar. Mevcut `bulten_izin_surum` **korunur** — o ayrı bir rızadır ve
 bu defter onun yerine geçmez.
@@ -339,7 +346,7 @@ Sınır (korunan): onay-chip'i ilkesi gevşetilmez — LLM önerir, kullanıcı 
 
 ### FAZ 11 — Sosyal bildirim altyapısı · 🅢 · ~1 oturum
 **Değişen:** `supabase/functions/send-push/index.ts` (merdivene `sosyal`) ·
-`js/parts/10C-sosyal-feed.js` (in-app rozet) · `migrations/052_*.sql` gerekirse
+`js/parts/10C-sosyal-feed.js` (in-app rozet) · gerekirse yeni migration
 Freq-cap'e tabi; merdivende winback'ten **önce** gelir (raporun kararı).
 Rozet, `13B` tören kuyruğuna sormaz — rozet bir sahne değil, bir işarettir.
 
@@ -349,7 +356,7 @@ metni üründe bulunur; sayaç dili ("3 yeni yorum!") bu ürüne girmez.
 
 ### FAZ 13 — Eşik alarmı altyapısı · 🅢 · ~1 oturum
 **Değişen:** `js/parts/13q-gozlemevi.js` (eşik okuma + alarm satırı) ·
-`supabase/functions/send-push/index.ts` (`admin` tipi) · `migrations/052_*.sql`
+`supabase/functions/send-push/index.ts` (`admin` tipi) · gerekirse yeni migration
 Kartların **zaten** yazdığı teşhis cümleleri (oda 17: "her kart eşiği aşınca
 kendi tanısını yazıyor") tek yerde toplanır ve bir alarm listesine dönüşür.
 Yeni bir teşhis motoru yazılmaz — var olan cümleler toplanır.
@@ -421,7 +428,7 @@ hiç görünmez — orada ton değil **doğruluk** ölçülür.
    `"function"` (FAZ 3 regresyonu).
 3. `node scripts/dogrula.mjs --eval "typeof window.bildirimRenderSettings"` →
    `"function"` (FAZ 4).
-4. `grep -c "admin_usage_report" migrations/052_*.sql` → **0** (K3/risk 2).
+4. `grep -c "admin_usage_report" migrations/05[234]_*.sql` → **0** (K3/risk 2).
 5. `node scripts/dogrula.mjs --eval "typeof window.aracExtract"` →
    `"function"` (FAZ 9 sözleşme regresyonu).
 6. Her fazda: `./build.sh` → hedefli süit → **`npm run kapi:genel`** → tarayıcı.
@@ -429,7 +436,7 @@ hiç görünmez — orada ton değil **doğruluk** ölçülür.
 ## Kritik Dosyalar
 
 - **YENİ:** `tests/kriz-eval.test.js` · `tests/fixtures/kriz-korpus.mjs` ·
-  `migrations/052_tik_atifi_ve_saklama.sql`
+  `migrations/052_tik_atifi.sql` · `053_saklama_politikasi.sql` · `054_riza_defteri.sql`
 - **Yerinde evrim:** `js/parts/13a-arac-motoru.js` · `10x-w2-bildirimler.js` ·
   `13p-hukuk.js` · `13q-gozlemevi.js` · `10B-ilham-karti.js` ·
   `12e-isik-nisanlari.js` · `13g` paylaşım motoru · `10C-sosyal-feed.js` ·
@@ -698,7 +705,45 @@ yazılı olmalı: her kural ölçülemez, ölçülemeyen kural belgeye yazılır
 sayılmadı — ikiz motor bulgusu adlandırıldı, boyu ölçülmedi. FAZ 5–17
 henüz açılmadı; bu kayıt onları kapsamaz.
 
-**İlk hamle (FAZ 5):** `migrations/052`'ye `notif_mark_clicked(p_id)`
+- **FAZ 5 · BİTTİ** (2026-09-04). `uygulayici`da (🅢) + parent'ın denetimi.
+  `052` RPC üç koşullu (`id` · `user_id = auth.uid()` · `clicked_at IS NULL`
+  — ilk tık kazanır), `send-push` sırası tersine çevrildi ve `sent === 0`
+  dalı satırı **siliyor** (sözleşme korundu: satır sayısı hâlâ "gönderildi"
+  demek), `VERSION` ilerletildi, `sw.js` `nid`'i hem postMessage'a hem soğuk
+  açılış hash'ine taşıyor, `10x._markNotifClicked` K2'yi mühürlüyor.
+  Ajan XSS kapısını da kendi turunda kırmızı bulup düzeltmiş (`notAlt` bare
+  değişken olarak TABAN'ı büyütüyordu → `kose` deseninde fonksiyon çağrısı).
+
+  **Denetim (parent · Opus) — iki kırık bulundu ve kapatıldı:**
+  1. **Native yol hiç atıf yazmıyordu.** Web tarafı (`sw.js`) kuruluydu ama
+     `00e:56` dokunuşta yalnız `data.type` okuyor, FCM payload'ı da (`:378`)
+     yalnız `url` ve `type` taşıyordu. Wanderer bir **Capacitor
+     uygulaması**: yalnız web'i saymak, "tık oranı" gibi görünen ama
+     gerçekte **web-only** bir oran üretirdi — kartın kaçınmak için
+     düzeltildiği hatanın ta kendisi. Üç halka da kapatıldı ve `00e`'nin
+     kendi **sorumluluk sınırı korundu**: DB'ye o modül yazmaz, olayı
+     duyurur (`wndr-native-notif-click`), yazan taraf `10x`'tir —
+     `wndr-native-push-token` köprüsünün birebir aynı kalıbı.
+  2. **Kartın sıfır dalındaki cümle bayattı.** *"sw.js notificationclick
+     atıfı takılı değil"* diyordu — bu fazda **yanlış hâle geldi**. Kod
+     içinde `[[rapor-bayatligi]]`: bir teşhis, teşhis ettiği kırık
+     kapandığında kendini güncellemez. Yeni cümle iki durumu ayırt
+     edemediğini söylüyor (zincir daha koşmadı / koştu ve kimse tıklamadı)
+     ve ELLE bekleyen iki adımı adıyla anıyor.
+  Durak 2 (RPC dönüş tipi) mekanik, kabul. Durak 3 (panel teşhis cümlesi):
+  Gözlemevi admin-only ve zaten `t()`'siz düz teknik Türkçe taşıyor —
+  register uygun, kabul; ama cümlenin kendisi yukarıdaki (2) ile tazelendi.
+
+  Kapı: build ✅ · hedefli süit ✅ · `kapi:genel` ✅ · `dogrula` ✅ exit 0.
+  **ELLE bekleyen:** `052` migration + `send-push` redeploy. İkisi
+  yapılmadan hiçbir şey yazılmaz ve kart bugünkü dürüst notunu korur.
+
+**İlk hamle (FAZ 6):** `migrations/053_saklama_politikasi.sql` —
+`usage_events_daily` agregat tablosu → geri doldurma → `usage_events_prune()`.
+Sıra K3'ün kendisidir: ham satır silinmeden önce agregat dolmalı.
+`admin_usage_report`'a DOKUNULMAZ.
+
+**Eski İlk hamle (FAZ 5, tamamlandı):** `migrations/052`'ye `notif_mark_clicked(p_id)`
 SECURITY DEFINER RPC'si (yalnız kendi satırının `clicked_at`'i, yalnız
 NULL'ken); `send-push` payload'ına `nid`; `sw.js` postMessage'ına `nid`;
 `10x:_bindDeepLink` onu RPC'ye taşısın. `nid` yoksa HİÇBİR ŞEY yazılmaz.
