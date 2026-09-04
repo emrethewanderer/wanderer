@@ -212,10 +212,31 @@ Tür geçirilmezse **null kalır** — uydurulmuş varsayılan yazılmaz (§6.10
 Devir: 🅞 — sessiz saat seçicisinin biçimi (iki saat mi, hazır aralık mı) ve
 microcopy'si üründe ayarlanır; "gece vardiyası" durumu suçlayıcı bir cümleyle
 anlatılamaz. Tip anahtarlarının hangi granülde sunulacağı da yargıdır.
-**Değişen:** `js/parts/10x-w2-bildirimler.js` (`bildirimRenderSettings`) ·
-`js/parts/15b`/`15e` sözlükler · `css/parts/`
-`_sessizSaatTercihi()` **zaten okuyor** (`10x:403`) — bu faz yalnız yazan
-yüzeyi kurar. Kapı: tercih yokken payload'da `quiet_*` anahtarı hiç bulunmaz.
+**Değişen:** `_src.html` (Ayarlar → Bildirimler grubu, `push-status`'ın
+altı) · `js/parts/10x-w2-bildirimler.js` (`bildirimRenderSettings` + yazan
+fonksiyon) · `js/parts/15b-i18n-dict-core.js` + `js/parts/15e-i18n-dict-en.js`
+`_sessizSaatTercihi()` **zaten okuyor** (`10x:409`, anahtar
+`etw_sessiz_saat_v1_<uid>`, biçim `{start, end}` 0–23 tamsayı) — bu faz
+yalnız yazan yüzeyi kurar. Kapı: tercih yokken payload'da `quiet_*`
+anahtarı hiç bulunmaz (bugünkü davranış korunur).
+
+**KAPSAM DARALTILDI — keşif kararı (2026-09-04).** Rapor "sessiz saat
+aralığı **+ tip anahtarları**" diyor. Sessiz saat yapılabilir: şema onu
+zaten taşıyor (`user_engagement.quiet_start/quiet_end`, `000:1032-1033`).
+**Tip anahtarları yapılamaz** ve sebebi kolon eksikliğinden ağırdır:
+merdiven (winback · seri riski · söz · kilometre · sabah) **sunucuda**
+koşar ve `user_engagement`'ı okur; o tabloda tip kolonu yoktur. Tercihi
+yalnız cihazda tutmak, kullanıcının kapattığı bildirimin yine de
+gelmesi demektir — yani **çalışmayan bir düğme**, ve bu §6.2'nin
+tanımıdır (sahte başarı yalnız raporda değil, arayüzde de olur).
+Tip anahtarları bir migration + `send-push` dalı ister; ayrı bir iştir ve
+`## Taşınanlar` altına yazılır.
+
+**🅞 kararları (plandan okunamayanlar):** (a) seçicinin biçimi — hazır
+aralık listesi mi iki saat seçici mi; hazır liste "gece vardiyası"nı dışarıda
+bırakır ve boşluğun kendisi bu vakadan doğmuştu, (b) cümlenin sesi: bu bir
+ayar tablosu değil bir **rica** — "bildirim penceresi" değil, *"Gece kaçtan
+sonra sana dokunmayalım?"*
 
 ### FAZ 5 — Tık atıfı · 🅢 · ~1 oturum
 **Yeni:** `migrations/052_tik_atifi_ve_saklama.sql` (RPC bloğu)
