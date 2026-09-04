@@ -47,7 +47,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow:wght@300;400;500&family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&display=swap" rel="stylesheet">
 
-  <script src="./assets/_src-FImGmdNN.js"></script>
+  <script src="./assets/_src-DfvWYLeZ.js"></script>
   <link rel="stylesheet" href="./assets/style-B8WgyvK2.css">
 </head>
 <body>
@@ -1326,6 +1326,26 @@
                  style="width:22px;height:22px;accent-color:var(--gold);cursor:pointer;flex:none;">
         </label>
         <p id="push-status" style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:18px;">—</p>
+
+        <!-- SESSİZ SAATLER (İç Çalışma 11 · boşluk C) — bir ayar tablosu değil
+             bir rica. Hazır aralık listesi YOK: bu boşluk gece vardiyasında
+             çalışan biri düşünülerek açıldı, hazır liste tam onu dışarıda
+             bırakırdı. Saatler 0-23, seçenekler JS'te doldurulur. -->
+        <p class="doc-lead" style="margin-bottom:10px;" data-i18n="bld.quiet.lead">Gece kaçtan sonra sana dokunmayalım?</p>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+          <label style="font-size:13px;color:var(--text-mid);display:flex;align-items:center;gap:8px;">
+            <span data-i18n="bld.quiet.from">Sessizlik başlar</span>
+            <select id="bld-quiet-start" onchange="bildirimSessizKaydet()"
+                    style="background:transparent;color:var(--text);border:1px solid var(--border);padding:6px 8px;font-size:13px;"></select>
+          </label>
+          <label style="font-size:13px;color:var(--text-mid);display:flex;align-items:center;gap:8px;">
+            <span data-i18n="bld.quiet.to">Sessizlik biter</span>
+            <select id="bld-quiet-end" onchange="bildirimSessizKaydet()"
+                    style="background:transparent;color:var(--text);border:1px solid var(--border);padding:6px 8px;font-size:13px;"></select>
+          </label>
+        </div>
+        <p id="bld-quiet-note" style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:18px;">—</p>
+
         <button class="btn-outline-gold" onclick="bildirimTest()">Bildirimi Test Et</button>
       </div>
       <div class="settings-group">

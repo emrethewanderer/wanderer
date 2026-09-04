@@ -511,7 +511,38 @@ sprintin kapsamı değil. Sessizce düşmesin diye burada duruyor.
   Kapı: build ✅ · hedefli süit ✅ 289/289 (7 dosya) ·
   `kapi:genel` ✅ 329/329 · `dogrula` ✅ exit 0 "Konsol temiz."
 
-**İlk hamle (FAZ 4):** `_src.html`'de Ayarlar → Bildirimler grubuna
+- **FAZ 4 · BİTTİ** (2026-09-04). 🅞, parent'ta.
+  `Devir dışı:` gerekmedi — 🅞 fazlar zaten devredilmez.
+  Yüzey `_src.html`'de Ayarlar → Bildirimler grubuna girdi; `10x`'e
+  `bildirimSessizKaydet` + `_sessizYuzeyCiz` eklendi; `main.js` bağladı;
+  TR+EN sözlük girdileri parite kapısından geçti.
+
+  **Üç yargı ve gerekçeleri:**
+  (a) **İki saat seçici, hazır aralık listesi değil.** Bu boşluk gece
+  vardiyasında çalışan biri düşünülerek açılmıştı ("07:00 sabah daveti
+  rahatsızlıktır ve tek çıkışı izni tamamen kapatmak olmamalı") — hazır
+  bir liste tam o vakayı dışarıda bırakırdı.
+  (b) **Ses bir rica, bir ayar tablosu değil:** *"Gece kaçtan sonra sana
+  dokunmayalım?"* — "bildirim penceresi" değil.
+  (c) **Tercih yokken not satırı bunun bir VARSAYILAN olduğunu söylüyor.**
+  Seçicilerde 23:00/08:00 görünüyor çünkü davranış gerçekten o; ama seçili
+  görünen bir değeri "senin seçimin" diye sunmak kanıtı olmayan bir
+  iddiadır (§6.10). Kartlar ne ölçmediğini söylüyorsa, bir ayar da neyi
+  henüz bilmediğini söyler.
+
+  Tercih sunucuya da taşınıyor (`bildirimSyncEngagement`) — motor cihazı
+  değil `user_engagement`'ı okur; yalnız SafeStorage'a yazmak seçimi bir
+  sonraki senkrona kadar hükümsüz bırakırdı.
+
+  Kapı: build ✅ · hedefli süit ✅ 38/38 (i18n paritesi + aria dahil) ·
+  `kapi:genel` ✅ 329/329 · `dogrula` ✅ exit 0 "Konsol temiz."
+
+**İlk hamle (FAZ 5):** `migrations/052`'ye `notif_mark_clicked(p_id)`
+SECURITY DEFINER RPC'si (yalnız kendi satırının `clicked_at`'i, yalnız
+NULL'ken); `send-push` payload'ına `nid`; `sw.js` postMessage'ına `nid`;
+`10x:_bindDeepLink` onu RPC'ye taşısın. `nid` yoksa HİÇBİR ŞEY yazılmaz.
+
+**Eski İlk hamle (FAZ 4, tamamlandı):** `_src.html`'de Ayarlar → Bildirimler grubuna
 (`push-status`'ın altına, test butonundan önce) iki saat seçici + durum
 cümlesi; `10x`'e yazan fonksiyon (`etw_sessiz_saat_v1_<uid>`, `{start,end}`),
 `bildirimRenderSettings` onu okusun; TR+EN sözlük girdileri (parite kapısı).

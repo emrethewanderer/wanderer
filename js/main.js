@@ -461,6 +461,7 @@ import {
   bildirimEnable,
   bildirimBroadcast,
   bildirimRenderSettings,
+  bildirimSessizKaydet,
 } from './parts/10x-w2-bildirimler.js';
 
 // 05-closure-parts.js
@@ -578,6 +579,7 @@ Object.assign(window, {
   acctBultenToggle,
   // Bildirimler · Web Push (10x)
   bildirimToggle, bildirimTest, bildirimEnable, bildirimBroadcast, bildirimRenderSettings,
+  bildirimSessizKaydet,
   fmOpenPicker, fmClosePicker, fmSelectModel, saveFocusModels, fmRenderControls, fmGetActive, fmGetActiveId,
   // Dil modeli kabuğu (10y) — ana kart flip + ana ekran
   wsFlipTo, llmStarterSend, llmSendStarter, llmRenderHome, llmHomeAc, llmSyncHome, llmContinueToday, llmLeaveHome, llmHomeCascade, wsCascadeBugun, llmFocusComposer,

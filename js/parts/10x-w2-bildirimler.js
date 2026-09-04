@@ -418,6 +418,36 @@ function _sessizSaatTercihi() {
   } catch (_) { return {}; }
 }
 
+/* SESSİZ SAAT YÜZEYİ (İç Çalışma 11 · boşluk C'nin kalan yarısı, FAZ 4).
+   Okuyan taraf 3 Eylül'de yazıldı ve o günden beri daima `{}` döndü —
+   çünkü yazan yüzey yoktu. Bu fonksiyon o boşluğu kapatır.
+
+   NEDEN İKİ SEÇİCİ, HAZIR ARALIK DEĞİL: bu boşluğun kendisi gece
+   vardiyasında çalışan biri düşünülerek açıldı ("07:00 sabah daveti
+   rahatsızlıktır ve tek çıkışı izni tamamen kapatmak olmamalı"). Hazır bir
+   aralık listesi tam o vakayı dışarıda bırakırdı.
+
+   NEDEN SUNUCUYA DA YAZILIR: push motoru `user_engagement`'ı okur, cihazı
+   değil. Yalnız SafeStorage'a yazmak, kullanıcının seçtiği saatin bir
+   sonraki senkrona kadar hükümsüz kalması demekti. */
+export async function bildirimSessizKaydet() {
+  const bas = document.getElementById('bld-quiet-start');
+  const bit = document.getElementById('bld-quiet-end');
+  if (!bas || !bit) return;
+  const s = parseInt(bas.value, 10);
+  const e = parseInt(bit.value, 10);
+  if (!Number.isInteger(s) || !Number.isInteger(e) || s < 0 || s > 23 || e < 0 || e > 23) return;
+  try {
+    const uid = S.currentUser?.id || 'anon';
+    SafeStorage.set(`${SESSIZ_KEY}_${uid}`, { start: s, end: e });
+  } catch (_) {}
+  // Sunucuya da taşı — motor cihazı değil tabloyu okur.
+  try { bildirimSyncEngagement(); } catch (_) {}
+  try { window.fxCue?.('tap'); } catch (_) {}
+  showToast(t('bld.quiet.saved', 'Tamam — o saatler arası sessizim.'));
+  bildirimRenderSettings();
+}
+
 async function _setEngagement(patch) {
   if (!S.currentUser?.id) return;
   await sb.from('user_engagement').upsert({
@@ -506,6 +536,45 @@ export function bildirimRenderSettings() {
     else if (perm === 'granted') msg = t('bld.status.on', 'Açık. Seni doğru anda — serin, sözün, o günkü adımın için — geri çağıracağım.');
     else msg = t('bld.status.off', 'Kapalı. Aç ki uygulama kapalıyken bile sana doğru anda seslenebileyim.');
     statusEl.textContent = msg;
+  }
+  _sessizYuzeyCiz();
+}
+
+/* Sessiz saat seçicilerini bugünkü GERÇEK davranışa göre doldurur.
+   Tercih yoksa DB varsayılanı (23/8, mig 000) gösterilir ve not satırı bunun
+   bir tercih DEĞİL varsayılan olduğunu söyler — seçili görünen bir değeri
+   "senin seçimin" gibi sunmak, kanıtı olmayan bir iddiadır (§6.10). */
+const _VARSAYILAN_SESSIZ = { start: 23, end: 8 };
+
+function _sessizYuzeyCiz() {
+  const bas = document.getElementById('bld-quiet-start');
+  const bit = document.getElementById('bld-quiet-end');
+  const not = document.getElementById('bld-quiet-note');
+  if (!bas || !bit) return;
+
+  // Seçenekler bir kez doldurulur (0-23); dil değişse de sayılar değişmez.
+  if (!bas.options.length) {
+    for (const el of [bas, bit]) {
+      for (let h = 0; h < 24; h++) {
+        const o = document.createElement('option');
+        o.value = String(h);
+        o.textContent = `${String(h).padStart(2, '0')}:00`;
+        el.appendChild(o);
+      }
+    }
+  }
+
+  const tercih = _sessizSaatTercihi();
+  const varMi = Object.keys(tercih).length > 0;
+  const s = varMi ? tercih.quiet_start : _VARSAYILAN_SESSIZ.start;
+  const e = varMi ? tercih.quiet_end   : _VARSAYILAN_SESSIZ.end;
+  bas.value = String(s);
+  bit.value = String(e);
+
+  if (not) {
+    not.textContent = varMi
+      ? t('bld.quiet.set', 'Senin seçimin. İstediğin an değiştirebilirsin.')
+      : t('bld.quiet.default', 'Bu bir varsayılan — henüz sen seçmedin. Değiştirirsen aklımda tutarım.');
   }
 }
 

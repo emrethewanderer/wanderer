@@ -1,6 +1,9 @@
 // Bildirimler · Web Push (10x) — saf-fonksiyon testleri
 import { describe, it, expect, beforeEach } from 'vitest';
-import { urlBase64ToUint8Array, _buildEngagementSnapshot } from '../js/parts/10x-w2-bildirimler.js';
+import {
+  urlBase64ToUint8Array, _buildEngagementSnapshot,
+  bildirimSessizKaydet, bildirimRenderSettings,
+} from '../js/parts/10x-w2-bildirimler.js';
 import { VAPID_PUBLIC } from '../js/config.js';
 import { localISODate, SafeStorage } from '../js/parts/00a-infrastructure.js';
 import { S } from '../js/state.js';
@@ -106,5 +109,82 @@ describe('_buildEngagementSnapshot', () => {
       pledges: [{ text: 'tutuldu' }],
     };
     expect(_buildEngagementSnapshot().pending_soz_text).toBeNull();
+  });
+});
+
+
+/* ═══ SESSİZ SAAT YÜZEYİ — İç Çalışma 11 · boşluk C'nin kalan yarısı (FAZ 4)
+   Okuyan taraf 3 Eylül'de yazıldı ve o günden beri daima {} döndü: yazan
+   yüzey yoktu, yani tercih "ezilmiyor"du ama alınamıyordu da. Bu blok
+   yüzeyi sınar — ve en önemlisi, tercih YOKKEN payload'ın hâlâ temiz
+   kaldığını (DB varsayılanı bozulmuyor). */
+describe('sessiz saat yüzeyi (FAZ 4)', () => {
+  const kur = () => {
+    document.body.innerHTML =
+      '<select id="bld-quiet-start"></select>' +
+      '<select id="bld-quiet-end"></select>' +
+      '<p id="bld-quiet-note"></p>' +
+      '<p id="push-status"></p><input type="checkbox" id="push-toggle">';
+  };
+
+  beforeEach(() => {
+    S.currentUser = { id: 'u1' };
+    try { SafeStorage.remove('etw_sessiz_saat_v1_u1'); } catch (_) {}
+    kur();
+  });
+
+  it('render 24 saat seçeneği doldurur ve DB varsayılanını gösterir (23/8)', () => {
+    bildirimRenderSettings();
+    const bas = document.getElementById('bld-quiet-start');
+    const bit = document.getElementById('bld-quiet-end');
+    expect(bas.options.length).toBe(24);
+    expect(bit.options.length).toBe(24);
+    // Uydurulmuş bir varsayılan DEĞİL — mig 000'in kolon varsayılanı.
+    expect(bas.value).toBe('23');
+    expect(bit.value).toBe('8');
+  });
+
+  it('tercih yokken not satırı bunun bir VARSAYILAN olduğunu söyler (§6.10)', () => {
+    bildirimRenderSettings();
+    const not = document.getElementById('bld-quiet-note').textContent;
+    expect(not).toContain('varsayılan');
+    // Seçili görünen bir değeri "senin seçimin" diye sunmak, kanıtı olmayan
+    // bir iddiadır — kart da panel de bunu yapmaz, bu yüzey de yapmaz.
+    expect(not).not.toContain('Senin seçimin');
+  });
+
+  it('kaydedince SafeStorage\'a yazar ve payload quiet_* taşır', async () => {
+    bildirimRenderSettings();
+    document.getElementById('bld-quiet-start').value = '1';
+    document.getElementById('bld-quiet-end').value = '9';
+    await bildirimSessizKaydet();
+    expect(SafeStorage.get('etw_sessiz_saat_v1_u1')).toEqual({ start: 1, end: 9 });
+    const snap = _buildEngagementSnapshot();
+    expect(snap.quiet_start).toBe(1);
+    expect(snap.quiet_end).toBe(9);
+  });
+
+  it('kaydedildikten sonra not satırı seçimi sahiplenir', async () => {
+    bildirimRenderSettings();
+    document.getElementById('bld-quiet-start').value = '2';
+    document.getElementById('bld-quiet-end').value = '7';
+    await bildirimSessizKaydet();
+    expect(document.getElementById('bld-quiet-note').textContent).toContain('Senin seçimin');
+  });
+
+  it('geçersiz değer YAZILMAZ — payload temiz kalır, DB varsayılanı korunur', async () => {
+    bildirimRenderSettings();
+    document.getElementById('bld-quiet-start').value = '';
+    await bildirimSessizKaydet();
+    expect(SafeStorage.get('etw_sessiz_saat_v1_u1')).toBeFalsy();
+    const snap = _buildEngagementSnapshot();
+    expect(snap).not.toHaveProperty('quiet_start');
+    expect(snap).not.toHaveProperty('quiet_end');
+  });
+
+  it('yüzey yoksa sessizce düşer — render ve kayıt çökmez', async () => {
+    document.body.innerHTML = '';
+    expect(() => bildirimRenderSettings()).not.toThrow();
+    await expect(bildirimSessizKaydet()).resolves.toBeUndefined();
   });
 });
