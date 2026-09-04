@@ -489,7 +489,34 @@ sözlüğü `16c`'ye mi taşınacak, yoksa `16c`'nin ölü girdileri mi silinece
 İkisi de kanıt ister (`grep -rn` ile yetim kontrolü, §3.1) ve ikisi de bu
 sprintin kapsamı değil. Sessizce düşmesin diye burada duruyor.
 
-**İlk hamle (FAZ 3):** `13g-paylasim.js`'te `_shareCanvas(cv, title)` üçüncü
+- **FAZ 3 · BİTTİ** (2026-09-04). `uygulayici`da (🅢), Durak yok.
+  `_shareCanvas(cv, title, tur)`; yedi çağıran planın eşleme tablosuyla
+  geçti; `_PAY_TUR` kümesi genişlemedi. Asıl bulgu kapandı: `13g:301`'in
+  sabit `tur:'kart'`'ı `tur`'a devredildi — indirilen bir Wrapped artık
+  kart değil **film** sayılıyor. `shrShareArticle` yolundaki `'rapor'`
+  sabitine bilerek dokunulmadı ve **neden dokunulmadığı** yorumda yazılı
+  (tek çağıranı hep rapor paylaşır).
+
+  **Denetim (parent · Opus) — bir eksik bulundu ve kapatıldı.** Ajanın
+  testi tümüyle KAYNAK TARAMASIYDI ve gerekçesi geçerliydi (jsdom'da canvas
+  2D yok, `_drawStory` çöker). Ama kaynak taraması iki yönden zayıftır:
+  biçim değişince sahte kırmızı verir, ve zincirin gerçekten çalıştığını
+  hiç kanıtlamaz (§3.5 — asıl kırıklar davranışsaldır). Canvas bağlamı bir
+  no-op Proxy ile taklit edilebiliyormuş: `shrShareStory` uçtan uca koşuyor
+  ve üç davranışsal test eklendi. En değerlisi doğrudan eski kırığı ölçüyor:
+  `shrShareStory({tur:'film'})` → `['indir', {tur:'film'}]`. Eski kod aynı
+  çağrıda `kart` yazardı, yani **bu test dün kırmızı olurdu** — bir kapının
+  değerini gösteren tek ölçü budur.
+
+  Kapı: build ✅ · hedefli süit ✅ 289/289 (7 dosya) ·
+  `kapi:genel` ✅ 329/329 · `dogrula` ✅ exit 0 "Konsol temiz."
+
+**İlk hamle (FAZ 4):** `_src.html`'de Ayarlar → Bildirimler grubuna
+(`push-status`'ın altına, test butonundan önce) iki saat seçici + durum
+cümlesi; `10x`'e yazan fonksiyon (`etw_sessiz_saat_v1_<uid>`, `{start,end}`),
+`bildirimRenderSettings` onu okusun; TR+EN sözlük girdileri (parite kapısı).
+
+**Eski İlk hamle (FAZ 3, tamamlandı):** `13g-paylasim.js`'te `_shareCanvas(cv, title)` üçüncü
 parametreyi (`tur`) alsın, `shrShareStory` onu `params.tur`'dan geçirsin;
 `13g:301`'in sabit `tur:'kart'`'ı o değere devredilsin; yedi çağırana
 planda yazılı eşleme konsun.

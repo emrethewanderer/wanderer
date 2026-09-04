@@ -428,6 +428,10 @@ export function gbPaylasimKarti(data) {
     accent: 'gold',
     // Uygulamanın en uzun eşiği: doksan gün. Işıltı o mertebeyi taşır.
     tier: 4,
+    // Paylaşım Nabzı: bu fonksiyon zaten 13g'nin params objesini üretir —
+    // türü de burada sabitlemek, tek çağıranını (_bagliPaylas) nesneyi
+    // yaymakla uğraştırmaz (İç Çalışma 12 FAZ 3).
+    tur: 'kart',
   };
 }
 

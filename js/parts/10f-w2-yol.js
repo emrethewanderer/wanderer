@@ -805,6 +805,7 @@ export function yolOpen() {
         big: n, bigLabel: t('yol.gun'), title: ultra ? t('yol.share.ultra_title') : t('yol.share.title'),
         sub, line, note: score.pct != null ? t('yol.share.note').replace('{pct}', score.pct) : '',
         accent: ultra ? '#F7C744' : 'gold', tier: ultra ? 4 : 2,
+        tur: 'rapor',
       });
     } catch (_) {}
   });

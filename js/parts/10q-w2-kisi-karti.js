@@ -1541,6 +1541,7 @@ export function kkOpenPack(cardId) {
         title: card.name, sub: _catLabel(CAT),
         line: card.lesson || card.whisper || '',
         accent: R.color, tier: (R.order || 0) + 1,
+        tur: 'kart',
       });
     } catch (_) {}
   });

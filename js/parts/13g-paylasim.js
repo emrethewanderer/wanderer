@@ -10,7 +10,8 @@
 
    TEK GİRİŞ: window.shrShareStory(params)
      params: { kicker, glyph, big, bigLabel, title, sub, line, note,
-               footer, accent ('gold'|hex), tier (1-4 ışıltı yoğunluğu) }
+               footer, accent ('gold'|hex), tier (1-4 ışıltı yoğunluğu),
+               tur ('kart'|'rapor'|'film' — Paylaşım Nabzı'nın sınıfı) }
    AKIŞ: canvas çiz → native'de Filesystem+Share (Capacitor), web'de
      navigator.share(files) → desteklenmezse PNG indir.
    Konvansiyon: hardcoded TR; window.shr* expose; ses/haptik 13e'den.
@@ -253,7 +254,7 @@ function _isNative() {
   try { return !!window.Capacitor?.isNativePlatform?.(); } catch (_) { return false; }
 }
 
-async function _shareCanvas(cv, title) {
+async function _shareCanvas(cv, title, tur) {
   // 1) Native: Cache'e yaz + sistem paylaşım sayfası
   if (_isNative()) {
     try {
@@ -267,7 +268,7 @@ async function _shareCanvas(cv, title) {
       await Share.share({ title: title || 'Wanderer', files: [uri] });
       // Paylaşım Nabzı: story GERÇEKTEN paylaşıldı (12·C) — iptal dalı (aşağıda)
       // bilerek loglanmaz, Share sheet iptali olay değildir.
-      try { window.wtLogPaylasim?.('story'); } catch (_) {}
+      try { window.wtLogPaylasim?.('story', { tur }); } catch (_) {}
       return true;
     } catch (e) {
       if (String(e && e.message).includes('canceled')) return true; // kullanıcı vazgeçti
@@ -281,7 +282,7 @@ async function _shareCanvas(cv, title) {
       const file = new File([blob], 'wanderer.png', { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: title || 'Wanderer' });
-        try { window.wtLogPaylasim?.('story'); } catch (_) {}
+        try { window.wtLogPaylasim?.('story', { tur }); } catch (_) {}
         return true;
       }
     }
@@ -298,7 +299,10 @@ async function _shareCanvas(cv, title) {
     // Paylaşım Nabzı: 'indir' AYRI bir sonuçtur, başarısızlık değil (12·C).
     // Share sheet'i olmayan bir tarayıcıda kullanıcı yine de kartını aldı —
     // bunu 'story' saymak paylaşımı, hiç saymamak da kullanıcıyı yok sayardı.
-    try { window.wtLogPaylasim?.('indir', { tur: 'kart' }); } catch (_) {}
+    // İç Çalışma 12 FAZ 3: burada sabit 'kart' yazıyordu — oysa bu dal
+    // shrShareStory'nin İNDİRME düşüşü ve paylaşılan şey film (Wrapped) ya da
+    // rapor (Yol) da olabilir; sabit değer çağıranın belirttiği tur'a devredilir.
+    try { window.wtLogPaylasim?.('indir', { tur }); } catch (_) {}
     return true;
   } catch (e) { console.warn('shr download:', e && e.message); }
   return false;
@@ -309,7 +313,9 @@ export async function shrShareStory(params) {
   try {
     try { window.fxCue?.('tap'); } catch (_) {}
     const cv = await _drawStory(params || {});
-    const ok = await _shareCanvas(cv, params && params.title);
+    // Paylaşım Nabzı: neyin paylaşıldığı (kart/rapor/film) çağırandan gelir —
+    // _shareCanvas kendi türünü bilmez, tahmin etmez (§6.10).
+    const ok = await _shareCanvas(cv, params && params.title, params && params.tur);
     if (ok) { try { window.fxCue?.('holo'); } catch (_) {} }
     return ok;
   } catch (e) {
@@ -613,6 +619,10 @@ async function _shareCanvases(canvases, title, text) {
     }
     // Paylaşım Nabzı: çok sayfalı yazı indirildi — tek olay, sayfa başına değil
     // (n sayfa n paylaşım değildir).
+    // İç Çalışma 12 FAZ 3: bu sabit KASITLI olarak dokunulmadı — bu dal yalnız
+    // shrShareArticle'ın (Kitaplık yazısı) indirme düşüşüdür, tek çağıranı
+    // vardır ve o çağıran her zaman bir rapor paylaşır; _shareCanvas'ın aksine
+    // burada birden çok tür taşıyan bir çağıran yok.
     try { window.wtLogPaylasim?.('indir', { tur: 'rapor' }); } catch (_) {}
     return true;
   } catch (e) { console.warn('shr download multi:', e && e.message); }

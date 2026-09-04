@@ -649,6 +649,7 @@ function _hzSetCeremonyPortal(set, tac, ayet) {
         line: tac.quote || '',
         accent: set.satilamaz ? 'var(--lapis-bright)' : 'var(--gold)',
         tier: 4,
+        tur: 'kart',
       });
     } catch (_) {}
   });
