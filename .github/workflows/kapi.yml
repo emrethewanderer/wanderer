@@ -44,12 +44,28 @@ permissions:
   checks: read
 
 concurrency:
-  # Aynı dalda arka arkaya push'lar birikmesin; yalnız sonuncusu koşsun.
-  # main istisna: main'e giden her commit'in kapı sonucu bir KAYITTIR,
-  # arkasından gelen bir merge onu iptal etmemeli — o yüzden main'de
-  # cancel-in-progress kapalı, kuyruklanır.
-  group: kapi-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  # Grup AĞACIN KİMLİĞİDİR, dalın adı değil — ve bu 2026-09-03'te ölçülerek
+  # değişti. Eskiden `github.ref` idi; push koşusu `refs/heads/<dal>`, PR
+  # koşusu `refs/pull/N/merge` altına düşüyordu, yani AYRI gruplar, yani
+  # PARALEL koşu. Sonuç bir yarıştı: PR koşusu, "Ağaç kimliği" adımında dal
+  # koşusunun check-run'ını arıyor ama dal koşusu daha bitmemiş oluyordu.
+  # Kanıt yok → kapı tam koşuyor → aynı ağaç iki kez sınanıyordu.
+  #
+  # Bedeli koşu #63/#64'te göründü: aynı sha (e3f7f9d), iki koşu, biri yeşil
+  # biri KIRMIZI — çünkü ikincisi npm registry'nin 503 verdiği dakikaya denk
+  # geldi. Fark ağaçta değil ZAMANDAYDI, ve o farkı üreten şey bu gruptu.
+  #
+  # Artık ikisi de aynı gruba düşer (head sha), yani PR koşusu dal koşusunun
+  # ARDINDAN kuyruklanır ve kanıtı bulup atlar. Yarış ortadan kalkar.
+  #
+  # cancel-in-progress KAPALI ve bu bilinçlidir: aynı gruptaki ikinci koşu
+  # iptal edilecek olsaydı PR check'i hiç sonuçlanmazdı. Ardışık push'lar
+  # farklı sha taşır, yani farklı gruptur — biri ötekini zaten iptal etmez.
+  # Kaybedilen tek şey "aynı dalda hızlı ardışık push'ta eskisini iptal et"
+  # davranışıdır; kazanılan şey her commit'in kendi kaydıdır (workflow'un
+  # main için zaten savunduğu ilke).
+  group: kapi-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 jobs:
   kapi:
@@ -194,7 +210,75 @@ jobs:
 
       - name: Bağımlılık açıkları
         if: steps.agac.outputs.kos == 'evet'
-        # Üretim bağımlılıkları temiz olmalı. Bu adım kırmızıya dönerse
-        # bir üçüncü taraf paketinde yeni bir danışma yayınlanmış demektir —
+        # Üretim bağımlılıkları temiz olmalı. Bu adım kırmızıya dönerse bir
+        # üçüncü taraf paketinde yeni bir danışma yayınlanmış demektir —
         # susturulacak bir gürültü değil, bakılacak bir haber.
-        run: npm audit --omit=dev --audit-level=high
+        #
+        # 2026-09-03: adım `npm audit --audit-level=high` idi ve İKİ FARKLI
+        # sebeple exit 1 veriyordu, ikisini ayırt etmeden:
+        #   1. gerçek bir açık bulundu            → bakılacak haber
+        #   2. registry cevap vermedi (503)       → bizim ağacımızla ilgisiz
+        # O gün ikincisi oldu: koşu #64'te 171 dosya / 3857 testin hepsi yeşil
+        # geçti, sonra `npm audit` yedi dakika retry'dan sonra
+        # "503 Service Unavailable" ile düştü ve kapı kırmızı kapandı. Aynı
+        # commit'in push koşusu (#63) bir saat önce yeşildi — fark ağaçta
+        # değil, ZAMANDAYDI.
+        #
+        # Bu ayrım repoda zaten var: doğrulama tarayıcısının üç kovası
+        # (PROTOKOL-FABLE.md §3.3) — İHLAL kapıyı kırar, DIŞ ORIGIN kırmaz
+        # ama raporda adıyla görünür. Kuralı bir kez daha yazmak yerine aynı
+        # kural buraya taşındı: *"onun sessizliğini uygulamanın kırığı saymak
+        # kapıyı gürültüye boğar, sessizce yutmak sahte yeşil üretir;
+        # ortası: göster."*
+        #
+        # `set -e` YOK ve bu bilinçlidir: exit kodunu bu betik kendisi verir.
+        run: |
+          set -uo pipefail
+
+          # `timeout` bir tavandır (§10.6): npm'in kendi retry'ı 7 dakika
+          # sürebiliyor ve bu adımın işi beklemek değil ölçmek.
+          kos() { timeout 120 npm audit --omit=dev --json 2>/dev/null; }
+          hata_mi() { printf '%s' "$1" | jq -e 'has("error")' >/dev/null 2>&1; }
+
+          cikti=$(kos || true)
+
+          # 503 geçicidir; BİR kez daha denenir. İkinci denemede de düşerse
+          # bu bir kesintidir, bizim kırığımız değil — ve tavan burada dolar.
+          if [ -z "$cikti" ] || hata_mi "$cikti"; then
+            echo "İlk deneme dış servis hatasıyla düştü — 15 sn sonra bir kez daha."
+            sleep 15
+            cikti=$(kos || true)
+          fi
+
+          if [ -z "$cikti" ] || hata_mi "$cikti"; then
+            ozet=$(printf '%s' "$cikti" | jq -r '.error.summary // .error.code // "yanıt yok"' 2>/dev/null || echo 'yanıt yok')
+            echo "::warning title=Bağımlılık taraması YAPILAMADI::DIŞ ORIGIN — npm registry yanıt vermedi ($ozet). Kapı kırılmadı; ama bu koşuda açık taraması KOŞMADI."
+            echo "──────────────────────────────────────────────"
+            echo "DIŞ ORIGIN — npm registry: $ozet"
+            echo "Kırık bizim ağacımızda değil. Kapı burada KIRILMAZ."
+            echo "Ama taranmadığı da YAZILI: bu koşu 'bağımlılıklar temiz'"
+            echo "DEMİYOR, 'bakılamadı' diyor (§6.10 — kanıtı olmayan değer yoktur)."
+            exit 0
+          fi
+
+          yuksek=$(printf '%s' "$cikti" | jq -r '.metadata.vulnerabilities.high // "yok"' 2>/dev/null || echo 'yok')
+          kritik=$(printf '%s' "$cikti" | jq -r '.metadata.vulnerabilities.critical // "yok"' 2>/dev/null || echo 'yok')
+
+          # Ne bulgu ne hata: çıktı biçimi tanınmadı. "Açık yok" DENEMEZ —
+          # bilmediğini bilmek, bilmediğini gizlemekten iyidir.
+          if [ "$yuksek" = 'yok' ] || [ "$kritik" = 'yok' ]; then
+            echo "::warning title=npm audit çıktısı okunamadı::Ne bulgu ne hata alanı var; biçim tanınmadı. Kapı kırılmadı ama tarama doğrulanmadı."
+            printf '%s' "$cikti" | head -c 2000
+            echo
+            exit 0
+          fi
+
+          echo "high: $yuksek · critical: $kritik"
+          if [ "$yuksek" -gt 0 ] 2>/dev/null || [ "$kritik" -gt 0 ] 2>/dev/null; then
+            echo "::error title=Bağımlılık açığı::Üretim bağımlılıklarında $kritik kritik, $yuksek yüksek açık — bakılacak bir haber."
+            timeout 120 npm audit --omit=dev --audit-level=high || true
+            exit 1
+          fi
+
+          echo "Üretim bağımlılıkları temiz (kritik 0 · yüksek 0)."
+

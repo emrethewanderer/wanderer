@@ -296,3 +296,186 @@ describe('Tetikler ve kimlik', () => {
     expect(YML).toContain("github.event_name == 'pull_request' && 'birleşmiş ağaç' || 'dal ağacı'");
   });
 });
+
+/* ════════════════════════════════════════════════════════════════════
+   DIŞ ORIGIN AYRIMI — kırığı bizde olmayan kırmızı, kırmızı değildir
+   ────────────────────────────────────────────────────────────────────
+   2026-09-03: koşu #64'te 171 dosya / 3857 testin hepsi yeşil geçti, sonra
+   `npm audit` yedi dakika retry'dan sonra "503 Service Unavailable" ile
+   düştü ve kapı KIRMIZI kapandı. Aynı commit'in push koşusu (#63) bir saat
+   önce yeşildi — fark ağaçta değil ZAMANDAYDI.
+
+   Repo bu ayrımı zaten biliyor: doğrulama tarayıcısının üç kovası
+   (PROTOKOL-FABLE.md §3.3). İHLAL kapıyı kırar, DIŞ ORIGIN kırmaz ama
+   raporda ADIYLA görünür. Bu blok o kuralın CI'da da yaşadığını sınar —
+   çünkü kapısı olmayan kural tavsiyeye döner (§6.6).
+════════════════════════════════════════════════════════════════════ */
+describe('Bağımlılık taraması — üç kova, tek adım', () => {
+  const ADIM = (() => {
+    const i = YML.indexOf('- name: Bağımlılık açıkları');
+    expect(i, 'Bağımlılık açıkları adımı YML\'de yok').toBeGreaterThan(-1);
+    return YML.slice(i);
+  })();
+
+  it('ham `npm audit --audit-level` TEK BAŞINA kapı değil', () => {
+    /* Kırığın kendisi buydu: tek satır, iki sebep, ayrım yok. Adım artık
+       JSON okur; `--audit-level` yalnız insan-okur çıktı basmak için,
+       kararın ardından çağrılır. */
+    expect(ADIM).toContain('npm audit --omit=dev --json');
+    const kararSatiri = /run: npm audit --omit=dev --audit-level=high\s*$/m;
+    expect(YML, 'karar hâlâ ham exit koduna bağlı').not.toMatch(kararSatiri);
+  });
+
+  it('DIŞ ORIGIN kapıyı KIRMAZ — registry sussa da ağacımız sağlam', () => {
+    expect(ADIM).toContain('has("error")');
+    expect(ADIM).toMatch(/DIŞ ORIGIN/);
+    /* Hata dalı exit 0 ile biter: kırık bizde değil. */
+    const hataDali = ADIM.slice(ADIM.indexOf('DIŞ ORIGIN'), ADIM.indexOf('yuksek='));
+    expect(hataDali).toContain('exit 0');
+  });
+
+  it('…ama SESSİZ de değil — taranmadığı yazılı', () => {
+    /* Sessizce yutmak sahte yeşil üretir (§6.2). GitHub'ın ::warning
+       ek açıklaması koşu özetinde görünür. */
+    expect(ADIM).toContain('::warning title=Bağımlılık taraması YAPILAMADI');
+    expect(ADIM).toMatch(/bakılamadı|KOŞMADI/);
+  });
+
+  it('GERÇEK bulgu kapıyı kırar — high/critical > 0 → exit 1', () => {
+    expect(ADIM).toContain('.metadata.vulnerabilities.high');
+    expect(ADIM).toContain('.metadata.vulnerabilities.critical');
+    expect(ADIM).toContain('::error title=Bağımlılık açığı');
+    const bulguDali = ADIM.slice(ADIM.indexOf('::error title=Bağımlılık açığı'));
+    expect(bulguDali).toContain('exit 1');
+  });
+
+  it('okunamayan çıktı "temiz" SAYILMAZ — üçüncü hâl adlandırılmış', () => {
+    /* Ne bulgu ne hata: biçim tanınmadı. Kapı kırılmaz ama "temiz" de
+       denmez — §6.10, kanıtı olmayan değer yoktur. */
+    expect(ADIM).toContain('::warning title=npm audit çıktısı okunamadı');
+  });
+
+  it('bekleme TAVANLI — npm\'in kendi retry\'ı 7 dakika sürebiliyor', () => {
+    /* §10.6: her bekleyiş bir tavan taşır. `timeout` o tavandır. */
+    expect(ADIM).toMatch(/timeout \d+ npm audit/);
+  });
+
+  it('yeniden deneme BİR kez — 503 geçicidir, sonsuz değil', () => {
+    const denemeler = ADIM.match(/cikti=\$\(kos \|\| true\)/g) || [];
+    expect(denemeler.length, 'deneme sayısı iki olmalı: ilk + bir retry').toBe(2);
+    expect(ADIM, 'retry bir döngü değil, tek seferlik olmalı').not.toMatch(/while|until/);
+  });
+});
+
+describe('Yarış kapısı — aynı ağaç iki kez sınanmaz', () => {
+  it('concurrency grubu AĞAÇ kimliğine bağlı, dal adına değil', () => {
+    /* Eskiden `github.ref` idi: push `refs/heads/<dal>`, PR
+       `refs/pull/N/merge` — ayrı gruplar, paralel koşu, yarış. PR koşusu
+       dal koşusunun check-run'ını arıyordu ama o daha bitmemişti; kanıt
+       bulunamayınca aynı ağaç ikinci kez koştu ve ikincisi npm 503'e
+       denk geldi (koşu #63 yeşil / #64 kırmızı, aynı sha). */
+    expect(YML).toContain('group: kapi-${{ github.event.pull_request.head.sha || github.sha }}');
+    expect(YML, 'grup hâlâ ref bazlı — yarış geri gelir').not.toMatch(/group: kapi-\$\{\{ github\.ref \}\}/);
+  });
+
+  it('cancel-in-progress KAPALI — kuyruklanan PR koşusu iptal edilmemeli', () => {
+    /* Aynı gruptaki ikinci koşu iptal edilseydi PR check'i hiç
+       sonuçlanmazdı. Ardışık push'lar farklı sha, yani farklı grup. */
+    expect(YML).toMatch(/^  cancel-in-progress: false$/m);
+  });
+});
+
+/* ════════════════════════════════════════════════════════════════════
+   DAVRANIŞ — betik gerçekten koşturulur, metin olarak okunmaz
+   ────────────────────────────────────────────────────────────────────
+   Yukarıdaki blok adımın METNİNİ sınar: doğru dalları içeriyor mu. Ama
+   "doğru görünmek" ile "doğru davranmak" ayrı şeylerdir ve bu repoda asıl
+   kırıklar davranışsaldır (§3.5 madde 1). Bu blok betiği YAML'dan çıkarıp
+   sahte bir `npm` ile GERÇEKTEN koşturur ve çıkış kodunu okur.
+
+   Tek uyarlama: `sleep 15` → `sleep 0`. Retry MANTIĞI korunur, yalnız
+   bekleme kalkar — bir kapı kendi süresini beklemek için var değildir.
+════════════════════════════════════════════════════════════════════ */
+function auditScriptiCikar(yml) {
+  const blok = yml.split('- name: Bağımlılık açıkları')[1];
+  const satirlar = blok.split('\n');
+  const runIdx = satirlar.findIndex((s) => s.trim() === 'run: |');
+  const govde = satirlar.slice(runIdx + 1);
+  const girinti = govde.find((s) => s.trim())?.match(/^\s*/)[0].length ?? 0;
+  return govde
+    .map((s) => s.slice(girinti))
+    .join('\n')
+    .replace(/\$\{\{[^}]*\}\}/g, 'YER_TUTUCU')
+    .replace(/\bsleep 15\b/g, 'sleep 0');
+}
+
+function sahteNpmKur(dizin, cikti) {
+  const bin = path.join(dizin, 'sahte-npm-bin');
+  fs.mkdirSync(bin, { recursive: true });
+  /* Gerçek npm audit bulgu VARSA da exit 1 verir — sahte de öyle yapar ki
+     betiğin exit koduna değil ÇIKTIYA baktığı kanıtlansın. */
+  fs.writeFileSync(path.join(bin, 'npm'), `#!/bin/bash\ncat <<'JSONBITIS'\n${cikti}\nJSONBITIS\nexit 1\n`, { mode: 0o755 });
+  return bin;
+}
+
+function auditKostur(cikti) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'kapi-audit-'));
+  try {
+    const betik = path.join(tmp, 'adim.sh');
+    fs.writeFileSync(betik, auditScriptiCikar(YML));
+    const bin = sahteNpmKur(tmp, cikti);
+    try {
+      const out = execFileSync('bash', [betik], {
+        encoding: 'utf8',
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+        timeout: 60_000,
+      });
+      return { kod: 0, out };
+    } catch (e) {
+      return { kod: e.status ?? -1, out: `${e.stdout ?? ''}${e.stderr ?? ''}` };
+    }
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+describe('Bağımlılık taraması — DAVRANIŞ (betik koşturulur)', () => {
+  it('DIŞ ORIGIN (503): kapı KIRILMAZ ama uyarı basar', () => {
+    /* 2026-09-03 koşu #64'ün birebir hâli. */
+    const r = auditKostur('{"error":{"code":"E503","summary":"503 Service Unavailable","detail":"registry"}}');
+    expect(r.kod, 'registry kesintisi kapıyı kırmamalı').toBe(0);
+    expect(r.out).toContain('DIŞ ORIGIN');
+    expect(r.out).toContain('::warning');
+  });
+
+  it('TEMİZ: high 0 · critical 0 → geçer', () => {
+    const r = auditKostur('{"metadata":{"vulnerabilities":{"info":0,"low":3,"moderate":1,"high":0,"critical":0,"total":4}}}');
+    expect(r.kod).toBe(0);
+    expect(r.out).toContain('temiz');
+  });
+
+  it('GERÇEK BULGU: high/critical > 0 → kapı KIRILIR', () => {
+    const r = auditKostur('{"metadata":{"vulnerabilities":{"info":0,"low":0,"moderate":0,"high":2,"critical":1,"total":3}}}');
+    expect(r.kod, 'gerçek açık kapıyı kırmalı').toBe(1);
+    expect(r.out).toContain('::error');
+  });
+
+  it('düşük/orta seviye bulgu kapıyı KIRMAZ — eşik high', () => {
+    /* moderate 9 ama high/critical sıfır: haber var, kapı yok. */
+    const r = auditKostur('{"metadata":{"vulnerabilities":{"info":2,"low":5,"moderate":9,"high":0,"critical":0,"total":16}}}');
+    expect(r.kod).toBe(0);
+  });
+
+  it('TANINMAYAN BİÇİM: "temiz" SAYILMAZ, ama kapı da kırılmaz', () => {
+    const r = auditKostur('{"beklenmedik":"yapı"}');
+    expect(r.kod).toBe(0);
+    expect(r.out).toContain('okunamadı');
+    expect(r.out, 'bilinmeyen çıktı "temiz" diye raporlanamaz').not.toContain('Üretim bağımlılıkları temiz');
+  });
+
+  it('BOŞ ÇIKTI: npm hiç konuşmazsa dış origin sayılır', () => {
+    const r = auditKostur('');
+    expect(r.kod).toBe(0);
+    expect(r.out).toContain('DIŞ ORIGIN');
+  });
+});

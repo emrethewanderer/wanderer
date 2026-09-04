@@ -167,4 +167,8 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   oturumda `GITHUB_TOKEN` yer tutucudur ve `api.github.com` 403 döner. Tavansız
   bir `until` bunu sessizce sonsuza çevirdi (40 dk, koşu çoktan yeşildi).
   Kapı: `tests/bekleme-dongusu-kapisi.test.js`
+- [[dis-origin-kapiyi-kirmaz]] — bir kapı kırmızıya dönünce ilk soru **"kırık
+  kimin"**; dış servis kesintisi kapıyı kırmaz ama sessizce de geçmez. npm
+  registry 503'ü CI'ı kırmızı bastı, testlerin hepsi yeşildi. Üç kova
+  tarayıcıya özel değil, HER kapının kuralı
 

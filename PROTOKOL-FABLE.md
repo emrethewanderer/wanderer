@@ -197,6 +197,18 @@ gerekçesini taşıyan bir liste (`GURULTU`) ile ağır sayılmayan türler
 TAM listelenir — yutulan şey denetlenemiyorsa filtre bir kapı değil bir
 perdedir. `--izin <desen>` o koşuya özel ekleme yapar.
 
+**Üç kova tarayıcıya özel değildir — HER kapının kuralıdır.** Bir kapı
+kırmızıya döndüğünde ilk soru "ne kırıldı" değil, **"kırık kimin"**dir. Ağacın
+kırığı kapıyı kırar; bir dış servisin kesintisi kırmaz ama **sessizce de
+geçmez** — adıyla raporlanır. Bu ayrımı yapmayan bir kapı iki yönden birden
+bozulur: gerçek kırıkları gürültüye boğar, ya da gürültüyü kırık sayıp turu
+durdurur. Ölçüldü — 2026-09-03, CI koşusu #64: 171 dosya / 3857 testin hepsi
+yeşil geçti, sonra `npm audit` npm registry'nin 503'ü yüzünden exit 1 verdi ve
+kapı kırmızı kapandı. Aynı commit'in push koşusu (#63) bir saat önce yeşildi;
+**fark ağaçta değil zamandaydı.** Düzeltme adımı üç kovaya ayırdı ve kapısı
+`tests/kapi-workflow.test.js`'tedir — betik metin olarak değil, sahte bir
+`npm` ile GERÇEKTEN koşturularak sınanır (§10.6).
+
 **`console.warn` bu repoda GÜRÜLTÜ DEĞİLDİR — ihlaldir.** Sebebi §5.2'nin
 savunmacı stilidir: yakalanan hata `catch (e) { console.warn('fxSave:', …) }`
 ile loglanır ve `js/` altında 305 gerçek kullanımı vardır. Uyarıyı yutan bir
