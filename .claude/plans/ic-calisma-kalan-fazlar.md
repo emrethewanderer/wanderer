@@ -345,5 +345,44 @@ hiç görünmez — orada ton değil **doğruluk** ölçülür.
 
 ## Durum
 
-- Plan kuruldu (2026-09-04). **İlk hamle:** FAZ 1 — `tests/kriz-eval.test.js`
-  koşucusunu yaz (korpus boşken kırmızı olduğunu kanıtla), sonra FAZ 2 korpusu.
+- Plan kuruldu (2026-09-04).
+
+- **FAZ 1+2 · BİTTİ** (2026-09-04, commit `d2d4733`). Koşucu `uygulayici`da
+  (🅢), korpus parent'ta (🅞). Sonuç 52 satır · 13 dil · beş kova · 17 test.
+
+  **Faz denetimi (parent · Opus, devredilen FAZ 1 için) — iki kırık:**
+  (a) `kriz` kovası `detectCrisisSoft`'un yakalamasına razı oluyordu; oysa
+  soft sinyal kriz KARTINI açmaz, yalnız sessiz LLM teyidine gider — sert
+  bir cümle soft'a düşerse kullanıcı 112'yi GÖRMEZ. Eşik sertleştirildi.
+  (b) Tanımsız bir `beklenen` değeri sessizce düşüyordu ve yorumu "korpus
+  kapısında fark edilir" diyordu — oysa hiçbir test kovaların toplamını
+  korpus uzunluğuna bağlamıyordu. **Olmayan bir kapıyı var sayan cümle,
+  boşluğun kendisinden kötüdür** (§6.6). Bölme iddiası teste bağlandı.
+
+  **Ve korpusun ilk koşusu bir ÜRÜN kırığı buldu — bu fazın asıl kazancı:**
+  JS'in `/i` bayrağı Türkçenin noktalı İ'sini (U+0130) katlamıyor
+  (`'İ'.toUpperCase()` → `'İ'`, `'i'.toUpperCase()` → `'I'`). Yani
+  `/intihar/i` **"İntihar etmeyi düşünüyorum."** cümlesini, `/ilaç.*fazla
+  al/i` ise **"İlaçları fazla aldım."** cümlesini kaçırıyordu — ve Türkçede
+  cümle başındaki her `i` sözcüğü büyük İ ile yazılır. Kriz kartı
+  açılmıyordu. Düzeltme `krizMetniNormalize` (`13-extras`): yalnız U+0130 ve
+  birleşen nokta (U+0307); ASCII `I`'ya dokunulmadı, İngilizce desenler
+  bozulmadı. Kapısı korpustan **bağımsız** durur — korpus satırı silinse
+  bile regresyon kilidi ayakta kalır.
+
+  **Kova kararı (§3.3'ün üç kovasının korpustaki karşılığı):** iki kova bir
+  kusuru saklamıyor, **mühürlüyor** — `bilinen_sinir` desenin bugün yanlış
+  alarm verdiği masum cümleleri (alıntı · deyim · üçüncü şahıs),
+  `bilinen_kacirma` ise bir insanın kriz sayacağı ama desenin saymadığı
+  cümleleri adıyla tutar. İkisi de desen değişince kırmızıya döner. Oda
+  15'in *"kaçırma oranı ölçülemez"* cümlesinin elle tutulan cevabı budur:
+  ölçülemeyen şey oran, **ölçülebilen şey örnektir**.
+
+  Kapı: build ✅ · hedefli süit ✅ 147/147 · `kapi:genel` ✅ 302/302 ·
+  `dogrula` ✅ exit 0 "Konsol temiz." · CI Kapı #70 ✅ (önceki commit).
+  Çapraz denetim (`denetci` · Sonnet) koşuldu — bulguları aşağıda.
+
+**İlk hamle (FAZ 3):** `13g-paylasim.js`'te `_shareCanvas(cv, title)` üçüncü
+parametreyi (`tur`) alsın, `shrShareStory` onu `params.tur`'dan geçirsin;
+`13g:301`'in sabit `tur:'kart'`'ı o değere devredilsin; yedi çağırana
+planda yazılı eşleme konsun.
