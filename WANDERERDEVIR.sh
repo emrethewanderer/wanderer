@@ -28,6 +28,11 @@
 # ═══════════════════════════════════════════════════════════════
 set -euo pipefail
 
+# Kendi yolunu cd'den ÖNCE mutlağa çevir: script alt dizinden göreli yolla
+# çağrılırsa (bash ../WANDERER-DEVIR.sh), repo köküne cd ettikten sonra
+# kendi gövdesindeki arşivi bulamaz.
+KENDI="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+
 PROVA=0
 [ "${1:-}" = "--prova" ] || [ "${1:-}" = "--dry-run" ] && PROVA=1
 
@@ -38,8 +43,13 @@ warn() { printf '  [!] %s\n' "$*"; }
 
 # ── 0. Doğru yerde miyiz ─────────────────────────────────────
 KOK="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+# cwd repo değilse script'in KENDİ durduğu yerden dene — paket repoya
+# yüklendiğine göre kendi konumu güvenilir bir çapadır.
 if [ -z "$KOK" ]; then
-  say "✗ Burası bir git deposu değil. Wanderer repo kökünde çalıştır."
+  KOK="$(cd "$(dirname "$KENDI")" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null || true)"
+fi
+if [ -z "$KOK" ]; then
+  say "✗ Git deposu bulunamadı. Paketi Wanderer repo kökünden çalıştır."
   exit 1
 fi
 cd "$KOK"
@@ -63,7 +73,7 @@ trap 'rm -rf "$GECICI"' EXIT
 # Payload: bu dosyanın __ARSIV__ satırından sonrası, base64 tar.gz
 # base64: Linux (coreutils) -d ister, eski macOS (BSD) -D. İkisini de dene.
 b64coz() { base64 -d 2>/dev/null || base64 -D; }
-sed -n '/^__ARSIV__$/,$p' "$0" | tail -n +2 | b64coz | tar xzf - -C "$GECICI"
+sed -n '/^__ARSIV__$/,$p' "$KENDI" | tail -n +2 | b64coz | tar xzf - -C "$GECICI"
 
 ADET="$(find "$GECICI" -type f | wc -l | tr -d ' ')"
 if [ "$PROVA" = "1" ]; then
