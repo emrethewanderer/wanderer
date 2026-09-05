@@ -292,3 +292,18 @@ export async function skPlayRecording() {
 export function getSelfDialogueStats() {
   return { sessions: S._selfDialogue.sessions.length, lastAt: S._selfDialogue.lastAt };
 }
+
+/* ── window expose (TDZ-güvenli, minify-dayanıklı) ──
+   Modül bugüne dek yalnız kendi view'ından çağrılıyordu; köprü, araç
+   motorunun (13a) [ARAC:inanc] chip'i için açıldı. Gerekçe 13a'nın KURULU
+   kalıbıdır: dört aracın üçü (glGiveSozNow · oikOpenReading · igOpenKapi)
+   ritüeli window'dan çağırır, dördüncüsü de öyle çağırır — ikinci bir yol
+   açmak registry'yi iki sözleşmeli hâle getirirdi (§1.3).
+   FAZ 9'un dersi burada geçerli DEĞİL: orada delinen sözleşme "protokol
+   blokları DAİMA sıyrılır"dı ve "daima" koşul kabul etmez; burada
+   koşulluluk sözleşmenin KENDİSİdir — chip "ritüel varsa aç" der ve yoksa
+   `false` dönüp kullanıcıya arac.fail toast'ını gösterir (13a:_acRitual). */
+if (typeof window !== 'undefined') {
+  window.skOpen = skOpen;
+  window.skSelectSet = skSelectSet;
+}

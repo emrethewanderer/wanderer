@@ -31,6 +31,25 @@ düzenlemeler ezilmez.
 
 ## Bundan sonrası — bekleyen ELLE borcu
 
+> ### ⚡ Kısa yol: `055_birlesik_041_054.sql`
+>
+> 2026-09-05'te Emre uzun süre migration koşmadığını söyledi ve tek dosya
+> istedi. **`055_birlesik_041_054.sql`** o dosyadır: `041 · 043 · 047 · 051 ·
+> 052 · 053 · 054`'ün TAMAMI, bağımlılık sırasında, tek yapıştırmada.
+> Aşağıdaki defteri okumana, sırayı hatırlamana, hangisini yaptığını
+> bilmene gerek yok — idempotenttir, eksikleri tamamlar, var olana dokunmaz.
+>
+> `042 · 044 · 045 · 046 · 048 · 049 · 050` **bilerek yoktur**: yedisi de
+> yalnız `admin_usage_report`'u kurar ve `051` on yedi bloğun hepsini taşır.
+> Kanıt yorumda değil kapıda: `tests/migration-blok-tasima.test.js` `055`'i
+> de zincire alır.
+>
+> **`055`'ten sonra `041`–`054`'ten hiçbirini tek başına koşma** — en güncel
+> tanım artık en yüksek numaradadır (`055`).
+
+Aşağıdaki defter tarihsel kayıttır: hangi dosyanın neyi getirdiğini ve
+uygulanmazsa neyin eksik kalacağını dosya dosya sayar.
+
 Yeni şema işleri **041'den** devam eder. Numara git geçmişiyle tutarlı kalsın
 diye 001'e geri dönülmez.
 
@@ -54,7 +73,7 @@ yöndedir: **daha düşük numaralı bir dosyayı sonradan tek başına koşmak*
 kendinden sonraki blokları siler (örn. `051`'den sonra `044`'ü koşmak
 045–051'in kartlarını düşürür). Kaybolan kartın sebebi kodda görünmez.
 Kural tek cümle: **en güncel tanım daima en yüksek numaradadır** (bugün
-`051`); şüphede kalırsan yalnız onu koş.
+`055`, birleşik dosya); şüphede kalırsan yalnız onu koş.
 
 Taşıma 2026-09-03'te dosya dosya ölçüldü — `051` on yedi bloğun hepsini
 içerir: `mode` · `memory` · `latency` · `ctx` · `kart` · `ritus` · `esik` ·
@@ -85,6 +104,7 @@ her dosyanın bir öncekinin tüm üst-düzey bloklarını taşıdığını sın
 | 052 | `tik_atifi.sql` | `notif_mark_clicked(p_id)` RPC — `notification_log.clicked_at`'i yalnız kendi satırında, yalnız ilk tıkta mühürler (SECURITY DEFINER, RLS UPDATE verilmez) | İç Çalışma 11 rev.2 · boşluk B (Kalan Yol Haritası FAZ 5) | Tık atıfı hiç yazılmaz; Davetin Nabzı dürüst "boşluk" notunu göstermeye devam eder — sızıntı yok, yalnız eksik veri |
 | 053 | `saklama_politikasi.sql` | `usage_events_daily` günlük agregat tablosu + geri doldurma + `usage_events_prune(p_gun)` RPC (SECURITY DEFINER, yalnız `service_role`) — ham satır silinmeden önce agregat dolar (K3) | İç Çalışma 17 · boşluk C (Kalan Yol Haritası FAZ 6) | `usage_events` sınırsız büyümeye devam eder; agregat tablo boş kalır — sızıntı yok, yalnız birikim |
 | 054 | `riza_defteri.sql` | `hukuk_kabul(user_id, surum, kabul_at)` — hangi kullanıcının hangi hukuk sürümünü ne zaman kabul ettiğinin defteri; PK `(user_id, surum)`, geçmiş üzerine YAZILMAZ (UPDATE/DELETE politikası bilerek yok) | İç Çalışma 15 · boşluk C (Kalan Yol Haritası FAZ 7) | Kabul kaydı hiç tutulmaz; `hkKabulYaz` sessizce düşer ve KVKK/GDPR "değişiklik bildirimi" beklentisi karşılanamaz — kayıp veri yok, ama kanıt da yok |
+| **055** | **`birlesik_041_054.sql`** | **Yukarıdaki yedi dosyanın (041·043·047·051·052·053·054) TAMAMI, bağımlılık sırasında, tek yapıştırmada.** 042·044·045·046·048·049·050 bilerek yok — yalnız `admin_usage_report` kurarlar, `051` hepsini taşır | Emre'nin talebi, 2026-09-05 | Yukarıdaki on dört satırın hepsi ayrı ayrı bekler |
 
 ### Durumu nereden görürsün
 
@@ -94,17 +114,39 @@ kodudur** (`42P01` tablo yok · `42703` kolon yok); RLS yüzünden boş dönmek
 yapar: `wanderer_models` tablosu kurulmuş ama `system_prompt` boşsa üç sesin
 eksen davranışı yoktur.
 
-### Ayrıca ELLE bekleyen, migration olmayan üç iş
+### Ayrıca ELLE bekleyen, migration olmayan işler
 
-- İki edge function redeploy: `soz-terzisi` · `sohbet-baslaticilari`
-  (İç Çalışma 03 · F). Yapılmazsa panel kaydeder, sunucu okumaz.
+> **Bu liste 2026-09-05'te iki kalem BÜYÜDÜ ve büyümesinin sebebi bir süreç
+> kırığıdır.** `eposta-sekme` ve `revenuecat-webhook` 2026-09-02'de bir
+> **güvenlik yaması** aldı (`safeEq` — sabit zamanlı karşılaştırma, `1be5df8`
+> FAZ 7 · C7) ama o tur bu deftere dokunmadı; yama üç gün boyunca repoda
+> durdu, prod'da durmadı. Emsal `052`/`053` ile aynı: **defterde olmayan ELLE
+> işi yapılmamış sayılır** — çünkü tek okunan yer burasıdır. Bir edge
+> fonksiyonunun kodu değiştiğinde bu listeye bir satır girer, sonra faz
+> kapanır.
+
+Yedi edge function redeploy bekliyor. Hepsi tek komutla:
+
+```bash
+supabase functions deploy soz-terzisi sohbet-baslaticilari \
+  delete-user reset-user send-push eposta-sekme revenuecat-webhook
+```
+
+| Fonksiyon | Neden | Yapılmazsa |
+|---|---|---|
+| `soz-terzisi` | Sesin canlı yönetimi (İç Çalışma 03 · F · `SETUP-SOZ-TERZISI.md`) | Panel kaydeder, sunucu okumaz — eski sesi konuşur |
+| `sohbet-baslaticilari` | Sesin canlı yönetimi (İç Çalışma 03 · F · `SETUP-BASLATICILAR.md`) | Aynı: panel kaydeder, sunucu okumaz |
+| `delete-user` | `hayal/{uid}/` öneki de temizlensin (`4140275` FAZ 1) + `user_memories` temizliği (`SETUP-TANIYAN-AYNA.md` §3) | Hesap silinince hayal görselleri depoda kalır — **KVKK/GDPR silme hakkı kırığı** |
+| `reset-user` | Aynı iki sebep | Aynı: sıfırlanan hesabın görselleri kalır |
+| `send-push` | `nid` payload'a girsin (`7f7f30a` FAZ 5, `052` ile) + portrenin push kopyası | Tık atıfı hiç yazılmaz; `052` kurulu olsa bile RPC çağrılmaz |
+| `eposta-sekme` | **Güvenlik:** `safeEq` — düz `===` zamanlama sızıntısı (`1be5df8` C7) | Sunucu sırrı bayt bayt tahmin edilebilir kalır |
+| `revenuecat-webhook` | **Güvenlik:** aynı `safeEq` yaması | Aynı — webhook imzası zamanlama saldırısına açık |
+
+Ayrıca migration da deploy da olmayan tek iş:
+
 - Admin → *Merhaba, Emre* → **Yayınla**: anayasanın güncel register'ı
   `admin_settings.system_prompt`'a insin (İç Çalışma 03 · A′). Yapılmazsa
   sunucu eski anayasayı konuşur.
-- `send-push` edge function redeploy (İç Çalışma 11 · boşluk B · FAZ 5,
-  `052` ile birlikte). Yapılmazsa payload `nid` taşımaz — tık atıfı RPC'si
-  kurulu olsa bile hiç çağrılmaz, Davetin Nabzı dürüst boşluk notunu
-  göstermeye devam eder.
 
 ## Yeni migration eklerken
 

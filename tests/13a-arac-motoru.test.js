@@ -24,6 +24,12 @@ beforeEach(() => {
   document.body.innerHTML = '';
   delete window.glGiveSozNow;
   delete window.oikOpenReading;
+  delete window.igOpenKapi;
+  delete window.gyStart;
+  delete window.gyOpenToday;
+  delete window.skOpen;
+  delete window.skSelectSet;
+  delete window.engOpen;
 });
 
 describe('aracExtract — blok ayrıştırma', () => {
@@ -250,5 +256,128 @@ describe('cleanHistoryText — eski kirli kayıtların geri-okuma temizliği', (
   it('13a henüz yüklenmemişse filigranı yine de soyar (sessiz düşüş)', () => {
     delete window.aracExtract;
     expect(cleanHistoryText('[bu yanıt "tasarla" modunda yazıldı]\nMerhaba')).toBe('Merhaba');
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAZ 10 — ÜÇ YENİ ARAÇ ve "sahte başarı" kapısı
+   ───────────────────────────────────────────────────────────────────
+   İki ayrı iddia sınanır ve ikincisi bir REGRESYON kapısıdır:
+
+   1. yol · inanc · engel doğru ritüeli, doğru sırayla açar.
+   2. Ritüel YÜKLÜ DEĞİLSE chip `false` döner ve kullanıcı `arac.fail`
+      toast'ını görür. Eski kalıp `window.xOpen?.(); return true;` idi:
+      chip kapanıyor, hiçbir şey açılmıyor, kullanıcı "oldu" sanıyordu —
+      §6.2'nin sahte başarısı. aracRunTool `false`'u zaten toast'a
+      çeviriyordu (13a:156), yani dürüst hâl hep bekleniyordu; kimse
+      döndürmüyordu.
+   Kapı bu yüzden yalnız yeni üçünü değil ESKİ üçünü de sınar — düzeltme
+   onlarda yapıldı, regresyon da onlarda doğar.
+═══════════════════════════════════════════════════════════════════ */
+describe('FAZ 10 — üç yeni araç', () => {
+  function makeChip(tool, args) {
+    const chip = document.createElement('div');
+    chip.className = 'arac-chip';
+    chip.dataset.tool = tool;
+    if (args) chip.dataset.args = JSON.stringify(args);
+    const btn = document.createElement('button');
+    chip.appendChild(btn);
+    document.body.appendChild(chip);
+    return btn;
+  }
+
+  it('[ARAC:inanc] · [ARAC:engel] blokları çıkarılır', () => {
+    expect(aracExtract('metin[ARAC:inanc]').tools[0].tool).toBe('inanc');
+    expect(aracExtract('metin[ARAC:engel]').tools[0].tool).toBe('engel');
+  });
+
+  /* 13s Geçiş Yolu SOHBETE AÇILMAZ — 13s:27-29 "Studio-only (Wanderer Studio
+     kararı, 2026-07-19), Wanderer (LLM) ücretsiz yüzünde yolculuk
+     başlatılmaz." Faz onu önce ekledi, çapraz denetim kısıtı buldu, geri
+     alındı. Kapı burada: bir sonraki tur `yol`u sessizce geri koyarsa bu test
+     kırmızı basar ve kısıtı hatırlatır. `gyStart` kendi başına yüzey kontrolü
+     TAŞIMAZ (13s:97) — kısıt yalnız çağıranın disiplinidir, o yüzden ölçülür. */
+  it('yol: chip olarak YOKTUR — Geçiş Yolu sohbet yüzeyinden başlatılmaz', async () => {
+    const start = vi.fn();
+    window.gyStart = start;
+    await aracRunTool(makeChip('yol'));
+    expect(start, 'Geçiş Yolu sohbetten başlatıldı — 13s:27-29 Studio-only kısıtı delindi').not.toHaveBeenCalled();
+  });
+
+  it('Türkçeleşmiş [ARAÇ:engel] de tanınır (RE_ARAC toleransı)', () => {
+    expect(aracExtract('metin[ARAÇ:engel]').tools[0].tool).toBe('engel');
+  });
+
+  it('inanc: skOpen\'ı açar ve doğrudan İnanç Kazma setine geçirir', async () => {
+    const open = vi.fn(); const select = vi.fn();
+    window.skOpen = open; window.skSelectSet = select;
+    await aracRunTool(makeChip('inanc'));
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(select).toHaveBeenCalledWith('inanc');
+  });
+
+  it('engel: engOpen\'ı çağırır', async () => {
+    const eng = vi.fn();
+    window.engOpen = eng;
+    await aracRunTool(makeChip('engel'));
+    expect(eng).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('sahte başarı kapısı — ritüel yüklü değilse chip "oldu" demez', () => {
+  function makeChip(tool) {
+    const chip = document.createElement('div');
+    chip.className = 'arac-chip';
+    chip.dataset.tool = tool;
+    const btn = document.createElement('button');
+    chip.appendChild(btn);
+    document.body.appendChild(chip);
+    return btn;
+  }
+
+  /* Toast'ı GERÇEK DOM'dan okuruz: 00a'nın showToast'ı mock DEĞİL —
+     mock'lamak kapının kendisini kör ederdi (§10.5: ölçen alet de ölçülür).
+     showToast `#toast` elementini arar ve yoksa SESSİZCE döner (00a:showToast),
+     o yüzden host elementi burada kurulur; kapının ilk hâli tam bunu unuttu ve
+     altı testin altısı da "toast çıkmadı" dedi — kırık koddaymış gibi. */
+  function kurToastHost() {
+    const el = document.createElement('div');
+    el.id = 'toast';
+    document.body.appendChild(el);
+    return el;
+  }
+  function toastGorundu() {
+    const el = document.getElementById('toast');
+    return !!el && el.classList.contains('show') && el.classList.contains('err');
+  }
+
+  it.each(['soz', 'gecis', 'imge', 'inanc', 'engel'])(
+    '%s: ritüel window\'da yokken kullanıcı bir hata görür',
+    async (tool) => {
+      kurToastHost();
+      await aracRunTool(makeChip(tool));
+      expect(toastGorundu(), `${tool}: ritüel yokken sessizce "başarılı" sayıldı`).toBe(true);
+    },
+  );
+
+  /* ÇAPRAZ DENETİMİN DERSİ (Sonnet, 2026-09-05 · bulgu 2): iki adımlı bir
+     araçta İLK köprü varken İKİNCİsinin eksik olduğu hâl, kapının kör
+     noktasıydı — yukarıdaki it.each ikisini de silip sınadığı için ilk
+     kontrol zaten `false` dönüyor ve kapı DOĞRU sonucu YANLIŞ sebeple
+     veriyordu. Asıl kırık burada yaşar: chip "İnanç Kazma"yı vaat eder,
+     kullanıcıyı set menüsünde bırakır ve yine "oldu" der. */
+  it('inanc: skOpen VAR ama skSelectSet YOKken yarım açmaz — hata verir', async () => {
+    kurToastHost();
+    window.skOpen = vi.fn();
+    await aracRunTool(makeChip('inanc'));
+    expect(window.skOpen, 'ikinci köprü eksikken ritüel yarım açıldı').not.toHaveBeenCalled();
+    expect(toastGorundu(), 'yarım açılan ritüel "başarılı" sayıldı').toBe(true);
+  });
+
+  it('ritüel YÜKLÜYSE hata toast\'ı çıkmaz', async () => {
+    kurToastHost();
+    window.engOpen = vi.fn();
+    await aracRunTool(makeChip('engel'));
+    expect(toastGorundu()).toBe(false);
   });
 });

@@ -94,12 +94,33 @@ export function aracExtract(text) {
    söyleyeceği (label/cta) ve onaylanınca ne olacağı (run) tanımlı.
    [KART] ve [NISAN] kendi `re`/`parse`'ını taşır; onlar için `label`/`cta`/
    `run` YOKTUR — registry'ye girmeleri onları chip'e çevirmez (K5). */
+/* Ritüel köprüsü — window'daki açıcıyı çağırır, yüklü DEĞİLSE `false` döner.
+   Eski kalıp açıcıyı `?.()` ile çağırıp koşulsuz `true` dönüyordu ve bu
+   sahte bir başarıydı (§6.2): ritüel yüklü olmadığında chip kapanıyor,
+   hiçbir şey açılmıyor, kullanıcı "oldu" sanıyordu. Oysa sözleşme zaten dürüst hâli bekliyor —
+   aracRunTool `false`'u `arac.fail` toast'ına çevirir (13a:156).
+
+   Neden window köprüsü, statik import değil: bu registry'nin KURULU kalıbı
+   odur (glGiveSozNow · oikOpenReading · igOpenKapi üçü de öyle) ve chip'in
+   sözleşmesi zaten koşulludur — "ritüel varsa aç". İlk yazımda buraya bir de
+   import DÖNGÜSÜ gerekçesi yazılmıştı; çapraz denetim onu şüpheye aldı,
+   grep yanlışladı: 10k `03`'ü import etmez (importları state · 00a · 04 · 10g
+   · 00b · 15 · 16), yani iddia edilen `13a → 10k → 03 → 13a` zinciri YOKTUR.
+   Gerekçe düzeltildi — uydurulmuş bir zincir, kapısı olmayan bir kuraldan
+   beterdir: sonraki tur onu arar ve bulamaz (§6.10, kanıtı olmayan değer). */
+function _acRitual(fnName, ...args) {
+  const fn = window[fnName];
+  if (typeof fn !== 'function') return false;
+  fn(...args);
+  return true;
+}
+
 const _ARAC_DEFS = {
   soz: {
     marker: 'ARAC',
     label: () => t('arac.soz', 'Bugün somut bir söz vermeye hazır görünüyorsun.'),
     cta:   () => t('arac.soz_cta', 'SÖZ VER'),
-    run:   () => { window.glGiveSozNow?.(); return true; }
+    run:   () => _acRitual('glGiveSozNow')
   },
   not: {
     marker: 'ARAC',
@@ -112,13 +133,49 @@ const _ARAC_DEFS = {
     marker: 'ARAC',
     label: () => t('arac.gecis', 'Geçiş Alanı okuması bu ana iyi gelir.'),
     cta:   () => t('arac.gecis_cta', 'AÇ'),
-    run:   () => { window.oikOpenReading?.(); return true; }
+    run:   () => _acRitual('oikOpenReading')
   },
   imge: {
     marker: 'ARAC',
     label: () => t('arac.imge', 'İmgeni seç.'),
     cta:   () => t('arac.imge_cta', 'SEÇ'),
-    run:   () => { window.igOpenKapi?.(); return true; }
+    run:   () => _acRitual('igOpenKapi')
+  },
+  /* ── FAZ 10: üç yeni araç ──
+     Seçim ölçüsü "hangi ritüel güzel" değil, HANGİ AN BOŞTA idi. Yukarıdaki
+     dördü de TEK ANLIKtır (bir söz, bir not, bir okuma, bir imge); aşağıdaki
+     üçü onların görmediği üç anı karşılar: sürdürme · inanç · tekrar eden
+     engel. Premium kapılı ritüeller (Ayna Anı, Derin Çalışma) bilerek DIŞARIDA
+     kaldı — ücretsiz kullanıcıya önerilen bir chip paywall'a çıkarsa o bir
+     kaldıraç değil huni olur (§1.1 "kart değil kaldıraç"). */
+  /* [ARAC:yol] (13s Geçiş Yolu) BİLEREK YOK ve gerekçesi bir keşif hatasının
+     düzeltilmesidir. Faz onu önce ekledi; çapraz denetim `13s:27-29`'daki
+     sözleşmeyi gösterdi: "Studio-only (Wanderer Studio kararı, 2026-07-19) —
+     Wanderer (LLM) ücretsiz yüzünde yolculuk başlatılmaz." Yani mesele
+     abonelik değil YÜZEY: yolculuk Studio odasından başlar, sohbetten değil.
+     Chip tam bu kısıtı deliyordu ve `gyStart` (13s:97) kendi başına bir yüzey
+     kontrolü taşımıyor — kısıt yalnız ÇAĞIRANIN disiplinidir. Kısıt Emre'nin
+     kararıdır; tersine çevirmek de onun kararıdır, bu fazın değil. */
+  inanc: {
+    marker: 'ARAC',
+    label: () => t('arac.inanc', 'Bunu söyleten bir inanç var. Onunla yalnız kalmak iyi gelir.'),
+    cta:   () => t('arac.inanc_cta', 'KENDİNLE KONUŞ'),
+    /* İKİ adım da köprü ister ve İKİSİ de önceden sınanır. Sırası kasıtlı:
+       `skOpen` çalışıp `skSelectSet` eksik kalsaydı kullanıcı set MENÜSÜNDE
+       kalırdı — chip "İnanç Kazma"yı vaat edip başka bir yere bırakırdı ve
+       `run` yine `true` derdi. Yarım açılan bir ritüel de sahte başarıdır. */
+    run:   () => {
+      if (typeof window.skSelectSet !== 'function') return false;
+      if (!_acRitual('skOpen')) return false;
+      window.skSelectSet('inanc');
+      return true;
+    }
+  },
+  engel: {
+    marker: 'ARAC',
+    label: () => t('arac.engel', 'Aynı yerde takılıyorsan, o yerin bir adı var.'),
+    cta:   () => t('arac.engel_cta', 'ATLASI AÇ'),
+    run:   () => _acRitual('engOpen')
   },
   // [KART] ve [NISAN] kayıtları SAF YAPRAKTA (13a1) — tüketicileri
   // (10B, 12e) onu doğrudan import eder ve döngü doğmaz; ikizi burada
