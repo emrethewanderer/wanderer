@@ -9,7 +9,7 @@ raporlarında ise "merged" ve "tam süit yeşil" yazıyordu. Çelişki gerçekti
 | Koşu | Commit | Kırık | Commit mesajının iddiası |
 |---|---|---|---|
 | #1 · 00:32 UTC | `1bd4aca` | `xss-kapisi` → `audit-innerhtml.mjs` ENOENT | "tam süit 158 dosya / 3.645 test ✅" |
-| #15 · 09:18 UTC | `65eceae` | `referans-butunlugu` → `[[ad]]` yanlış pozitif | "Sprintin tek tam süit koşusu: sıfır kırık" |
+| #15 · 09:18 UTC | `65eceae` | `referans-butunlugu-kapisi` → `[[ad]]` yanlış pozitif | "Sprintin tek tam süit koşusu: sıfır kırık" |
 
 İkisi de sonradan düzeltildi (`58b645a` ve FAZ 7d), `main` bugün yeşil. Ama
 **örüntü** ikisinde de aynı: *kapının koştuğu ağaç, commit'lenen ağaç değildi.*
@@ -123,10 +123,10 @@ asimetrik kalmamalı (K2) ve bu repo aynı deseni iki kez üretti. En kritiği
 patlarsa dosyanın bütün testleri collect aşamasında ölür.
 
 #### FAZ 4b — Referans kapısına muafiyet beyanı · 🅢 · ~1 oturum
-**Değişen:** `tests/referans-butunlugu.test.js`
+**Değişen:** `tests/referans-butunlugu-kapisi.test.js`
 
 Bugünkü tek savunma iki kelimelik bir denylist (`SABLON_ADLAR = {'name','ad'}`,
-`tests/referans-butunlugu.test.js:128`). Yeni bir jenerik yer-tutucu
+`tests/referans-butunlugu-kapisi.test.js:128`). Yeni bir jenerik yer-tutucu
 (`key`, `id`, `slug`…) bir belgede biçim örneği olarak geçtiği gün aynı
 yanlış pozitif üçüncü kez doğar.
 
@@ -147,12 +147,12 @@ beyan gerektirir.
 
 #### FAZ 4c — Üç kapıya self-test, bir kapıya nabız · 🅢 · ~1-2 oturum
 **Değişen:** `tests/bundle-kapisi.test.js`, `tests/native-senkron-kapisi.test.js`,
-`tests/i18n-tam-parite-kapisi.test.js`, `tests/i18n-parity.test.js`
+`tests/i18n-tam-parite-kapisi.test.js`, `tests/i18n-parity-kapisi.test.js`
 
 Protokolün kendi cümlesi: *"yakalamayan bir kapı, kapı değildir."* Üç kapı
 yalnız gerçek repoya bakıyor, ihlali yakaladığını hiç kanıtlamıyor — yani
 bugün yeşiller ama yeşilliklerinin anlamı ölçülmemiş. Dördüncüsü
-(`i18n-parity.test.js:26-30`) daha ağır: `EXTERNAL_LANGS` boş olduğu için
+(`i18n-parity-kapisi.test.js:26-30`) daha ağır: `EXTERNAL_LANGS` boş olduğu için
 kapı bir no-op'a düşüyor, `i18n-validate.mjs` hiç koşmuyor.
 
 #### FAZ 4d — `devir-notu.sh` tarih çağrısı iki kabukta da çalışır · 🅢 · ~1 oturum
@@ -206,7 +206,7 @@ hata sessizce yutulur ve denetçi yanlışlıkla exit 0 basabilir. **Önce ölç
 **Yeniden kullanılan (yeni yazma — bunlar zaten var):**
 - `mkdtempSync(join(tmpdir(), …))` deseni — on kapıda zaten kullanılıyor
   (`xss-kapisi`, `bagsiz-ad-kapisi`, `gerceklik-kapisi`, `yetim-kopru`,
-  `ihtimalsel-dil`, `referans-butunlugu`, `devir-nabzi`, `tasarim-kapisi`'nin
+  `ihtimalsel-dil`, `referans-butunlugu-kapisi`, `devir-nabzi`, `tasarim-kapisi`'nin
   `sina()` yardımcısı). T7 bu desenin dışında kalan TEK istisnaydı.
 - `--dizin` bayrağı — `tasarim-denetci.mjs:68` zaten var, T7 kullanamıyordu.
 - ENOENT-güvenli `gez()`/`dosyalar()` — dört denetçide mevcut.

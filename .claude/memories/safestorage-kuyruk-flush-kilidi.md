@@ -9,7 +9,7 @@ type: gotcha
 > **Bu dosya hakkında.** `[[boot-nabzi]]`'nin kendi "İlgili" satırı ve
 > `js/parts/03-auth-shell.js:1031`'deki yorum bu ada `[[safestorage-kuyruk-flush-kilidi]]`
 > diye bağ veriyordu; hedef `.claude/memories/` altında YOKTU (kapı:
-> `tests/referans-butunlugu.test.js` TABAN'ı). Aynı isimli bir özgün dosya
+> `tests/referans-butunlugu-kapisi.test.js` TABAN'ı). Aynı isimli bir özgün dosya
 > repoya hiç girmedi — `git log --all -- .claude/memories/` bu adı hiç
 > döndürmüyor ([[claude-altyapisi-commit-disi]]). **Bu dosya o özgün metnin
 > kurtarılmış hâli DEĞİLDİR.** İçeriği bugünkü repodan yeniden keşifle

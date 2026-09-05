@@ -2,7 +2,7 @@
 
 ## Bağlam
 
-`tests/referans-butunlugu.test.js`'in TABAN'ı 33 kırık iç referans donduruyor:
+`tests/referans-butunlugu-kapisi.test.js`'in TABAN'ı 33 kırık iç referans donduruyor:
 **23 hafıza adı** + 10 plan yolu. Kök sebep [[claude-altyapisi-commit-disi]]:
 `.claude/` altı aylarca yalnız lokal diskte kaldı, repoya hiç girmedi. Git
 bunu kesinler — repo 33 commit'lik, `Initial commit` ile başlıyor ve
@@ -75,7 +75,7 @@ Kararın kendisi kaydedilir, gerekçesi ancak yazılıysa.
 
 ### K4 — Kapı küçülmeyi zaten serbest bırakıyor
 
-`tests/referans-butunlugu.test.js` TABAN'ı büyümeyi yasaklar, ödenmeyi
+`tests/referans-butunlugu-kapisi.test.js` TABAN'ı büyümeyi yasaklar, ödenmeyi
 serbest bırakır. Yani bu sprint kapıya dokunmaz: hedef dosya yaratıldıkça
 borç kendiliğinden düşer. **TABAN listesinden ad SİLİNMEZ** — silmek kapıyı
 gevşetmez ama gereksiz bir diff üretir ve testin kendi gerekçe metnini
@@ -181,7 +181,7 @@ aktarılmalı.
 
 Bu sprint **hiçbir state anahtarına dokunmaz**. Yazılan tek şey `.md`
 dosyalarıdır: `.claude/memories/*.md` (yeni) ve `MEMORY.md` (indeks satırı).
-`tests/referans-butunlugu.test.js`'in TABAN listesi **değişmez** (K4).
+`tests/referans-butunlugu-kapisi.test.js`'in TABAN listesi **değişmez** (K4).
 
 **Tuzak:** yeni bir hafıza dosyası içinde TABAN'da OLMAYAN ve karşılığı
 bulunmayan bir `[[ad]]` bağı yazmak kapıyı KIRAR. Bağ verilecekse ya hedefi
@@ -218,11 +218,11 @@ Kaynak kod değişmediği için (§3.3) test/tarayıcı kapısı `git diff --sta
 kanıtıyla gerekçeli geçilir; koşulacak olanlar:
 
 1. `./build.sh 2>&1 | tail -5` → yeşil (ucuz, `index.html` üretimini doğrular)
-2. `npx vitest run tests/referans-butunlugu.test.js` → 6 test yeşil
+2. `npx vitest run tests/referans-butunlugu-kapisi.test.js` → 6 test yeşil
    (yeni yazılan dosyaların kendi `[[bağ]]`ları kapıyı kırmamalı)
 3. Borç sayacı — ödenen adet artmalı, TABAN 23 sabit kalmalı:
    ```
-   adlar=$(sed -n '/^const TABAN = new Set(\[/,/^\]);/p' tests/referans-butunlugu.test.js \
+   adlar=$(sed -n '/^const TABAN = new Set(\[/,/^\]);/p' tests/referans-butunlugu-kapisi.test.js \
      | grep -oE "'hafiza:[a-z0-9-]+'" | tr -d "'" | sed 's/hafiza://')
    for ad in $adlar; do [ -f ".claude/memories/$ad.md" ] && echo "ödendi $ad"; done | wc -l
    ```
@@ -246,7 +246,7 @@ gerekiyorsa eklenir)
 - `.claude/memories/boot-nabzi.md` — **biçim emsali**, kanıt sıkılığının ölçüsü
 - `.claude/memories/olu-kod-temizlikleri.md` — **kayıp beyanının emsali**
 - `.claude/memories/claude-altyapisi-commit-disi.md` — borcun kök sebebi
-- `tests/referans-butunlugu.test.js` — TABAN listesi ve kapının sözleşmesi
+- `tests/referans-butunlugu-kapisi.test.js` — TABAN listesi ve kapının sözleşmesi
 - `PROTOKOL-FABLE.md` §6.10 (gerçeklik), §7 (hafıza disiplini), §3.3 (kapı)
 
 ## Hafıza bağları

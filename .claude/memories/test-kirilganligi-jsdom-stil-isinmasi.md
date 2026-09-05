@@ -8,7 +8,7 @@ type: gotcha
 
 > **Bu dosya hakkında.** `tests/10q-hedef-muhru.test.js:165` bu ada
 > `[[test-kirilganligi-jsdom-stil-isinmasi]]` diye bağ veriyordu; hedef dosya
-> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu.test.js`
+> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu-kapisi.test.js`
 > TABAN'ı, `hafiza:test-kirilganligi-jsdom-stil-isinmasi`). Aynı isimli özgün
 > dosya repoya hiç girmedi — `git log --all -- .claude/memories/test-kirilganligi-jsdom-stil-isinmasi.md`
 > boş döner ([[claude-altyapisi-commit-disi]]). **Bu dosya kurtarma değildir**;

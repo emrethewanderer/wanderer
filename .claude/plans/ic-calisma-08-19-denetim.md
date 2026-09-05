@@ -60,7 +60,7 @@ kapsamı, UGC süzgeci) ki ikisi de oda 15'in Faz 1'inde adıyla bekliyor.
 | 12 | C · paylaşım hunisi kör | **AÇIK** | `13g`/`10C`'de sıfır `wt*` |
 | 12 | D · soğuk başlangıç | ürün kararı | — |
 | 13 | A · sunucu tek dilli | **KAPALI** | `send-push:186-196` `langInstruction` + mig 037 `row.lang` |
-| 13 | B · parite bekçisi kapı değil | **KAPALI** | `tests/i18n-parity.test.js` · `tests/i18n-tam-parite-kapisi.test.js` |
+| 13 | B · parite bekçisi kapı değil | **KAPALI** | `tests/i18n-parity-kapisi.test.js` · `tests/i18n-tam-parite-kapisi.test.js` |
 | 13 | C · aria çevrilmiyor | **KAPALI** | `tests/15-i18n-aria.test.js` |
 | 13 | D · SW dil pürüzü | açık (teşhissiz) | — |
 | 14 | A · sürüm kontrolü yok | **YANLIŞLANDI** | repo git; uzak dal + PR akışı çalışıyor |
@@ -306,7 +306,7 @@ cümlen kalsın, izin telefon numarası çıksın."* Asla "uygunsuz içerik".
 - **Yeniden kullanılan (keşifte bulundu — ikizini yazma):**
   - `00f` nabız kalıbı — `wtLogModel` (`00f:637`) birebir emsaldir
   - `13B-toren-kuyrugu.js` `trnIzin` — tören çarpışması ZATEN çözülmüş
-  - `tests/i18n-parity.test.js` + `tests/bundle-kapisi.test.js` — parite ve
+  - `tests/i18n-parity-kapisi.test.js` + `tests/bundle-kapisi.test.js` — parite ve
     bütçe kapıları ZATEN var
   - `send-push` `langInstruction` — sunucu dili ZATEN çok dilli
   - `00a` `localDayKey` — `parseDayKey` onun yanına, ikinci helper değil

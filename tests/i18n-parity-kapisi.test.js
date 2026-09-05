@@ -68,7 +68,7 @@ describe('i18n parity kapısı — self-test (i18n-validate.mjs sentetik dille g
   });
 
   function fixtureKur(icerik) {
-    const dizin = mkdtempSync(join(tmpdir(), 'wanderer-i18n-parity-'));
+    const dizin = mkdtempSync(join(tmpdir(), 'wanderer-i18n-parity-kapisi-'));
     writeFileSync(join(dizin, 'package.json'), '{"type":"module"}\n');
     writeFileSync(join(dizin, 'zzsinav-ui.js'), icerik);
     return dizin;

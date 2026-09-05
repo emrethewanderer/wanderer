@@ -24,7 +24,7 @@ girmemişti → **kullanıcı Almanca'yı hiç görmedi, silme UX'i değiştirme
 Silinen 9 dosya: `js/parts/i18n/de-{ui,prompt,detect,deste,hukuk}.js` ·
 `js/ext/{i18n,deste,hukuk}-de.js` · `scripts/i18n-style/de.md` (klasörler boşaldı).
 **FAZ 0 altyapısı KORUNDU** (dil-nötr, yeniden yazılmayacak): `i18n-validate.mjs` ·
-`tests/i18n-parity.test.js` (dış dil yokken "boşta bekliyor" dalıyla geçer) ·
+`tests/i18n-parity-kapisi.test.js` (dış dil yokken "boşta bekliyor" dalıyla geçer) ·
 15/16 K3 yükleyici genellemesi · `LANG_INSTRUCTION_NAMES` 11 dil haritası ·
 12b `_applyDeckOverlay` + K7 etiket köprüsü · 13p `_hkEnsureLangDocs`.
 **DE emeği kaybolmadı:** `git checkout a93ed3d -- js/parts/i18n js/ext/i18n-de.js

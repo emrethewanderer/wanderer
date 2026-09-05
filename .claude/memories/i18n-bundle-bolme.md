@@ -8,7 +8,7 @@ type: gotcha
 
 > **Bu dosya hakkında.** `js/parts/15-i18n.js:69`'daki yorum bu ada
 > `[[i18n-bundle-bolme]]` diye bağ veriyordu; hedef `.claude/memories/`
-> altında YOKTU (kapı: `tests/referans-butunlugu.test.js` TABAN'ı). Aynı
+> altında YOKTU (kapı: `tests/referans-butunlugu-kapisi.test.js` TABAN'ı). Aynı
 > isimli bir özgün dosya repoya hiç girmedi — `git log --all -- .claude/memories/`
 > bu adı hiç döndürmüyor ([[claude-altyapisi-commit-disi]]). **Bu dosya o
 > özgün metnin kurtarılmış hâli DEĞİLDİR.** İçeriği bugünkü repodan

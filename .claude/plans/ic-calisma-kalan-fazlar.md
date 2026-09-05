@@ -133,7 +133,7 @@ Boş korpusla test **geçmez** — `korpus.length >= 30` bir iddiadır ve kapıd
 > katmanlıdır. Bu bir kırık mı bilinçli bir sınır mı, repodan okunamaz;
 > plan onu **uydurmuyor**, TABAN olarak beyan ediyor: korpus bugünkü
 > kapsamayı sayıya bağlar, büyümesi serbest, **daralması yasak**
-> (kalıp: `tests/referans-butunlugu.test.js`). Yumuşak desenleri on bir
+> (kalıp: `tests/referans-butunlugu-kapisi.test.js`). Yumuşak desenleri on bir
 > dile yazmak ayrı bir karardır ve Emre'nin masasına çıkar (§6.10: kanıtı
 > olmayan değer yoktur — uydurulmuş bir emniyet deseni de öyle).
 

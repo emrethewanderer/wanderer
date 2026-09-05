@@ -156,7 +156,7 @@ scripts/eksen-denetci.mjs          → tests/eksen-kapisi.test.js
 scripts/yetim-kopru-denetci.mjs    → tests/yetim-kopru-kapisi.test.js
 scripts/bagsiz-ad-denetci.mjs      → tests/bagsiz-ad-kapisi.test.js
 scripts/audit-innerhtml.mjs        → tests/xss-kapisi.test.js
-scripts/i18n-validate.mjs          → tests/i18n-parity.test.js
+scripts/i18n-validate.mjs          → tests/i18n-parity-kapisi.test.js
 scripts/ses-eval.mjs               → tests/ses-eval-kapisi.test.js
 scripts/check-bundle-size.mjs      → build.sh + ci.yml adımı (vitest'e DEĞİL)
 ```

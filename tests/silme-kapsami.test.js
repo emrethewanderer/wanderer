@@ -1,6 +1,6 @@
 // @vitest-environment node
 // Dosya sistemiyle çalışır, DOM'a hiç dokunmaz — jsdom kurulumunu boşa ödemez.
-// Kalıp tests/sunucu-sesi.test.js ve tests/referans-butunlugu.test.js ile aynı:
+// Kalıp tests/sunucu-sesi.test.js ve tests/referans-butunlugu-kapisi.test.js ile aynı:
 // kaynağı readFileSync ile oku, regex'le sözleşmeyi ara.
 
 /**

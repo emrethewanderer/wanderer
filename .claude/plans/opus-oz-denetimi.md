@@ -53,7 +53,7 @@ kaydı taşımak zorundadır.** Kayıt yoksa tur ya koşulmamıştır ya da
 raporlanmamıştır — ikisi de aynı sonucu verir (§6.2).
 
 ### K3 — TABAN mevcut borcu tolere eder, büyümeyi yasaklar
-Emsal `tests/referans-butunlugu.test.js` ve `scripts/xss-taban.json`. Repoda
+Emsal `tests/referans-butunlugu-kapisi.test.js` ve `scripts/xss-taban.json`. Repoda
 bugün kapanmış üç plan var ve hiçbiri bu kaydı taşımıyor — kural bugün
 doğdu, geriye dönük ihlal üretmesi dürüst olmaz. TABAN o üçünü adıyla
 listeler; **listede olmayan her yeni kapanış** kaydı zorunlu kılar. Küçülmek
@@ -96,7 +96,7 @@ sprintte planlanmadı — kelime aynı kalıyor, yalnız hangi turun
 kastedildiği tek yerden okunuyor.
 
 ### FAZ 3 — Kapı · 🅢 · ~1 oturum
-K2/K3/K4'ün testi; kalıp `tests/referans-butunlugu.test.js`.
+K2/K3/K4'ün testi; kalıp `tests/referans-butunlugu-kapisi.test.js`.
 **Yeni:** `tests/oz-denetim-kapisi.test.js`
 
 ### FAZ 4 — İlk koşu · 🅞 · ~1 oturum
@@ -112,7 +112,7 @@ Uygulama state'i **değişmiyor** — bu sprint tek bir `js/` dosyasına dokunma
 Kapının okuduğu veri: `.claude/plans/*.md` metinleri + testin içindeki `TABAN`
 listesi. Yeni storage anahtarı, yeni `window.*` adı, yeni DOM id'si yok.
 
-**Tuzak:** `PROTOKOL-FABLE.md` ve `CLAUDE.md` `tests/referans-butunlugu.test.js`
+**Tuzak:** `PROTOKOL-FABLE.md` ve `CLAUDE.md` `tests/referans-butunlugu-kapisi.test.js`
 taramasının içindedir — metne yazılan her `[[ad]]` bağı `.claude/memories/`
 altında gerçekten var olmalıdır, yoksa süit kırılır.
 
@@ -144,7 +144,7 @@ eyleme ya bir kapıya bağlanır. Yasak kalıp: *"gerektiğinde gözden geçiril
 ## Doğrulama (her faz sonunda)
 
 1. `./build.sh 2>&1 | tail -20` yeşil — `index.html` üretimi doğrulanır.
-2. `npx vitest run tests/referans-butunlugu.test.js` yeşil — protokole yazılan
+2. `npx vitest run tests/referans-butunlugu-kapisi.test.js` yeşil — protokole yazılan
    her `[[bağ]]` ve `.claude/plans/<slug>.md` yolu hedefini bulur.
 3. FAZ 3'ten sonra `npx vitest run tests/oz-denetim-kapisi.test.js` yeşil —
    ve kapının self-test bloğu ihlali gerçekten yakalar.
@@ -158,7 +158,7 @@ eyleme ya bir kapıya bağlanır. Yasak kalıp: *"gerektiğinde gözden geçiril
 - **YENİ:** `tests/oz-denetim-kapisi.test.js`
 - **Yerinde evrim:** `PROTOKOL-FABLE.md` (§3.5 sıra işareti, §3.7 yeni bölüm,
   §4.2/§4.4/§8/§9 bağları) · `CLAUDE.md` (yedek çekirdek)
-- **Yeniden kullanılan:** TABAN kalıbı (`tests/referans-butunlugu.test.js`,
+- **Yeniden kullanılan:** TABAN kalıbı (`tests/referans-butunlugu-kapisi.test.js`,
   `scripts/xss-taban.json`) · kapı self-test kalıbı (`tests/bagsiz-ad-kapisi.test.js`
   "sessizce geçmez" sınavı) · `## Kapanış` + "Plandan sapmalar" kaydı
   (`.claude/plans/denetim-onarimi.md:95`) — dürüstlük kaydının emsali
@@ -166,7 +166,7 @@ eyleme ya bir kapıya bağlanır. Yasak kalıp: *"gerektiğinde gözden geçiril
 ## Durum
 
 - **FAZ 1** · ✅ uygulandı (Opus), **denetlendi** (`denetci`, Sonnet — çapraz
-  model, §3.3). Commit `ea364de`. Kapı: build ✅ · `referans-butunlugu` 6/6 ✅ ·
+  model, §3.3). Commit `ea364de`. Kapı: build ✅ · `referans-butunlugu-kapisi` 6/6 ✅ ·
   `dogrula.mjs` ✅ "Konsol temiz." (exit 0). İki bulgu döndü:
   - **B1 — terminoloji çakışması (orta).** "Öz-denetim" iki tura birden
     işaret ediyor. → **FAZ 2'ye düştü**, karar yukarıda yazılı.

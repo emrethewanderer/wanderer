@@ -300,7 +300,7 @@ kırık referans, altıncı, yarın yine oluşur. Bu yüzden FAZ 6 ikiye bölün
 ### FAZ 6a — Referans bütünlüğü kapısı · 🅢 · ~1 oturum
 `[[hafıza]]` bağları ve `.claude/plans/*.md` işaretleri repoda gerçekten var
 mı — bunu sınayan bir kapı testi. Bir de dördüncü eksik dosya.
-**Yeni:** `tests/referans-butunlugu.test.js`,
+**Yeni:** `tests/referans-butunlugu-kapisi.test.js`,
 `.claude/memories/bagsiz-ad-kapisi.md`
 
 ### FAZ 6b — Dikiş turu + kapanış · parent'ta
@@ -365,7 +365,7 @@ taşıyan hafıza dosyası
 
 
 ### FAZ 6a ✅ — **Sonnet yazdı**, Opus denetledi
-`tests/referans-butunlugu.test.js` (kapı) + `.claude/memories/bagsiz-ad-kapisi.md`
+`tests/referans-butunlugu-kapisi.test.js` (kapı) + `.claude/memories/bagsiz-ad-kapisi.md`
 + MEMORY indeksi. **Bulgu yok.** Test bağımsız koşuldu: 5/5 yeşil. Kırmızı→yeşil
 kanıtı raporda: hafıza yazılmadan önce kapı tam olarak beklenen tek ihlali
 bastı. Kapının kendisini fixture ağacında sınayan ikinci describe bloğu var —
@@ -578,7 +578,7 @@ gerçek devir sayıldı).
 |---|---|
 | `bash build.sh` | ✅ exit 0 |
 | Tam süit (`npx vitest run`) | ✅ 159 dosya / 3651 test |
-| `tests/referans-butunlugu.test.js` | ✅ 5/5 (yeni kapı) |
+| `tests/referans-butunlugu-kapisi.test.js` | ✅ 5/5 (yeni kapı) |
 | `tests/devir-nabzi.test.js` | ✅ 8/8 |
 | Stop kancası canlı | ✅ `.claude/DEVIR.md` tur sonunda kendi yazıldı |
 | Ajan adları (`uygulayici`/`denetci`) | ✅ tanınıyor, gerçek devir yapıldı |
@@ -587,5 +587,5 @@ gerçek devir sayıldı).
 ### İlk hamle (sonraki oturum)
 
 Emre lokal `.claude/memories/` dizinini commit ederse: `npx vitest run
-tests/referans-butunlugu.test.js` koş, TABAN'dan ödenen adları çıkar (küçülmek
+tests/referans-butunlugu-kapisi.test.js` koş, TABAN'dan ödenen adları çıkar (küçülmek
 serbest). Commit edilmezse TABAN olduğu gibi kalır — borç dondurulmuş durumda.
