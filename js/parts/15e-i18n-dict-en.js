@@ -3122,6 +3122,7 @@ export const I18N_EN = {
     'studio.room.kisiler_sub': 'people you could become',
     'studio.room.kkmine': 'MY OWN COLLECTION',
     'studio.room.kkmine_sub': 'Transition Cards · private',
+    'sf.rozet.aria': 'Someone has touched your card',
     'studio.room.sosyal': "PEOPLE'S PEOPLE",
     'studio.room.sosyal_sub': 'the circle market',
     'studio.room.meclis': 'INNER COUNCIL',

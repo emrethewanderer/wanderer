@@ -112,7 +112,7 @@ const MILESTONES = [7, 15, 30, 60, 120, 180, 240, 365];
    FAZ 12 `sosyal`'in metnini yazdığında bu kümeye 'sosyal' ekler ve basamak
    kendiliğinden açılır. Kapı: tests/tik-atifi.test.js — merdivenin koşulsuz
    seçebildiği her tetiğin fallbackCopy'de bir `case`i olmak zorunda. */
-const METNI_HAZIR = new Set(['winback', 'streak_risk', 'soz', 'milestone', 'morning']);
+const METNI_HAZIR = new Set(['winback', 'streak_risk', 'soz', 'milestone', 'morning', 'sosyal']);
 // sosyalVar: bu kullanıcının paylaştığı bir karta BAŞKASI tarafından bırakılmış,
 // henüz görülmemiş bir beğeni/yorum var mı (bkz. loadSosyalAdaylar). İç Çalışma
 // 12 · Sosyal & Paylaşım'ın kararı: bu merdivende winback'ten ÖNCE gelir — biri
@@ -279,6 +279,12 @@ const TRIGGER_INTENT: Record<string, string> = {
   // Zihniyet Devrimi'ne Çağrı, deneme #152: "Bu gece uyumadan önce, bugün
   // iyi ki yapmışım diyebileceğim ne yapabilirim?" — sabah dokunuşu bu
   // soruyu O GÜNE ve kullanıcıya özel TEK cümleye damıtır, şablon değil.
+  /* Sosyal dokunuş (FAZ 12). Niyet, motorun GERÇEKTEN bildiğiyle sınırlı
+     yazıldı (§6.10): `loadSosyalAdaylar` beğeniyle yorumu tek kovada
+     birleştirir ve kimin dokunduğunu ZATEN bilmez — `paylasim_begenileri`'nin
+     RLS'i anonimlik için daraltılmıştır. Modele "yorum geldi" dedirtmek,
+     ölçülmemiş bir ayrıntıyı uydurtmak olurdu. */
+  sosyal:      'Kullanıcının halka pazarında paylaştığı bir kartta başka bir gezgin durdu. Beğeni mi yorum mu OLDUĞUNU BİLMİYORSUN — ikisini de kapsayan bir dil kur, "yorum geldi" deme. Kimin olduğunu da bilmiyorsun (rumuz sözü), ima bile etme. SAYI VERME. Bunu bir onay/beğeni bildirimi gibi kurma: haber, karta gelen ilgi değil, kullanıcının kendi beyanının birine ULAŞMIŞ olmasıdır — "beğenildin" değil "kartın birine dokundu". Övme, tek sakin cümle.',
   morning:     'Sabah. Kitaptaki soruyu (#152) o kullanıcıya özel, somut, TEK bir cümleye damıt: "Bu gece uyumadan önce, bugün iyi ki yapmışım diyebileceğin ne olabilir?" Generic "bugün kim olmak istiyorsun" değil — bağlamdaki (temel mesele/hedef/son konu) somut bir örnek öner.',
 };
 
@@ -297,6 +303,12 @@ function fallbackCopy(trigger: string, row: any, ctx: any): { title: string; bod
       return { title: 'Akşam hesabı', body: row.pending_soz_text
         ? `"${String(row.pending_soz_text).slice(0, 80)}" demiştin. Tuttun mu?`
         : 'Bugün verdiğin sözün hesabını gör. Tuttun mu?' };
+    /* Sayı YOK, kimlik YOK, övgü YOK — ve "yazmış" da yok: dokunuş bir
+       beğeni de olabilir, yorum da (motor ikisini ayırmaz). Odaya kendi
+       adıyla işaret eder ("halka pazarı", studio.room.sosyal_sub). */
+    case 'sosyal':
+      return { title: 'Kartına biri dokundu', body:
+        'Halka pazarında biri senin kartında durdu. Görmek istersen orada.' };
     case 'milestone':
       return { title: `${streak} gün`, body: 'Eski sen bunu yapmazdı — demek ki değişen sensin. Devam.' };
     case 'morning':

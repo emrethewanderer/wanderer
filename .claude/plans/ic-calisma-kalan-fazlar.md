@@ -44,7 +44,7 @@ demek değildir. Sıra oradan başlar.
 ## Denetim defteri — on üç maddenin durumu
 
 Ölçüm 2026-09-04'te koda karşı yapıldı; **durum sütunu her faz kapanışında
-tazelenir** (son tazeleme 2026-09-05). Bir plan tablosunun bayatlaması
+tazelenir** (son tazeleme 2026-09-05, FAZ 12). Bir plan tablosunun bayatlaması
 [[rapor-bayatligi]]'nın kendisidir: "AÇIK" diye duran bitmiş bir madde,
 okuyanı yapılmış işi yeniden yapmaya çağırır.
 
@@ -58,7 +58,7 @@ okuyanı yapılmış işi yeniden yapmaya çağırır.
 | 15 | F3 | Rıza defteri | **BİTTİ · ELLE bekliyor** | FAZ 7 — `054`; okuyan taraf FAZ 8a |
 | 09 | F2 | Araç registry | **BİTTİ** | FAZ 9 — `_ARAC_DEFS` + saf yaprak `13a1` |
 | 09 | F3 | Yeni araçlar | **BİTTİ** | FAZ 10 — `gordun` · `sabir` · `ayna` + `hazir()` |
-| 12 | F2 | Sosyal bildirim | **AÇIK** | FAZ 11–12 |
+| 12 | F2 | Sosyal bildirim | **BİTTİ · ELLE bekliyor** | FAZ 11+12 — merdivende `sosyal` + rozet; `send-push` redeploy |
 | 17 | F2 | Eşik alarmları | **AÇIK** | FAZ 13–14 |
 | 13 | D | SW dil pürüzü | **AÇIK (teşhissiz)** | FAZ 15 |
 | 10 | D kalan | Ses şiddet kademesi | **AÇIK** | FAZ 16 |
@@ -463,7 +463,13 @@ hiç görünmez — orada ton değil **doğruluk** ölçülür.
    → `"gordun,sabir,ayna"` (FAZ 10: registry ve rehber AYNI üç adı taşır —
    biri ötekisiz kalırsa model olmayan bir araç önerir ya da var olan araç
    hiç önerilmez; ikisi de sessizdir).
-7. Her fazda: `./build.sh` → hedefli süit → **`npm run kapi:genel`** → tarayıcı.
+7. `npx vitest run tests/tik-atifi.test.js` → merdivenin KOŞULSUZ seçebildiği
+   her tetiğin `fallbackCopy`'de bir `case`i var (FAZ 11–12). Bu kapı bir
+   üslup değil bir DAVRANIŞ kilidi: metni olmayan bir tetik merdivende
+   koşulsuz durursa yalnız kendini değil **altındaki her basamağı** susturur
+   — `sosyal` tam bunu yaptı ve denetimde yakalandı. FAZ 13'ün `admin` tipi
+   aynı tuzağa açıktır: metni yazılmadan `METNI_HAZIR`'a eklenmez.
+8. Her fazda: `./build.sh` → hedefli süit → **`npm run kapi:genel`** → tarayıcı.
 
 ## Kritik Dosyalar
 
@@ -1207,7 +1213,90 @@ gözden geçirilmedi: FAZ 1–2 kendi kapısını taşıyor ve bu tur ona dokunm
   gerekmedi — `notification_log.type` serbest metin, "görüldü" damgası
   SafeStorage'da.
 
-**İlk hamle (FAZ 12):** sosyal bildirim microcopy'si — 🅞, parent'ta.
+- **FAZ 12 · BİTTİ** (2026-09-05). 🅞, parent'ta (Opus).
+
+  **Planın Ton Rehberi'nden bir SAPMA var ve bilinçlidir.** Rehber tek örnek
+  veriyordu: *"Kartına biri yazmış."* Ama motor (`loadSosyalAdaylar`) beğeniyle
+  yorumu **tek kovada** birleştiriyor ve hangisi olduğunu bilmiyor — bir
+  beğeni "yazmak" değildir. O cümle, ölçtüğümüzden fazlasını iddia ederdi
+  (§6.10). Ürün cümlesi bu yüzden daraltıldı: **"Kartına biri dokundu"** ·
+  *"Halka pazarında biri senin kartında durdu. Görmek istersen orada."*
+  🅞 fazın işi tam budur — plandan okunamayan, ürüne bakarak bulunan karar.
+
+  Aynı sınır modele de yazıldı: `TRIGGER_INTENT.sosyal` bildiğini değil
+  **bilmediğini** söylüyor — dokunuşun türü bilinmiyor, kimliği bilinmiyor
+  (rumuz sözü; `paylasim_begenileri` RLS'i zaten göstermiyor), sayı
+  verilmeyecek, "beğenildin" denmeyecek. Haber bir onay bildirimi değil:
+  mesele karta gelen ilgi değil, kullanıcının **kendi beyanının** birine
+  ulaşmış olması. Tez korunuyor — sosyal bildirim, uygulamanın dikkatini
+  kullanıcıdan başkasına çeviren tek yerdir ve bir onay döngüsüne dönüşmesi
+  en kolay olan yerdir.
+
+  `METNI_HAZIR`'a `'sosyal'` girdi — FAZ 11'in kapısı böylece açıldı ve
+  basamak canlandı (redeploy sonrası).
+
+  **Rozetin "metni" erişilebilir adıdır — ve yoktu.** `#ws-sf-pulse` boş bir
+  `<span>`di: ekran okuyucuda hiç duyurulmaz, yani haber yalnız GÖREN
+  kullanıcıya ulaşıyordu. `sfRefreshRoomPulse` artık yanınca `aria-label`
+  veriyor, **sönünce kaldırıyor** — olmayan bir haber duyurulmaz (§6.10).
+  Ad `data-i18n-aria` ile DEĞİL JS'ten verilir ve gerekçesi çift: statik bir
+  anahtar sönükken de duyururdu (`opacity: 0` ekran okuyucuyu susturmaz), ve
+  `tests/15-i18n-aria.test.js` zaten JS-yönetimli elemanlara statik anahtar
+  takılmasını yasaklıyor. TR+EN girdi (`sf.rozet.aria`) parite kapısından
+  geçti.
+
+  **Üç yeni kapı ve üçü de ihlale karşı elle sınandı** (yeşil kalmak
+  yetmez, ısırdığı görülmeli — §10.5): sosyal metninde **rakam yasak**
+  (sayaç dili), **"yaz(mış|dı)|yorum" yasak** (bir beğeni yazmak değildir),
+  ve niyet metni modele bilmediğini söylemek zorunda. Sahte bir
+  *"Kartına 3 yeni yorum geldi!"* metniyle denendi — ikisi de kırmızı bastı.
+
+  **⚠ DENETİM BORÇLU (§3.3).** Çapraz denetim (`denetci` · Sonnet) AÇILDI ve
+  bu commit atıldığında hâlâ koşuyordu. Faz **denetlenmiş sayılmaz**; borç
+  burada görünür duruyor ve denetim dönünce bulguları bu kayda işlenip ayrı
+  bir commit'le kapatılacak. Commit'in sebebi §10.4'tür: uzak oturumda kap
+  geçicidir, commit edilmeyen iş oturumla birlikte ölür — push kaydın
+  kendisidir. Beklemek işi güvenceye almaz, kaybeder.
+  (`157a372`'nin "ajan koşarken `git add -A`" tehlikesi burada YOK: `denetci`
+  sözleşmesi gereği kod yazmaz, yani süpürülecek bir iş de yoktur.)
+
+  **Taşınan sınır (yeni borç değil):** `fallbackCopy` TR-only'dir ve bu
+  `sosyal`'in getirdiği bir kırık değil, altı tetiğin hepsinde var olan bir
+  sınırdır — `langInstruction` yalnız LLM yolunu kapsar. Planın "DIŞINDA
+  kalanlar" tablosundaki `13·F1 kalan · fallbackCopy` maddesi budur ve
+  kapsam dışı kalmaya devam ediyor.
+
+### ELLE kuyruğu — bugünkü toplam (2026-09-05)
+
+Her fazın kendi kaydında yazılı, ama dağınık duruyorlardı; **görünmeyen bir
+borç olmayan bir borç gibi okunur** ([[rapor-bayatligi]]'nın ELLE hâli).
+
+| # | İş | Hangi fazlar bekliyor | Not |
+|---|---|---|---|
+| 1 | `migrations/052_tik_atifi.sql` | FAZ 5 | RPC `notif_mark_clicked` |
+| 2 | `migrations/053_saklama_politikasi.sql` | FAZ 6 | + **periyodik** `usage_events_prune(90)` |
+| 3 | `migrations/054_riza_defteri.sql` | FAZ 7, 8a | tablo yokken `hkKabulVarMi` `null` döner (doğru davranış) |
+| 4 | **`send-push` redeploy** | FAZ 5, 11, 12 | **üç fazın işi tek redeploy'a binmiş** |
+
+**Redeploy'un kapsamı büyüdü ve bu bilinçli olarak kaydediliyor:** FAZ 5 ona
+`nid`i (tık atıfı) koydu, FAZ 11 merdivene `sosyal` basamağını, FAZ 12 o
+basamağın metnini. Redeploy yapıldığı gün **üçü birden canlanır** — yani
+sosyal bildirimler o gün akmaya başlar. Tek tek düşünülüp "küçük bir
+redeploy" sanılmasın.
+
+**FAZ 8b hâlâ (2)'ye kilitli:** `053` koşup `usage_events_prune` periyodik
+hâle gelmeden gizlilik metnine saklama cümlesi yazmak, tutulmayan bir
+taahhüt olur (§6.2 · §6.5). Kilit tek adımlıktır.
+
+**İlk hamle (FAZ 13):** eşik alarmı altyapısı — 🅢, DEVREDİLİR
+(`uygulayici`). `13q-gozlemevi.js`'te kartların ZATEN yazdığı teşhis
+cümleleri (oda 17: "her kart eşiği aşınca kendi tanısını yazıyor") tek yerde
+toplanıp bir alarm listesine dönüşür — **yeni bir teşhis motoru YAZILMAZ**,
+var olan cümleler toplanır. `send-push`'a `admin` tipi girer ve FAZ 11'in
+dersi burada da geçerlidir: metni yazılmadan `METNI_HAZIR`'a EKLENMEZ, yoksa
+merdivende altındaki her şeyi susturur. Eşik SAYILARI FAZ 14'ün (🅞) işi.
+
+**Eski İlk hamle (FAZ 12, tamamlandı):** sosyal bildirim microcopy'si — 🅞, parent'ta.
 `send-push`'ta iki nokta bekliyor ve ikisi de tek satır: `TRIGGER_INTENT`'e
 `sosyal` niyeti, `fallbackCopy`'ye `case 'sosyal'`, sonra `METNI_HAZIR`
 kümesine `'sosyal'` — üçüncüsü basamağı açar ve kapı (`tik-atifi`) ikisinin

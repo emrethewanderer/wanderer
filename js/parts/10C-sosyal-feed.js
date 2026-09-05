@@ -323,6 +323,16 @@ export async function sfRefreshRoomPulse() {
   if (!pulse) return;
   const yeni = await _sosyalYeniEtkilesimVarMi();
   pulse.classList.toggle('active', yeni);
+  /* ROZETİN "METNİ" ERİŞİLEBİLİR ADIDIR (FAZ 12). Nokta yalnız görsel bir
+     sinyaldi: boş bir `<span>` ekran okuyucuda hiç duyurulmaz, yani haber
+     yalnız GÖREN kullanıcıya ulaşıyordu. Ad JS'ten verilir, `data-i18n-aria`
+     ile DEĞİL: statik bir anahtar sönükken de duyururdu (`opacity: 0` ekran
+     okuyucuyu susturmaz) ve tests/15-i18n-aria.test.js zaten JS-yönetimli
+     elemanlara statik anahtar takılmasını yasaklıyor. Sönerken ad KALKAR —
+     olmayan bir haberi duyurmayız (§6.10). Metin de push'la aynı sınırı
+     taşır: sayı yok, kimlik yok, dokunuşun türü yok. */
+  if (yeni) pulse.setAttribute('aria-label', t('sf.rozet.aria', 'Kartında yeni bir dokunuş var'));
+  else pulse.removeAttribute('aria-label');
 }
 
 /* ══════════════════════════════════════════════════════════════

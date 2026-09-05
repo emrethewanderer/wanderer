@@ -360,6 +360,46 @@ describe('send-push merdiveni — seçilebilen her tetiğin metni var', () => {
     expect(sosyal.kapili || metniHazir().includes('sosyal')).toBe(true);
   });
 
+  /* ── FAZ 12 · sosyal microcopy'si (🅞) ──
+     Basamak ancak metni yazıldığında açılır; metnin kendisi de Ton
+     Rehberi'nin iki kuralını taşımak zorunda ve ikisi de ÖLÇÜLEBİLİR:
+     (a) sayaç dili yok ("3 yeni yorum!" bu ürüne girmez),
+     (b) dokunuşun TÜRÜ iddia edilmez — `loadSosyalAdaylar` beğeniyle yorumu
+         tek kovada birleştirir, yani "yazmış/yorum geldi" demek motorun
+         ölçmediği bir ayrıntıyı uydurmaktır (§6.10). Planın Ton Rehberi'nin
+         verdiği örnek ("Kartına biri yazmış.") tam bu yüzden ÜRÜNDE
+         daraltıldı — 🅞 fazın işi budur. */
+  const sosyalMetni = () => {
+    const bas = src.indexOf("case 'sosyal':");
+    return bas < 0 ? '' : src.slice(bas, src.indexOf('case ', bas + 10));
+  };
+
+  it('FAZ 12: sosyal basamağı açık — metni yazıldı', () => {
+    expect(metniHazir()).toContain('sosyal');
+    expect(copyCaseleri()).toContain('sosyal');
+    expect(src).toMatch(/^\s*sosyal:\s*'/m);   // TRIGGER_INTENT girdisi
+  });
+
+  it('sosyal metni SAYAÇ dili taşımaz — rakam yok', () => {
+    const metin = sosyalMetni();
+    expect(metin.length).toBeGreaterThan(40);        // tarama gerçekten buldu
+    const govde = metin.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(govde, 'sosyal metninde rakam var — sayaç dili').not.toMatch(/\d/);
+  });
+
+  it('sosyal metni dokunuşun TÜRÜNÜ iddia etmez (beğeni mi yorum mu belli değil)', () => {
+    const govde = sosyalMetni().replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(govde, 'metin "yazmış/yorum" diyor — bir beğeni yazmak değildir')
+      .not.toMatch(/yaz(mış|dı)|yorum/i);
+  });
+
+  it('sosyal NİYETİ modele bilinmeyeni açıkça söyler (tür ve kimlik)', () => {
+    const bas = src.indexOf('  sosyal:      ');
+    const niyet = src.slice(bas, src.indexOf("',", bas));
+    expect(niyet).toMatch(/BİLMİYORSUN/);
+    expect(niyet).toMatch(/SAYI VERME/);
+  });
+
   it('kapının kendisi çalışıyor — ihlali gerçekten yakalar (§10.5)', () => {
     const sahte = `function pickTrigger(row, dateStr, hour, sosyalVar) {
   if (sosyalVar) return 'sosyal';

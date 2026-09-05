@@ -138,6 +138,30 @@ describe('sfRefreshRoomPulse — kartına biri dokundu mu (rozet)', () => {
     expect(document.getElementById('ws-sf-pulse').classList.contains('active')).toBe(true);
   });
 
+  /* FAZ 12 — rozetin "metni" erişilebilir adıdır. Boş bir `<span>` ekran
+     okuyucuda hiç duyurulmaz: haber yalnız GÖREN kullanıcıya ulaşıyordu.
+     Ad JS'ten verilir çünkü statik bir `data-i18n-aria` sönükken de
+     duyururdu — `opacity: 0` ekran okuyucuyu susturmaz. */
+  it('rozet yanınca erişilebilir ad DA gelir, sönünce KALKAR', async () => {
+    const { S, SafeStorage, sfRefreshRoomPulse } = await kurulum();
+    S.currentUser = { id: 'u1' };
+    SafeStorage.set('etw_sosyal_gorulen_v1_u1', '2026-01-01T00:00:00Z');
+    _tablo.paylasilan_kartlar = [{ id: 1, owner_user_id: 'u1', like_count: 0 }];
+    _tablo.paylasim_yorumlari = [{ id: 'c1', card_id: 1, user_id: 'u2', created_at: '2026-06-01T00:00:00Z' }];
+    await sfRefreshRoomPulse();
+    const el = document.getElementById('ws-sf-pulse');
+    expect(el.getAttribute('aria-label')).toBeTruthy();
+    // Ad da push metniyle aynı sınırı taşır: sayı yok, dokunuşun türü yok.
+    expect(el.getAttribute('aria-label')).not.toMatch(/\d/);
+
+    // Kullanıcı halka pazarına girdi → damga tazelenir → rozet söner.
+    _tablo.paylasim_yorumlari = [];
+    await sfRefreshRoomPulse();
+    expect(el.classList.contains('active')).toBe(false);
+    expect(el.hasAttribute('aria-label'), 'sönük rozet hâlâ bir haber duyuruyor')
+      .toBe(false);
+  });
+
   it('kendi kartına kendi yorumu rozeti yakmaz (kendi etkileşimi hariç)', async () => {
     const { S, SafeStorage, sfRefreshRoomPulse } = await kurulum();
     S.currentUser = { id: 'u1' };

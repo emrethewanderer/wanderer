@@ -3173,6 +3173,7 @@ export const I18N_CORE = {
     'studio.room.kisiler_sub': 'olunabilecek kişiler',
     'studio.room.kkmine': 'KENDİ KOLEKSİYONUM',
     'studio.room.kkmine_sub': 'Geçiş Kartlarım · özel',
+    'sf.rozet.aria': 'Kartında yeni bir dokunuş var',
     'studio.room.sosyal': 'KİŞİLERİN KİŞİLERİ',
     'studio.room.sosyal_sub': 'halka pazarı',
     'studio.room.meclis': 'İÇ MECLİS',
