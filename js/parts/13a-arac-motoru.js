@@ -98,11 +98,16 @@ export function aracExtract(text) {
    Eski kalıp açıcıyı `?.()` ile çağırıp koşulsuz `true` dönüyordu ve bu
    sahte bir başarıydı (§6.2): ritüel yüklü olmadığında chip kapanıyor,
    hiçbir şey açılmıyor, kullanıcı "oldu" sanıyordu. Oysa sözleşme zaten dürüst hâli bekliyor —
-   aracRunTool `false`'u `arac.fail` toast'ına çevirir (13a:156). Araçlar
-   window köprüsünü statik import'a tercih eder, çünkü ritüel modülleri 03'e
-   bağlıdır ve 13a → 10k/13s → 03 → 13a döngüsü doğar (FAZ 9'un ölçtüğü
-   zincir); köprü burada meşrudur, zira chip'in sözleşmesi zaten koşulludur:
-   "ritüel varsa aç". */
+   aracRunTool `false`'u `arac.fail` toast'ına çevirir (13a:156).
+
+   Neden window köprüsü, statik import değil: bu registry'nin KURULU kalıbı
+   odur (glGiveSozNow · oikOpenReading · igOpenKapi üçü de öyle) ve chip'in
+   sözleşmesi zaten koşulludur — "ritüel varsa aç". İlk yazımda buraya bir de
+   import DÖNGÜSÜ gerekçesi yazılmıştı; çapraz denetim onu şüpheye aldı,
+   grep yanlışladı: 10k `03`'ü import etmez (importları state · 00a · 04 · 10g
+   · 00b · 15 · 16), yani iddia edilen `13a → 10k → 03 → 13a` zinciri YOKTUR.
+   Gerekçe düzeltildi — uydurulmuş bir zincir, kapısı olmayan bir kuraldan
+   beterdir: sonraki tur onu arar ve bulamaz (§6.10, kanıtı olmayan değer). */
 function _acRitual(fnName, ...args) {
   const fn = window[fnName];
   if (typeof fn !== 'function') return false;
@@ -143,21 +148,28 @@ const _ARAC_DEFS = {
      engel. Premium kapılı ritüeller (Ayna Anı, Derin Çalışma) bilerek DIŞARIDA
      kaldı — ücretsiz kullanıcıya önerilen bir chip paywall'a çıkarsa o bir
      kaldıraç değil huni olur (§1.1 "kart değil kaldıraç"). */
-  yol: {
-    marker: 'ARAC',
-    label: () => t('arac.yol', 'Bu bir günlük iş değil — yirmi bir günlük bir yol gibi duruyor.'),
-    cta:   () => t('arac.yol_cta', 'YOLA ÇIK'),
-    // gyStart zaten yoldaysa kendi kapısında no-op'tur (13s: gyIsActive) —
-    // yolculuğu sıfırlamaz. Açılan şey her iki hâlde de BUGÜNÜN organıdır.
-    run:   () => { if (!_acRitual('gyStart')) return false; window.gyOpenToday?.(); return true; }
-  },
+  /* [ARAC:yol] (13s Geçiş Yolu) BİLEREK YOK ve gerekçesi bir keşif hatasının
+     düzeltilmesidir. Faz onu önce ekledi; çapraz denetim `13s:27-29`'daki
+     sözleşmeyi gösterdi: "Studio-only (Wanderer Studio kararı, 2026-07-19) —
+     Wanderer (LLM) ücretsiz yüzünde yolculuk başlatılmaz." Yani mesele
+     abonelik değil YÜZEY: yolculuk Studio odasından başlar, sohbetten değil.
+     Chip tam bu kısıtı deliyordu ve `gyStart` (13s:97) kendi başına bir yüzey
+     kontrolü taşımıyor — kısıt yalnız ÇAĞIRANIN disiplinidir. Kısıt Emre'nin
+     kararıdır; tersine çevirmek de onun kararıdır, bu fazın değil. */
   inanc: {
     marker: 'ARAC',
     label: () => t('arac.inanc', 'Bunu söyleten bir inanç var. Onunla yalnız kalmak iyi gelir.'),
     cta:   () => t('arac.inanc_cta', 'KENDİNLE KONUŞ'),
-    // skOpen set adımını açar, skSelectSet doğrudan İnanç Kazma setine geçirir
-    // (10k: _showStep('questions')) — kullanıcı menüde bırakılmaz.
-    run:   () => { if (!_acRitual('skOpen')) return false; window.skSelectSet?.('inanc'); return true; }
+    /* İKİ adım da köprü ister ve İKİSİ de önceden sınanır. Sırası kasıtlı:
+       `skOpen` çalışıp `skSelectSet` eksik kalsaydı kullanıcı set MENÜSÜNDE
+       kalırdı — chip "İnanç Kazma"yı vaat edip başka bir yere bırakırdı ve
+       `run` yine `true` derdi. Yarım açılan bir ritüel de sahte başarıdır. */
+    run:   () => {
+      if (typeof window.skSelectSet !== 'function') return false;
+      if (!_acRitual('skOpen')) return false;
+      window.skSelectSet('inanc');
+      return true;
+    }
   },
   engel: {
     marker: 'ARAC',

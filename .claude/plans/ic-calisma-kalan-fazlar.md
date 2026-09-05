@@ -892,58 +892,73 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   Kapı: build ✅ 716KB · hedefli süit ✅ 337/337 · `kapi:genel` ✅ 346/346 ·
   `dogrula` ✅ exit 0 "Konsol temiz."
 
-- **FAZ 10 · BİTTİ** (2026-09-05). 🅞, parent'ta (Opus) + çapraz denetim (Sonnet).
+- **FAZ 10 · BİTTİ** (2026-09-05). 🅞, parent'ta (Opus); çapraz denetim
+  (Sonnet) dört bulgu döndürdü, dördü de kapandı — **biri fazın kapsamını
+  daralttı.**
 
   **Seçim ölçüsü "hangi ritüel güzel" değil, HANGİ AN BOŞTA idi.** Mevcut dört
   araç (soz · not · gecis · imge) istisnasız TEK ANLIKtır: bir söz, bir not, bir
-  okuma, bir imge. Üç yeni araç onların görmediği üç anı karşılar:
+  okuma, bir imge. Faz üç yeni an hedefledi; **ikisi ship edildi:**
 
   | Araç | Ritüel | An |
   |---|---|---|
-  | `yol` | 13s Geçiş Yolu (21 gün) | sürdürme — "bunu bir kere değil sürekli yapmam lazım" |
   | `inanc` | 10k Kendinle Konuşma · İnanç Kazma | kendini baltalayan inanç — "ben zaten hep böyleyim" |
   | `engel` | 10m Engel Atlası (6 Perde·6 Zehir·7 Tuzak) | TEKRAR EDEN engel — "hep aynı yerde takılıyorum" |
 
-  **Elenenler gerekçeli, sezgiyle değil:** Ayna Anı (09h) ve Derin Çalışma (13A)
-  premium kapılıdır — ücretsiz kullanıcıya önerilen bir chip paywall'a çıkarsa o
-  bir kaldıraç değil huni olur (§1.1 "kart değil kaldıraç"). Gezgine Mektup (13d)
-  statiktir, her kullanıcıya aynı metni verir. Gördün (10E) ile `[ARAC:gecis]`
-  aynı OİK tabanında durur — model ikisi arasında karıştırırdı, bu tam da planın
-  uyardığı "menü" hâlidir.
+  **Üçüncüsü (`yol` → 13s Geçiş Yolu) yazıldı, denetimde GERİ ALINDI.**
+  `13s:27-29` bir sözleşme taşıyor ve keşifte kaçırıldı (dosyanın ilk 22
+  satırına bakılmıştı, kısıt 27'de): *"Studio-only (Wanderer Studio kararı,
+  2026-07-19) — Wanderer (LLM) ücretsiz yüzünde yolculuk başlatılmaz."* Mesele
+  abonelik değil **yüzey**: yolculuk Studio odasından başlar, sohbetten değil.
+  Chip tam bu kısıtı deliyordu. `gyStart` (13s:97) kendi başına yüzey kontrolü
+  TAŞIMAZ — kısıt yalnız çağıranın disiplinidir, yani kod onu durdurmazdı.
+  Kısıt Emre'nin kararıdır; tersine çevirmek de onun kararıdır, bu fazın değil.
+  **Emre'ye açık çatal:** kısıt gevşetilirse `yol` chip'i hazırdır (tek kayıt +
+  iki sözlük satırı); korunursa iki araçla kapanır. Kapı kondu:
+  `tests/13a-arac-motoru.test.js` → *"yol: chip olarak YOKTUR"* — bir sonraki
+  tur sessizce geri koyarsa kırmızı basar.
 
-  **Fazın yan ürünü bir SAHTE BAŞARI düzeltmesi oldu.** Mevcut üç araç
-  (`soz`/`gecis`/`imge`) açıcıyı `?.()` ile çağırıp koşulsuz `true` dönüyordu:
-  ritüel yüklü değilse chip kapanıyor, hiçbir şey açılmıyor ve kullanıcı "oldu"
-  sanıyordu (§6.2). Oysa sözleşme dürüst hâli ZATEN bekliyordu — `aracRunTool`
-  `false`'u `arac.fail` toast'ına çeviriyor (13a:156); kimse `false` döndürmüyordu.
-  Üçü de yeni `_acRitual()` köprüsüne bağlandı ve kapı altı aracın hepsini birden
-  sınıyor (`tests/13a-arac-motoru.test.js` · "sahte başarı kapısı").
+  **Elenenler gerekçeli:** Ayna Anı (09h) ve Derin Çalışma (13A) premium
+  kapılıdır — ücretsiz kullanıcıya önerilen bir chip paywall'a çıkarsa o bir
+  kaldıraç değil huni olur (§1.1). Gezgine Mektup (13d) statiktir. Gördün (10E)
+  ile `[ARAC:gecis]` aynı OİK tabanında durur; model ikisini karıştırırdı — tam
+  da planın uyardığı "menü" hâli.
 
-  **10k'ya window köprüsü açıldı** (`skOpen`/`skSelectSet`) — modül bugüne dek
-  yalnız kendi view'ından çağrılıyordu. FAZ 9'un dersi burada geçerli DEĞİL:
-  orada delinen sözleşme *"protokol blokları DAİMA sıyrılır"*dı ve "daima" koşul
-  kabul etmez; burada koşulluluk sözleşmenin KENDİSİdir ("ritüel varsa aç").
+  **Fazın asıl kazancı bir SAHTE BAŞARI sınıfının kapanması oldu.** Mevcut üç
+  araç (`soz`/`gecis`/`imge`) açıcıyı `?.()` ile çağırıp koşulsuz `true`
+  dönüyordu: ritüel yüklü değilse chip kapanıyor, hiçbir şey açılmıyor,
+  kullanıcı "oldu" sanıyordu (§6.2). Sözleşme dürüst hâli ZATEN bekliyordu —
+  `aracRunTool` `false`'u `arac.fail` toast'ına çevirir (13a:156); kimse
+  döndürmüyordu. Hepsi `_acRitual()` köprüsüne bağlandı.
+  **Denetim aynı kırığın ikinci katmanını buldu:** iki adımlı bir araçta İLK
+  köprü varken İKİNCİsi eksikse ritüel YARIM açılıyor ve chip yine "oldu"
+  diyordu (`yol`'da `gyOpenToday`, `inanc`'ta `skSelectSet`). `inanc` artık her
+  iki köprüyü de ÖNCEDEN sınar — yarım açılan bir ritüel de sahte başarıdır.
+  Kapının kendi kör noktası da aynı bulguyla kapandı: `it.each` her iki köprüyü
+  birden sildiği için doğru sonucu YANLIŞ sebeple veriyordu; ayrı bir test
+  eklendi.
 
-  **Kapının kendi kırığı da bulundu:** ilk yazımda "sahte başarı" testi altı
-  testin altısında da kırmızı bastı — `showToast` `#toast` elementini arar ve
-  yoksa SESSİZCE döner (00a), testte o host kurulmamıştı. Kırık koddaymış gibi
-  görünen şey ölçen aletteydi (§10.5).
+  **İki yorum gerekçesi çürütüldü ve düzeltildi.** Window köprüsü için "13a →
+  10k → 03 → 13a döngüsü doğar" yazılmıştı; denetim şüpheye aldı, grep
+  yanlışladı — 10k `03`'ü import etmez. Gerçek gerekçe registry'nin kurulu
+  kalıbıdır. Uydurulmuş bir zincir kapısız bir kuraldan beterdir: sonraki tur
+  onu arar, bulamaz (§6.10).
 
-  **ELLE bekleyen — yeni ve sinsi:** `prompt.arac.guide` bir `persona_directives`
-  anahtarıdır ve `p()` zinciri override'ı sözlüğün ÜSTÜNE koyar
-  (`16-i18n-prompts.js:86`). Anahtar `000`'da tohumlanmamıştır, yani satır
-  yalnız panelden "Yayınla" denince doğar — ama doğduysa koddaki üç yeni satır
-  MODELE HİÇ GİTMEZ: chip'ler kodda durur, LLM onları asla önermez ve kimse bir
-  hata görmez. Emre Admin → *Merhaba, Emre* → **Etkileşim Araçları Protokolü**
-  satırına bakmalı; orada kendi sürümü varsa "Varsayılana Dön" ya da üç satırı
-  elle eklemeli.
+  **Kapının kendi kırığı:** sahte-başarı testi ilk yazımda altı testte de
+  kırmızı bastı — `showToast` `#toast` elementini arar ve yoksa SESSİZCE döner
+  (00a); testte host kurulmamıştı. Kırık koddaymış gibi görünen şey ölçen
+  aletteydi (§10.5).
 
-  Rehberin maliyeti ölçüldü: TR 1667 karakter, üç yeni satır 491 karakter
-  (~122 token/mesaj, %41 büyüme). Araç sayısı 4 → 7.
+  **ELLE bekleyen — yeni ve sessiz:** `prompt.arac.guide` bir
+  `persona_directives` anahtarıdır ve `p()` zinciri override'ı sözlüğün ÜSTÜNE
+  koyar (`16-i18n-prompts.js:86`). Anahtar `000`'da tohumlanmamıştır — satır
+  yalnız panelden "Yayınla" denince doğar, ama doğduysa koddaki yeni araç
+  satırları MODELE HİÇ GİTMEZ: chip'ler kodda durur, LLM onları asla önermez,
+  hiçbir yerde hata görünmez. Tuzak `16d`'nin panel açıklamasına yazıldı.
 
-  Kapı: build ✅ 716KB · hedefli süit ✅ (13a 45/45 · nabız+etiket 61/61 ·
-  i18n parite 36/36 · 13s/ritüel 51/51) · `kapi:genel` ✅ 346/346 ·
-  `dogrula` ✅ exit 0 "Konsol temiz." + dört köprü canlıda `function`.
+  Kapı: build ✅ 716KB · hedefli süit ✅ (13a 44/44 · nabız+etiket · i18n parite
+  36/36 · 13s/ritüel 51/51 · 16d 33/33) · `kapi:genel` ✅ 346/346 ·
+  `dogrula` ✅ exit 0 "Konsol temiz."
 
 **İlk hamle (FAZ 11):** sosyal bildirim altyapısı — 🅢, `uygulayici`ya devredilir.
 `send-push` merdivenine `sosyal` tipi + `10C-sosyal-feed.js` in-app rozeti.

@@ -688,8 +688,6 @@ export const I18N_EN = {
     'arac.gecis_cta': 'OPEN',
     'arac.imge': 'Choose your image.',
     'arac.imge_cta': 'CHOOSE',
-    'arac.yol': 'This doesn\'t look like one day\'s work — it looks like a twenty-one day path.',
-    'arac.yol_cta': 'SET OUT',
     'arac.inanc': 'A belief is speaking here. Sitting alone with it would help.',
     'arac.inanc_cta': 'TALK WITH YOURSELF',
     'arac.engel': 'If you keep stopping in the same place, that place has a name.',

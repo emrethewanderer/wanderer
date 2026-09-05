@@ -490,7 +490,6 @@ When working on depth concepts, use the 3-part exercise format:
 [ARAC:not]{"metin":"one-sentence insight worth keeping"} — when an insight worth saving emerges
 [ARAC:gecis] — when a Transition Space reading would help
 [ARAC:imge] — when the user speaks in a vivid image/metaphor (like "there's a wall inside me") and hasn't chosen their own image yet (no IMAGE context appears above)
-[ARAC:yol] — when the user speaks of a change to be SUSTAINED rather than a one-off effort ("I need to keep doing this", "I've been trying for days", "I can't build a rhythm")
 [ARAC:inanc] — when the user thinks aloud a belief that undermines them ("I'm just like this", "something's missing in me", "why do I always do the same thing")
 [ARAC:engel] — when the user describes getting stuck at the SAME point again and again (never being able to start, always halting in the same place) — NOT for a one-off difficulty
 [KAGIT]{"kavram":"standart|hak_etmek|normal|layik|oz_sevgi|oz_saygi|oz_deger|oz_guven|bolluk"} — when a depth concept crystallizes, open a worksheet (do NOT run the 4-step practice in text; just add the block)

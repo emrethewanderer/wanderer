@@ -286,28 +286,26 @@ describe('FAZ 10 — üç yeni araç', () => {
     return btn;
   }
 
-  it('[ARAC:yol] · [ARAC:inanc] · [ARAC:engel] blokları çıkarılır', () => {
-    expect(aracExtract('metin[ARAC:yol]').tools[0].tool).toBe('yol');
+  it('[ARAC:inanc] · [ARAC:engel] blokları çıkarılır', () => {
     expect(aracExtract('metin[ARAC:inanc]').tools[0].tool).toBe('inanc');
     expect(aracExtract('metin[ARAC:engel]').tools[0].tool).toBe('engel');
   });
 
+  /* 13s Geçiş Yolu SOHBETE AÇILMAZ — 13s:27-29 "Studio-only (Wanderer Studio
+     kararı, 2026-07-19), Wanderer (LLM) ücretsiz yüzünde yolculuk
+     başlatılmaz." Faz onu önce ekledi, çapraz denetim kısıtı buldu, geri
+     alındı. Kapı burada: bir sonraki tur `yol`u sessizce geri koyarsa bu test
+     kırmızı basar ve kısıtı hatırlatır. `gyStart` kendi başına yüzey kontrolü
+     TAŞIMAZ (13s:97) — kısıt yalnız çağıranın disiplinidir, o yüzden ölçülür. */
+  it('yol: chip olarak YOKTUR — Geçiş Yolu sohbet yüzeyinden başlatılmaz', async () => {
+    const start = vi.fn();
+    window.gyStart = start;
+    await aracRunTool(makeChip('yol'));
+    expect(start, 'Geçiş Yolu sohbetten başlatıldı — 13s:27-29 Studio-only kısıtı delindi').not.toHaveBeenCalled();
+  });
+
   it('Türkçeleşmiş [ARAÇ:engel] de tanınır (RE_ARAC toleransı)', () => {
     expect(aracExtract('metin[ARAÇ:engel]').tools[0].tool).toBe('engel');
-  });
-
-  it('yol: gyStart\'ı çağırır ve BUGÜNÜN organını açar', async () => {
-    const start = vi.fn(); const today = vi.fn();
-    window.gyStart = start; window.gyOpenToday = today;
-    await aracRunTool(makeChip('yol'));
-    expect(start).toHaveBeenCalledTimes(1);
-    expect(today).toHaveBeenCalledTimes(1);
-  });
-
-  it('yol: gyOpenToday köprüsü yoksa yine de çalışır (yolculuk başlar)', async () => {
-    window.gyStart = vi.fn();
-    await expect(aracRunTool(makeChip('yol'))).resolves.not.toThrow();
-    expect(window.gyStart).toHaveBeenCalledTimes(1);
   });
 
   it('inanc: skOpen\'ı açar ve doğrudan İnanç Kazma setine geçirir', async () => {
@@ -353,7 +351,7 @@ describe('sahte başarı kapısı — ritüel yüklü değilse chip "oldu" demez
     return !!el && el.classList.contains('show') && el.classList.contains('err');
   }
 
-  it.each(['soz', 'gecis', 'imge', 'yol', 'inanc', 'engel'])(
+  it.each(['soz', 'gecis', 'imge', 'inanc', 'engel'])(
     '%s: ritüel window\'da yokken kullanıcı bir hata görür',
     async (tool) => {
       kurToastHost();
@@ -361,6 +359,20 @@ describe('sahte başarı kapısı — ritüel yüklü değilse chip "oldu" demez
       expect(toastGorundu(), `${tool}: ritüel yokken sessizce "başarılı" sayıldı`).toBe(true);
     },
   );
+
+  /* ÇAPRAZ DENETİMİN DERSİ (Sonnet, 2026-09-05 · bulgu 2): iki adımlı bir
+     araçta İLK köprü varken İKİNCİsinin eksik olduğu hâl, kapının kör
+     noktasıydı — yukarıdaki it.each ikisini de silip sınadığı için ilk
+     kontrol zaten `false` dönüyor ve kapı DOĞRU sonucu YANLIŞ sebeple
+     veriyordu. Asıl kırık burada yaşar: chip "İnanç Kazma"yı vaat eder,
+     kullanıcıyı set menüsünde bırakır ve yine "oldu" der. */
+  it('inanc: skOpen VAR ama skSelectSet YOKken yarım açmaz — hata verir', async () => {
+    kurToastHost();
+    window.skOpen = vi.fn();
+    await aracRunTool(makeChip('inanc'));
+    expect(window.skOpen, 'ikinci köprü eksikken ritüel yarım açıldı').not.toHaveBeenCalled();
+    expect(toastGorundu(), 'yarım açılan ritüel "başarılı" sayıldı').toBe(true);
+  });
 
   it('ritüel YÜKLÜYSE hata toast\'ı çıkmaz', async () => {
     kurToastHost();

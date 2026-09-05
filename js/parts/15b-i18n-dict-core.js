@@ -694,8 +694,6 @@ export const I18N_CORE = {
     'arac.gecis_cta': 'AÇ',
     'arac.imge': 'İmgeni seç.',
     'arac.imge_cta': 'SEÇ',
-    'arac.yol': 'Bu bir günlük iş değil — yirmi bir günlük bir yol gibi duruyor.',
-    'arac.yol_cta': 'YOLA ÇIK',
     'arac.inanc': 'Bunu söyleten bir inanç var. Onunla yalnız kalmak iyi gelir.',
     'arac.inanc_cta': 'KENDİNLE KONUŞ',
     'arac.engel': 'Aynı yerde takılıyorsan, o yerin bir adı var.',
