@@ -41,25 +41,33 @@ Ama sıralama bir şeyi daha söylüyor: bu sprintin en ağır maddesi ölçüm 
 sayı budur"* yazdı. Bir boşluğun kendi raporunda adının konması, kapanması
 demek değildir. Sıra oradan başlar.
 
-## Denetim defteri — on üç maddenin bugünkü hâli
+## Denetim defteri — on üç maddenin durumu
 
-Ölçüm 2026-09-04'te koda karşı yapıldı.
+Ölçüm 2026-09-04'te koda karşı yapıldı; **durum sütunu her faz kapanışında
+tazelenir** (son tazeleme 2026-09-05). Bir plan tablosunun bayatlaması
+[[rapor-bayatligi]]'nın kendisidir: "AÇIK" diye duran bitmiş bir madde,
+okuyanı yapılmış işi yeniden yapmaya çağırır.
 
-| Oda | Faz | Madde | Bugün | Kanıt |
+| Oda | Faz | Madde | Durum | Kanıt / faz |
 |---|---|---|---|---|
-| 15 | F2 kalan | Kriz eval seti | **AÇIK** | `tests/` altında kriz/eval dosyası YOK (`ls tests \| grep -i kriz` boş) |
-| 12 | borç | Paylaşım `tur` kırılımı | **AÇIK** | `wtLogPaylasim` `meta.tur` çoğu satırda null; `shrShareStory` altı çağıran |
-| 11 | F2 kalan | Bildirim tercihleri yüzeyi | **AÇIK** | `10x-w2-bildirimler.js:399` "AYARLAR YÜZEYİ HENÜZ YOK" yorumu |
-| 11 | F1 kalan | Tık atıfı | **AÇIK** | `notification_log.clicked_at` kolonu var (`000:1059`), yazan yok; `sw.js:141` yalnız focus |
-| 17 | F3 | Saklama politikası | **AÇIK** | `000:1228` prune yalnız YORUM satırı; agregat tablo yok |
-| 15 | F3 | Rıza defteri | **AÇIK** | `HK_VERSION='1.3'` (`13p:21`); yalnız `bulten_izin_surum` sürümlü (`03:715`) |
-| 09 | F2 | Araç registry | **AÇIK** | `_ARAC_DEFS` dört araç (`13a:75`); `[KART]` `10B:126`, `[NISAN]` `12e:117` ayrı regex |
-| 09 | F3 | Yeni araçlar | **AÇIK** | registry'ye bağlı |
-| 12 | F2 | Sosyal bildirim | **AÇIK** | `send-push` merdiveninde `sosyal` tipi yok |
-| 17 | F2 | Eşik alarmları | **AÇIK** | alarm/cron kaydı yok; `pg_cron` migration'larda hiç geçmiyor |
-| 13 | D | SW dil pürüzü | **AÇIK (teşhissiz)** | kök teşhis hiç yapılmadı |
-| 10 | D kalan | Ses şiddet kademesi | **AÇIK** | `13e` gain sabit; aç/kapa var, kademe yok |
-| 10 | F3 | Akşam ısrar dozu | **AÇIK** | `wtTorenSonuc` yazıyor, soran yok |
+| 15 | F2 kalan | Kriz eval seti | **BİTTİ** | FAZ 1+2 — `tests/kriz-eval.test.js`, 52 satır / 13 dil |
+| 12 | borç | Paylaşım `tur` kırılımı | **BİTTİ** | FAZ 3 — `_shareCanvas(cv, title, tur)` |
+| 11 | F2 kalan | Bildirim tercihleri yüzeyi | **BİTTİ** | FAZ 4 — `bildirimSessizKaydet` + `_sessizYuzeyCiz` |
+| 11 | F1 kalan | Tık atıfı | **BİTTİ · ELLE bekliyor** | FAZ 5 — `052` + `send-push` redeploy |
+| 17 | F3 | Saklama politikası | **BİTTİ · ELLE bekliyor** | FAZ 6 — `053` + periyodik `usage_events_prune(90)` |
+| 15 | F3 | Rıza defteri | **BİTTİ · ELLE bekliyor** | FAZ 7 — `054`; okuyan taraf FAZ 8a |
+| 09 | F2 | Araç registry | **BİTTİ** | FAZ 9 — `_ARAC_DEFS` + saf yaprak `13a1` |
+| 09 | F3 | Yeni araçlar | **BİTTİ** | FAZ 10 — `gordun` · `sabir` · `ayna` + `hazir()` |
+| 12 | F2 | Sosyal bildirim | **AÇIK** | FAZ 11–12 |
+| 17 | F2 | Eşik alarmları | **AÇIK** | FAZ 13–14 |
+| 13 | D | SW dil pürüzü | **AÇIK (teşhissiz)** | FAZ 15 |
+| 10 | D kalan | Ses şiddet kademesi | **AÇIK** | FAZ 16 |
+| 10 | F3 | Akşam ısrar dozu | **AÇIK** | FAZ 17 |
+
+**Sürüm banner'ı (FAZ 8b) ayrı bir hâldedir:** yapılmadı ve yapılamaz —
+`053` ELLE koşulup `usage_events_prune` periyodik hâle gelene kadar
+gizlilik metnindeki saklama cümlesi **yanlış** olurdu (bkz. FAZ 8a kaydı).
+Bu bir gecikme değil bir dürüstlük kısıtıdır.
 
 **Bu planın DIŞINDA kalanlar ve sebepleri** — sessizce düşmesinler diye:
 
@@ -385,7 +393,21 @@ Devir: 🅞 — "3 ✕ → bugün sus" eşiğinin sayısı ve sözleşmenin öz�
 (✕ "şimdi değil"dir) bozmayacak biçimi üründe kararlaşır. Ölçüm tarafı
 (Gözlemevi sorgusu) veriye bağlıdır; kural tarafı bugün yazılabilir.
 
-**Etiket sayımı:** 🅢 **11** (1·2c·2e·3·5·6·7·9·11·13·15) · 🅞 **8**
+### FAZ 18 — Ölü import temizliği + kapısı · 🅢 · ~1 oturum
+Opus öz-denetiminde (2026-09-05) ÖLÇÜLDÜ: `js/parts` altında **123 ölü
+named import / 21 dosya**. Sayı bir alt sınırdır — tarayıcı JS `\b`'sinin
+ASCII sınırı yüzünden Türkçe harfle biten adları kaçırabilir; şişmiyor.
+**Yeni:** `tests/olu-import-kapisi.test.js` (adı `*-kapisi` olduğu için
+`kapi:genel` desenine kendiliğinden girer) + tarama motoru.
+**Değişen:** 21 dosyanın import satırları.
+TUZAK — mekanik değil: bir modülden gelen adların **tamamı** ölüyse import
+SATIRI silinir ve o modülün **yan etkisi** de gider. Yan etkisi olan modüller
+(`00a-infrastructure` boot logu gibi) için satır kalır, yalnız ad çıkarılır.
+Her dosya build + hedefli süitle ayrı doğrulanır.
+Taban çizgisi kalıbı: `tests/referans-butunlugu.test.js`. Sıfırlanana kadar
+TABAN düşürülür; sıfırda kapı sert 0-toleransa döner.
+
+**Etiket sayımı:** 🅢 **12** (1·2c·2e·3·5·6·7·9·11·13·15·18) · 🅞 **8**
 (2·4·8·10·12·14·16·17) — oran kapısı (§4.4) geçildi: 🅞 ≤ 🅢. Beş faz
 bölünerek bu orana getirildi: gövde 🅢 önce gider, yargı çekirdeği 🅞 üstüne
 biner (1/2 · 7/8 · 9/10 · 11/12 · 13/14).
@@ -436,7 +458,12 @@ hiç görünmez — orada ton değil **doğruluk** ölçülür.
 4. `grep -c "admin_usage_report" migrations/05[234]_*.sql` → **0** (K3/risk 2).
 5. `node scripts/dogrula.mjs --eval "typeof window.aracExtract"` →
    `"function"` (FAZ 9 sözleşme regresyonu).
-6. Her fazda: `./build.sh` → hedefli süit → **`npm run kapi:genel`** → tarayıcı.
+6. `node scripts/dogrula.mjs --eval "window.aracExtract('[ARAC:gordun]').tools[0].tool"`
+   → `"gordun"` ve `--eval "['gordun','sabir','ayna'].filter(x => window.aracPromptGuide().includes('[ARAC:'+x+']')).join(',')"`
+   → `"gordun,sabir,ayna"` (FAZ 10: registry ve rehber AYNI üç adı taşır —
+   biri ötekisiz kalırsa model olmayan bir araç önerir ya da var olan araç
+   hiç önerilmez; ikisi de sessizdir).
+7. Her fazda: `./build.sh` → hedefli süit → **`npm run kapi:genel`** → tarayıcı.
 
 ## Kritik Dosyalar
 
@@ -551,6 +578,20 @@ birincisinden ağırdır ve düzeltmesi bir birleştirme kararıdır: 09b'nin
 sözlüğü `16c`'ye mi taşınacak, yoksa `16c`'nin ölü girdileri mi silinecek?
 İkisi de kanıt ister (`grep -rn` ile yetim kontrolü, §3.1) ve ikisi de bu
 sprintin kapsamı değil. Sessizce düşmesin diye burada duruyor.
+
+### Taşınan bulgu — OİK bağlam başlığı yerelleşmiyor · plana yazıldı, uygulanmadı
+`10D-olmak-istedigin.js:747` bağlam bloğunu **hardcoded Türkçe** başlıkla
+kuruyor (`'◈ OLMAK İSTEDİĞİN KİŞİ · …'`), oysa İMGE bağlamı aynı işi
+`p('prompt.imge.baglam_header')` ile **yerelleştirerek** yapıyor
+(`09a:1685`). Yani EN kullanıcının modeli, İngilizce bağlamın ortasında
+Türkçe bir başlık okuyor.
+
+FAZ 10 bunu bir kırık olarak değil bir **kısıt** olarak kabul etti ve EN
+rehber cümlesi işarete adıyla bakıyor (*"an 'OLMAK İSTEDİĞİN KİŞİ' block
+appears above — that header stays Turkish in every language"*). Doğru
+çözüm başlığı `p()`'ye taşımaktır; ama bu 16b/16e'ye yeni bir prompt
+anahtarı eklemek demek ve FAZ 10'un kapsamı değil. Sessizce düşmesin diye
+burada duruyor.
 
 - **FAZ 3 · BİTTİ** (2026-09-04). `uygulayici`da (🅢), Durak yok.
   `_shareCanvas(cv, title, tur)`; yedi çağıran planın eşleme tablosuyla
@@ -892,9 +933,217 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   Kapı: build ✅ 716KB · hedefli süit ✅ 337/337 · `kapi:genel` ✅ 346/346 ·
   `dogrula` ✅ exit 0 "Konsol temiz."
 
-**İlk hamle (FAZ 10):** registry üzerinde yeni araçlar — 🅞. Hangi üç
-ritüelin LLM'in eline verileceği ve chip cümlelerinin kitap-köklü hâli
-üründe bulunur. Onay-chip'i ilkesi gevşetilmez.
+- **FAZ 10 · BİTTİ** (2026-09-05). 🅞, parent'ta (Opus).
+  `Devir dışı:` gerekmedi — 🅞 fazlar zaten devredilmez.
+
+  **Yargı — hangi üç ritüel?** Soru tekti: *bugün sohbette geçen hangi anın
+  arkasında kapısı olmayan bir oda var?* 48 aday ad tarandı (desen
+  `window.*(Open|Ac|Baslat|Start|Kapi)`); bir kısmı desenin yanlış
+  pozitifiydi — `karAcikMi`, `gyIsActive`, `gbAccountAgeDays`, `dgKapi` gibi
+  açan değil **yoklayan** adlar. Seçimin omurgası tercih değil **anlam
+  ekseni** oldu: `soz` zaten **bronz**dur (10u'nun SÖZ mührü) ve eksenin
+  kalan iki ucu LLM'in elinde değildi.
+  - `gordun` → `gorOpen` (10E) — **lapis**: Üç Mühür'ün HAYAL mührü,
+    *"İzleme — o gözlerden yaşa."* Bugüne dek yalnız kendi yüzeyinden (Yol
+    hero) açılıyordu; özlemini sohbette söyleyen kullanıcı için kapısı yoktu.
+  - `sabir` → `yolOpenSabir` (10f) — **yol**: *"«ne kadar» kulun ölçtüğü,
+    «ne zaman» Allah'ın bildiğidir."* Sabırsızlık sohbetin en sık
+    anlarından biri ve doğru cevabı bir sayı değil bir duraktır.
+  - `ayna` → `ayOpen` (09h) — **altın**: *"bende biriken sen."*
+
+  **Reddedilenler — sessizce düşmesinler diye:**
+  - `olusSinamaAc` (10q4): an mükemmeldi ("Artık o kişiyim." sohbette
+    söylenen bir cümledir) ama çağrı bir `cardId` ister ve LLM onu bilemez —
+    uydurulmuş bir kart kimliği §6.10 ihlalidir. İki mevcut yüzey (10q
+    detay · 10A kutup) zaten eşik kapılı ve doğru yerde duruyor.
+  - `mektupOpen` (13d): içeriği admin yazar; kişisel bir ritüel değil.
+  - `karAc` (13B): üç sayfalık gezinme odası — mühürlenen tek bir eylem yok.
+  - `gyStart` (13s): 21 günlük yolculuk; bir chip'in taşıyabileceğinden ağır.
+
+  **Asıl mühendislik kararı bu üç seçimden doğdu: `hazir()`.** Eski dört
+  araç ÖN KOŞULSUZ törenlere bağlıydı (söz ver · not kaydet · okuma aç ·
+  imge seç) — hiçbiri boş oda açamazdı. Üç yenisi öyle değil: OİK kartı
+  yoksa GÖRDÜN'ün penceresi boştur, bugün bakıldıysa mühür çoktan düşmüştür,
+  aday hipotez yoksa aynada gösterilecek bir şey yoktur. Chip bir **vaattir**;
+  "sana bir şey göstereceğim" deyip boş bir oda açmak §6.2'nin kendisidir.
+  Registry `hazir()` ile genişledi ve hazır olmayan chip **hiç çizilmez**
+  (nabız da susar — çizilmeyen chip önerilmiş sayılmaz, 09·D'nin ölçüsü
+  bozulmasın). Emsal icat edilmedi, repoda zaten vardı: 10A'nın
+  `gkSinanabilir`'i — *"kapı yalnız o zaman çizilir"*.
+  `sabir`'in `hazir`'i **bilerek yoktur**: sabır kartı türetilmiş bir veri
+  değil bir duraktır, ön koşul yazmak onu ölçüye bağlamak olurdu.
+
+  **Yan kazanç — dört eski araçta sessiz bir sahte başarı bulundu ve
+  kapandı.** `run: () => { window.glGiveSozNow?.(); return true; }` köprü
+  yüklü değilken hiçbir şey yapmıyor ama `true` dönüyordu: chip kayboluyor,
+  kullanıcı bir şey olmasını bekliyor, hiçbir şey olmuyor ve **hiçbir yerde
+  bir hata görünmüyor** — aracın en sinsi hâli. `_ac(ad)` köprüyü önce
+  yokluyor, yoksa dürüst bir toast basılıyor. Kapının değeri ÖLÇÜLDÜ: eski
+  satır geçici olarak geri kondu, yeni test kırmızı bastı, sonra geri alındı
+  — "dün kırmızı olurdu" bir iddia değil bir gözlem.
+
+  **Onay-chip'i ilkesi gevşetilmedi ve bu kaynağa karşı doğrulandı:** üç
+  törenin de yazan satırı kullanıcı eylemine bağlı — `usRecordVision`
+  `gorOpen`'da değil `_seal()`'in içinde (`#gor-seal-btn` tıklaması),
+  `yolOpenSabir` hiçbir şey yazmıyor, `ayOpen` yalnız çiziyor.
+
+  **Parent'ın kendi diff okuması bir kırık buldu (§3.5/1).** `gordun`'un ilk
+  `hazir`'i `(window.gorDayWindow?.() || {}).source !== 'empty'` yazıyordu ve
+  10E yüklü değilken `undefined !== 'empty'` **doğru** dönüyordu: kapı, tam
+  olarak engellemek için var olduğu şeyi geçiriyordu. `ayna`nın aynı hâli
+  tesadüfen doğruydu (`(undefined || []).some` → false) ve simetri
+  sınanmadığı için görünmedi. Düzeltildi + testi yazıldı — *sınav, sınadığını
+  sınamalıdır.*
+
+  **Denetim (çapraz · Sonnet) — bir sözleşme kırığı, iki register bulgusu.**
+  En ağırı kodda değil **iki dosyanın ARASINDAYDI**: Araç Nabzı'nın kapalı
+  ad kümesi (`00f:704` `_ARAC_ARAC`) üç yeni aracı tanımıyordu. `wtLogArac`
+  çağrılıyor, satır yazılıyor, ama `prev_screen` `null`'a düşüyordu — üç
+  aracın öneri/onay/ret sayıları tek bir isimsiz kovada toplanacaktı:
+  **ölçüyormuş gibi görünen, ölçmeyen kod** (§6.10). Hedefli süitin bunu
+  görememesinin sebebi öğretici: `13a`'nın testleri `wtLogArac`'ı MOCK'luyor
+  — "doğru argümanla çağrıldı" kanıtlanıyor, o argümanla ne YAPILDIĞI
+  kanıtlanmıyor.
+
+  Kök neden bir unutkanlık değil bir mimari: iki liste elle senkronlanıyor ve
+  `00f` `13a`'yı import EDEMEZ (altyapı katmanıdır; 13a 06/07/13-extras
+  çeker — döngü). Senkron sağlanamıyorsa **ölçülür** (§6.6 üçüncü basamak):
+  `tests/arac-kumesi-kapisi.test.js` iki listeyi karşılaştırır, adı
+  `*-kapisi` olduğu için `kapi:genel` desenine kendiliğinden girer ve değeri
+  ÖLÇÜLDÜ — küme dört ada geri alındığında kapı kırmızı bastı ve eksik üç
+  adı adıyla saydı. Kapı boş-liste tuzağına karşı da kilitli
+  ([[kapi-sessiz-gec]]): ayrıştırıcı kırılıp iki liste birden boşalırsa
+  eşitlik sağlanır ama test yine kırmızı yanar.
+
+  İkinci bulgu TR system-prompt'undaydı: *"Hiçbiri ANA tam oturmuyorsa"* —
+  kesme işaretsiz büyük "ANA" var olan bir kelimeyle (ana/anne) çakışıyordu
+  ve aynı dosyada belirteçli emsal vardı (`16b:92` "şu ana dönmek");
+  *"Hiçbiri bu ana tam oturmuyorsa"* oldu. Üçüncüsü EN'deki `«»` idi —
+  parent kendi öz-incelemesinde zaten bulup düzeltmişti (EN sözlükteki tek
+  kullanım oydu; TR'de `kk.neden.duygu:2461` emsali var ve orada kalıyor).
+
+  **Denetimin temiz bulup KANITLADIKLARI** (bir "temiz" iddiası kanıt ister):
+  onay-chip ilkesi — üç tören de doğrudan okundu, `ayOpen` yalnız "Bu Benim"
+  tıklanınca `apResolveHypothesis` çağırıyor · `gkSinanabilir` emsali
+  gerçekten aynı desende (`10A:1822`) · `hazir()` okumaları törenlerin kendi
+  iç mantığıyla birebir örtüşüyor (`10E:145-147`, `09h:92-93`) · `_ac`'in
+  boot-sırası riski yok (üç köprü de `main.js`'te statik import) · Ayna
+  Protokolü ile çakışma yok (farklı tetikleyici, aynı veri kaynağı, ikiz
+  yok) · i18n paritesi tam · yeni testler davranışsal.
+
+  **Bir tasarım sorusu parent'a bırakıldı, karara bağlandı:** `ayna.hazir`
+  `S.isPremium`'a BAKMAZ — premium olmayan kullanıcıda aday hipotez varsa
+  chip çizilir ve `ayOpen`'ın teaser'ı açılır. Bilerek böyle: chip'in cümlesi
+  ("Bende biriken bir şey var") o kullanıcı için de **doğrudur** ve teaser
+  bunu dürüstçe söyler. `hazir()`'in sözleşmesi *"kapının ardında bir şey var
+  mı"*dır, *"kullanıcı görebilir mi"* değil — ikincisi 09h'nin kendi kararı
+  ve İÇ DÜNYA odasındaki girişte de aynı işliyor. Chip'i premium'a kapatmak,
+  doğru bir cümleyi saklamak olurdu.
+
+## Opus öz-denetimi — 2026-09-05 · FAZ 5–10
+
+Emre *"buraya kadar tüm yaptıklarımızı analiz edip sorunları giderip
+geliştirmeleri yapıp hem planı hem çalışmayı en iyileyim"* dedi; §3.7 bu
+hâlde tek başına koşar. Kapsam **önceki kaydın açıkça dışarıda bıraktığı
+yer**: *"FAZ 5–17 henüz açılmadı; bu kayıt onları kapsamaz."* Bu tur FAZ
+5–9'u ve bu turda yazılan FAZ 10'u kapsar. **Plan KAPANMADI.**
+
+**Plana karşı.** FAZ 5–9'un **Yeni:/Değişen:** listeleri ağaca karşı tek tek
+okundu ve beşi de teslim edilmiş: `052/053/054` yerinde, tık atıfı zinciri
+dört halkasıyla tam (`052` RPC · `send-push:384` nid · `sw.js:136,154` ·
+`10x:199` + `00e:67` native köprüsü), `admin_usage_report` üç migration'ın
+hiçbirinde geçmiyor (planın Doğrulama maddesi 4 → **0**, ölçüldü),
+`HK_VERSION` bilerek `1.3`. Sapma yok; tek **açık borç** planın kendi
+kaydında zaten duruyor ve doğru duruyor: **FAZ 8b** `053`'ün ELLE
+koşulmasına kilitli, ve gerekçesi bu turda yeniden yoklandı — hâlâ geçerli.
+
+**Koda karşı.** Kapıların görmediği yer bulundu ve bulgu tek bir sınıftı:
+**FAZ 9'un denetimi mekanizmayı değiştirdi, gerekçeyi dört dosyada eski
+hâliyle bıraktı.** Köprü (`window.aracEtiket*`) koddan silindi, ama onu
+ANLATAN yorumlar `13a`, `10B` ve `12e`'de kaldı — üstelik satır-değişimiyle
+düzeltildikleri için **cümleleri ortadan kesikti** ("13a boot'ta zaten
+yükleniyor ve" → yeni satır → "(§5.2 ...)"). İki yerde de sadece bayat
+değil **yanlış**: "10B ve 12e bu dosyayı STATİK import ETMEZ" ve "köprü
+burada" — ikisi de artık doğru değil, ve `10B`'nin son cümlesi kaldırılmış
+test importlarına atıf yapıyordu. Ayrıca `13a:30` iki ölü import taşıyordu
+(`etiketCoz`, `etiketRegex` — hiç kullanılmıyordu) ve bir **yetim doküman
+yorumu** burada olmayan bir fonksiyonun sözleşmesini anlatıyordu.
+Hepsi düzeltildi.
+
+İkinci bulgu ölçüldü ama bu turda **düzeltilmedi**: aynı sınıf repo genelinde
+yaşıyor — `js/parts` altında **123 ölü named import / 21 dosya** (tarama
+scratchpad'de; üç örnek elle doğrulandı: `00-config-tracking.js:sb`,
+`06-summary-chat.js:stripModeTag`, `12a-archetypes.js:ikvCardFace` — her
+biri dosyada YALNIZ import satırında geçiyor). Bu bir alt sınır: tarayıcı
+Türkçe harflerde JS `\b`'sinin ASCII sınırı yüzünden bazı adları
+kaçırabilir, yani sayı şişmiyor. Temizlik mekaniktir ve tek başına bir 🅢
+fazdır — **plana taşındı** (FAZ 18).
+
+**Vizyona karşı.** FAZ 5–9'un beşi de tek bir cümlenin farklı yüzleri:
+**uygulama bildiğinden fazlasını iddia etmez.** Tık atıfı web-only bir oranı
+"tık oranı" diye sunmayı reddetti · saklama politikası "ölçülmüş görünen
+eksik bir sayı"yı bir OKUMA SÖZLEŞMESİ ile kapattı · rıza defteri bir kaydı
+düzeltmek yerine yenisini ekliyor · FAZ 8a "bilinmeyen, kabul etmedi
+değildir" diyerek üçüncü hâli (`null`) korudu · FAZ 9 "daima bir koşul kabul
+etmez" dedi. Hepsi §6.10'un ve tezin aynı yerinden çıkıyor: uygulamanın
+kullanıcı hakkında söylediği her şeyin kökeni yine kullanıcı olmalı.
+FAZ 10 bu zinciri **chip'e** taşıdı: `hazir()` yoksa kapı çizilmez, ve `_ac`
+köprü yokken başarı raporlamaz. Anlam ekseni (altın · lapis · bronz) LLM'in
+elinde ilk kez tamam. Register korundu; sayaç dili yok, `sabir`'in manevi
+katmanı (tevekkül) sekülerleşmedi — kartın kendi metni dokunulmadan duruyor,
+chip yalnız kapıyı gösteriyor.
+
+**Sürece karşı.** Bulunan kırık bir **kural boşluğu değildi** — kural vardı
+(§5.2: *Yorum = NEDEN*), yeri de doğruydu. Eksik olan üçüncü basamaktı
+(§6.6): **ölçülemiyordu.** Üstelik ölçen kapı tam da orada kördü:
+`tests/etiket-siyirma-kapisi.test.js` iddialarını yorumları SÖKEREK kuruyor
+(kendi başlığı köprünün adını andığı için bu bilinçliydi) — yani yalan tam
+da kapının bakmadığı yerde yaşadı. Kapı yeşilken davet ayaktaydı.
+**Ölçülebilir hâle getirildi:** silinmiş köprünün ADI artık üç kaynakta
+yorumda bile geçemez (aynı dosyaya yeni bir `it.each` girdi). Sınıfın öteki
+yarısı — "STATİK import ETMEZ" gibi *içerik* olarak yanlışlaşan bir cümle —
+statik olarak sınanamıyor ve **yargıya bırakılanlar** listesine yazıldı.
+Ders tek cümlede: **silinen bir mekanizmanın gerekçesi, mekanizmanın kendisi
+kadar davet edicidir.**
+
+**Bulgular.** 9 — düzeltildi 7 · plana taşındı 2 · reddedildi 0
+- `js/parts/13a-arac-motoru.js:30` — iki ölü import (`etiketCoz`,
+  `etiketRegex`; dosyada yalnız import satırında geçiyorlardı) — **düzeltildi**
+- `js/parts/13a-arac-motoru.js` (kuyruk) — silinmiş `window.aracEtiket*`
+  köprüsünü anlatan yorum; iki cümlesi artık YANLIŞ — **düzeltildi**
+- `js/parts/13a-arac-motoru.js` (~129) — burada olmayan bir fonksiyonun
+  sözleşmesini anlatan yetim doküman yorumu — **düzeltildi**
+- `js/parts/10B-ilham-karti.js:63-69` — ortadan kesik + bayat yorum;
+  son cümlesi kaldırılmış test importlarına atıf yapıyordu — **düzeltildi**
+- `js/parts/12e-isik-nisanlari.js:35-41` — aynı sınıf; "burada window
+  köprüsü yeterli" diyordu, oysa köprü yok — **düzeltildi**
+- `tests/etiket-siyirma-kapisi.test.js` — kapı yorumları sökerek bakıyor,
+  yani sınıfın kendisi ölçülemiyordu (§6.6/3) — **düzeltildi** (ham kaynağa
+  bakan `it.each` eklendi; sınıfın öteki yarısı yargıya bırakıldı)
+- `.claude/plans/ic-calisma-kalan-fazlar.md` denetim defteri — sekiz madde
+  bitmişken "AÇIK" görünüyordu ([[rapor-bayatligi]]) — **düzeltildi**
+- `js/parts` geneli — 123 ölü named import / 21 dosya — **plana taşındı**
+  (FAZ 18: temizlik + taban çizgili kapı)
+- `js/parts/10D-olmak-istedigin.js:747` — OİK bağlam başlığı hardcoded TR,
+  İMGE'ninki `p()` ile yerelleşiyor — **plana taşındı** (`### Taşınan bulgu`)
+
+**Bakılmayan.** Prod durumu (Supabase Dashboard) hiçbir eksende ölçülmedi ve
+ölçülemez — `052/053/054`'ün koşulup koşulmadığı repodan görünmez (§6.5).
+FAZ 11–17 açılmadı; bu kayıt onları kapsamaz. `09a`/`09b`'nin paralel
+sözlükleri (önceki turun taşınan bulgusu) bu turda da BOYU ölçülmedi —
+adlandırıldı, sayılmadı. Kriz korpusunun kapsama oranı (hangi dil kaç satır)
+gözden geçirilmedi: FAZ 1–2 kendi kapısını taşıyor ve bu tur ona dokunmadı.
+
+**İlk hamle (FAZ 11):** sosyal bildirim altyapısı — 🅢, DEVREDİLİR
+(`uygulayici`). `supabase/functions/send-push/index.ts` merdivenine `sosyal`
+tipi girer ve **winback'ten ÖNCE** gelir (raporun kararı); freq-cap'e tabidir.
+`10C-sosyal-feed.js`'e in-app rozet eklenir ve rozet `13B` tören kuyruğuna
+SORMAZ — rozet bir sahne değil bir işarettir. Microcopy FAZ 12'nin (🅞) işi:
+bu fazda yeni cümle İCAT EDİLMEZ, var olan anahtarlar kullanılır.
+
+**Eski İlk hamle (FAZ 10, tamamlandı):** registry üzerinde yeni araçlar — 🅞.
+Hangi üç ritüelin LLM'in eline verileceği ve chip cümlelerinin kitap-köklü
+hâli üründe bulunur. Onay-chip'i ilkesi gevşetilmez.
 
 **Eski İlk hamle (FAZ 9, tamamlandı):** `13a-arac-motoru.js`'te `_ARAC_DEFS` kayıtları
 `{ marker, parse, label, cta, run }`'a genişler; `[KART]` (`10B:126`

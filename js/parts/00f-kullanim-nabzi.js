@@ -701,7 +701,15 @@ export function wtLogKota(olay, { dal, tier } = {}) {
    screen=olay, prev_screen=arac (kapalı küme), meta boş — üçüncü bir
    eksen yok, kabul oranı screen×prev_screen'den SQL'de çıkar (K3). */
 const _ARAC_OLAY = new Set(['oner', 'onayla', 'reddet']);
-const _ARAC_ARAC = new Set(['soz', 'not', 'gecis', 'imge']);
+/* Kapalı küme 13a'nın `_ARAC_DEFS`'iyle AYNI adları taşımalıdır: burada
+   olmayan bir araç adı `prev_screen: null` yazar ve o aracın öneri/onay/ret
+   sayıları ayrıştırılamaz — ölçüyormuş GİBİ görünen ama ölçmeyen kod
+   (§6.10). FAZ 10'da tam bu oldu: üç yeni araç eklendi, küme büyümedi,
+   telemetri sessizce tek bir null kovasına aktı; çapraz denetim (Sonnet)
+   yakaladı. 13a buradan import EDİLEMEZ (00f altyapı katmanıdır, 13a ise
+   06/07/13-extras'ı çeker — döngü), o yüzden senkron bir KAPIYLA tutulur:
+   `tests/arac-kumesi-kapisi.test.js` iki listeyi karşılaştırır. */
+const _ARAC_ARAC = new Set(['soz', 'not', 'gecis', 'imge', 'gordun', 'sabir', 'ayna']);
 
 export function wtLogArac(olay, { arac } = {}) {
   if (!_inited || !_ARAC_OLAY.has(olay)) return;

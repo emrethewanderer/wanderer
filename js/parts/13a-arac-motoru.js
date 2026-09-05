@@ -3,7 +3,8 @@
    LLM yanıt-sonu protokol blokları — function calling'in
    Wanderer karşılığı, sunucu değişikliği gerektirmez (mode-tag
    kalıbının uzantısı):
-     [ARAC:soz] / [ARAC:not]{json} / [ARAC:gecis] → onay chip'i,
+     [ARAC:soz] / [ARAC:not]{json} / [ARAC:gecis] / [ARAC:imge] /
+     [ARAC:gordun] / [ARAC:sabir] / [ARAC:ayna] → onay chip'i,
        onaylanınca uygulama aksiyonu (ASLA sessiz yürütme yok)
      [KAGIT]{"kavram":...} → Çalışma Kağıdı artifact'i (13b çizer)
      [TAKIP]a|b[/TAKIP] → takip sorusu pilleri
@@ -11,8 +12,15 @@
    Ek: composer taslak kalıcılığı (localStorage — cihaz-yerel) ve
    kitap kaynakçası chip'leri (S._lastBookSources, 04 doldurur).
 
+   2026-09-05 — HAZIRLIK KAPISI (İç Çalışma 09 · FAZ 10): kayıtlar
+   isteğe bağlı bir `hazir()` taşır ve odası boş olan araç için chip HİÇ
+   çizilmez. Sebebi tek cümle: chip bir VAATTİR — tutulamayan vaat kart
+   olur, kaldıraç olmaz (§1.1). Aynı turda üç yeni araç girdi ve anlam
+   ekseni LLM'in elinde tamamlandı: gordun (lapis/hayal) · sabir (yol) ·
+   ayna (altın/olduğun); soz zaten bronzdu.
+
    2026-09-04 — REGISTRY GENİŞLEDİ (İç Çalışma 09 · K5): kayıtlar artık
-   { marker, parse, label?, cta?, run? } taşır. [KART] (10B) ve [NISAN]
+   { marker, parse, label?, cta?, run?, hazir? } taşır. [KART] (10B) ve [NISAN]
    (12e) buraya TÜKETİCİ olarak bağlandı — onlar chip üretmez, yalnız
    kendi etiketlerini (`marker`/`re`) ve o etiketten ne çıktığını
    (`parse`) burada tutar; NE YAPACAKLARI (gizleme, köprü) kendi
@@ -27,7 +35,7 @@ import { p } from './16-i18n-prompts.js';
 import { saveNoteDirect } from './07-settings-knowledge.js';
 import { sendMessageHooks } from './06-summary-chat.js';
 import { icOpen } from './13-extras.js';
-import { ARAC_ETIKETLERI, etiketCoz, etiketRegex } from './13a1-arac-etiketleri.js';
+import { ARAC_ETIKETLERI } from './13a1-arac-etiketleri.js';
 
 /* ─── 1. PROMPT REHBERİ — 06 systemPrompt'a ekler ───
    Yalnız `marker:'ARAC'` ailesinin (chip üreten dört araç) rehberini taşır —
@@ -94,12 +102,35 @@ export function aracExtract(text) {
    söyleyeceği (label/cta) ve onaylanınca ne olacağı (run) tanımlı.
    [KART] ve [NISAN] kendi `re`/`parse`'ını taşır; onlar için `label`/`cta`/
    `run` YOKTUR — registry'ye girmeleri onları chip'e çevirmez (K5). */
+/* Köprü yoksa BAŞARI RAPORLANMAZ (§6.2). `window.x?.()` modül yüklü
+   değilken sessizce hiçbir şey yapar ve `true` döner: chip kaybolur,
+   kullanıcı bir şey olmasını bekler, hiçbir şey olmaz — aracın en sinsi
+   hâli, çünkü kimse bir hata görmez. `_ac` köprüyü ÖNCE yoklar; yoksa
+   `false` döner ve kullanıcı dürüst bir toast alır. */
+const _ac = (ad) => () => {
+  const fn = (typeof window !== 'undefined') ? window[ad] : null;
+  if (typeof fn !== 'function') return false;
+  fn();
+  return true;
+};
+
+/* HAZIRLIK KAPISI (FAZ 10) — `hazir()` taşıyan bir aracın odası boşsa chip
+   HİÇ çizilmez. Gerekçe §1.1'in ölçüsüdür: chip bir vaattir ve tutulamayan
+   vaat kart olur, kaldıraç olmaz. Emsal repoda zaten var — 10A'nın
+   `gkSinanabilir`'i: "kapı yalnız o zaman çizilir". `hazir` yoksa araç daima
+   hazırdır (dört eski araç böyledir); throw ederse HAZIR DEĞİLDİR —
+   doğrulayamadığımız bir odayı açmayı vaat etmeyiz (§5.2 sessiz düşüş). */
+function _hazirMi(def) {
+  if (typeof def?.hazir !== 'function') return true;
+  try { return !!def.hazir(); } catch (_) { return false; }
+}
+
 const _ARAC_DEFS = {
   soz: {
     marker: 'ARAC',
     label: () => t('arac.soz', 'Bugün somut bir söz vermeye hazır görünüyorsun.'),
     cta:   () => t('arac.soz_cta', 'SÖZ VER'),
-    run:   () => { window.glGiveSozNow?.(); return true; }
+    run:   _ac('glGiveSozNow')
   },
   not: {
     marker: 'ARAC',
@@ -112,13 +143,61 @@ const _ARAC_DEFS = {
     marker: 'ARAC',
     label: () => t('arac.gecis', 'Geçiş Alanı okuması bu ana iyi gelir.'),
     cta:   () => t('arac.gecis_cta', 'AÇ'),
-    run:   () => { window.oikOpenReading?.(); return true; }
+    run:   _ac('oikOpenReading')
   },
   imge: {
     marker: 'ARAC',
     label: () => t('arac.imge', 'İmgeni seç.'),
     cta:   () => t('arac.imge_cta', 'SEÇ'),
-    run:   () => { window.igOpenKapi?.(); return true; }
+    run:   _ac('igOpenKapi')
+  },
+
+  /* ── FAZ 10 · ÜÇ YENİ ARAÇ — anlam ekseni LLM'in eline tamamlanır ──
+     `soz` zaten BRONZ'dur (Üç Mühür'ün söz vuruşu, 10u). Aşağıdaki üçü
+     ekseni kapatır: `gordun` LAPİS (gelecek/hayal — 10u'nun HAYAL mührü,
+     bugüne dek LLM'in elinde değildi), `sabir` iki kutup arasındaki YOL,
+     `ayna` ALTIN (şimdi/olduğun — "bende biriken sen").
+     Üçü de var olan törenlere TÜKETİCİ olarak bağlanır; hiçbiri yeni bir
+     motor açmaz (§1.3). Onay-chip'i ilkesi gevşetilmedi: LLM önerir,
+     mührü kullanıcı basar — `run` yalnız kapıyı AÇAR. */
+  gordun: {
+    marker: 'ARAC',
+    // İki hâlde davet edilmez: pencerenin ardında OİK kartı yoksa tören içi
+    // boştur, bugün zaten bakıldıysa HAYAL mührü çoktan düşmüştür — ikinci
+    // davet bir tören değil bir menü olurdu.
+    hazir: () => {
+      // Köprü yoksa HAZIR DEĞİLİZ. `(window.gorDayWindow?.() || {}).source
+      // !== 'empty'` yazmak burada sinsi bir kırıktı: 10E yüklü değilken
+      // `undefined !== 'empty'` DOĞRU döner ve çalışamayacak bir chip
+      // çizilirdi — kapının tam olarak engellemek için var olduğu şey.
+      // (`ayna` bu hâlde zaten doğru davranıyordu: `(undefined || []).some`
+      // false verir. Simetri kendiliğinden gelmedi, yazıldı.)
+      if (typeof window.gorDayWindow !== 'function') return false;
+      if (window.usGetTodayVision?.()) return false;
+      return window.gorDayWindow().source !== 'empty';
+    },
+    label: () => t('arac.gordun', 'Bugün henüz o gözlerden bakmadın. Pencere açık.'),
+    cta:   () => t('arac.gordun_cta', 'BAK'),
+    run:   _ac('gorOpen')
+  },
+  sabir: {
+    marker: 'ARAC',
+    // `hazir` YOK ve bu bilinçli: sabır kartı türetilmiş bir veri değil bir
+    // duraktır (10f — boyun eğmiş Satürn). Hiçbir ölçüye bağlı olmadığı için
+    // her an açılabilir; ön koşul yazmak onu ölçüye bağlamak olurdu.
+    label: () => t('arac.sabir', '«Ne kadar» ölçülür, «ne zaman» bilinmez. Burada bir durak var.'),
+    cta:   () => t('arac.sabir_cta', 'DUR'),
+    run:   _ac('yolOpenSabir')
+  },
+  ayna: {
+    marker: 'ARAC',
+    // Gösterilecek bir hipotez yoksa chip çizilmez: "sana bir şey
+    // göstereceğim" deyip boş bir oda açmak aracın kendi vaadini bozar
+    // (§6.2). 09h'nin boş dalı dürüsttür ama oraya DAVETLE gidilmez.
+    hazir: () => (window.ypGetHipotezler?.() || []).some(h => h?.durum === 'aday'),
+    label: () => t('arac.ayna', 'Bende biriken bir şey var. Göstereyim mi?'),
+    cta:   () => t('arac.ayna_cta', 'AYNAYA BAK'),
+    run:   _ac('ayOpen')
   },
   // [KART] ve [NISAN] kayıtları SAF YAPRAKTA (13a1) — tüketicileri
   // (10B, 12e) onu doğrudan import eder ve döngü doğmaz; ikizi burada
@@ -126,11 +205,8 @@ const _ARAC_DEFS = {
   ...ARAC_ETIKETLERI,
 };
 
-/* Etiket çözücü — tüketici artık kendi regex'ini yazmaz, registry'den ister.
-   Eşleşme yoksa ya da parse geçersiz kılarsa null; varsa parse alanları +
-   ham etiket (`tag`) + etiketi çıkarılmış metin (`clean`). */
-/* 13a bu ikisini artık DIŞA AÇMIYOR ve `window`'a da koymuyor.
-   Sebebi faz denetiminde bulundu: tüketiciler (10B, 12e) yaprağı
+/* 13a `etiketCoz`/`etiketRegex`'i import bile ETMEZ; dışa da açmaz,
+   `window`'a da koymaz. Sebebi faz denetiminde bulundu: tüketiciler (10B, 12e) yaprağı
    (`13a1-arac-etiketleri.js`) doğrudan import ediyor, yani buradaki
    köprü hiçbir şeyi beslemiyordu — ölü kod (§3.5/3). Durması daha da
    kötüydü: `window` yolunun hâlâ desteklendiğini ima eder ve bir sonraki
@@ -153,7 +229,10 @@ export async function aracRunTool(btn) {
   // Araç Nabzı: kullanıcı chip'i onayladı (09·D) — aracın çalışıp çalışmadığından bağımsız, karar burada.
   try { window.wtLogArac?.('onayla', { arac: tool }); } catch (_) {}
   try {
-    const ok = await def.run(args);
+    /* Chip bayatlayabilir: kullanıcı bu yanıttan sonra başka bir sekmede
+       bugünün bakışını yapmış olabilir. Onay yine de sayıldı (yukarıdaki
+       nabız) — karar kullanıcınındır; açılmayan şey yalnız boş odadır. */
+    const ok = _hazirMi(def) ? await def.run(args) : false;
     if (ok === false) showToast(t('arac.fail', 'Bu araç şu an çalıştırılamadı.'), true);
   } catch (e) {
     console.warn('aracRunTool:', e);
@@ -177,6 +256,10 @@ function _renderToolChip(container, entry) {
   const def = _ARAC_DEFS[entry.tool];
   // Aynı gerekçe: yalnız chip yürütücüleri (label/cta/run üçlüsü) çizilir.
   if (!def?.run) return;
+  // Hazırlık kapısı: odası boş olan kapı çizilmez. Nabız da burada susar —
+  // çizilmeyen bir chip önerilmiş SAYILMAZ, yoksa Araç Nabzı'nın öneri
+  // sayısı hiç görülmemiş chip'lerle şişer (09·D'nin ölçüsü bozulurdu).
+  if (!_hazirMi(def)) return;
   // Araç Nabzı: chip GERÇEKTEN çizildiğinde sayılır (09·D) — tanımsız araç hiç sayılmaz.
   try { window.wtLogArac?.('oner', { arac: entry.tool }); } catch (_) {}
   const chip = document.createElement('div');
@@ -327,7 +410,6 @@ window.aracAfterReply  = aracAfterReply;
 window.aracRunTool     = aracRunTool;
 window.aracDismiss     = aracDismiss;
 window.takipAsk        = takipAsk;
-/* Etiket çözücüleri de window'dan — 10B ve 12e bu dosyayı STATİK import
-   ETMEZ (13a→06/13-extras→03-auth-shell→10B/12e döngüsü kapanır); köprü
-   burada, tıpkı 13a'nın kendi run() fonksiyonlarının window.glGiveSozNow?.()
-   ile başka modülleri çağırması gibi (K5). */
+/* Etiket çözücüleri BU LİSTEDE YOK ve olmamalı: 10B/12e onları saf
+   yapraktan (13a1) statik alır. Buraya bir köprü eklemek, sıyırmayı yeniden
+   çalışma zamanına bağlar — kapı: tests/etiket-siyirma-kapisi.test.js. */

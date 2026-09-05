@@ -92,10 +92,11 @@ describe('wtLogArac — sözleşme', () => {
     expect(row.user_id).toBe('u1');
   });
 
-  it('dört aracın hepsi kapalı kümededir', async () => {
+  it('yedi aracın hepsi kapalı kümededir', async () => {
     const { wt } = await inited();
-    ['soz', 'not', 'gecis', 'imge'].forEach(a => wt.wtLogArac('oner', { arac: a }));
-    expect(arac().map(r => r.prev_screen)).toEqual(['soz', 'not', 'gecis', 'imge']);
+    const hepsi = ['soz', 'not', 'gecis', 'imge', 'gordun', 'sabir', 'ayna'];
+    hepsi.forEach(a => wt.wtLogArac('oner', { arac: a }));
+    expect(arac().map(r => r.prev_screen)).toEqual(hepsi);
   });
 
   it('arac küme dışı değerde null olur, satır yine yazılır', async () => {

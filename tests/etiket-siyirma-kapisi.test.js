@@ -53,6 +53,22 @@ describe('etiket sıyırma — çalışma zamanına DEĞİL derleme zamanına ba
     }
   });
 
+  /* KAPININ KÖR NOKTASI — ölçüldü (2026-09-05 · Opus öz-denetimi).
+     Yukarıdaki iddialar yorumları SÖKEREK bakar; bu bilinçliydi (bu dosyanın
+     kendi başlığı köprünün adını anıyor) ama kapı tam orada kör kaldı:
+     FAZ 9 köprüyü KODDAN sildi, köprüyü ANLATAN yorum üç dosyada kaldı ve
+     "13a'yı STATİK import ETMEZ · köprü burada" diyerek bir sonraki
+     tüketiciyi silinmiş yola davet etmeye devam etti. Kapı yeşildi, davet
+     ayaktaydı — silinen bir mekanizmanın gerekçesi, mekanizmanın kendisi
+     kadar davet edicidir. Ölü köprünün ADI kaynakta hiç geçmemeli, yorumda
+     da: §5.2'nin "Yorum = NEDEN" kuralının ölçülebilir hâli budur
+     (§6.6 üçüncü basamak — kural yoktu değil, ÖLÇÜLEMİYORDU). */
+  it.each([...TUKETICILER, 'js/parts/13a-arac-motoru.js'])(
+    '%s silinen köprüyü YORUMDA bile anmıyor', (dosya) => {
+      expect(oku(dosya), `${dosya} ölü köprünün adını taşıyor`)
+        .not.toMatch(/window\.aracEtiket/);
+    });
+
   it('kapının kendisi çalışıyor — ihlali gerçekten yakalar (§10.5)', () => {
     const sahte = "const re = window.aracEtiketCoz?.('kart', t);";
     const kod = sahte.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');

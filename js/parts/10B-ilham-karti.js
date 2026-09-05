@@ -60,13 +60,11 @@
 import { S } from '../state.js';
 import { etiketCoz, etiketRegex } from './13a1-arac-etiketleri.js';
 import { t } from './15-i18n.js';
-// 13a-arac-motoru.js STATİK import EDİLMEZ: 06-summary-chat + 13-extras
-// üstünden 03-auth-shell'e (bu dosyayı zaten import eden modül) döngü
-// kapatır. 13a boot'ta (14-boot→registerAracHooks) zaten yükleniyor ve
-// Etiket kaydı 13a1'de (SAF YAPRAK) — statik import, döngü yok.
-// (§5.2 "window expose bloğu" — _ARAC_DEFS'in run() fonksiyonlarının
-// window.glGiveSozNow?.() emsali). İlk gerçek Emre mesajı boot'tan çok
-// sonra gelir; testler 13a'yı yan-etki olarak import ederek aynı köprüyü kurar.
+// Yukarıdaki import 13a1'edir, 13a'ya DEĞİL: 13a'yı statik almak
+// 13a→06-summary-chat/13-extras→03-auth-shell→10B döngüsünü kapatır.
+// 13a1 hiçbir şey import etmeyen SAF YAPRAKTIR, o yüzden bu bağ döngü
+// doğurmaz ve "protokol blokları DAİMA sıyrılır" sözleşmesi çalışma
+// zamanına değil DERLEME zamanına bağlanır (FAZ 9 denetimi).
 
 /* ══════════════════════════════════════════════════════════════
    ANONİM RUMUZ — sabit, user_id türevli (paylaşımda gerçek ad yok)

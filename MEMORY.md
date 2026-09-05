@@ -68,6 +68,11 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   ölçüm boşluğundan daha sinsi bir kusur üretir: okuyanı yapılmış işi
   yeniden yapmaya çağırır; oda 02 ve 08 tam bunu yapıyordu — durum satırı
   koda karşı grep'lenmeden okunmaz, kod yorumları rapordan güncel olabilir
+- [[silinen-mekanizmanin-gerekcesi]] — bir mekanizma koddan silinince onu
+  ANLATAN yorum da silinmelidir: kalan gerekçe bir sonraki tüketiciyi aynı
+  silinmiş yola davet eder ve yorumları sökerek bakan kapılar (ör.
+  `etiket-siyirma-kapisi`) tam orada kördür — FAZ 9'un köprüsü üç dosyada
+  yorumda yaşamaya devam etmişti
 
 ## Motorlar ve tuzaklar
 - [[turkce-i-regex-korlugu]] — JS'in `/i` bayrağı Türkçe büyük `I`yı `ı`ya

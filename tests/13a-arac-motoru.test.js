@@ -9,21 +9,33 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+/* showToast mock'lanır: "araç çalıştırılamadı" ARTIK bir sözleşmedir
+   (FAZ 10 · _ac) — köprü yokken sessizce başarı raporlanmadığını ancak
+   kullanıcıya bir şey söylendiğini görerek kanıtlayabiliriz. */
+vi.mock('../js/parts/00a-infrastructure.js', async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, showToast: vi.fn() };
+});
+
 vi.mock('../js/parts/07-settings-knowledge.js', async (importOriginal) => {
   const actual = await importOriginal();
   return { ...actual, saveNoteDirect: vi.fn() };
 });
 
 import { S } from '../js/state.js';
-import { aracExtract, aracRunTool, aracDismiss, takipAsk } from '../js/parts/13a-arac-motoru.js';
+import { aracExtract, aracRunTool, aracDismiss, takipAsk, aracAfterReply } from '../js/parts/13a-arac-motoru.js';
+import { showToast } from '../js/parts/00a-infrastructure.js';
 import { cleanHistoryText } from '../js/parts/00-config-tracking.js';
 import { saveNoteDirect } from '../js/parts/07-settings-knowledge.js';
 
 beforeEach(() => {
   saveNoteDirect.mockReset();
+  showToast.mockReset();
   document.body.innerHTML = '';
   delete window.glGiveSozNow;
   delete window.oikOpenReading;
+  ['gorOpen', 'gorDayWindow', 'usGetTodayVision', 'yolOpenSabir', 'ayOpen',
+   'ypGetHipotezler', 'wtLogArac'].forEach(k => { delete window[k]; });
 });
 
 describe('aracExtract — blok ayrıştırma', () => {
@@ -250,5 +262,152 @@ describe('cleanHistoryText — eski kirli kayıtların geri-okuma temizliği', (
   it('13a henüz yüklenmemişse filigranı yine de soyar (sessiz düşüş)', () => {
     delete window.aracExtract;
     expect(cleanHistoryText('[bu yanıt "tasarla" modunda yazıldı]\nMerhaba')).toBe('Merhaba');
+  });
+});
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FAZ 10 — HAZIRLIK KAPISI ve DÜRÜST BAŞARISIZLIK
+
+   İki sözleşme sınanır ve ikisi de aynı cümleden doğar: bir chip VAATTİR.
+     1. `hazir()` false ise chip HİÇ çizilmez — odası boş kapıya davet
+        edilmez (§1.1 kart değil kaldıraç).
+     2. Köprü yüklü değilse `run` başarı RAPORLAMAZ — kullanıcı bir şey
+        olmasını bekleyip hiçbir şey olmamasıyla baş başa bırakılmaz (§6.2).
+   İkincisi bu turdan ÖNCE kırıktı: `window.glGiveSozNow?.(); return true;`
+   köprü yokken sessizce `true` dönüyordu. Aşağıdaki "köprü yokken" testi
+   dün KIRMIZI olurdu — bir kapının değerini gösteren tek ölçü budur.
+═══════════════════════════════════════════════════════════════════════ */
+describe('FAZ 10 — hazırlık kapısı: odası boş olan kapı çizilmez', () => {
+  function ciz(tool) {
+    document.body.innerHTML = '<div id="messages-area"><div id="msg"></div></div>';
+    aracAfterReply(document.getElementById('msg'), { tools: [{ tool, args: null }], kagit: null, takip: [] });
+    return document.querySelector('.arac-chip');
+  }
+
+  it('gordun: OİK penceresi doluysa ve bugün bakılmadıysa chip çizilir', () => {
+    window.gorDayWindow = () => ({ source: 'oik' });
+    window.usGetTodayVision = () => null;
+    expect(ciz('gordun')).not.toBeNull();
+  });
+
+  it('gordun: OİK kartı yoksa (source:empty) chip ÇİZİLMEZ', () => {
+    window.gorDayWindow = () => ({ source: 'empty' });
+    window.usGetTodayVision = () => null;
+    expect(ciz('gordun')).toBeNull();
+  });
+
+  it('gordun: bugün zaten bakıldıysa chip ÇİZİLMEZ (mühür düştü)', () => {
+    window.gorDayWindow = () => ({ source: 'oik' });
+    window.usGetTodayVision = () => ({ text: 'bugünkü bakış' });
+    expect(ciz('gordun')).toBeNull();
+  });
+
+  it('ayna: aday hipotez varsa çizilir, yoksa ÇİZİLMEZ', () => {
+    window.ypGetHipotezler = () => [{ durum: 'aday' }];
+    expect(ciz('ayna')).not.toBeNull();
+    window.ypGetHipotezler = () => [{ durum: 'soruldu' }];
+    expect(ciz('ayna')).toBeNull();
+  });
+
+  it('ayna: köprü hiç yüklenmemişse ÇİZİLMEZ (doğrulanamayan oda açılmaz)', () => {
+    expect(ciz('ayna')).toBeNull();
+  });
+
+  /* Bu testin yokluğu gerçek bir kırık sakladı (kendi diff okumasında
+     bulundu): `gordun`'un ilk `hazir`'i `(window.gorDayWindow?.() || {})
+     .source !== 'empty'` yazıyordu ve 10E yüklü değilken `undefined !==
+     'empty'` DOĞRU dönüyordu — kapı, tam olarak engellemek için var olduğu
+     şeyi geçiriyordu. `ayna`nın aynı hâli tesadüfen doğruydu; simetri
+     sınanmadığı için görünmedi. Sınav, sınadığını sınamalıdır. */
+  it('gordun: köprü hiç yüklenmemişse ÇİZİLMEZ (ayna ile simetrik)', () => {
+    expect(ciz('gordun')).toBeNull();
+  });
+
+  it('hazir() throw ederse chip ÇİZİLMEZ (sessiz düşüş, §5.2)', () => {
+    window.ypGetHipotezler = () => { throw new Error('portre yüklenmedi'); };
+    expect(ciz('ayna')).toBeNull();
+  });
+
+  it('sabir: ön koşulu YOK — hiçbir köprü yokken bile çizilir', () => {
+    expect(ciz('sabir')).not.toBeNull();
+  });
+
+  it('eski dört araç hazir() taşımaz — davranışları değişmedi', () => {
+    ['soz', 'gecis', 'imge'].forEach(tool => {
+      expect(ciz(tool), `${tool} chip'i çizilmedi`).not.toBeNull();
+    });
+  });
+
+  it('çizilmeyen chip ÖNERİLMİŞ SAYILMAZ — Araç Nabzı susar (09·D ölçüsü)', () => {
+    const nabiz = vi.fn();
+    window.wtLogArac = nabiz;
+    window.gorDayWindow = () => ({ source: 'empty' });
+    ciz('gordun');
+    expect(nabiz).not.toHaveBeenCalled();
+    window.gorDayWindow = () => ({ source: 'oik' });
+    ciz('gordun');
+    expect(nabiz).toHaveBeenCalledWith('oner', { arac: 'gordun' });
+  });
+});
+
+describe('FAZ 10 — üç yeni araç kendi törenini açar, yeni motor kurmaz', () => {
+  function chip(tool) {
+    const el = document.createElement('div');
+    el.className = 'arac-chip';
+    el.dataset.tool = tool;
+    const btn = document.createElement('button');
+    el.appendChild(btn);
+    document.body.appendChild(el);
+    return btn;
+  }
+
+  it('gordun → window.gorOpen', async () => {
+    const spy = vi.fn();
+    window.gorOpen = spy;
+    window.gorDayWindow = () => ({ source: 'oik' });
+    window.usGetTodayVision = () => null;
+    await aracRunTool(chip('gordun'));
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('sabir → window.yolOpenSabir', async () => {
+    const spy = vi.fn();
+    window.yolOpenSabir = spy;
+    await aracRunTool(chip('sabir'));
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('ayna → window.ayOpen', async () => {
+    const spy = vi.fn();
+    window.ayOpen = spy;
+    window.ypGetHipotezler = () => [{ durum: 'aday' }];
+    await aracRunTool(chip('ayna'));
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('BAYAT CHIP: çizildikten sonra oda boşaldıysa tören AÇILMAZ', async () => {
+    const spy = vi.fn();
+    window.gorOpen = spy;
+    // Chip çizilirken hazırdı; kullanıcı başka bir sekmede bugünkü bakışı yaptı.
+    window.gorDayWindow = () => ({ source: 'oik' });
+    window.usGetTodayVision = () => ({ text: 'başka sekmede yapıldı' });
+    await aracRunTool(chip('gordun'));
+    expect(spy).not.toHaveBeenCalled();
+    expect(showToast).toHaveBeenCalled();          // sessizce yutulmadı
+  });
+
+  it('KÖPRÜ YOKKEN başarı raporlanmaz — dün bu test KIRMIZI olurdu (§6.2)', async () => {
+    delete window.glGiveSozNow;                    // modül yüklenmemiş
+    await aracRunTool(chip('soz'));
+    expect(showToast).toHaveBeenCalled();
+  });
+
+  it('onay yine de sayılır — nabız bayat chip\'te de "onayla" yazar', async () => {
+    const nabiz = vi.fn();
+    window.wtLogArac = nabiz;
+    window.ypGetHipotezler = () => [];             // aday yok → hazır değil
+    await aracRunTool(chip('ayna'));
+    expect(nabiz).toHaveBeenCalledWith('onayla', { arac: 'ayna' });
   });
 });
