@@ -73,5 +73,9 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
     oraya repo tarafından konan dosya ilk senkronda silinir. Lokaldeysen memory
     aracına yaz, kapanıştan önce `disa` koştur (kapı: `… fark` temiz olmalı),
     sonra commit et.
-    Roller ve tek depoya inme sırası: `.claude/memories/README.md`.
-    Geçiş envanteri: `TASINABILIR-ZEMIN.md`.
+    İkilik bir borç değil, senkronun doğru çalışmasının sonucudur: `disa`
+    kolu artık aynada fazladan kalanı sessizce silmez, durup gösterir ve
+    doğru yeri söyler. Tek depoya inmek için yapılacak bir iş YOKTUR.
+    Roller: `.claude/memories/README.md` · kapı:
+    `tests/hafiza-senkron-kapisi.test.js` · geçiş envanteri:
+    `TASINABILIR-ZEMIN.md`.

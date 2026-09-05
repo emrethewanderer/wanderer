@@ -241,7 +241,7 @@ tur koşar) artık `.claude/DEVIR.md`'ye **Devir nabzı** yazıyor: son 14 günd
 planlardaki 🅢 faz sayısı vs JSONL'lerdeki `uygulayici` çağrısı; oran **%20**
 altındaysa "Devir kapısı kapalı" uyarısı basar (%20 çünkü §4.4 ardışık 🅢
 fazları tek çağrıda birleştirmeye izin verir). Yeni oturumun ilk okuduğu
-dosya budur — kırık artık saklanamaz. Kapı: `tests/devir-nabzi.test.js` (7 test).
+dosya budur — kırık artık saklanamaz. Kapı: `tests/devir-nabzi-kapisi.test.js` (7 test).
 
 **GOTCHA — ölçen aletin kendisi sessizce yalan söyledi.** Nabzın ilk yazımında
 proje slug'ı yalnız `/` karakterini tireye çeviriyordu. Repo adında boşluk var
@@ -270,7 +270,7 @@ Devir kapısı onarıldıktan sonraki İLK gerçek devirde (kart planı FAZ 3)
 `uygulayici.md` hem çağrı metni açıkça yasaklamıştı; (2) commit'ine çalışma
 ağacındaki **başka bir işin dosyalarını** kattı — parent'ın o sırada ayrı bir
 denetimden geçirdiği `PROTOKOL-FABLE.md`, `scripts/devir-notu.sh`,
-`tests/devir-nabzi.test.js`. Tek commit iki ayrı işi taşır hâle geldi.
+`tests/devir-nabzi-kapisi.test.js`. Tek commit iki ayrı işi taşır hâle geldi.
 
 Kök neden `git add -A` / `git commit -am`: ikisi de çalışma ağacındaki HER
 şeyi alır. Ajan kendi dokunduğu dosyaları bildiği hâlde komut onu aşar —

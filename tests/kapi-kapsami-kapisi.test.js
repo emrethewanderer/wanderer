@@ -65,7 +65,7 @@ export function kapiDeseni(betik) {
 
 /** Hem süreç açıyor hem de bir `scripts/*.mjs` adı taşıyor mu? */
 export function denetciKosturuyor(kaynak) {
-  return /\b(spawnSync|execFileSync)\b/.test(kaynak) && /scripts\/[A-Za-z0-9._-]+\.mjs/.test(kaynak);
+  return /\b(spawnSync|execFileSync)\b/.test(kaynak) && /scripts\/[A-Za-z0-9._-]+\.(mjs|sh)/.test(kaynak);
 }
 
 /** Bir tests/ dizinini tarar, desen dışında kalan denetçi-koşturanları döner. */

@@ -1,67 +1,59 @@
 # `.claude/memories/` — repo tarafında yazılan hafıza
 
-> **Bu dizin `.claude/hafiza/`nın rakibi değil, tamamlayıcısıdır.** İkisi ayrı
-> şeyler tutar ve ikisi de okunur. Bu belge 2026-09-05'te, iki dizin yan yana
-> gelince yazıldı — çünkü adlandırılmamış bir ikilik, sessiz bir paralel
-> sistemdir (§1.3) ve sessiz olduğu sürece kimse hangisinin gerçek olduğunu
-> bilemez.
+> Hafıza bu repoda **iki dizinde** yaşar. Bu bir kaza değil, tasarımdır — ve
+> tasarım olduğu 2026-09-05'te anlaşıldı: ikisi yan yana gelince önce "paralel
+> sistem" (§1.3) sanıldı, ölçüm bunu yanlışladı. İkisi ayrı şeyler tutuyor.
 
 ## İki depo, iki rol
 
 | | `.claude/hafiza/` | `.claude/memories/` (burası) |
 |---|---|---|
-| Ne tutar | Emre'nin lokal hafızasının **aynası** | Repo tarafında, **koda karşı** yazılmış hafıza |
+| Ne | Emre'nin lokal hafızasının **aynası** | Repo tarafında, **koda karşı** yazılmış hafıza |
 | Gerçek kaynağı | `~/.claude/projects/<slug>/memory/` | bu repo |
 | Nasıl tazelenir | `./scripts/hafiza-senkron.sh disa` | elle, yazıldığı turda |
-| Elle düzenlenir mi | **HAYIR** — türevdir | evet, burası asıldır |
-| Dosya (2026-09-05) | 195 | 38 |
+| Elle düzenlenir mi | **HAYIR** — türevdir, ilk senkronda üzerine yazılır | evet, burası asıldır |
+| Ne söyler | kararın **niçin** verildiğini | bugün kodda **nerede** durduğunu |
 
-**Kritik mekanik:** `hafiza-senkron.sh disa` kolu `rsync -a --delete` kullanır.
-Yani `.claude/hafiza/` içine repo tarafında yazılan bir dosya, Emre'nin bir
-sonraki senkronunda **silinir** — kaynakta karşılığı yoktur. Bu yüzden uzak
-oturumda (GitHub/cloud) yazılan hafıza **buraya** yazılır, `hafiza/`ya değil.
-Kuralı tek cümleyle: *aynaya yazılmaz, aynanın baktığı şeye yazılır — ve uzak
-oturumun o şeye erişimi yoktur, o yüzden kendi defterine yazar.*
+**Kural tek cümledir: aynaya yazılmaz, aynanın baktığı şeye yazılır.** Uzak
+oturumun (GitHub/cloud) aynanın kaynağına erişimi yoktur — bu yüzden kendi
+defterine, buraya yazar.
+
+## Neden ayrı duruyorlar
+
+Senkronun kaynağı repo değildir. Aynaya repo tarafından yazılan bir dosyanın
+kaynakta karşılığı yoktur; eskiden `rsync --delete` onu **sessizce siliyordu**
+ve kimse görmüyordu. Betik artık durup soruyor (`disa`, silinecekleri önce
+gösterir) ve doğru cevabı da söylüyor: dosyayı buraya taşı.
+
+Yani ikilik bir borç değil, senkronun **doğru** çalışmasının sonucudur.
+Tek depoya inmek için yapılması gereken bir iş **yoktur**.
 
 ## Ad çakışması — 24 ad ikisinde de var
 
 Ölçüldü (2026-09-05): 24 ad her iki dizinde de duruyor ve **24'ünün de içeriği
-farklı**. 14 ad yalnız burada, 171 ad yalnız `hafiza/`da.
+farklı**. 14 ad yalnız burada, 171 ad yalnız aynada.
 
-Çakışan 24'ün 19'u burada kendi hakkında şunu yazar: *"bu metin kurtarma
-değildir, bugünkü koddan yeniden keşifle yazıldı"* — çünkü yazıldıkları gün
-özgün hafıza repoda yoktu (`TASINABILIR-ZEMIN.md` §0: model kuralı biliyordu,
-kuralın uygulanma geçmişini bilmiyordu).
+Çakışan 24'ün 19'u burada kendi hakkında *"bu metin kurtarma değildir, bugünkü
+koddan yeniden keşifle yazıldı"* der — yazıldıkları gün özgün hafıza repoda
+yoktu (`TASINABILIR-ZEMIN.md`). İlk refleks o 19'u silmekti. Ölçüm durdurdu:
+**16'sı, aynadaki özgün sürümde BULUNMAYAN repo yolları taşıyor**
+(`js/parts/…`, `tests/…`, `scripts/…` çapaları). Bugünün koduna karşı
+doğrulanmış bilgi — silmek onu atmak olurdu.
 
-**Ama bunlar üstü çizilecek taslak değil.** Ölçüm: o 19 dosyanın **16'sı**,
-`hafiza/`daki özgün sürümde BULUNMAYAN repo yolları taşıyor (`js/parts/…`,
-`tests/…`, `scripts/…` çapaları). Özgün hafıza *ne yaşandığını* taşır; buradaki
-sürüm *bugün kodda ne durduğunu*. İkisi aynı olayın iki farklı kaydıdır ve
-biri ötekinin yerine geçmez.
+**Çakışan bir adda ikisini de oku.** Farklı içerik ihlal değildir; iki kayıt
+aynı olayın iki yüzüdür.
 
-Bu yüzden bu turda **hiçbir dosya silinmedi**. Silmek, doğrulanmış repo
-bilgisini atmak olurdu.
+İhlal olan tek şey **birebir kopyadır**: aynı ad iki depoda aynı içerikle
+dururken ikilik bir role değil bir kazaya döner, ve hangisinin güncelleneceği
+belirsizleşir. Kapısı `tests/hafiza-senkron-kapisi.test.js`'tedir; bugün sıfır
+kopya var ve doğması yasaktır.
 
-## Okuyan taraf ne yapmalı
+## Yazarken
 
-Bir hafıza adını ararken **iki dizine de bak**. `CLAUDE.md` madde 13 bunu
-söyler; `tests/referans-butunlugu-kapisi.test.js` de `[[bağ]]` hedeflerini
-ikisinde birden çözer — bir ad hangisinde bulunursa bağ sağlamdır.
-
-Çakışan bir adda ikisini de oku: `hafiza/` kararın **niçin** verildiğini,
-buradaki sürüm bugünkü **nerede** durduğunu söyler.
-
-## Senin yapman gereken (Emre, elle — acele değil)
-
-İki depoyu tek depoya indirmek istersen sıra şudur ve **repo tarafından
-yapılamaz**:
-
-1. `./scripts/hafiza-senkron.sh ice` — repo türevini lokal hafızaya al
-   (`--delete` yok, lokalde yeni yazılmış hafıza korunur).
-2. Buradaki 38 dosyanın taşımak istediklerini lokal hafızaya elle işle —
-   çakışan 24'te iki metni birleştir, 14 tekil dosyayı olduğu gibi al.
-3. `./scripts/hafiza-senkron.sh disa` — tazelenmiş kaynak `hafiza/`ya yazılır.
-4. Ancak o zaman bu dizin boşaltılabilir ve `CLAUDE.md` madde 13 tek depoya
-   indirilebilir.
-
-Sırayı bozup önce burayı silmek, 2. adımda taşınacak metni yok eder.
+- **Uzak oturumdaysan** hafızayı buraya yaz, `hafiza/`ya değil.
+- **Lokaldeysen** memory aracına yaz; kapanıştan önce
+  `./scripts/hafiza-senkron.sh disa` koştur (kapı: `… fark` temiz olmalı).
+- Her iki hâlde `MEMORY.md` indeksine tek satır ekle (§7).
+- Bir hafıza adını **ararken iki dizine de bak**;
+  `tests/referans-butunlugu-kapisi.test.js` de `[[bağ]]` hedeflerini ikisinde
+  birden çözer, yani bir ad hangisinde bulunursa bağ sağlamdır.

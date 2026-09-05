@@ -1322,7 +1322,7 @@ başarısız bir `uygulayici` denemesi transkripte yazıldığı için **yapılm
 sayabilir**. 2026-09-02'de tam olarak bu oldu: nabız "2 çağrı" bastı, ikisi de
 başarısız denemeydi, gerçekte yapılan beş devir sayılmadı.
 
-Ders `tests/devir-nabzi.test.js`'in kendi cümlesidir: *"Ölçen aletin kendisi
+Ders `tests/devir-nabzi-kapisi.test.js`'in kendi cümlesidir: *"Ölçen aletin kendisi
 ölçülmezse ölçüm bir teselli olur."* Bir nabız kırmızı bastığında önce
 **aletin o ortamda ne ölçebildiğini** sor, sonra kuralın öldüğüne hükmet.
 

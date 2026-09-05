@@ -1,6 +1,6 @@
 ---
 name: iki-hafiza-deposu
-description: .claude/hafiza/ lokal hafızanın AYNASI (disa kolu rsync --delete kullanır, oraya repo tarafından yazılan dosya silinir), .claude/memories/ ise repo tarafında koda karşı yazılan hafıza — ikisi de okunur
+description: .claude/hafiza/ lokal hafızanın AYNASI, .claude/memories/ repo tarafında koda karşı yazılan hafıza — ikisi de okunur; disa kolu artık aynada fazladan kalanı sessizce silmez, durur ve gösterir
 type: architecture
 ---
 
@@ -34,10 +34,14 @@ kendisi değil, **adlandırılmamış** olmasıydı.
   `tests/referans-butunlugu-kapisi.test.js` de `[[bağ]]` hedeflerini ikisinde
   birden çözer (`HAFIZA_DIZINLERI`). Çakışan adda ikisini de oku.
 - **Yazarken uzak oturumdaysan `.claude/memories/` altına yaz.** `hafiza/`ya
-  YAZMA: `scripts/hafiza-senkron.sh disa` kolu `rsync -a --delete` kullanır ve
-  kaynakta karşılığı olmayan dosyayı ilk senkronda **siler**. Aynaya yazılmaz.
+  YAZMA: aynanın kaynağı repo değildir, oraya yazdığın dosyanın kaynakta
+  karşılığı yoktur. Eskiden `disa` kolu onu `rsync -a --delete` ile
+  **sessizce siliyordu**; 2026-09-05'te düzeltildi — betik artık durur,
+  silinecekleri gösterir ve doğru yeri söyler; silmek `--sil` ile bilinçli
+  bir eylemdir. Yine de aynaya yazılmaz: ilk senkron üzerine yazar.
 - **Lokaldeysen** memory aracına yaz, kapanıştan önce `disa` koştur.
-- Tek depoya inme sırası ve gerekçesi `.claude/memories/README.md`'de; sıra
-  bozulup önce `memories/` silinirse taşınacak metin yok olur.
+- **Tek depoya inmek için yapılacak bir iş yok.** İkilik bir borç değil,
+  senkronun doğru çalışmasının sonucudur. İhlal olan tek şey birebir kopyadır
+  (aynı ad, aynı içerik, iki depo) — kapısı `tests/hafiza-senkron-kapisi.test.js`.
 
 Bağlam: `TASINABILIR-ZEMIN.md` (geçiş envanteri), `CLAUDE.md` madde 13.

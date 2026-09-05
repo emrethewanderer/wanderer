@@ -26,7 +26,7 @@ let kok; // her koşuda taze geçici kök
 
 /** Boşluklu dizin adı BİLEREK seçildi — asıl bug oradaydı. */
 function sahteRepoKur() {
-  const taban = fs.mkdtempSync(path.join(os.tmpdir(), 'devir-nabzi-'));
+  const taban = fs.mkdtempSync(path.join(os.tmpdir(), 'devir-nabzi-kapisi-'));
   const repo = path.join(taban, 'Wanderer AI');
   const ev = path.join(taban, 'ev');
   fs.mkdirSync(path.join(repo, 'scripts'), { recursive: true });

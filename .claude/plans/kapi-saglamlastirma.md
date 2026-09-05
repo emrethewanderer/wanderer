@@ -206,7 +206,7 @@ hata sessizce yutulur ve denetçi yanlışlıkla exit 0 basabilir. **Önce ölç
 **Yeniden kullanılan (yeni yazma — bunlar zaten var):**
 - `mkdtempSync(join(tmpdir(), …))` deseni — on kapıda zaten kullanılıyor
   (`xss-kapisi`, `bagsiz-ad-kapisi`, `gerceklik-kapisi`, `yetim-kopru`,
-  `ihtimalsel-dil`, `referans-butunlugu-kapisi`, `devir-nabzi`, `tasarim-kapisi`'nin
+  `ihtimalsel-dil`, `referans-butunlugu-kapisi`, `devir-nabzi-kapisi`, `tasarim-kapisi`'nin
   `sina()` yardımcısı). T7 bu desenin dışında kalan TEK istisnaydı.
 - `--dizin` bayrağı — `tasarim-denetci.mjs:68` zaten var, T7 kullanamıyordu.
 - ENOENT-güvenli `gez()`/`dosyalar()` — dört denetçide mevcut.
