@@ -14,6 +14,7 @@ import { S } from '../state.js';
 import { t } from './15-i18n.js';
 import { escapeHTML } from './00a-infrastructure.js';
 import { ensureExt } from './00-ext-loader.js';
+import { sb } from '../config.js';
 
 // export: tanışma paneli (03-auth-shell) bülten rızasının kaynak sürümünü
 // (bulten_izin_surum) buradan okur — ikinci bir sürüm sabiti TANIMLANMAZ,
@@ -21,6 +22,51 @@ import { ensureExt } from './00-ext-loader.js';
 export const HK_VERSION = '1.3'; // 1.3: Kod kapısı — şifresiz giriş, kullanıcı adı, e-posta iletileri + bülten rızası ve teslimat kayıtları
 const HK_EFFECTIVE = '2026-08-27'; // yürürlük tarihi (ISO) — metin güncellenince artır
 const HK_CONTACT   = 'emre.gulluce.eg@gmail.com';
+
+/* DEFTERİ OKUYAN TARAF (FAZ 8a) — ve buradaki tek karar şu:
+   **BİLİNMEYEN, "KABUL ETMEDİ" DEĞİLDİR.**
+   `054` ELLE bekliyor; tablo yokken sorgu hata döner. O hatayı `false`'a
+   çevirmek, defteri hiç okunmamış her kullanıcıyı "bu sürümü kabul etmedi"
+   diye damgalardı — ölçülmemiş bir şeyi ölçülmüş gibi göstermek (§6.10).
+   Bu yüzden üç hâl var, iki değil: `true` (satır var) · `false` (tablo var,
+   satır yok) · `null` (bilmiyoruz). Çağıran taraf `null`'da SUSAR. */
+export async function hkKabulVarMi(surum) {
+  if (!surum) return null;
+  try {
+    const { data } = await sb.auth.getSession();
+    const uid = data?.session?.user?.id;
+    if (!uid) return null;                       // oturum yok — hüküm de yok
+    const { data: rows, error } = await sb
+      .from('hukuk_kabul').select('kabul_at')
+      .eq('user_id', uid).eq('surum', surum).limit(1);
+    if (error) return null;                      // tablo yok / ağ — BİLMİYORUZ
+    return { kabul: !!(rows && rows.length), tarih: rows?.[0]?.kabul_at || null };
+  } catch (_) { return null; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RIZA DEFTERİ — "hangi kullanıcı hangi sürümü ne zaman kabul etti"
+   `bulten_izin_surum` (03-auth-shell) tek satırlık, üzerine yazılan bir
+   sürümdür ve AYRI bir rızadır (bülten). Bu defter onun yerine geçmez:
+   `hukuk_kabul` tablosu (user_id, surum) birincil anahtarıyla geçmişin
+   TAMAMINI tutar — sürüm arttığında yeni satır doğar, eskisi silinmez.
+   Migration `054_riza_defteri.sql` ELLE uygulanana kadar tablo yoktur;
+   bu yüzden yazma sessizce düşer (§5.2) — kayıt akışını ASLA bloklamaz.
+───────────────────────────────────────────────────────────── */
+export function hkKabulYaz(surum) {
+  if (!surum) return;
+  try {
+    sb.auth.getSession()
+      .then(({ data }) => {
+        const uid = data?.session?.user?.id;
+        if (!uid) return; // oturum yok — kaydedecek kimlik de yok
+        return sb.from('hukuk_kabul')
+          .upsert({ user_id: uid, surum }, { onConflict: 'user_id,surum', ignoreDuplicates: true });
+      })
+      .then((res) => { if (res?.error) console.warn('hkKabulYaz:', res.error.message || res.error); })
+      .catch((e) => console.warn('hkKabulYaz:', e && e.message));
+  } catch (e) { console.warn('hkKabulYaz:', e && e.message); }
+}
 
 /* ─────────────────────────────────────────────────────────────
    BELGELER — markdown-lite format:
@@ -235,9 +281,33 @@ export function mountHukukUI() {
   }
   section.querySelectorAll('.hk-settings-row').forEach(b =>
     b.addEventListener('click', () => hkOpen(b.dataset.kind)));
+
+  /* Rıza durumu — var olan sürüm satırının altına, YALNIZ bildiğimizde.
+     Bilinmiyorsa (tablo yok / oturum yok / ağ) hiçbir şey yazılmaz: bir
+     ayar da, bir kart da, neyi bilmediğini söylemekle neyi bildiğini
+     söylemek arasındaki farkı korur (§6.10 · FAZ 4 emsali). */
+  hkKabulVarMi(HK_VERSION).then((durum) => {
+    if (!durum || !section.isConnected) return;
+    const el = document.createElement('p');
+    el.style.cssText = 'font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:4px;';
+    el.textContent = durum.kabul
+      ? t('hk.kabul.var', 'Bu sürümü okudun.')
+      /* KAYIT YOKLUĞU BİR ÖYKÜ DEĞİLDİR (çapraz denetim bulgusu, Sonnet).
+         İlk metin "bu sürüm sen okuduktan SONRA güncellendi" diyordu — yani
+         olmayan bir okuma geçmişini iddia ediyordu. Defteri yazan tek yer
+         kayıt akışıdır (`03-auth-shell:732`); bugün hesabı olan HERKES o
+         satır eklenmeden önce geçti, yani onlarda `kabul:false` "eskisini
+         okudun" değil "hiç kayıt yok" demek. Fazın kendi gerekçesinin
+         kopyadaki tekrarı olurdu (§6.10): ölçülmemiş bir şeyi ölçülmüş gibi
+         anlatmak. Cümle artık yalnız bildiğimizi söylüyor. */
+      : t('hk.kabul.yok', 'Bu sürümü okuduğuna dair bir kaydımız yok — başlıklar yukarıda, dilediğin an açık.');
+    section.appendChild(el);
+  }).catch(() => {});
 }
 
 /* Inline onclick erişimi — minify'a dayanıklı */
 window.hkOpen  = hkOpen;
 window.hkClose = hkClose;
 window.mountHukukUI = mountHukukUI;
+window.hkKabulYaz = hkKabulYaz;
+window.hkKabulVarMi = hkKabulVarMi;

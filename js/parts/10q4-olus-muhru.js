@@ -465,6 +465,7 @@ function _perde2(portal, card, yol, soz) {
         title: card.name || '', sub: t('olus.share_sub', 'Artık o kişiyim.'),
         line: card.lesson || card.whisper || '',
         accent: 'var(--gold, #F5A623)', tier: 3,
+        tur: 'kart',
       });
     } catch (_) {}
   });

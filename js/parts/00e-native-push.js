@@ -54,6 +54,19 @@ function _bindListeners() {
     PN.addListener('pushNotificationActionPerformed', (action) => {
       const data = action?.notification?.data || {};
       _routeNotif(data.type || data.ntype || 'generic');
+      /* TIK ATIFI (FAZ 5 denetimi, 2026-09-04) — web tarafı sw.js üzerinden
+         atıf yazıyordu, native taraf HİÇ yazmıyordu. Wanderer bir Capacitor
+         uygulaması: yalnız web'i saymak, "tık oranı" gibi görünen ama
+         gerçekte WEB-ONLY bir oran üretirdi — kartın kaçınmak için
+         düzeltildiği hatanın ta kendisi (§6.10).
+         Bu modülün sorumluluk sınırı korunuyor (bkz. başlık): DB'ye BURASI
+         yazmaz, olayı duyurur; yazan taraf 10x'tir — `wndr-native-push-token`
+         köprüsünün birebir aynı kalıbı. */
+      try {
+        if (data.nid != null && data.nid !== '') {
+          window.dispatchEvent(new CustomEvent('wndr-native-notif-click', { detail: { nid: data.nid } }));
+        }
+      } catch (_) {}
     });
   } catch (_) {}
 }

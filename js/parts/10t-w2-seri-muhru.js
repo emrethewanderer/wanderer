@@ -466,6 +466,7 @@ export function smShareCard(card, note) {
       glyph: card.glyph, big: card.d, bigLabel: t('sm.share.daylabel'),
       title: card.name, sub: card.sub, line: card.line,
       note: (note || '').slice(0, 140), tier: card.tier,
+      tur: 'kart',
     });
   } catch (_) {}
 }

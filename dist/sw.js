@@ -2,7 +2,7 @@
 // CACHE adı her deploy'da değişmelidir; build.sh bu satırı bundle hash'iyle
 // otomatik damgalar (const CACHE = 'etw-<bundlehash>'). Elle düzenlemeye gerek yok.
 // Stale-while-revalidate stratejisi: önce cache'ten ver, arkada güncelle.
-const CACHE = 'etw-C03vC5_x';
+const CACHE = 'etw-BWlug32O';
 
 // HTML her zaman fresh: navigate isteklerinde network-first.
 const NAV_TIMEOUT_MS = 3000;
@@ -109,7 +109,9 @@ self.addEventListener('message', (e) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // WEB PUSH — uygulama KAPALIYKEN bile kullanıcıyı geri çağıran bildirimler.
 // Payload (send-push edge function tarafından gönderilir, JSON):
-//   { title, body, url, tag, type, icon }
+//   { title, body, url, tag, type, icon, nid }
+// nid: notification_log satır kimliği (İç Çalışma 11 · boşluk B, FAZ 5) —
+// yalnız engine tetiklemesinde gelir; yoksa tık atıfı hiç denenmez (K2).
 // ─────────────────────────────────────────────────────────────────────────────
 const PUSH_ICON = './icon-192.png'; // yerel marka ikonu (SW scope kökünde; dış bağımlılık yok)
 
@@ -131,7 +133,7 @@ self.addEventListener('push', (e) => {
       renotify: true,
       icon: data.icon || PUSH_ICON,
       badge: PUSH_ICON,
-      data: { url, type: data.type || 'generic' },
+      data: { url, type: data.type || 'generic', nid: data.nid ?? null },
       vibrate: [80, 40, 80],
     })
   );
@@ -141,6 +143,7 @@ self.addEventListener('notificationclick', (e) => {
   e.notification.close();
   const target = (e.notification.data && e.notification.data.url) || './index.html';
   const ntype  = (e.notification.data && e.notification.data.type) || 'generic';
+  const nid    = (e.notification.data && e.notification.data.nid) ?? null;
 
   e.waitUntil((async () => {
     const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
@@ -148,12 +151,14 @@ self.addEventListener('notificationclick', (e) => {
     for (const c of all) {
       if (c.url && new URL(c.url).origin === self.location.origin) {
         try { await c.focus(); } catch (_) {}
-        try { c.postMessage({ type: 'wndr-notif-click', url: target, ntype }); } catch (_) {}
+        try { c.postMessage({ type: 'wndr-notif-click', url: target, ntype, nid }); } catch (_) {}
         return;
       }
     }
     // Açık pencere yoksa yeni aç (hedef URL'i hash ile taşı — sayfa açılınca okur).
-    const openUrl = target.includes('#') ? target : `${target}#notif=${encodeURIComponent(ntype)}`;
+    // nid varsa ikinci parametre olarak eklenir; 10x _bindDeepLink ikisini de okur.
+    const notifParam = nid != null ? `notif=${encodeURIComponent(ntype)}&nid=${encodeURIComponent(nid)}` : `notif=${encodeURIComponent(ntype)}`;
+    const openUrl = target.includes('#') ? target : `${target}#${notifParam}`;
     if (self.clients.openWindow) await self.clients.openWindow(openUrl);
   })());
 });

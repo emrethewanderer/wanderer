@@ -281,6 +281,8 @@ export const I18N_EN = {
     // ── Legal framework (13p) — document bodies live in the module, these are UI labels
     'hk.section': 'Legal',
     'hk.section_desc': 'The agreement between you and Wanderer, how your data is protected, and the rights of the work.',
+    'hk.kabul.var': 'You\'ve read this version.',
+    'hk.kabul.yok': 'We have no record of you reading this version — the sections above are open whenever you like.',
     'hk.eyebrow': 'WANDERER · LEGAL',
     'hk.terms': 'Terms of Use',
     'hk.privacy': 'Privacy Policy',
@@ -2956,6 +2958,12 @@ export const I18N_EN = {
     'bld.status.denied': 'Notifications are blocked in browser settings. To enable, allow them in site permissions.',
     'bld.status.on': 'On. I\'ll call you back at the right moment — for your streak, your promise, that day\'s step.',
     'bld.status.off': 'Off. Turn it on so I can reach you at the right moment even when the app is closed.',
+    'bld.quiet.lead': 'At night, after what hour should we let you be?',
+    'bld.quiet.from': 'Quiet begins',
+    'bld.quiet.to': 'Quiet ends',
+    'bld.quiet.default': 'This is a default — you haven\'t chosen yet. Change it and I\'ll remember.',
+    'bld.quiet.set': 'Your choice. You can change it whenever you like.',
+    'bld.quiet.saved': 'Done — I\'ll stay quiet between those hours.',
     'bld.bc.empty': 'The notification text cannot be empty.',
     'bld.bc.confirm': 'This notification will be sent to ALL notification-enabled users. Are you sure?', /* IHTIMAL-MUAF: admin onay diyaloğu — gönderim eylemi kesin sonuçtur, TR karşılığı da MUAF */
     'bld.bc.sending': 'Sending…',

@@ -278,6 +278,8 @@ export const I18N_CORE = {
     // ── Hukuki Çerçeve (13p) — belge gövdeleri modülde yaşar, bunlar UI etiketleri
     'hk.section': 'Hukuki Çerçeve',
     'hk.section_desc': 'Wanderer ile aranızdaki sözleşme, verinin nasıl korunduğu ve eserin hakları.',
+    'hk.kabul.var': 'Bu sürümü okudun.',
+    'hk.kabul.yok': 'Bu sürümü okuduğuna dair bir kaydımız yok — başlıklar yukarıda, dilediğin an açık.',
     'hk.eyebrow': 'WANDERER · HUKUKİ ÇERÇEVE',
     'hk.terms': 'Kullanım Koşulları',
     'hk.privacy': 'Gizlilik Politikası',
@@ -3007,6 +3009,12 @@ export const I18N_CORE = {
     'bld.status.denied': 'Bildirimler tarayıcı ayarlarından engellenmiş. Açmak için site izinlerinden ver.', /* IHTIMAL-MUAF: izin hatası — tarayıcı ayarı yönergesi net olmalı (§3.5) */
     'bld.status.on': 'Açık. Seni doğru anda — serin, sözün, o günkü adımın için — geri çağıracağım.',
     'bld.status.off': 'Kapalı. Aç ki uygulama kapalıyken bile sana doğru anda seslenebileyim.',
+    'bld.quiet.lead': 'Gece kaçtan sonra sana dokunmayalım?',
+    'bld.quiet.from': 'Sessizlik başlar',
+    'bld.quiet.to': 'Sessizlik biter',
+    'bld.quiet.default': 'Bu bir varsayılan — henüz sen seçmedin. Değiştirirsen aklımda tutarım.',
+    'bld.quiet.set': 'Senin seçimin. İstediğin an değiştirebilirsin.',
+    'bld.quiet.saved': 'Tamam — o saatler arası sessizim.',
     'bld.bc.empty': 'Bildirim metni boş olamaz.',
     'bld.bc.confirm': 'Bu bildirim TÜM bildirim-açık kullanıcılara gönderilecek. Emin misin?', /* IHTIMAL-MUAF: admin onay diyaloğu — gönderim eylemi kesin sonuçtur, netlik şart */
     'bld.bc.sending': 'Gönderiliyor…',

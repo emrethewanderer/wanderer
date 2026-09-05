@@ -97,7 +97,7 @@
 ═══════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { dp, p } from './16-i18n-prompts.js';
+import { dp, dpTest, dpNormalizeKonum, p } from './16-i18n-prompts.js';
 import { kokenKirp, kokenOlc, kokenVar } from './13y-koken.js';
 import { SafeStorage, localISODate } from './00a-infrastructure.js';
 
@@ -169,8 +169,7 @@ const _OLUMSUZ_EK_RE = /(mıyorum|miyorum|muyorum|müyorum|madım|medim|madı$|m
  *    cümlede önceki fiilin eki kederi OLUMLUYA çevirir — denetimde
  *    (2026-08-29) bu yan etki yakalandı ve kanal ayrıldı. */
 function _olumsuzMu({ once, sonra }) {
-  const desenler = dp('detect.olumsuzlama');
-  const sozlukVar = once.concat(sonra).some(k => desenler.some(r => r.test(k)));
+  const sozlukVar = once.concat(sonra).some(k => dpTest('detect.olumsuzlama', k));
   const ekVar = sonra.some(k => _OLUMSUZ_EK_RE.test(k));
   return sozlukVar || ekVar;
 }
@@ -199,7 +198,12 @@ function _adaylariBul(metin, lehce) {
     const desenler = dp('detect.duygu.' + aile);
     if (!desenler || !desenler.length) continue;
     for (const re of desenler) {
-      const m = re.exec(metin);
+      /* Büyük-İ tuzağı (FAZ 2d): desen KONUM KORUYAN normalize üstünde
+         aranır — "İçim rahat" (huzur) ve "İnancım var" (umut) bugüne dek
+         hiç eşleşmiyordu. Ama pencere ve kanıt ORİJİNAL metinden kesilir:
+         indeksler birebir uyar (İ→i uzunluk korur) ve kullanıcı ekranda
+         kendi cümlesini görür (§6.10). */
+      const m = re.exec(dpNormalizeKonum(metin));
       if (m) {
         const kelimeler = _pencere(metin, m.index, m.index + m[0].length);
         /* EŞLEŞME ADAYIN ÜSTÜNDE TAŞINIR (faz denetimi, 2026-08-29).
@@ -212,7 +216,9 @@ function _adaylariBul(metin, lehce) {
            değişmezdi. Çözüm gizlemek değil GÖSTERMEK: motor kendi
            arayacağı anahtarı adayın üstünde dışarı verir, çağıran onu
            `dgLehceDuzelt`e aynen geri geçirir. */
-        const eslesme = m[0].toLocaleLowerCase('tr');
+        // Anahtar da orijinalden kesilir; Türkçe küçültmede İ→i olduğu için
+        // lehçe defterinin anahtarı değişmez, ama köken kullanıcıda kalır.
+        const eslesme = metin.slice(m.index, m.index + m[0].length).toLocaleLowerCase('tr');
         const lehceAile = lehce && lehce[eslesme];
         adaylar.push({
           aile: (lehceAile && DG_AILELER[lehceAile]) ? lehceAile : aile,
@@ -252,7 +258,7 @@ export function dgNabiz(metin, opts) {
 
   // Pekiştirici/noktalama düzeltmesi metin genelinde bir kez hesaplanır —
   // "kuvvet ailenin taban değeri + pekiştirici/noktalama düzeltmesidir" (plan).
-  const pekistiriciVar = dp('detect.pekistirici').some(r => r.test(text));
+  const pekistiriciVar = dpTest('detect.pekistirici', text);
   const unlemVar = /!/.test(text);
   const duzeltme = (pekistiriciVar ? 1 : 0) + (unlemVar ? 1 : 0);
 

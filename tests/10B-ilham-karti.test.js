@@ -3,6 +3,10 @@
 //  Burada yalnız sohbet→Atölye köprüsü için korunan üç yardımcı ve
 //  anonim rumuz üretimi test edilir.)
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+// Yan-etki: [KART] etiketinin regex/parse'ı artık 13a'nın registry'sinde
+// (İç Çalışma 09 · K5) ve 10B'ye 13a1'in saf yaprak çözücüleri
+// köprüsüyle gelir (10B-ilham-karti.js'in döngü gerekçesine bkz.) —
+// bu import olmadan window köprüsü kurulmaz, _extractKartTag hep null döner.
 import {
   _excerptForDisplay, _chatContextForSeed, _messageSuggestsPerson,
   _extractKartTag, _onEmreMessageFinalized, ilhamRumuz,

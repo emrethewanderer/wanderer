@@ -325,6 +325,22 @@ Denetçinin sözleşmesi `.claude/agents/denetci.md`'dedir: yalnız o fazın
 diff'ine bakar, **kod yazmaz**, bulgu döndürür; düzeltmeyi fazın sahibi
 yapar (§4.4'ün "bulunan kırık o turda düzeltilir" kuralı).
 
+**Karşı model erişilemezse denetim ATLANMAZ, ERTELENİR ve İŞARETLENİR**
+(2026-09-04). Bu kapının tek bir arıza noktası vardır ve o gün görüldü:
+denetçi ajanı Sonnet kotasına çarpıp turun ortasında öldü. Üç yanlış hamle
+vardır ve üçü de aynı yere çıkar — denetlenmemiş bir zemin: (a) fazı
+denetlenmiş saymak, (b) denetimi kendi modelinde koşturup kör noktadan
+ikinci kez geçmek, (c) "denenemedi" deyip geçmek (§10.4: *"sınanamadı" bir
+kapanış hâli değildir*).
+Doğrusu: faz **denetim borçlu** olarak işaretlenir, plan dosyasının durum
+kaydına bu yazılır, ve kota açılır açılmaz denetim koşulur. O ana kadar
+sonraki faz açılabilir — borç görünür olduğu sürece ilerleme durmaz, ama
+borç sessizleşirse durur.
+Ve önce **mekanizmayı yokla**: o gün kota aslında çoktan sıfırlanmıştı ve
+"devredemiyorum" gerekçesi bir saat eski bir bilgiye dayanıyordu. §10.5'in
+dersi burada zamana da uygular — bir kuralın uygulanmadığını görünce
+disipline yormadan önce o AN mekanik olarak mümkün olup olmadığına bak.
+
 ### 3.4 Görev listesi protokolü (varsayılan davranış)
 TaskCreate/TaskUpdate ile ilerlerken, bir görevi `completed` işaretlemeden
 ÖNCE:
@@ -543,9 +559,12 @@ düşer, yani kural kendi gerekçesini yer.
    kullanıcı hakkında söylediği her şeyin kökeni yine kullanıcı mı (§6.10).
    Bulgunun tipik biçimi şudur: **kod doğru, iş yanlış.**
 4. **Sürece karşı — "bu kırığı üreten kural hangisi?"** Turun asıl kazancı
-   burasıdır. İlk alt soru şudur ve sırası önemlidir: **kural YOK muydu, yoksa
-   YANLIŞ YERDE mi duruyordu?** İkincisi çok daha sıktır ve daha sinsidir —
-   çünkü ilkinde bir boşluk görünür, ikincisinde bir güven görünür (§6.6). Bulunan kırık bir **kural boşluğuysa** düzeltme koda değil
+   burasıdır. İlk alt soru şudur ve sırası önemlidir: **kural YOK muydu,
+   YANLIŞ YERDE mi duruyordu, yoksa KAPIYA BAĞLANAMIYOR muydu?** İkincisi
+   birincisinden sıktır ve daha sinsidir — çünkü ilkinde bir boşluk görünür,
+   ikincisinde bir güven görünür. Üçüncüsü en sessizidir: kural doğrudur,
+   yeri doğrudur, yalnız ölçülemez — ve ölçülemeyen kural her sprintte
+   yeniden keşfedilir (§6.6'nın üç basamağı). Bulunan kırık bir **kural boşluğuysa** düzeltme koda değil
    **protokole** yazılır; aynı kırık iki sprintte iki kez çıktıysa mesele o
    kırık değil onu üreten kuraldır. §6.6'nın cümlesi burada işler: *kapısı
    olmayan kural, zamanla tavsiyeye döner* — ölçülebilir bir kural bulduysan
@@ -958,6 +977,31 @@ Felsefe-önce başlık imzadır — kod bile teze bağlanır. Bölüm ayraçlar�
    PR guard'ı vardı ama dal koşusundan önce koşuyordu. Hiçbiri "kural yok"
    değildi. Kapısız bir kural en azından kendini kural sanmaz; **yanlış yerde
    duran kapı ise koruduğunu sanır ve o güveni boşa harcatır.**
+
+   **Üçüncü basamak: kapıya BAĞLANAMAYAN kural, yeniden keşfedilmeyi bekler**
+   (2026-09-04 ölçümü). O gün Türkçe'nin noktalı İ'si yüzünden kriz
+   dedektörünün "İntihar etmeyi düşünüyorum." cümlesini kaçırdığı bulundu —
+   ve repo bu tuzağı ZATEN BİLİYORDU: İç Çalışma 10 kendi güçlü yanları
+   arasında *"TR büyük-İ tuzağı HTML'de çözülmüş"* diye yazıyor. Yani kural
+   ne yoktu ne yanlış yerdeydi; **bir örneği onarılmıştı ve o onarım, sınıfın
+   kapandığı izlenimini verdi.** Onarılmış bir örnek bir kayıt bırakır ve o
+   kayıt bir kapı gibi okunur — oysa hiçbir şeyi ölçmez.
+
+   Kökü şudur: *"Türkçe desenler İ-duyarlı olmalı"* cümlesi **statik olarak
+   sınanamaz** — bir desenin kullanıcı metnine mi bir CSS sınıfına mı
+   baktığını kaynak söylemez. Kapı kurulamayınca kural belgeye yazılır,
+   belgede bir güç kaybeder ve bir dahaki sefere bir bug raporu olarak geri
+   döner. Çıkış yolu kuralı gevşetmek değil, **KODUN BİÇİMİNİ kapı
+   kurulabilecek hâle getirmektir:** eşleştirme tek bir yardımcıya
+   (`reTest`) toplandığında sınanamayan cümle sınanabilir bir cümleye
+   dönüşür — *"ham `liste.some(r => r.test(x))` kullanılmaz"* — ve bu
+   grep'lenir. Ölçüsü de ucuzdur: kural değişmedi, yalnız ölçülebilir hâle
+   geldi.
+
+   **Denetim maddesi:** ölçülemeyen bir kural bulduğunda üçüncü soruyu sor —
+   *kural yok muydu, yanlış yerde mi duruyordu, yoksa ölçülebilir hâle
+   getirilebilir miydi?* Üçüncüsünün cevabı "evet"se iş belgeye değil koda
+   yazılır.
 7. **Bundle diyeti:** yeni büyük sözlük/veri → sidecar (ayrı asset +
    `ensureExt`/`loadExtScript` deseni); build.sh boyut kapısına takılma.
 8. **i18n paritesi:** her yeni UI string TR+EN sözlüğe girer; `t(key,

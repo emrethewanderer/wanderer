@@ -2,7 +2,7 @@ import { S } from '../state.js';
 import { sb, EDGE_FN_BASE, SUMMARY_MODEL } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, showToast, localISODate, SecureStorage } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
-import { p, dp } from './16-i18n-prompts.js';
+import { p, dp, reTest, dpNormalize } from './16-i18n-prompts.js';
 import { callLLM } from './04-llm-hero-history.js';
 import { getSuggestedArchetype } from './12a-archetypes.js';
 
@@ -425,7 +425,7 @@ const _DOMAIN_SIGNALS = {
 
 function _dfDetectDomain(text) {
   for (const [domain, patterns] of Object.entries(_DOMAIN_SIGNALS)) {
-    if (patterns.some(r => r.test(text))) return domain;
+    if (reTest(patterns, text)) return domain;
   }
   return null;
 }
@@ -737,11 +737,11 @@ const _ARKADAKI_SEN_SIGNALS = [
 ];
 
 export function dfDetectVasitaFocus(text) {
-  return _VASITA_PATTERNS.some(r => r.test(text));
+  return reTest(_VASITA_PATTERNS, text);
 }
 
 export function dfDetectArkadakiSen(text) {
-  return _ARKADAKI_SEN_SIGNALS.some(r => r.test(text));
+  return reTest(_ARKADAKI_SEN_SIGNALS, text);
 }
 
 export function dfGetAwarenessContext(text) {
@@ -814,11 +814,11 @@ const _OLUMLAMA_SINMIYOR_SIGNALS = [
 ];
 
 export function dfDetectHayalDisaridan(text) {
-  return _HAYAL_DISARIDAN_SIGNALS.some(r => r.test(text));
+  return reTest(_HAYAL_DISARIDAN_SIGNALS, text);
 }
 
 export function dfDetectOlumlamaSinmiyor(text) {
-  return _OLUMLAMA_SINMIYOR_SIGNALS.some(r => r.test(text));
+  return reTest(_OLUMLAMA_SINMIYOR_SIGNALS, text);
 }
 
 const _AMAC_SIGNALS = [
@@ -834,11 +834,11 @@ const _AMAC_SIGNALS = [
 ];
 
 export function dfDetectHayalWatching(text) {
-  return _HAYAL_WATCHING_SIGNALS.some(r => r.test(text));
+  return reTest(_HAYAL_WATCHING_SIGNALS, text);
 }
 
 export function dfDetectAmacYok(text) {
-  return _AMAC_SIGNALS.some(r => r.test(text));
+  return reTest(_AMAC_SIGNALS, text);
 }
 
 export function dfGetHayalAlemiContext() {
@@ -887,8 +887,8 @@ const _FEEDBACK_LOOP_PATTERNS = {
 };
 
 export function dfDetectFeedbackLoop(text) {
-  const neg = _FEEDBACK_LOOP_PATTERNS.negative.some(r => r.test(text));
-  const aware = _FEEDBACK_LOOP_PATTERNS.awareness.some(r => r.test(text));
+  const neg = reTest(_FEEDBACK_LOOP_PATTERNS.negative, text);
+  const aware = reTest(_FEEDBACK_LOOP_PATTERNS.awareness, text);
   if (aware) return 'awareness';
   if (neg) return 'stuck';
   return null;
@@ -954,7 +954,7 @@ const _TRAUMA_SIGNALS = [
 ];
 
 export function dfDetectTrauma(text) {
-  return _TRAUMA_SIGNALS.some(r => r.test(text));
+  return reTest(_TRAUMA_SIGNALS, text);
 }
 
 export function dfGetTraumaContext(text) {
@@ -981,8 +981,8 @@ const _SPIRITUAL_SIGNALS = {
 };
 
 export function dfDetectSpiritualMoment(text) {
-  if (_SPIRITUAL_SIGNALS.struggle.some(r => r.test(text))) return 'struggle';
-  if (_SPIRITUAL_SIGNALS.gratitude.some(r => r.test(text))) return 'gratitude';
+  if (reTest(_SPIRITUAL_SIGNALS.struggle, text)) return 'struggle';
+  if (reTest(_SPIRITUAL_SIGNALS.gratitude, text)) return 'gratitude';
   return null;
 }
 
@@ -1030,8 +1030,8 @@ const _KALP_ZIHIN_SIGNALS = {
 };
 
 export function dfDetectKalpZihinState(text) {
-  const zihin = _KALP_ZIHIN_SIGNALS.zihin_dominant.some(r => r.test(text));
-  const kalp = _KALP_ZIHIN_SIGNALS.kalp_speaking.some(r => r.test(text));
+  const zihin = reTest(_KALP_ZIHIN_SIGNALS.zihin_dominant, text);
+  const kalp = reTest(_KALP_ZIHIN_SIGNALS.kalp_speaking, text);
   if (zihin && !kalp) return 'zihin_dominant';
   if (kalp && !zihin) return 'kalp_speaking';
   if (kalp && zihin) return 'birlikte';
@@ -1105,16 +1105,16 @@ const _STRES_SIGNALS = [
 
 export function dfGetPracticalConceptsContext(text) {
   const parts = [];
-  if (_KENDINI_BALTALA_SIGNALS.some(r => r.test(text))) {
+  if (reTest(_KENDINI_BALTALA_SIGNALS, text)) {
     parts.push(p('prompt.practical.kendini_baltala'));
   }
-  if (_KAFAYA_TAKMA_SIGNALS.some(r => r.test(text))) {
+  if (reTest(_KAFAYA_TAKMA_SIGNALS, text)) {
     parts.push(p('prompt.practical.kafaya_takma'));
   }
-  if (_OLUMSUZ_DUSUNCE_STUCK_SIGNALS.some(r => r.test(text))) {
+  if (reTest(_OLUMSUZ_DUSUNCE_STUCK_SIGNALS, text)) {
     parts.push(p('prompt.practical.olumsuz_dusunce'));
   }
-  if (_STRES_SIGNALS.some(r => r.test(text))) {
+  if (reTest(_STRES_SIGNALS, text)) {
     parts.push(p('prompt.practical.stres'));
   }
   return parts.length ? parts.join('\n') : '';
@@ -1300,16 +1300,22 @@ export function dfAnalyzeBeliefs(text) {
   const lang = S._currentLang === 'en' ? 'en' : 'tr';
   const now = new Date().toISOString();
   let detected = [];
+  /* Büyük-İ tuzağı, ÜÇÜNCÜ kalıp (FAZ 2e denetimi, 2026-09-04). `reTest`
+     `LISTE.some(...)` biçimini kapattı; bu döngüler ise deseni tek tek
+     gezer ve eşleşeni kullanır — imza uymaz, ama tuzak aynıdır. Çözüm
+     döngüyü bozmak değil HEDEFİ normalize etmek: eşleşme normalize metinde
+     aranır, kaydedilen şey (burada `pat.belief`) değişmez. */
+  const hedef = dpNormalize(text);
 
   // Sınırlandırıcı inançları tara
   for (const pat of _BELIEF_PATTERNS.limiting[lang]) {
-    if (pat.regex.test(text)) {
+    if (pat.regex.test(hedef)) {
       detected.push({ text: pat.belief, type: 'limiting' });
     }
   }
   // Güçlendirici inançları tara
   for (const pat of _BELIEF_PATTERNS.empowering[lang]) {
-    if (pat.regex.test(text)) {
+    if (pat.regex.test(hedef)) {
       detected.push({ text: pat.belief, type: 'empowering' });
     }
   }
@@ -1412,15 +1418,23 @@ export function dfAnalyzeChoices(text) {
   const today = localISODate();          // yerel gün anahtarı — günlük gruplama
   let detected = [];
 
+  /* Büyük-İ tuzağı (FAZ 2e denetimi): eşleşme normalize metinde aranır ama
+     KAYDEDİLEN kanıt orijinal cümledir (§6.10). Bu fonksiyon uygulamanın en
+     ağır anlarından birini tanır — "eski kişi" mi "yeni kişi" mi seçildi —
+     ve `/ilk kez/i` deseni yüzünden **"İlk kez söyledim."** cümlesi bugüne
+     dek hiç sayılmıyordu: uygulama, var olma sebebi olan anı tam da o an
+     fark etmiyordu. */
+  const hedef = dpNormalize(text);
+
   for (const pat of _CHOICE_PATTERNS.old_person[lang]) {
-    if (pat.test(text)) {
+    if (pat.test(hedef)) {
       detected.push({ text: text.substring(0, 100), type: 'old_person', date: now });
       break; // Bir mesajda bir tip yeter
     }
   }
   if (!detected.length) {
     for (const pat of _CHOICE_PATTERNS.new_person[lang]) {
-      if (pat.test(text)) {
+      if (pat.test(hedef)) {
         detected.push({ text: text.substring(0, 100), type: 'new_person', date: now });
         break;
       }
@@ -1631,7 +1645,7 @@ const _KENDINLE_KONUSMA_SIGNALS = [
 ];
 
 function dfDetectKendinleKonusma(text) {
-  return _KENDINLE_KONUSMA_SIGNALS.some(r => r.test(text));
+  return reTest(_KENDINLE_KONUSMA_SIGNALS, text);
 }
 
 function dfGetKendinleKonusmaContext(text) {
@@ -1720,7 +1734,7 @@ const _SINAV_SIGNALS = [
 ];
 
 function dfDetectSinavMomenti(text) {
-  return _SINAV_SIGNALS.some(r => r.test(text));
+  return reTest(_SINAV_SIGNALS, text);
 }
 
 function dfGetSinavContext(text) {
@@ -1740,7 +1754,7 @@ const _SARTLI_TATMIN_SIGNALS = [
 ];
 
 function dfDetectSartliTatmin(text) {
-  return _SARTLI_TATMIN_SIGNALS.some(r => r.test(text));
+  return reTest(_SARTLI_TATMIN_SIGNALS, text);
 }
 
 function dfGetSartliTatminContext(text) {
@@ -1771,11 +1785,12 @@ const _BOLLUK_FINANCIAL_SIGNALS = {
 // Mevcut bolluk score'una finansal/mesleki sinyaller de eklensin
 function dfAnalyzeFinancialAbundance(text) {
   const obj = S._foundationsProfile.bolluk;
+  const hedef = dpNormalize(text);   // büyük-İ tuzağı, üçüncü kalıp (FAZ 2e denetimi)
   for (const r of _BOLLUK_FINANCIAL_SIGNALS.low) {
-    if (r.test(text)) { _dfUpdateScore(obj, true, text.slice(0, 60)); break; }
+    if (r.test(hedef)) { _dfUpdateScore(obj, true, text.slice(0, 60)); break; }
   }
   for (const r of _BOLLUK_FINANCIAL_SIGNALS.high) {
-    if (r.test(text)) { _dfUpdateScore(obj, false, text.slice(0, 60)); break; }
+    if (r.test(hedef)) { _dfUpdateScore(obj, false, text.slice(0, 60)); break; }
   }
 }
 
@@ -1790,10 +1805,10 @@ function dfClassifyBeliefHierarchy() {
     /^i'?m\s+(not\s+enough|worthless|unlovable|don'?t\s+deserve|can'?t\s+change)/i
   ];
   const coreBeliefs = beliefs.filter(b =>
-    b.type === 'limiting' && CORE_BELIEF_MARKERS.some(r => r.test(b.text))
+    b.type === 'limiting' && reTest(CORE_BELIEF_MARKERS, b.text)
   );
   const reflectedBeliefs = beliefs.filter(b =>
-    b.type === 'limiting' && !CORE_BELIEF_MARKERS.some(r => r.test(b.text))
+    b.type === 'limiting' && !reTest(CORE_BELIEF_MARKERS, b.text)
   );
 
   if (!coreBeliefs.length) return null;
@@ -1820,7 +1835,7 @@ const _FANILIK_SIGNALS = [
 ];
 
 function dfDetectFanilik(text) {
-  return _FANILIK_SIGNALS.some(r => r.test(text));
+  return reTest(_FANILIK_SIGNALS, text);
 }
 
 function dfGetFanilikContext(text) {
@@ -1839,7 +1854,7 @@ const _SUNK_COST_SIGNALS = [
 ];
 
 function dfDetectSunkCost(text) {
-  return _SUNK_COST_SIGNALS.some(r => r.test(text));
+  return reTest(_SUNK_COST_SIGNALS, text);
 }
 
 function dfGetSunkCostContext(text) {
@@ -1858,7 +1873,7 @@ const _KOZO_SIGNALS = [
 ];
 
 function dfDetectKoZo(text) {
-  return _KOZO_SIGNALS.some(r => r.test(text));
+  return reTest(_KOZO_SIGNALS, text);
 }
 
 function dfGetKoZoContext(text) {
@@ -1937,15 +1952,15 @@ const _ADALET_SIGNALS = [
 ];
 
 function dfDetectMagduriyet(text) {
-  return _MAGDURIYET_SIGNALS.some(r => r.test(text));
+  return reTest(_MAGDURIYET_SIGNALS, text);
 }
 
 function dfDetectToplumKatki(text) {
-  return _TOPLUM_KATKI_SIGNALS.some(r => r.test(text));
+  return reTest(_TOPLUM_KATKI_SIGNALS, text);
 }
 
 function dfDetectAdalet(text) {
-  return _ADALET_SIGNALS.some(r => r.test(text));
+  return reTest(_ADALET_SIGNALS, text);
 }
 
 function dfGetManifestoContext(text) {
@@ -1981,8 +1996,8 @@ const _ALISVERIS_SIGNALS = [
 ];
 
 function dfDetectBagVsAlisveris(text) {
-  const hasBag = _BAG_SIGNALS.some(r => r.test(text));
-  const hasAlisveris = _ALISVERIS_SIGNALS.some(r => r.test(text));
+  const hasBag = reTest(_BAG_SIGNALS, text);
+  const hasAlisveris = reTest(_ALISVERIS_SIGNALS, text);
   if (hasBag && hasAlisveris) return 'both';
   if (hasBag) return 'bag';
   if (hasAlisveris) return 'alisveris';

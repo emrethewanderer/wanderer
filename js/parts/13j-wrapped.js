@@ -403,6 +403,7 @@ function _renderScene() {
         title: t('wr.share.title', 'Yolculuğun'), sub: st.label,
         line: bits.length ? bits.join(' · ') : t('wr.share.fallback', 'Yeni ay, yeni halka.'),
         tier: 3,
+        tur: 'film',
       });
     } catch (_) {}
   });

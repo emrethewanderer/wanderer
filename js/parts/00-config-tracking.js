@@ -2,7 +2,7 @@ import { S } from '../state.js';
 import { sb, SUPABASE_URL, SUPABASE_ANON, EDGE_FN_BASE, ADMIN_EMAIL, SUMMARY_MODEL, AI_MODES } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, MemCache, ErrorBoundary, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast } from './00a-infrastructure.js';
 import { t, getCurrentLanguage } from './15-i18n.js';
-import { p, dp } from './16-i18n-prompts.js';
+import { p, dp, dpTest, dpNormalizeKonum } from './16-i18n-prompts.js';
 import { p2GetEmotionalCycleInsight } from './09a-personalization-engine.js';
 import { dgNabiz, dgYay, dgIklimTabanEkle, dgIklimKaydet, DG_KARSILAMALAR } from './13D-duygu-motoru.js';
 
@@ -178,7 +178,7 @@ export function getEmotionalFlowInsight() {
     return p('prompt.emotional.sustained_high');
   }
   // Pozitif akış: kutlama fırsatı
-  if (curr.intensity === 1 && dp('detect.intensity.positive').some(r => r.test(S._emotionalFlow[S._emotionalFlow.length - 1]?.text || ''))) {
+  if (curr.intensity === 1 && dpTest('detect.intensity.positive', S._emotionalFlow[S._emotionalFlow.length - 1]?.text || '')) {
     return p('prompt.emotional.positive');
   }
   return '';
@@ -201,21 +201,21 @@ export function detectExplicitModeRequest(text) {
     [AI_MODES.DEPTH]:      'detect.explicit_mode.depth'
   };
   for (const [mode, dpKey] of Object.entries(modeMap)) {
-    if (dp(dpKey).some(r => r.test(text))) return mode;
+    if (dpTest(dpKey, text)) return mode;
   }
   return null;
 }
 
 export function _detectDepthSignal(text) {
-  if (dp('detect.depth').some(r => r.test(text))) return true;
-  if (dp('detect.depth_self_worth').some(r => r.test(text))) return true;
+  if (dpTest('detect.depth', text)) return true;
+  if (dpTest('detect.depth_self_worth', text)) return true;
   return false;
 }
 
 export function detectMessageTone(text) {
-  const isVulnerable = dp('detect.vulnerability').some(r => r.test(text));
-  const isAvoidance  = dp('detect.avoidance').some(r => r.test(text));
-  const isProgress   = dp('detect.progress').some(r => r.test(text));
+  const isVulnerable = dpTest('detect.vulnerability', text);
+  const isAvoidance  = dpTest('detect.avoidance', text);
+  const isProgress   = dpTest('detect.progress', text);
   const isDepth      = _detectDepthSignal(text);
   const explicitMode = detectExplicitModeRequest(text);
   return { isVulnerable, isAvoidance, isProgress, isDepth, explicitMode };
@@ -224,7 +224,7 @@ export function detectMessageTone(text) {
 export function _detectPatternModeSignal(text) {
   // Örüntü modu tetikleyicileri:
   // 1. Kullanıcı kendi kalıbını fark etmeye başlıyor
-  if (dp('detect.pattern_awareness').some(r => r.test(text))) return true;
+  if (dpTest('detect.pattern_awareness', text)) return true;
   // 2. Aynı savunma mekanizması 3+ kez (bu seans)
   const defCounts = S._personalityMap?.defense_mechanisms;
   if (defCounts?.length) {
@@ -740,7 +740,7 @@ export function loadResistanceLog() {
 }
 
 export function logResistanceMoment(text) {
-  const hasAvoidance = dp('detect.avoidance').some(r => r.test(text));
+  const hasAvoidance = dpTest('detect.avoidance', text);
   if (!hasAvoidance) return;
   const now = nowTR();
   const entry = {
@@ -815,7 +815,7 @@ const _TOPIC_KEYS = ['family', 'work', 'relationship', 'money', 'health', 'futur
 const _TOPIC_KEY_MIGRATION = { 'aile': 'family', 'iş': 'work', 'ilişki': 'relationship', 'para': 'money', 'sağlık': 'health', 'gelecek': 'future' };
 
 export function detectTopics(text) {
-  return _TOPIC_KEYS.filter(k => dp('detect.topic.' + k).some(r => r.test(text)));
+  return _TOPIC_KEYS.filter(k => dpTest('detect.topic.' + k, text));
 }
 
 export function trackSilenceTopic(userText) {
@@ -862,12 +862,31 @@ export function captureCommitments(text) {
   // detect.commitment {pattern, extract} objeleri taşır (diğer detect.* anahtarları
   // düz RegExp) — pattern'i doğrudan match'e vermek "[object Object]" kaynaklı
   // sahte-regex'e düşer ve HER metinle eşleşir (kritik bug, testte yakalandı).
+  /* Büyük-İ tuzağı (FAZ 2d): eşleşme KONUM KORUYAN normalize üstünde
+     aranır, ama sözün metni ORİJİNAL cümleden kesilir — kullanıcının verdiği
+     söz, kullanıcının yazdığı hâliyle kaydedilir (§6.10). Bugünkü
+     `detect.commitment` desenlerinin hiçbiri `i` ile başlamıyor, yani bu
+     GİZLİ bir risk: sözlüğe "isterim…" gibi bir desen eklendiği gün sessizce
+     kırılırdı. Dikiş şimdi atıldı, o gün fark edilmesi gerekmesin. */
+  const hedef = dpNormalizeKonum(text);
   dp('detect.commitment').forEach(entry => {
     const re = entry instanceof RegExp ? entry : entry?.pattern;
     if (!re) return;
-    const m = text.match(re);
+    const m = hedef.match(re);
     if (!m) return;
-    const extracted = entry.extract ? entry.extract(m) : m[0];
+    /* Eşleşmenin ham (orijinal) karşılığı — indeksler birebir uyar.
+       SÖZLEŞMENİN TAM SINIRI (çapraz denetim bulgusu, Sonnet): `extract`
+       yine çağrılır ve verilen dizide **m[0] ORİJİNALDİR**; `index`,
+       `input` ve `groups` da elle taşınır (`[...m]` spread'i `groups`'u
+       DÜŞÜRÜR — ampirik doğrulandı). Ama numaralı gruplar (`m[1]`, `m[2]`)
+       hâlâ NORMALİZE metinden gelir: bir gün bir `extract` onları okursa
+       değeri İ yerine i taşır. Bugün böyle bir tanım yok — dördü de m[0]
+       kullanıyor (16c:31-36 ve :108-113) — ama "sözleşme tamamen korunur"
+       demek fazla iddialı olurdu ve bu yorum onu demiyor. */
+    const ham = text.slice(m.index, m.index + m[0].length);
+    const mHam = Object.assign([...m], { index: m.index, input: text, groups: m.groups });
+    mHam[0] = ham;
+    const extracted = entry.extract ? entry.extract(mHam) : ham;
     commitments.push(String(extracted).slice(0, 100));
   });
   if (!commitments.length) return;

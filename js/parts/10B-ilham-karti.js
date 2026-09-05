@@ -58,7 +58,15 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
+import { etiketCoz, etiketRegex } from './13a1-arac-etiketleri.js';
 import { t } from './15-i18n.js';
+// 13a-arac-motoru.js STATİK import EDİLMEZ: 06-summary-chat + 13-extras
+// üstünden 03-auth-shell'e (bu dosyayı zaten import eden modül) döngü
+// kapatır. 13a boot'ta (14-boot→registerAracHooks) zaten yükleniyor ve
+// Etiket kaydı 13a1'de (SAF YAPRAK) — statik import, döngü yok.
+// (§5.2 "window expose bloğu" — _ARAC_DEFS'in run() fonksiyonlarının
+// window.glGiveSozNow?.() emsali). İlk gerçek Emre mesajı boot'tan çok
+// sonra gelir; testler 13a'yı yan-etki olarak import ederek aynı köprüyü kurar.
 
 /* ══════════════════════════════════════════════════════════════
    ANONİM RUMUZ — sabit, user_id türevli (paylaşımda gerçek ad yok)
@@ -117,18 +125,18 @@ export function _messageSuggestsPerson(text) {
   return false;
 }
 
-/* ── [KART] protokol etiketi (13a ailesi) ─────────────────────────────
+/* ── [KART] protokol etiketi (13a registry'sinin tüketicisi) ──────────
    Model, kartlaşmaya değer bir kişi tarif ettiğinde mesajın sonuna
    `[KART: 8-15 kelimelik tohum]` ekler (persona güncellemesi ELLE —
    SETUP-GECIS-KARTIM.md §4). Etiket görünür metinden gizlenir, chip
    KESİN düşer. Persona güncellenmediyse etiket hiç gelmez → cue
-   fallback çalışır; iki katman birlikte yaşar. */
-const _IK_KART_TAG_RE = /\[KART:\s*([^\]]{3,200})\]/i;
+   fallback çalışır; iki katman birlikte yaşar.
+   Regex artık 13a'nın registry'sinde tutulur (İç Çalışma 09 · K5) — bu
+   ikizin bir kopyası burada YAZILMAZ; seed üretimi (boşluk normalizasyonu,
+   min. 3 karakter) de registry'nin `kart` kaydında birebir korunur. */
 export function _extractKartTag(rawText) {
-  const m = String(rawText || '').match(_IK_KART_TAG_RE);
-  if (!m) return null;
-  const seed = m[1].replace(/\s+/g, ' ').trim().slice(0, 280);
-  return seed.length >= 3 ? { seed, tag: m[0] } : null;
+  const hit = etiketCoz('kart', rawText);
+  return hit ? { seed: hit.seed, tag: hit.tag } : null;
 }
 
 /** Emre mesajından GÖSTERİM alıntısı — Atölye'nin "SOHBETTEKİ AN" satırında
@@ -190,9 +198,10 @@ export function _onEmreMessageFinalized(msgEl, rawText) {
     if (!body) return;
 
     // Etiket görünür metinden her koşulda temizlenir (protokol artığı kalmasın)
-    if (kartTag) {
+    const _kartRe = etiketRegex('kart');
+    if (kartTag && _kartRe) {
       try {
-        body.innerHTML = body.innerHTML.replace(_IK_KART_TAG_RE, '').trim();
+        body.innerHTML = body.innerHTML.replace(_kartRe, '').trim();
       } catch (_) {}
     }
 
@@ -205,7 +214,7 @@ export function _onEmreMessageFinalized(msgEl, rawText) {
     _ikDesignCount++;
 
     // Ekranda kısa alıntı, modele mesajın TAMAMI + sohbetin son dönüşü.
-    const clean = txt.replace(_IK_KART_TAG_RE, '').trim();
+    const clean = _kartRe ? txt.replace(_kartRe, '').trim() : txt.trim();
     const display = kartTag ? kartTag.seed : _excerptForDisplay(clean);
     const seedCtx = {
       source: 'sohbet',
