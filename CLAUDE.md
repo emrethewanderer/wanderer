@@ -59,3 +59,11 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
     hâl ("not edildi") yok. Kapanan plan `## Opus öz-denetimi` kaydını
     taşır; kayıt yoksa tur koşulmamış sayılır. Ayrıntı: `PROTOKOL-FABLE.md`
     §3.7.
+9. **Hafıza repo DIŞINDA yaşar ama repoya kopyalanır.** Gerçek kaynak
+   `~/.claude/projects/<slug>/memory/`; git takipli türevi
+   `.claude/hafiza/` (indeks: `.claude/hafiza/MEMORY.md`). **Memory aracın
+   yoksa — GitHub/cloud oturumunda olduğu gibi — hafızayı ORADAN oku;**
+   indeks satırı özet, dosya gerçektir. Hafızaya yazdığın turda kapanıştan
+   önce `./scripts/hafiza-senkron.sh disa` koştur (kapı:
+   `… fark` temiz olmalı), sonra commit et. Gerekçe ve geçiş envanteri:
+   `TASINABILIR-ZEMIN.md`.
