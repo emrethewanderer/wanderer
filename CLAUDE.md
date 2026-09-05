@@ -59,7 +59,7 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
     hâl ("not edildi") yok. Kapanan plan `## Opus öz-denetimi` kaydını
     taşır; kayıt yoksa tur koşulmamış sayılır. Ayrıntı: `PROTOKOL-FABLE.md`
     §3.7.
-9. **Hafıza repo DIŞINDA yaşar ama repoya kopyalanır.** Gerçek kaynak
+13. **Hafıza repo DIŞINDA yaşar ama repoya kopyalanır.** Gerçek kaynak
    `~/.claude/projects/<slug>/memory/`; git takipli türevi
    `.claude/hafiza/` (indeks: `.claude/hafiza/MEMORY.md`). **Memory aracın
    yoksa — GitHub/cloud oturumunda olduğu gibi — hafızayı ORADAN oku;**
