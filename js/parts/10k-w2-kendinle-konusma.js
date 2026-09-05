@@ -292,3 +292,18 @@ export async function skPlayRecording() {
 export function getSelfDialogueStats() {
   return { sessions: S._selfDialogue.sessions.length, lastAt: S._selfDialogue.lastAt };
 }
+
+/* ── window expose (TDZ-güvenli, minify-dayanıklı) ──
+   Modül bugüne dek yalnız kendi view'ından çağrılıyordu; köprü, araç
+   motorunun (13a) [ARAC:inanc] chip'i için açıldı. 13a'nın `run` kalıbı
+   zaten window'dur (glGiveSozNow · oikOpenReading · igOpenKapi) — statik
+   import etmek 13a → 10k → 03 zincirinde döngü riski taşır, oysa chip
+   "ritüel yüklüyse çalışsın" sözleşmesiyle savunmacıdır (§5.2 asla
+   bloklama): yüklü değilse chip sessizce düşer, arac.fail toast'ı çıkar.
+   FAZ 9'un dersi burada geçerli DEĞİL — orada delinen sözleşme "protokol
+   blokları DAİMA sıyrılır"dı ve "daima" koşul kabul etmez; burada ise
+   koşulluluk sözleşmenin kendisidir. */
+if (typeof window !== 'undefined') {
+  window.skOpen = skOpen;
+  window.skSelectSet = skSelectSet;
+}

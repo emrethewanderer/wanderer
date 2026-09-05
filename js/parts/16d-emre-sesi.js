@@ -115,7 +115,7 @@ const ES_FEATURED = [
   { key: 'prompt.deep_summary.system',        t: 'Derin Özet Sesi',                d: 'Gün sonu 8-katmanlı özetin sistem kimliği.' },
   { key: 'prompt.deep_summary.user',          t: 'Derin Özet Talimatı (8 Katman)', d: 'Portre dahil 8 katmanın tanımı — hafızanın kalitesi buradan doğar. JSON şeması içerir, dikkatli düzenle.' },
   { key: 'prompt.worksheet.suggest',          t: 'Çalışma Kağıdı (4 Adım)',        d: 'YAZ→OKU→FARKET→DEĞİŞTİR pratiğini yürüten yönlendirme (13b).' },
-  { key: 'prompt.arac.guide',                 t: 'Etkileşim Araçları Protokolü',   d: '[ARAC]/[KAGIT]/[TAKIP] etiket kuralları — parser buna bağlı, biçimi bozma. Sondaki "harfi harfine yaz" kilidi modelin etiketi Türkçeleştirmesini ([TAKİP]) önler (13a).' },
+  { key: 'prompt.arac.guide',                 t: 'Etkileşim Araçları Protokolü',   d: '[ARAC]/[KAGIT]/[TAKIP] etiket kuralları — parser buna bağlı, biçimi bozma. Sondaki "harfi harfine yaz" kilidi modelin etiketi Türkçeleştirmesini ([TAKİP]) önler (13a). DİKKAT: burayı bir kez yayınlarsan sürümün sözlüğü EZER (p() zinciri, 16:86) — koda sonradan eklenen yeni bir araç modele HİÇ gitmez ve hata da vermez. Yeni araç eklendiğinde ya "Varsayılana Dön" ya da satırı elle ekle.' },
   { key: 'prompt.imge.yanki',                 t: 'İmge Yankısı · Doz Sınırı',      d: 'Kullanıcının kendi seçtiği metaforu (İmge Kapısı, 13z) modelin nasıl yankılayacağını sınırlar — icat etmez, saplanmaz, sürüklemez (Zaltman katmanının manipülasyon çizgisi).' },
   // 2026-08-19: hüküm veren üç ses vitrine çıktı. Ortak yanları şu — üçü de
   // kullanıcı HAKKINDA bir şey söylüyor (mühür, hipotez, örüntü) ve üçü de

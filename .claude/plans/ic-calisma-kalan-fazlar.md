@@ -892,7 +892,65 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   Kapı: build ✅ 716KB · hedefli süit ✅ 337/337 · `kapi:genel` ✅ 346/346 ·
   `dogrula` ✅ exit 0 "Konsol temiz."
 
-**İlk hamle (FAZ 10):** registry üzerinde yeni araçlar — 🅞. Hangi üç
+- **FAZ 10 · BİTTİ** (2026-09-05). 🅞, parent'ta (Opus) + çapraz denetim (Sonnet).
+
+  **Seçim ölçüsü "hangi ritüel güzel" değil, HANGİ AN BOŞTA idi.** Mevcut dört
+  araç (soz · not · gecis · imge) istisnasız TEK ANLIKtır: bir söz, bir not, bir
+  okuma, bir imge. Üç yeni araç onların görmediği üç anı karşılar:
+
+  | Araç | Ritüel | An |
+  |---|---|---|
+  | `yol` | 13s Geçiş Yolu (21 gün) | sürdürme — "bunu bir kere değil sürekli yapmam lazım" |
+  | `inanc` | 10k Kendinle Konuşma · İnanç Kazma | kendini baltalayan inanç — "ben zaten hep böyleyim" |
+  | `engel` | 10m Engel Atlası (6 Perde·6 Zehir·7 Tuzak) | TEKRAR EDEN engel — "hep aynı yerde takılıyorum" |
+
+  **Elenenler gerekçeli, sezgiyle değil:** Ayna Anı (09h) ve Derin Çalışma (13A)
+  premium kapılıdır — ücretsiz kullanıcıya önerilen bir chip paywall'a çıkarsa o
+  bir kaldıraç değil huni olur (§1.1 "kart değil kaldıraç"). Gezgine Mektup (13d)
+  statiktir, her kullanıcıya aynı metni verir. Gördün (10E) ile `[ARAC:gecis]`
+  aynı OİK tabanında durur — model ikisi arasında karıştırırdı, bu tam da planın
+  uyardığı "menü" hâlidir.
+
+  **Fazın yan ürünü bir SAHTE BAŞARI düzeltmesi oldu.** Mevcut üç araç
+  (`soz`/`gecis`/`imge`) açıcıyı `?.()` ile çağırıp koşulsuz `true` dönüyordu:
+  ritüel yüklü değilse chip kapanıyor, hiçbir şey açılmıyor ve kullanıcı "oldu"
+  sanıyordu (§6.2). Oysa sözleşme dürüst hâli ZATEN bekliyordu — `aracRunTool`
+  `false`'u `arac.fail` toast'ına çeviriyor (13a:156); kimse `false` döndürmüyordu.
+  Üçü de yeni `_acRitual()` köprüsüne bağlandı ve kapı altı aracın hepsini birden
+  sınıyor (`tests/13a-arac-motoru.test.js` · "sahte başarı kapısı").
+
+  **10k'ya window köprüsü açıldı** (`skOpen`/`skSelectSet`) — modül bugüne dek
+  yalnız kendi view'ından çağrılıyordu. FAZ 9'un dersi burada geçerli DEĞİL:
+  orada delinen sözleşme *"protokol blokları DAİMA sıyrılır"*dı ve "daima" koşul
+  kabul etmez; burada koşulluluk sözleşmenin KENDİSİdir ("ritüel varsa aç").
+
+  **Kapının kendi kırığı da bulundu:** ilk yazımda "sahte başarı" testi altı
+  testin altısında da kırmızı bastı — `showToast` `#toast` elementini arar ve
+  yoksa SESSİZCE döner (00a), testte o host kurulmamıştı. Kırık koddaymış gibi
+  görünen şey ölçen aletteydi (§10.5).
+
+  **ELLE bekleyen — yeni ve sinsi:** `prompt.arac.guide` bir `persona_directives`
+  anahtarıdır ve `p()` zinciri override'ı sözlüğün ÜSTÜNE koyar
+  (`16-i18n-prompts.js:86`). Anahtar `000`'da tohumlanmamıştır, yani satır
+  yalnız panelden "Yayınla" denince doğar — ama doğduysa koddaki üç yeni satır
+  MODELE HİÇ GİTMEZ: chip'ler kodda durur, LLM onları asla önermez ve kimse bir
+  hata görmez. Emre Admin → *Merhaba, Emre* → **Etkileşim Araçları Protokolü**
+  satırına bakmalı; orada kendi sürümü varsa "Varsayılana Dön" ya da üç satırı
+  elle eklemeli.
+
+  Rehberin maliyeti ölçüldü: TR 1667 karakter, üç yeni satır 491 karakter
+  (~122 token/mesaj, %41 büyüme). Araç sayısı 4 → 7.
+
+  Kapı: build ✅ 716KB · hedefli süit ✅ (13a 45/45 · nabız+etiket 61/61 ·
+  i18n parite 36/36 · 13s/ritüel 51/51) · `kapi:genel` ✅ 346/346 ·
+  `dogrula` ✅ exit 0 "Konsol temiz." + dört köprü canlıda `function`.
+
+**İlk hamle (FAZ 11):** sosyal bildirim altyapısı — 🅢, `uygulayici`ya devredilir.
+`send-push` merdivenine `sosyal` tipi + `10C-sosyal-feed.js` in-app rozeti.
+Freq-cap'e tabi, merdivende winback'ten ÖNCE gelir; rozet `13B` tören kuyruğuna
+sormaz — rozet bir sahne değil, bir işarettir.
+
+**Eski İlk hamle (FAZ 10, tamamlandı):** registry üzerinde yeni araçlar — 🅞. Hangi üç
 ritüelin LLM'in eline verileceği ve chip cümlelerinin kitap-köklü hâli
 üründe bulunur. Onay-chip'i ilkesi gevşetilmez.
 

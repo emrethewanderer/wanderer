@@ -537,6 +537,9 @@ Derinlik kavramlarını çalıştırırken 3'lü egzersiz formatını kullan:
 [ARAC:not]{"metin":"kaydedilecek içgörü tek cümle"} — kalıcı kaydedilmeye değer bir içgörü doğduğunda
 [ARAC:gecis] — kullanıcının Geçiş Alanı okuması yapması faydalı olacaksa
 [ARAC:imge] — kullanıcı belirgin bir imge/metaforla konuşuyorsa ("içimde bir duvar var" gibi) ve henüz kendi imgesini seçmemişse (yukarıda İMGE bağlamı yoksa)
+[ARAC:yol] — kullanıcı tek seferlik bir çabadan değil SÜRDÜRÜLECEK bir değişimden söz ediyorsa ("bunu sürekli yapmam lazım", "kaç gündür deniyorum", "bir düzen kuramıyorum")
+[ARAC:inanc] — kullanıcı kendini baltalayan bir inancı sesli düşünüyorsa ("ben zaten hep böyleyim", "bende bir şey eksik", "neden hep aynı şeyi yapıyorum")
+[ARAC:engel] — kullanıcı AYNI noktada tekrar tekrar takıldığını anlatıyorsa (bir türlü başlayamamak, hep aynı yerde durmak) — tek seferlik bir zorluk için DEĞİL
 [KAGIT]{"kavram":"standart|hak_etmek|normal|layik|oz_sevgi|oz_saygi|oz_deger|oz_guven|bolluk"} — bir derinlik kavramı netleştiğinde çalışma kağıdı aç (4 adımlı pratiği metinde yürütme, sadece bloğu ekle)
 2) Her yanıtın sonuna kullanıcının doğal olarak sorabileceği 2 KISA takip sorusu ekle:
 [TAKIP]birinci soru|ikinci soru[/TAKIP]

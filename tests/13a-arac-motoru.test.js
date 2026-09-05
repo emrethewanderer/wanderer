@@ -24,6 +24,12 @@ beforeEach(() => {
   document.body.innerHTML = '';
   delete window.glGiveSozNow;
   delete window.oikOpenReading;
+  delete window.igOpenKapi;
+  delete window.gyStart;
+  delete window.gyOpenToday;
+  delete window.skOpen;
+  delete window.skSelectSet;
+  delete window.engOpen;
 });
 
 describe('aracExtract — blok ayrıştırma', () => {
@@ -250,5 +256,116 @@ describe('cleanHistoryText — eski kirli kayıtların geri-okuma temizliği', (
   it('13a henüz yüklenmemişse filigranı yine de soyar (sessiz düşüş)', () => {
     delete window.aracExtract;
     expect(cleanHistoryText('[bu yanıt "tasarla" modunda yazıldı]\nMerhaba')).toBe('Merhaba');
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAZ 10 — ÜÇ YENİ ARAÇ ve "sahte başarı" kapısı
+   ───────────────────────────────────────────────────────────────────
+   İki ayrı iddia sınanır ve ikincisi bir REGRESYON kapısıdır:
+
+   1. yol · inanc · engel doğru ritüeli, doğru sırayla açar.
+   2. Ritüel YÜKLÜ DEĞİLSE chip `false` döner ve kullanıcı `arac.fail`
+      toast'ını görür. Eski kalıp `window.xOpen?.(); return true;` idi:
+      chip kapanıyor, hiçbir şey açılmıyor, kullanıcı "oldu" sanıyordu —
+      §6.2'nin sahte başarısı. aracRunTool `false`'u zaten toast'a
+      çeviriyordu (13a:156), yani dürüst hâl hep bekleniyordu; kimse
+      döndürmüyordu.
+   Kapı bu yüzden yalnız yeni üçünü değil ESKİ üçünü de sınar — düzeltme
+   onlarda yapıldı, regresyon da onlarda doğar.
+═══════════════════════════════════════════════════════════════════ */
+describe('FAZ 10 — üç yeni araç', () => {
+  function makeChip(tool, args) {
+    const chip = document.createElement('div');
+    chip.className = 'arac-chip';
+    chip.dataset.tool = tool;
+    if (args) chip.dataset.args = JSON.stringify(args);
+    const btn = document.createElement('button');
+    chip.appendChild(btn);
+    document.body.appendChild(chip);
+    return btn;
+  }
+
+  it('[ARAC:yol] · [ARAC:inanc] · [ARAC:engel] blokları çıkarılır', () => {
+    expect(aracExtract('metin[ARAC:yol]').tools[0].tool).toBe('yol');
+    expect(aracExtract('metin[ARAC:inanc]').tools[0].tool).toBe('inanc');
+    expect(aracExtract('metin[ARAC:engel]').tools[0].tool).toBe('engel');
+  });
+
+  it('Türkçeleşmiş [ARAÇ:engel] de tanınır (RE_ARAC toleransı)', () => {
+    expect(aracExtract('metin[ARAÇ:engel]').tools[0].tool).toBe('engel');
+  });
+
+  it('yol: gyStart\'ı çağırır ve BUGÜNÜN organını açar', async () => {
+    const start = vi.fn(); const today = vi.fn();
+    window.gyStart = start; window.gyOpenToday = today;
+    await aracRunTool(makeChip('yol'));
+    expect(start).toHaveBeenCalledTimes(1);
+    expect(today).toHaveBeenCalledTimes(1);
+  });
+
+  it('yol: gyOpenToday köprüsü yoksa yine de çalışır (yolculuk başlar)', async () => {
+    window.gyStart = vi.fn();
+    await expect(aracRunTool(makeChip('yol'))).resolves.not.toThrow();
+    expect(window.gyStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('inanc: skOpen\'ı açar ve doğrudan İnanç Kazma setine geçirir', async () => {
+    const open = vi.fn(); const select = vi.fn();
+    window.skOpen = open; window.skSelectSet = select;
+    await aracRunTool(makeChip('inanc'));
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(select).toHaveBeenCalledWith('inanc');
+  });
+
+  it('engel: engOpen\'ı çağırır', async () => {
+    const eng = vi.fn();
+    window.engOpen = eng;
+    await aracRunTool(makeChip('engel'));
+    expect(eng).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('sahte başarı kapısı — ritüel yüklü değilse chip "oldu" demez', () => {
+  function makeChip(tool) {
+    const chip = document.createElement('div');
+    chip.className = 'arac-chip';
+    chip.dataset.tool = tool;
+    const btn = document.createElement('button');
+    chip.appendChild(btn);
+    document.body.appendChild(chip);
+    return btn;
+  }
+
+  /* Toast'ı GERÇEK DOM'dan okuruz: 00a'nın showToast'ı mock DEĞİL —
+     mock'lamak kapının kendisini kör ederdi (§10.5: ölçen alet de ölçülür).
+     showToast `#toast` elementini arar ve yoksa SESSİZCE döner (00a:showToast),
+     o yüzden host elementi burada kurulur; kapının ilk hâli tam bunu unuttu ve
+     altı testin altısı da "toast çıkmadı" dedi — kırık koddaymış gibi. */
+  function kurToastHost() {
+    const el = document.createElement('div');
+    el.id = 'toast';
+    document.body.appendChild(el);
+    return el;
+  }
+  function toastGorundu() {
+    const el = document.getElementById('toast');
+    return !!el && el.classList.contains('show') && el.classList.contains('err');
+  }
+
+  it.each(['soz', 'gecis', 'imge', 'yol', 'inanc', 'engel'])(
+    '%s: ritüel window\'da yokken kullanıcı bir hata görür',
+    async (tool) => {
+      kurToastHost();
+      await aracRunTool(makeChip(tool));
+      expect(toastGorundu(), `${tool}: ritüel yokken sessizce "başarılı" sayıldı`).toBe(true);
+    },
+  );
+
+  it('ritüel YÜKLÜYSE hata toast\'ı çıkmaz', async () => {
+    kurToastHost();
+    window.engOpen = vi.fn();
+    await aracRunTool(makeChip('engel'));
+    expect(toastGorundu()).toBe(false);
   });
 });
