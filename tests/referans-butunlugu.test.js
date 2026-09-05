@@ -13,7 +13,8 @@
  * referans yarın oluşur — bu yüzden kapı.
  *
  * Üç referans biçimi taranır:
- *   · köşeli çift parantezli hafıza adı → `.claude/memories/<ad>.md`
+ *   · köşeli çift parantezli hafıza adı → `.claude/hafiza/<ad>.md`
+ *     (eski `.claude/memories/<ad>.md` yolu da tanınır — bkz. HAFIZA_DIZINLERI)
  *   · `.claude/plans/<slug>.md` yolu    → dosya var olmalı
  *   · `.claude/agents/<ad>.md` yolu     → dosya var olmalı
  * Taranan yerler: kök `*.md`, `.claude` altı `.md` (recursive), `js` altı
@@ -63,6 +64,12 @@ const ROOT = join(__dirname, '..');
 /* ─── 1. TARAMA MOTORU ─── */
 
 const HARIC_DIZIN = new Set(['node_modules', 'dist', 'coverage', 'assets', 'android', 'ios', '.git']);
+
+/** Hafızanın git takipli türevi 2026-09-05'te `.claude/hafiza/`ya taşındı
+ *  (CLAUDE.md md.9 · TASINABILIR-ZEMIN.md). Eski `.claude/memories/` yolu
+ *  DÜŞÜRÜLMEZ: kapının kendi sınavı onu kurar, ve iki yol bir arada durunca
+ *  taşınma sırasında hiçbir bağ hedefsiz kalmaz. */
+const HAFIZA_DIZINLERI = ['.claude/hafiza', '.claude/memories'];
 
 /** Bir dizini uzantıya göre recursive toplar. Kalıp `scripts/audit-innerhtml.mjs`nin
  *  gez()'i ile aynıdır: readdirSync + ayrı statSync, ikisi de try/catch'li.
@@ -171,7 +178,7 @@ function taraDosya(dosya, kok, sonuc) {
     for (const m of satir.matchAll(DESEN_HAFIZA)) {
       const ad = m[1];
       if (SABLON_ADLAR.has(ad)) continue;
-      if (existsSync(join(kok, '.claude/memories', `${ad}.md`))) continue;
+      if (HAFIZA_DIZINLERI.some((d) => existsSync(join(kok, d, `${ad}.md`)))) continue;
       if (muaf(satirlar, i)) continue;
       sonuc.push({ tip: 'hafiza', ad, dosya: rel });
     }
@@ -229,6 +236,79 @@ const TABAN = new Set([
   'plan:sosyal-kapilar.md',
   'plan:tasarim-anayasa-kapisi.md',
   'plan:tum-diller-native-2.md',
+
+  /* ─── 2026-09-05 · hafıza devri · 58 ad ───
+     Bu adlar `49739ef` ile geldi: hafızanın git takipli türevi
+     (`.claude/hafiza/`, 195 dosya) repoya taşındı ve beraberinde kendi
+     `[[bağ]]`larını getirdi. BORÇ BÜYÜMEDİ — GÖRÜNÜRLÜĞÜ büyüdü: bu
+     planlar repoda dün de yoktu, yalnız onlara işaret eden bir dosya
+     yoktu. Kaynakların tamamı bu turda gelendir (58 hafıza dosyası +
+     TASINABILIR-ZEMIN.md); repo'nun eski bir köşesinden tek bir
+     gönderme bile yok — ölçüldü.
+     Sınıfı yukarıdaki dokuzla AYNI: lokalde yazılmış, commit edilmemiş
+     planlar (§10.1). İçerikleri repodan görünmez ve §6.10 gereği
+     UYDURULAMAZ; yeniden kurulmaları kayıptan kurtarma işidir.
+     DÜRÜST UYARI: taban 9'dan 67'ye çıktı. Bu bir tolerans değil bir
+     BORÇ kaydıdır — ödeme yolu planları repoya taşımaktır, listeyi
+     büyütmeye devam etmek değil. Küçülmeyen taban perdedir (yukarı). */
+  'hafiza:bagli-hafiza',
+  'hafiza:gecis-karti-mezun-kapisi',
+  'hafiza:karar-pwa-korunur',
+  'hafiza:llm-bosluk-analizi-plani',
+  'hafiza:olu-kod-pano-temizligi',
+  'hafiza:olu-kod-temizligi-2026-06-15',
+  'hafiza:onboarding-yol-ayini',
+  'hafiza:taniyan-ayna-kisilestirme-3',
+  'hafiza:taniyan-ayna-kisisellestirme-3',
+  'hafiza:tum-diller-native-2',
+  'plan:acilis-tek-dalga.md',
+  'plan:benlik-kusursuzluk.md',
+  'plan:boot-nabzi.md',
+  'plan:cosmic-prancing-spring.md',
+  'plan:dazzling-baking-willow.md',
+  'plan:delightful-beaming-riddle.md',
+  'plan:derin-calisma-denetim.md',
+  'plan:derin-calisma.md',
+  'plan:donusum-aynasi-2.md',
+  'plan:dorduncu-usta-hearthstone.md',
+  'plan:duyar-anlar-hatirlar.md',
+  'plan:eager-sniffing-treasure.md',
+  'plan:federated-hatching-graham.md',
+  'plan:fuzzy-rolling-tarjan.md',
+  'plan:gecis-ekrani-toplanma.md',
+  'plan:gecis-motoru.md',
+  'plan:gecmis-oturum-envanteri.md',
+  'plan:gozlemevi-kullanim-nabzi.md',
+  'plan:ic-calisma-07-kimlik-ucgeni-rev2.md',
+  'plan:ikon-buton-dili.md',
+  'plan:kanit-bekleyen-alanlar.md',
+  'plan:karsilasma-tam-ekran-kartlar.md',
+  'plan:kart-buyuk-boy-detay.md',
+  'plan:kisisel-baslaticilar-ve-gunun-alintisi.md',
+  'plan:kisisellestirme-ic-calisma.md',
+  'plan:kisisellestirme-kusursuzluk.md',
+  'plan:kusursuzluk-sprinti.md',
+  'plan:mesafe-motoru.md',
+  'plan:mesajin-arkasindaki-kart.md',
+  'plan:olunan-ve-niyet-alinan.md',
+  'plan:olus-muhru-2-muhur-basimi.md',
+  'plan:olus-muhru.md',
+  'plan:olus-sinamasi-esik-tasarimi.md',
+  'plan:onboarding-ic-calisma.md',
+  'plan:seytanla-savas-nur-alfabesi.md',
+  'plan:sharded-jingling-candle.md',
+  'plan:soft-forging-river.md',
+  'plan:sohbet-cekirdegi-ic-calisma.md',
+  'plan:soz-ihtiyac-motoru.md',
+  'plan:starry-foraging-wave.md',
+  'plan:studio-tek-sayfa.md',
+  'plan:synchronous-baking-hearth.md',
+  'plan:tanima-motoru.md',
+  'plan:tek-deste-iki-kutup.md',
+  'plan:tum-diller-native.md',
+  'plan:uc-usta-tek-deste.md',
+  'plan:velvety-prancing-giraffe.md',
+  'plan:yasayan-kart-motoru.md',
 ]);
 
 /* ─── 3. ANA KAPI ─── */
