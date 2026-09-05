@@ -281,9 +281,15 @@ const TRIGGER_INTENT: Record<string, string> = {
   // soruyu O GÜNE ve kullanıcıya özel TEK cümleye damıtır, şablon değil.
   /* Sosyal dokunuş (FAZ 12). Niyet, motorun GERÇEKTEN bildiğiyle sınırlı
      yazıldı (§6.10): `loadSosyalAdaylar` beğeniyle yorumu tek kovada
-     birleştirir ve kimin dokunduğunu ZATEN bilmez — `paylasim_begenileri`'nin
-     RLS'i anonimlik için daraltılmıştır. Modele "yorum geldi" dedirtmek,
-     ölçülmemiş bir ayrıntıyı uydurtmak olurdu. */
+     birleştirir, yani modele "yorum geldi" dedirtmek ölçülmemiş bir ayrıntıyı
+     uydurtmak olurdu.
+     KİMLİK ayrı bir gerekçedir ve karıştırılmamalı: bu motor `admin`
+     (service-role) istemcisiyle sorgu atar, yani RLS onu HİÇ BAĞLAMAZ ve
+     `loadSosyalAdaylar` `user_id`'yi fiilen okur (kendi etkileşimini elemek
+     için). Kimliği taşımaması bir bilgisizlik değil bir TASARIM KARARIDIR —
+     rumuz sözü. İlk yazımında burada "RLS daraltılmıştır" yazıyordu; çapraz
+     denetim (Sonnet) bunu yakaladı ve haklıydı: yanlış bir NEDEN, hiç yorum
+     olmamasından kötüdür (§5.2). */
   sosyal:      'Kullanıcının halka pazarında paylaştığı bir kartta başka bir gezgin durdu. Beğeni mi yorum mu OLDUĞUNU BİLMİYORSUN — ikisini de kapsayan bir dil kur, "yorum geldi" deme. Kimin olduğunu da bilmiyorsun (rumuz sözü), ima bile etme. SAYI VERME. Bunu bir onay/beğeni bildirimi gibi kurma: haber, karta gelen ilgi değil, kullanıcının kendi beyanının birine ULAŞMIŞ olmasıdır — "beğenildin" değil "kartın birine dokundu". Övme, tek sakin cümle.',
   morning:     'Sabah. Kitaptaki soruyu (#152) o kullanıcıya özel, somut, TEK bir cümleye damıt: "Bu gece uyumadan önce, bugün iyi ki yapmışım diyebileceğin ne olabilir?" Generic "bugün kim olmak istiyorsun" değil — bağlamdaki (temel mesele/hedef/son konu) somut bir örnek öner.',
 };
@@ -528,9 +534,31 @@ async function runEngine(): Promise<Response> {
     try {
       const { dateStr, hour } = localParts(row.tz || 'Europe/Istanbul');
       if (inQuietHours(hour, row.quiet_start ?? 23, row.quiet_end ?? 8)) continue;
-      const trigger = pickTrigger(row, dateStr, hour, sosyalAdaylar.has(row.user_id));
+      let trigger = pickTrigger(row, dateStr, hour, sosyalAdaylar.has(row.user_id));
       if (!trigger) continue;
-      if (!(await passesFreqCap(row.user_id, trigger))) continue;
+      if (!(await passesFreqCap(row.user_id, trigger))) {
+        /* `sosyal` YAPIŞKAN bir tetiktir ve merdivendeki tek yapışkan odur:
+           adayı 24 saat boyunca doğru kalır (`loadSosyalAdaylar`'ın penceresi),
+           çünkü sunucuda "bu dokunuşu zaten bildirdik" damgası YOKTUR —
+           istemcinin `etw_sosyal_gorulen_v1_*` damgası yalnız in-app rozeti
+           söndürür, buraya hiç ulaşmaz. Öteki beş tetiğin koşulu ise
+           geçicidir (saat penceresi, `daysInactive` kümesi, `=== 0`).
+           Sonuç, çapraz denetimde (Sonnet) ölçüldü: ilk koşuda sosyal push
+           gider, sonraki HER koşuda `pickTrigger` yine 'sosyal' der,
+           freq-cap "aynı tip 24s'te bir" diye reddeder ve satır atlanırdı —
+           yani kullanıcı 24 saat boyunca winback · streak_risk · soz ·
+           milestone · morning'in HİÇBİRİNİ alamazdı, günlük 2 bildirim
+           bütçesi boşken bile.
+           Düzeltme dar tutuldu: yalnız yapışkan tetik reddedildiğinde
+           merdiven bir kez daha, sosyal OLMADAN çözülür. Öteki tetiklerin
+           reddi eskisi gibi turu bitirir — "önceliğin kapalıysa yerine
+           başkasını koyma" merdivenin kendi anlamıdır ve o anlam korunur.
+           Günlük tavan ile 4 saatlik aralık ayrı guard'lardır, ikinci
+           çözümde de aynen uygulanır. */
+        if (trigger !== 'sosyal') continue;
+        trigger = pickTrigger(row, dateStr, hour, false);
+        if (!trigger || !(await passesFreqCap(row.user_id, trigger))) continue;
+      }
 
       const ctx = await loadContext(row.user_id);
       const copy = await generateCopy(trigger, row, ctx);

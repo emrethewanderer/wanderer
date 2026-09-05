@@ -1251,14 +1251,63 @@ gözden geçirilmedi: FAZ 1–2 kendi kapısını taşıyor ve bu tur ona dokunm
   ve niyet metni modele bilmediğini söylemek zorunda. Sahte bir
   *"Kartına 3 yeni yorum geldi!"* metniyle denendi — ikisi de kırmızı bastı.
 
-  **⚠ DENETİM BORÇLU (§3.3).** Çapraz denetim (`denetci` · Sonnet) AÇILDI ve
-  bu commit atıldığında hâlâ koşuyordu. Faz **denetlenmiş sayılmaz**; borç
-  burada görünür duruyor ve denetim dönünce bulguları bu kayda işlenip ayrı
-  bir commit'le kapatılacak. Commit'in sebebi §10.4'tür: uzak oturumda kap
-  geçicidir, commit edilmeyen iş oturumla birlikte ölür — push kaydın
-  kendisidir. Beklemek işi güvenceye almaz, kaybeder.
-  (`157a372`'nin "ajan koşarken `git add -A`" tehlikesi burada YOK: `denetci`
-  sözleşmesi gereği kod yazmaz, yani süpürülecek bir iş de yoktur.)
+  **Denetim borcu (§3.3) açıldı ve KAPANDI.** Faz, çapraz denetim koşarken
+  `74e2fd0` ile commit'lendi — gerekçe §10.4'tü (uzak oturumda commit
+  edilmeyen iş oturumla ölür; beklemek işi güvenceye almaz, kaybeder) ve borç
+  hem plan kaydında hem commit mesajında adıyla duruyordu. `157a372`'nin
+  "ajan koşarken `git add -A`" tehlikesi burada yoktu: `denetci` sözleşmesi
+  gereği kod yazmaz. Denetim döndü, dört bulgunun dördü de kapatıldı.
+
+  **Denetim (çapraz · Sonnet) — dört bulgu, dördü de düzeltildi.**
+  1. **Gerçek davranış kırığı ve FAZ 11'de bulduğumun KARDEŞİ.** Metin
+     yazılıp basamak açılınca susturma **başka bir kapıdan** geri geldi: ilk
+     koşuda sosyal push gider, sonraki her koşuda `pickTrigger` yine `'sosyal'`
+     der (aday 24 saat pencerede kalır), `passesFreqCap` "aynı tip 24s'te bir"
+     diye reddeder ve satır atlanırdı — kullanıcı yine 24 saat boyunca
+     winback · streak_risk · soz · milestone · morning'in hiçbirini alamazdı,
+     **günlük 2 bildirim bütçesi boşken bile.** `METNI_HAZIR` bir failure
+     mode'u kapatmıştı, ötekini değil.
+     Kök neden adlandırıldı: `sosyal` merdivendeki **tek YAPIŞKAN tetiktir** —
+     koşulu 24 saat doğru kalır çünkü sunucuda "bu dokunuşu zaten bildirdik"
+     damgası yoktur (istemcinin damgası yalnız rozeti söndürür, buraya
+     ulaşmaz); öteki beşinin koşulu geçicidir. Düzeltme dar: yalnız yapışkan
+     tetik reddedildiğinde merdiven bir kez daha, sosyal olmadan çözülür.
+     Ötekilerin reddi eskisi gibi turu bitirir — *"önceliğin kapalıysa yerine
+     başkasını koyma"* merdivenin kendi anlamıdır ve korundu.
+  2. `sf.rozet.aria` **yanlış bölümdeydi** — sözlüğün `sf.*` "Halka pazarı"
+     bloğu yerine Stüdyo Odaları bloğunun ortasına düşmüştü (iki dosyada da).
+     Parite kapıları set-bazlı olduğu için kırmızı basmıyordu; organizasyon
+     kırığı, `sf.report_aria`'nın yanına taşındı.
+  3. **Yorumumun gerekçesi YANLIŞTI** ve bulgu haklıydı: "kimliği bilmez —
+     RLS daraltılmıştır" yazmıştım, oysa bu motor `admin` (service-role)
+     istemcisiyle sorgu atar, RLS onu **hiç bağlamaz** ve `loadSosyalAdaylar`
+     `user_id`'yi fiilen okur. Kimliği taşımaması bilgisizlik değil bir
+     **tasarım kararıdır** (rumuz sözü). Yanlış bir NEDEN, hiç yorum
+     olmamasından kötüdür (§5.2) — ve bu turda tam bu dersi hafızaya yazmış
+     olmam ironiyi ders yapmıyor, kuralın ne kadar kaygan olduğunu gösteriyor.
+  4. **EN register kayması** (FAZ 4'ün ekseni): TR *"Kartında yeni bir
+     dokunuş var"* sakin bir isim tamlamasıyken EN *"Someone has touched your
+     card"* özne+fiile dönüyordu ve İngilizcede "touched your…" çoğunlukla
+     izinsiz temas çağrışımı taşır. → *"A new touch on your card"*.
+
+  **Sınıf iki fazda iki kez kırıldı, o yüzden artık bir kapısı var.** §3.7'nin
+  dördüncü ekseni: aynı kırık iki kez çıktıysa mesele kırık değil onu üreten
+  kuraldır. `tests/tik-atifi.test.js` artık yapışkan tetiğin reddinin turu
+  koşulsuz bitirmesini yasaklıyor; kapı kaldırılıp sınandı, kırmızı bastı.
+  Denetimin bir bakım notu da alındı: `TRIGGER_INTENT.sosyal` araması tam
+  boşlukla eşleşiyordu (hizalama bir sözleşme değildir), desene çevrildi.
+
+  **Denetimin doğrulayıp temiz bulduğu:** ton daraltmasının koda karşı haklı
+  olduğu (`sosyalVar` yalnız boolean, tür bilgisi seçime hiç ulaşmıyor) ·
+  `fallbackCopy`'nin TR-only olmasının `sosyal`'in açtığı yeni bir borç DEĞİL,
+  altı tetiğin hepsinde var olan bir sınır olduğu · aria-label kararının
+  kaynağa karşı doğru olduğu (`#ws-sf-pulse` bir `<button>` içindedir ve
+  accname hesabına girer; CSS `opacity`dir, `display:none` değil).
+  Bir de küçük bir dürüstlük notu: raporumdaki "49/49" tally'si denetçide
+  yeniden üretilemedi — sayı doğruydu (10C 18 + aria 7 + tam-parite 8 +
+  ihtimalsel 13 + parity 3) ama başlığı yalnız "i18n aria/parite/ihtimalsel"
+  diyordu, yani hangi dosyaları kapsadığını yanlış anlatıyordu. Kırmızı
+  yutulmamış; anlatım yanlıştı.
 
   **Taşınan sınır (yeni borç değil):** `fallbackCopy` TR-only'dir ve bu
   `sosyal`'in getirdiği bir kırık değil, altı tetiğin hepsinde var olan bir

@@ -394,10 +394,42 @@ describe('send-push merdiveni — seçilebilen her tetiğin metni var', () => {
   });
 
   it('sosyal NİYETİ modele bilinmeyeni açıkça söyler (tür ve kimlik)', () => {
-    const bas = src.indexOf('  sosyal:      ');
+    /* Arama BİÇİME değil ANLAMA bağlı: ilk hâli `'  sosyal:      '` diye tam
+       boşlukla arıyordu ve obje bir kez hizalanınca `bas` -1 olurdu (çapraz
+       denetimin bakım notu). Hizalama bir sözleşme değildir. */
+    const bas = src.search(/^\s*sosyal:\s*'/m);
+    expect(bas, 'TRIGGER_INTENT.sosyal girdisi bulunamadı').toBeGreaterThan(-1);
     const niyet = src.slice(bas, src.indexOf("',", bas));
     expect(niyet).toMatch(/BİLMİYORSUN/);
     expect(niyet).toMatch(/SAYI VERME/);
+  });
+
+  /* ── YAPIŞKAN TETİK KAPISI — sınıf iki fazda İKİ KEZ kırıldı ──
+     FAZ 11: `sosyal` metinsizken koşulsuz seçiliyordu → `generateCopy` null →
+     satır atlanıyordu. Kapatıldı (`METNI_HAZIR`).
+     FAZ 12: metin yazılıp basamak açılınca aynı susturma BAŞKA bir kapıdan
+     geri geldi — `passesFreqCap` "aynı tip 24s'te bir" diye reddediyor ve
+     satır yine atlanıyordu. Çapraz denetim (Sonnet) yakaladı.
+     Aynı kırığın iki sprintte iki kez çıkması, meselenin kırık değil onu
+     ÜRETEN KURAL olduğunu söyler (§3.7 dördüncü eksen). Kök şu: `sosyal`
+     merdivendeki tek YAPIŞKAN tetiktir — koşulu 24 saat doğru kalır, çünkü
+     sunucuda "bu dokunuşu zaten bildirdik" damgası yoktur. Öteki beş tetiğin
+     koşulu geçicidir. Yapışkan bir tetik reddedildiğinde tur BİTMEMELİ.
+     Ölçülebilir hâli: reddedilme dalı koşulsuz `continue` OLAMAZ; merdiven
+     yapışkan tetik olmadan bir kez daha çözülmeli. */
+  it('yapışkan tetik freq-cap\'e takılınca tur BİTMEZ — merdiven yeniden çözülür', () => {
+    const bas = src.indexOf('async function runEngine');
+    const govde = src.slice(bas, src.indexOf('\n}', bas));
+    expect(bas, 'runEngine bulunamadı').toBeGreaterThan(-1);
+
+    // Reddedilme dalı bir blok açmalı — koşulsuz `continue` yasak.
+    expect(govde, 'passesFreqCap reddi turu koşulsuz bitiriyor — yapışkan ' +
+      'tetik altındaki her basamağı 24 saat susturur')
+      .not.toMatch(/if \(!\(await passesFreqCap\([^)]*\)\)\) continue;/);
+
+    // Ve merdiven yapışkan tetik OLMADAN yeniden çözülmeli.
+    expect(govde, 'merdiven sosyal olmadan yeniden çözülmüyor')
+      .toMatch(/pickTrigger\([^)]*,\s*false\)/);
   });
 
   it('kapının kendisi çalışıyor — ihlali gerçekten yakalar (§10.5)', () => {
