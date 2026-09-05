@@ -9,7 +9,7 @@ type: gotcha
 > **Bu dosya hakkında.** `tests/06-summary-chat.test.js`, `tests/13D-duygu-iklimi.test.js`
 > ve `tests/13A-bugun-penceresi.test.js` bu ada `[[safestorage-testlerde-kvcache]]`
 > diye bağ veriyordu; hedef dosya `.claude/memories/` altında YOKTU (kapı:
-> `tests/referans-butunlugu.test.js` TABAN'ı, `hafiza:safestorage-testlerde-kvcache`).
+> `tests/referans-butunlugu-kapisi.test.js` TABAN'ı, `hafiza:safestorage-testlerde-kvcache`).
 > Aynı isimli özgün dosya yalnız Emre'nin lokal diskinde kaldı ve repoya hiç
 > girmedi — `git log --all -- .claude/memories/safestorage-testlerde-kvcache.md`
 > boş döner ([[claude-altyapisi-commit-disi]]). **Bu dosya o özgün metnin

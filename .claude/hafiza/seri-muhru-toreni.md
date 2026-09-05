@@ -1,0 +1,24 @@
+---
+name: seri-muhru-toreni
+description: "Seri Mührü — Bugün'deki hafta zincirinin yerine geçen günü-mühürleme töreni + kilometre taşı kartları"
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 0447e796-39fc-4344-9056-3a826632cfef
+---
+
+10t modülü (`js/parts/10t-w2-seri-muhru.js` + `css/parts/seri-muhru.css`). Eski "Bu Hafta · Zincir" tablosu Bugün ekranından kaldırıldı (`_src.html`'de `ws-week-chain-wrap` → `#sm-bugun-card`; `_renderWeekChain` 10-features-w2'den silindi — ama `ws-chat-week-chain` sohbet banner'ı ve dashboard `renderChainCalendar` DOKUNULMADI).
+
+**Tören (günde bir kez, `sm-portal` overlay):** `smRunDaily` 03-auth-shell post-auth'ta ~2200ms'de tetiklenir; `_blocked()` ile gl-portal / cinematic-intro / onboarding / kapı bitene kadar erteler (Armağan→Söz→Mühür sırası). `lastSealedDay === bugün` ise tören yok, sadece kart. Gelmek = `recordActivityDay()` → bugünün halkası dövülür (merkezî seriyi besler).
+
+**3 varyant** (`smSealToday` → `_renderSealCeremony`): START (n===1; ilk kez = `firstEver` ise 4'lü HEDEF sorusu 7/30/180/365 → `smChooseGoal`), CONTINUE (ilerleme barı + sonraki taş), MILESTONE (yeni kart günü). Görkem tier 1-4 ile orantılı (ışın/parçacık sayısı, şok dalgası, `sm-modal--grand`).
+
+**8 kilometre kartı** (`SM_CARDS`): 7/15/30/60/120/180/240/365 gün; her biri ad+sigil+kitap-köklü söz ("Mesele Sensin"); tier 1-4. Gerçekleşince bir kez verilir, `smOpenCollection` galerisinde (Bugün kartına tıkla) kalıcı. Kazanılmamış = kilitli silüet.
+
+**Geliştirmeler (2026-06-03):** (a) **Söz↔Mühür kenetlenmesi** — `_todaysPledgeInfo()` bugünün sözünü (S._gunlukRitus.pledges, smDayKey===date) okur; tören söz varsa "söz halesi" satırı + `sm-modal--sworn` (güçlü glyph parıltısı), yoksa "Söz ver →" daveti (→`glGiveSozNow`). (b) **Haftalık zincir şeridi** `_weekStripHTML()` — son 7 gün, `getActivityDays()`+`localDayKey` (DİKKAT: localDayKey ay 0-indeksli/padding'siz; smDayKey'den farklı!), Bugün kartında. (c) **Hedefi yeniden seç** — galeride `sm-goalbar` (toggle; aynısına tıkla=temizle) → `smSetGoal(d)` (portal kapatmaz). (d) **Kilometre yansıması** — MILESTONE töreninde ops. `#sm-note` input → `cards[n].note` (galeride `.sm-card-note`). Birleşik akış: söz biter bitmez 10s `_chainSeal()` bu töreni akıtır. NOT: gerçek streak-freeze/dondurma merkezi ledger bütünlüğünü ([[ritual-streak-unity]]) etkilediği için bilinçle YAPILMADI.
+
+**Modal kabuğu yeniden tasarımı (2026-06-16, [[tasarim-prensipleri]] tam uyumu):** `.sm-modal` + `.sm-tier-1` baştan yazıldı; referans = `css/parts/aksam.css` (repodaki prensip-uyumlu altın standart). DEĞİŞENLER: tüm sabit hex → token (`--gold/--lapis-bright/--bronze/--text*/--gold-hairline/--gold-dim`); taban ısıtılmış obsidyen + köşe-radial atmosfer (üst altın taç + sağ-üst lapis fısıltı) + `::before` kâğıt greni (z-index:-1, `isolation:isolate`, mix-blend YOK); sahne saatle yaşar — `tw-*` class DEĞİL, `--dawn-amber` token'ı kullanıldığı için OTOMATİK kayar (JS'siz); tipografi [Cinzel kicker → Fraunces `--serif-display` başlık (fildişi) → Garamond `--serif` italik gövde]; CTA = dövülmüş altın mühür pill (`--radius-full`, üst rim ışık + dış hale, `cl-composer .send-btn` deseni); `text-transform:uppercase` KALDIRILDI (TR İ tuzağı — metin HTML'de zaten büyük); `--radius-xl` köşe; hedef çipleri kademeli giriş (`nth-child` gecikme); `:focus-visible` altın outline + reflect input 16px (iOS); `z-index` artık `var(--z-ceremony)` (base.css'e 9650 olarak EKLENDİ). Strike-ring/keyframe/JS sınıf sözleşmeleri AYNEN korundu; grand (t2-4) regresyonsuz. Build+preview yeşil.
+
+**LLM ön-yüzünde Armağan'dan ÖNCE (2026-06-28):** Tören ("Bugünün Vuruşu") artık Studio Bugün'e ek olarak Wanderer LLM ön-yüz ana ekranında (`#chat-view.llm-home`) da dövülür ve orada **Gün Armağanı'ndan ÖNCE** gelir (sıra: Mühür → Armağan → Söz). İKİ küçük cerrahi düzenleme: (1) 10t `_blocked()` view kapısı artık `bugun-view` VEYA `chat-view.llm-home`'a izin verir (akan sohbet `chat-view`/Kütüphane vb. hâlâ erteler). (2) 10s `glRunDailyRitual` içine **seal-first detour**: `_glSealFirstPending()` (yalnız `chat-view.llm-home` + `S._seriMuhru.lastSealedDay !== bugün`) true ise armağanı göstermeden `smRunDaily(false)` tetiklenir; `sm-portal` açıldıysa return → kapanışta MEVCUT zincir (10t `_closePortal` → `glRunDailyRitual(false)`) armağanı getirir. Studio/`bugun-view`'de detour YOK → eski sıra (Armağan→Söz→Mühür) korunur. 03-auth-shell tetik sırası (gl 1500 / sm 2200ms) DEĞİŞMEDİ; detour sıralamayı deterministik kılar. Build+384 test+preview (4 view predikat doğrulaması) yeşil.
+
+Kalıcılık: SafeStorage `etw_seri_muhru_v1_<uid>` → user_analytics (Supabase, post-auth). Konvansiyon [[wanderer-gamification-engine]]/[[gunluk-ritus-armagan-soz]] ile aynı: hardcoded TR, window.sm* TDZ-güvenli, prefers-reduced-motion korumalı. Seri kaynağı [[ritual-streak-unity]] (etw_activity_ledger_v1 + recomputeStreakUI).

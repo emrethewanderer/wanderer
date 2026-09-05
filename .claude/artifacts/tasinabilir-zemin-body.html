@@ -1,0 +1,313 @@
+<div class="wrap">
+
+  <header class="rise">
+    <p class="kicker">Wanderer AI · Geçiş Notu</p>
+    <h1>Taşınabilir Zemin</h1>
+    <p class="lead">Lokalden GitHub'a geçişte model doğru çalıştı ama <em>kör</em> çalıştı:
+      çalışma biçimini biliyordu, geçmişi bilmiyordu. Sebep tek ölçüde duruyor.</p>
+    <div class="meta">
+      <span><b>Tarih</b> 5 Eylül 2026</span>
+      <span><b>Kapsam</b> çalışma biçimi · hafıza · geçiş envanteri</span>
+      <span><b>Durum</b> reçete uygulandı, commit atıldı</span>
+    </div>
+  </header>
+
+  <section>
+    <p class="eyebrow">Teşhis</p>
+    <h2>Protokol repodaydı, hafıza değildi</h2>
+    <p class="sec-lead">İki katman aynı işi yapıyor gibi görünüyordu; biri git takipliydi,
+      diğeri değildi. <em>Fark buydu.</em></p>
+
+    <table class="measure">
+      <caption>Geçişin iki katmanı</caption>
+      <thead>
+        <tr><th>Katman</th><th>Nerede yaşıyor</th><th>Ölçü</th><th>GitHub'a</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Çalışma biçimi — <code>PROTOKOL-FABLE.md</code></td>
+          <td>repo kökü</td>
+          <td>52 KB</td>
+          <td class="mark">gitti</td>
+        </tr>
+        <tr>
+          <td>Hafıza — 193 dosya + indeks</td>
+          <td><span class="fileref">~/.claude/projects/…</span></td>
+          <td>1.3 MB</td>
+          <td class="weak">gitmedi</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="measure-note">Repo dışında yaşayan hiçbir şey repoyla birlikte taşınmaz —
+      ne kadar merkezî olduğu fark etmez.</p>
+
+    <p>Protokol repoda olduğu için model onu okudu ve protokole göre davrandı;
+      <code>ad-senkronu-kurali</code> gibi hafıza <strong>adlarını</strong> kendi türetti.
+      Bu tesadüf değil — protokol o kadar iyi yazılmış ki adlandırma konvansiyonu ondan
+      türetilebiliyor. Ama tahmin edilen ad, yazılmış hafızanın yerine geçmez:
+      bir bağ <em>dosyaya</em> işaret eder, dosya yoksa boşluğa işaret eder.</p>
+
+    <div class="note">
+      <b>Ders tek satırdır.</b> Repoda olan taşınır, olmayan taşınmaz. Bir kural kapıya
+      bağlı değilse tavsiyeye döner — bir bilgi repoya bağlı değilse hiç gitmez.
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">01 · Çalışma biçimimiz</p>
+    <h2>Motor, kapı ve iki mutlak kural</h2>
+    <p class="sec-lead">Aşağısı protokolün yerine geçmez; onun taşınabilir özetidir.
+      <em>Kanonik metin daima protokolün kendisidir.</em></p>
+
+    <div class="flow">
+      <b>KEŞFET</b> → <b>PLANLA</b> → <b>FAZLARA BÖL</b> → <b>UYGULA</b> → <i>DOĞRULA</i>
+      → <i>ÖZ-İNCELE</i> → <b>RAPORLA + HAFIZAYA YAZ</b>
+    </div>
+
+    <div class="gap">
+      <div class="gap-head">
+        <span class="gap-id">KAPI</span>
+        <h3>build → hedefli test → konsol</h3>
+      </div>
+      <p>Faz ancak <em>"Konsol temiz."</em> denebildiğinde kapanır. Tam süit yalnız sprint
+        kapanışında koşar; bir fazın kırığı o fazın dosyalarında yaşar. Screenshot tek başına
+        kanıt değildir — gerçeği canlı DOM sorgusu doğrular.</p>
+      <div class="pill-row">
+        <span class="pill etki-y">build yeşil olmadan ilerleme yok</span>
+        <span class="pill efor">kaynak değişmediyse gerekçeli geçiş</span>
+      </div>
+    </div>
+
+    <div class="gap">
+      <div class="gap-head">
+        <span class="gap-id">DENETİM</span>
+        <h3>Yazan denetlemez</h3>
+      </div>
+      <p>Kural yönsüzdür: <strong>denetçinin modeli, fazı yazan modelin modeli olamaz.</strong>
+        Aksi hâlde uygulayan model aynı kör noktadan iki kez geçer. Denetçi kod yazmaz —
+        bulgu döndürür, düzeltmeyi fazın sahibi yapar.</p>
+      <div class="pill-row">
+        <span class="pill etki-y">Opus yazdı → Sonnet denetler</span>
+        <span class="pill etki-o">Sonnet yazdı → Opus denetler</span>
+      </div>
+    </div>
+
+    <div class="gap">
+      <div class="gap-head">
+        <span class="gap-id">DEVİR</span>
+        <h3>Plandan okunamayan kararı adlandır</h3>
+      </div>
+      <p>Adlandırabiliyorsan faz 🅞'dir ve gerekçe plana yazılır; adlandıramıyorsan 🅢'dir ve
+        devredilir. <em>"İçimde bir his var"</em> gerekçe değildir. Karışık faz bölünür —
+        bir damla yargı bütün fazı 🅞 yapmaz.</p>
+      <div class="pill-row">
+        <span class="pill etki-y">🅢 varsayılan</span>
+        <span class="pill acik">🅞 &gt; 🅢 ise plan bitmemiştir</span>
+      </div>
+    </div>
+
+    <div class="gap">
+      <div class="gap-head">
+        <span class="gap-id">RİTİM</span>
+        <h3>Faz kapanışı turu bitirmez</h3>
+      </div>
+      <p>Kayıt noktası atılır, commit edilir, <strong>sorusuz</strong> sonraki faza geçilir.
+        Faz sonu raporu bir durum bildirimidir, duraklama noktası değil. Turun tek doğal sonu:
+        sprint bitti, gerçek bir çatal çıktı, ya da kota eşiği doğru.</p>
+    </div>
+
+    <h2 style="margin-top:48px">İki mutlak kural</h2>
+    <ul class="strengths">
+      <li><b>Gerçeklik kuralı</b> — kanıtı olmayan değer yoktur. Veri üç yerden gelir:
+        kullanıcının <em>beyanı</em>, uygulamanın <em>ölçümü</em>, LLM'in <em>yorumu</em>.
+        Dördüncü hâl bir köken değil kökensizliktir ve <code>0.6</code> gibi masum sayılara
+        gizlenemez. Modelin kendi güven sayısı kapı olamaz.</li>
+      <li><b>Ad senkronu</b> — tek ad, tek gerçek. Görünen ad değişirse iç ad da değişir:
+        kod, DOM id, i18n anahtarı, storage anahtarı, DB kolonu. "Kullanıcı X der, kod Y der"
+        çeviri katmanı bırakılmaz.</li>
+    </ul>
+
+    <div class="sector">
+      <b>Kapı felsefesi</b>
+      "Kapısı olmayan kural, zamanla tavsiyeye döner." Bu cümle ölçülerek öğrenildi:
+      tasarım anayasasında yazılı üç madde sırasıyla <strong>0 / 6 dosya / 38 yerde</strong>
+      uygulanmamış çıktı. O günden beri her ölçülebilir kural bir script'e bağlı —
+      repoda 10 denetçi ve 15 kapı testi var.
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">02 · Hafıza</p>
+    <h2>Taşınmayan asıl sermaye</h2>
+    <p class="sec-lead">Kayıp kod değildi — <em>kararların gerekçesiydi.</em></p>
+
+    <table class="measure">
+      <caption>Hafızanın ölçüsü</caption>
+      <thead><tr><th>Ölçü</th><th>Adet</th><th>Not</th></tr></thead>
+      <tbody>
+        <tr><td>Hafıza dosyası</td><td class="mark">193</td><td>+ indeks dosyası</td></tr>
+        <tr><td>İndeks satırı</td><td>193</td><td>yetim satır yok</td></tr>
+        <tr><td>type: project</td><td>169</td><td>kararlar, motorlar, gotcha'lar</td></tr>
+        <tr><td>type: feedback</td><td>14</td><td>çalışma tarzı geri bildirimi</td></tr>
+        <tr><td>type: reference</td><td>10</td><td>dış kaynak işaretçileri</td></tr>
+      </tbody>
+    </table>
+    <p class="measure-note">Biçim sabittir: <strong>tek dosya = tek olgu</strong> —
+      frontmatter, <em>Why</em>, <em>How to apply</em> ve bağlar. Var olan güncellenir,
+      kopya oluşturulmaz, yanlışlanan silinir.</p>
+
+    <h3 style="font-family:var(--serif);font-weight:600;font-size:18px;margin:40px 0 0">
+      En pahalı on hafıza</h3>
+    <p>Tekrar öğrenilmesi en pahalı olanlar — hepsi bir hatayla ödendi:</p>
+    <ul class="contract">
+      <li>saf-yesil-cagri-olu <span>— üretici/tüketici alan adı ayrışınca fonksiyon daima null;
+        birim testi göremez, <strong>kapı çağrıda olmalı</strong></span></li>
+      <li>tanimsiz-css-tokeni-hayalet <span>— tanımsız token sessizce inherit edilir;
+        biri hiç doğmamıştı, 14 yerde kullanılıyordu</span></li>
+      <li>preview-sw-bayat-modul <span>— "diskte doğru, ekranda eski"nin kökü önbellekti;
+        yeni port açmak kaçıştı, çözüm değildi</span></li>
+      <li>bagsiz-ad-kapisi <span>— vite bundle scope'u düzleştirir, build göremez;
+        56 vaka / 26 ad</span></li>
+      <li>yerel-tarih-anahtari <span>— UTC tarih TR'de günü kaydırır</span></li>
+      <li>yetim-kopru-denetcisi <span>— opsiyonel çağrı sessizce hiçbir şey yapmaz;
+        template körlüğü 795 → 962 ada çıkardı</span></li>
+      <li>ic-calisma-7-kimlik-ucgeni <span>— dört kırığın dördü de <em>planın</em> hatasıydı;
+        uygulayıcı sadıktı ama yargısızdı</span></li>
+      <li>emek-sayar-bakis-saymaz <span>— defteri tamamlanan ritüel besler,
+        pasif ekran açılışı saymaz</span></li>
+      <li>gecmis-gunler-ozet-zinciri <span>— sahte başarı bayrağı gerçek kaybı örtüyordu</span></li>
+      <li>safestorage-testlerde-kvcache <span>— bellek-içi önbellek; testlerde temizlik şart</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">03 · Envanter</p>
+    <h2>Ne gitti, ne gitmedi, ne kırık gitti</h2>
+
+    <h3 style="font-family:var(--serif);font-weight:600;font-size:18px;margin:24px 0 0">
+      Giden — ve iyi ki giden</h3>
+    <ul class="strengths">
+      <li><b>Protokol + anayasa</b> — 52 KB. Geçişin çalışmasının tek sebebi.</li>
+      <li><b>58 plan artefaktı</b> — kararlar gerekçeleriyle birlikte.</li>
+      <li><b>20 yayınlanmış rapor + 16 test sayfası</b> — arşiv ve anon-oturum panzehiri.</li>
+      <li><b>10 denetçi script'i + 15 kapı testi</b> — kuralları tavsiye olmaktan çıkaran şey.</li>
+      <li><b>15 kurulum belgesi + CI zinciri</b> — typecheck → test → build → bütçe.</li>
+    </ul>
+
+    <div class="gap crit">
+      <div class="gap-head">
+        <span class="gap-id">KIRIK</span>
+        <h3>Stop kancaları — mutlak yolla yazılmıştı</h3>
+      </div>
+      <p>Hook komutu makinenin tam yolunu taşıyordu. Başka bir makinede o yol yok:
+        otomatik build koşmaz, devir notu yazılmaz. Yani <em>kancanın kendisi gidiyor,
+        işlevi gitmiyordu.</em></p>
+      <div class="pill-row"><span class="pill kapandi">bu turda kapandı</span></div>
+    </div>
+
+    <div class="gap crit">
+      <div class="gap-head">
+        <span class="gap-id">KIRIK</span>
+        <h3>Preview — attach eder, süreç başlatmaz</h3>
+      </div>
+      <p>Yapılandırma ayakta olan sunucuya bağlanır; başlatmaz. Cloud tarafında sunucu elle
+        başlatılmazsa kapının üçüncü adımı <strong>sahte geçilir</strong> — ve sahte başarı
+        bu ortaklıkta yasaktır.</p>
+      <div class="pill-row"><span class="pill acik">her oturumda dikkat</span></div>
+    </div>
+
+    <div class="note">
+      <b>Sır taraması temiz.</b> Hafızada anahtar deseni yok; geçen secret <em>adlarıdır</em>,
+      değerleri değil. Kural zaten hafızanın içinde yazılı: "Parolayı bir forma, koda, teste,
+      hafızaya ya da rapora YAZMA." — kural tutmuş.
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">04 · Bu turda kapananlar</p>
+    <h2>Reçete uygulandı</h2>
+    <p class="sec-lead">Bu bölüm öneri listesi değil — <em>reçetesi uygulanmayan belge de
+      tavsiyeye döner.</em></p>
+
+    <div class="timeline">
+      <div class="tl-item done">
+        <span class="tl-tag">Göç</span>
+        <h3>Hafıza repoya taşındı</h3>
+        <p>195 dosya, 1.3 MB. Tek kaynak hâlâ yerel hafıza dizinidir; repo kopyası onun
+          <strong>türevi</strong>dir, ikinci kaynak değil — ad senkronu kuralının ruhu.</p>
+      </div>
+      <div class="tl-item done">
+        <span class="tl-tag">Köprü</span>
+        <h3>Senkron script'i yazıldı</h3>
+        <p>Üç kol: dışa, içe, fark. Asimetri bilinçli — dışa yazarken silme yapar
+          (yanlışlanan hafıza türevde de ölür), içe alırken yapmaz (yeni makinede lokalde
+          yazılmış hafıza ezilmez). Dört kol da koşturuldu.</p>
+      </div>
+      <div class="tl-item done">
+        <span class="tl-tag">Bağ</span>
+        <h3>Cloud oturumu hafızayı bulur</h3>
+        <p>Anayasaya 9. madde eklendi: hafıza aracı yoksa hafıza repo türevinden okunur;
+          hafızaya yazan tur kapanışta senkronu koşturur. Kural artık kapıya bağlı.</p>
+      </div>
+      <div class="tl-item done">
+        <span class="tl-tag">Onarım</span>
+        <h3>Hook'lar taşınabilir yapıldı</h3>
+        <p>Proje dizini değişkeni + eski yola düşen fallback. Bilinçli savunmacı stil:
+          değişken gelmezse eski davranış aynen sürer, gelirse her makinede çalışır.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow crit">05 · Senin yapman gereken</p>
+    <h2>İki elle iş</h2>
+
+    <div class="gap crit">
+      <div class="gap-head">
+        <span class="gap-id">1</span>
+        <h3>Repo <em>private</em> olmalı</h3>
+      </div>
+      <p>Repoda iki kitabın içeriği, persona anayasası, tez metinleri ve fiyatlandırma
+        stratejisi var. Hafıza da eklendiğine göre artık <strong>kararların gerekçeleri</strong>
+        de orada. Bu teknik bir sır meselesi değil, fikri mülkiyet meselesidir.</p>
+      <p style="color:var(--text-dim)">GitHub → repo → Settings → Danger Zone → görünürlük
+        <strong>Private</strong>.</p>
+    </div>
+
+    <div class="gap crit">
+      <div class="gap-head">
+        <span class="gap-id">2</span>
+        <h3>Hafıza indeksi sıkışma sınırında</h3>
+      </div>
+      <p>İndeks <strong>24.3 KB</strong>'a ulaştı; okuma sınırı <strong>24.4 KB</strong>.
+        Birkaç ekleme daha olursa indeks okunamaz hâle gelebilir — ve indeks okunamazsa
+        hafızanın tamamı görünmez olur.</p>
+      <p>Sıkıştırmayı bu turda <em>yapmadım</em>: 193 satırı özetlemek bilgi kaybı riski taşır
+        ve hangi maddenin eriyeceğine senin karar vermen gerekir. Hazır olduğunda
+        <code>/consolidate-memory</code> ile ayrı bir turda yapılır.</p>
+    </div>
+  </section>
+
+  <div class="honesty">
+    <p class="eyebrow">Dürüstlük notu</p>
+    <p>Bu turda kaynak koda dokunulmadı; kapı protokole göre <strong>gerekçeli</strong>
+      geçildi — build alındı (708 KB gzip / 1024 KB bütçe, yeşil), hedefli test yerine
+      değişen üç yüzeyin doğrudan doğrulaması yapıldı: senkron script'inin dört kolu,
+      hook yol çözümlemesi iki senaryoda, yapılandırma dosyasının JSON geçerliliği.
+      Preview kapısı koşulmadı — uygulama arayüzü değişmedi.</p>
+    <p>Çalışma ağacında <strong>bu tura ait olmayan</strong> değişiklikler duruyor
+      (XSS kapısı işi: dokuz modül ve bir test dosyası). Onları denetlemedim ve commit'e
+      katmadım — kendi turunun commit'ini beklemeliler.</p>
+    <p>Öz-denetimde kendi kırığımı buldum: bu raporun ilk hâlini <em>paralel</em> bir stille
+      yazmıştım, oysa arşivde bu estetiğin ortak kaynağı zaten duruyordu. Rapor onunla
+      yeniden kuruldu — "mevcut olanı yeniden kullan" kuralı rapora da uygulanır.</p>
+    <p><strong>"26 adlandırma"</strong> senin gözleminle kayda geçti; o oturum GitHub
+      tarafında olduğu için bende kanıtı yok. Ölçtüğüm şey ayrı ve yazılı: hafıza 193 dosya,
+      repo dışı, git takipsiz.</p>
+  </div>
+
+  <p class="finis">Protokol nasıl çalıştığımızı taşır, hafıza ne öğrendiğimizi.<br>
+    İkisi bir arada gitmezse yeni oturum bizi değil, yalnız kurallarımızı devralır.<br><br>
+    <span style="color:var(--gold);font-style:normal">Mesele Sensin.</span></p>
+
+</div>

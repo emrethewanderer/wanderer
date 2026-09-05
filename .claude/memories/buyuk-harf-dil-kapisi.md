@@ -8,7 +8,7 @@ type: gotcha
 
 > **Bu dosya hakkında.** `PROTOKOL-FABLE.md` ve `tests/`/`js/` altındaki
 > yorumlar bu ada `[[buyuk-harf-dil-kapisi]]` diye bağ veriyordu; hedef dosya
-> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu.test.js`
+> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu-kapisi.test.js`
 > TABAN'ı). Aynı isimli özgün dosya yalnız Emre'nin lokal diskinde kaldı ve
 > repoya hiç girmedi ([[claude-altyapisi-commit-disi]]). **Bu dosya o özgün
 > metnin kurtarılmış hâli DEĞİLDİR.** İçeriği bugünkü repodan yeniden

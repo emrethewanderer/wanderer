@@ -6,7 +6,7 @@
  * GERÇEKLİK KAPISI — "uydurmayan uygulama" mimarisinin vitest bekçisi.
  *
  * scripts/gerceklik-denetci.mjs'i koşar; repoda kanıtsız bir varsayılan ya da
- * kapısız bir LLM kanıtı belirirse bu test KIRILIR. Kalıbı tests/i18n-parity
+ * kapısız bir LLM kanıtı belirirse bu test KIRILIR. Kalıbı tests/i18n-parity-kapisi
  * ile aynıdır (spawnSync + exit kodu) — çalışan kapı deseni ikinci kez
  * kullanıldı, yenisi icat edilmedi.
  *

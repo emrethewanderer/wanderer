@@ -59,3 +59,23 @@ kurallarını tanımlar. Oturuma başlamadan önce okunmuş ve benimsenmiş say�
     hâl ("not edildi") yok. Kapanan plan `## Opus öz-denetimi` kaydını
     taşır; kayıt yoksa tur koşulmamış sayılır. Ayrıntı: `PROTOKOL-FABLE.md`
     §3.7.
+13. **Hafıza İKİ yerde yaşar; ikisini de oku, doğru olana yaz.**
+    `.claude/hafiza/` (195 dosya, indeks `MEMORY.md`) Emre'nin lokal
+    hafızasının **aynasıdır** — gerçek kaynağı `~/.claude/projects/<slug>/memory/`,
+    tazeleyicisi `./scripts/hafiza-senkron.sh disa`. `.claude/memories/`
+    (38 dosya) ise **repo tarafında, koda karşı** yazılmış hafızadır.
+    24 ad ikisinde de var ve içerikleri farklı: aynadaki sürüm kararın NİÇİN
+    verildiğini, repo sürümü bugün kodda NEREDE durduğunu taşır — biri
+    ötekinin yerine geçmez. Bir hafıza adı ararken **iki dizine de bak**;
+    indeks satırı özet, dosya gerçektir.
+    **Yazarken:** uzak oturumdaysan (GitHub/cloud) hafızayı `.claude/memories/`
+    altına yaz. `hafiza/`ya YAZMA — `disa` kolu `rsync --delete` kullanır ve
+    oraya repo tarafından konan dosya ilk senkronda silinir. Lokaldeysen memory
+    aracına yaz, kapanıştan önce `disa` koştur (kapı: `… fark` temiz olmalı),
+    sonra commit et.
+    İkilik bir borç değil, senkronun doğru çalışmasının sonucudur: `disa`
+    kolu artık aynada fazladan kalanı sessizce silmez, durup gösterir ve
+    doğru yeri söyler. Tek depoya inmek için yapılacak bir iş YOKTUR.
+    Roller: `.claude/memories/README.md` · kapı:
+    `tests/hafiza-senkron-kapisi.test.js` · geçiş envanteri:
+    `TASINABILIR-ZEMIN.md`.

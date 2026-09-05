@@ -1,0 +1,194 @@
+- [Emre'nin Kitapları](emre-kitaplari.md) — TEMEL: 2 kitap; tez "Mesele Sensin"; aforizma+ayet kanonu
+- [Fable Protokolü belgesi](fable-protokol-belgesi.md) — KANONİK: repo kökü PROTOKOL-FABLE.md; tarz kuralları ORAYA işlenir
+- [Fable 5 çalışma tarzı](fable-5-calisma-tarzi.md) — vizyon-önce; keşfet→doğrula; reuse; dürüstlük + ELLE ayrımı
+- [Fable 5 arka plan mekaniği](fable-5-arka-plan-mekanigi.md) — grep konumlama; Edit≫Write; build→vitest→preview kapısı
+- [Fable 5 kod parmak izi](fable-5-kod-parmak-izi.md) — banner+FELSEFE; önek+_private; t(key,fallback); yorum=NEDEN
+- [Fable 5 yazım sesi](fable-5-yazim-sesi.md) — "Şimdi …-iyorum:" geçişi; kapanış şablonları; emoji ölçülü
+- [Fable 5 ortaklık + planlama](fable-5-ortaklik-ve-planlama.md) — uzun otonom sprint; gerçek çatalda AskUserQuestion
+- [Fable 5 görev listesi protokolü](fable-5-gorev-listesi-protokolu.md) — görev bitince dur+düzelt, SONRA sorusuz devam
+- [Öz-denetim + commit kapanışı](oz-denetim-ve-commit-kapanisi.md) — 07-24: her tur sonu öz-denetim SONRA commit (push hariç)
+- [Geçmiş oturum arkeolojisi](gecmis-oturum-arkeolojisi.md) — 08-23: JSONL'de model durur ama hüküm ÜRÜNDE; `git log -1` donmuş yüzeyi süzer (90→12)
+- [Artifact arşivi · kurtarma](artifact-arsivi-ve-kurtarma.md) — 08-23: kaynak /tmp'de ölür → `.claude/artifacts/`; kayıp artifact JSONL'den Write+Edit ile kurtarılır
+- [Devir denetim rubriği](devir-denetim-rubrigi.md) — KURAL 08-30: uygulayıcının notu YALNIZ İcra & Sadakat; Yargı & Öz-denetim planı YAZANIN notu
+- [Model devri · sandviç](model-devri-sandvic.md) — §4.4 Opus plan → Sonnet 🅢 → Opus denetler; 🅢 varsayılan + oran kapısı; denetim FAZA bağlı + dikiş turu; 08-23 denetim SİMETRİK (denetci.md) + tam süit sprint sonunda; 08-25 yön ROLE bağlı: yazan denetlemez; 08-25 İKİNCİ ÖLÇÜM 149 🅢 vs 11 çağrı → devir kapısı §9'a faz AÇILIŞI olarak yazıldı + DEVIR.md nabzı
+- [Kota brifingi · devir noktası](kota-brifingi-devir-noktasi.md) — 08-10: DEVİR YALNIZ kota %95 + pay yetmiyorsa; faz kapanışı turu BİTİRMEZ, sorusuz devam
+- [Hafıza köprüsü · GitHub devri](hafiza-koprusu-github-devri.md) — 09-05: protokol repoda→taşındı, hafıza repo dışı→taşınmadı; `.claude/hafiza/` TÜREV + hafiza-senkron.sh; hook'lar $CLAUDE_PROJECT_DIR; envanter TASINABILIR-ZEMIN.md
+- [Gözlemevi · Kullanım Nabzı](gozlemevi-kullanim-nabzi.md) — telemetri 00f→usage_events→13q; ELLE: şema + redeploy
+- [Tanıyan Ayna · Kişiselleştirme 3.0](taniyan-ayna-kisiselestirme-3.md) — 09e–09h pgvector TAM; ELLE: şema + edge deploy
+- [İç Çalışma 02 · nabız + beyan](ic-calisma-2-nabiz-ve-beyan.md) — 08-18: 5 faz TAM; iki dilin sınırı VERİ (olgu silinir / çıkarım susar); ELLE: migration 042
+- [Alfabe Işık planı](nur-alfabesi-plani.md) — 10 fısıltı→nişan; filigran SÖKÜLDÜ, kapı kazıması KORUNDU
+- [İlişki Felsefesi özeti](iliski-felsefesi-ozet.md) — Kitap 1: Denklem, Derinlikler, Temeller+Bolluk
+- [Zihniyet Devrimi özeti](zihniyet-devrimi-ozet.md) — Kitap 2: Manifesto 12 + Geçiş Protokolü
+- [Kitap sesi + manevi register](kitap-sesi-manevi-register.md) — tez verbatim; sekülerleştirme YASAK; içten "sen"
+- [Migration konsolidasyonu](migration-konsolidasyonu.md) — TEK `000_wanderer_schema.sql`; yeni işler 041'den; RENAME→CREATE
+- [Build & source convention](build-source-convention.md) — _src.html düzenle; vite IIFE; ATOMİK takas+kilit
+- [i18n bundle bölme](i18n-bundle-bolme.md) — ext sözlükler ayrı asset + loadExtScript; re-apply dersi
+- [Bundle diyeti · sidecar](bundle-diyeti-sidecar.md) — ensureExt + boyut kapısı; SAF YAPRAK; 08-19 kapı BYTE'a çevrildi + bütçe 1MB (ölçüm: derleme boot'un %1.2'si) + iki kapı tek sayı
+- [Boot Nabzı](boot-nabzi.md) — 08-19: darboğaz bundle DEĞİL sıralı ağ turlarıydı; perde onu örtüyordu; zincir 1331→905 ms; kapı SÜRE değil YAPI ölçer
+- [Eşiğin Nabzı · İç Çalışma 06 rev.2](esigin-nabzi.md) — 08-26: huniye wtLogEsik (8 olay) + Gözlemevi kartı + retroaktif absorb; perde motordan ÖNCE doğar → olay KAPANIŞTA; ELLE: migration 046
+- [İç Çalışma 07 · Kimlik Üçgeni](ic-calisma-7-kimlik-ucgeni.md) — 08-30: 7 faz GLM 5.3 Flash'ta TAM, Opus denetledi; dört kırığın dördü de PLANIN hatasıydı (GLM sadık ama yargısız) → 🅢'ye ver, 🅞'ye verme; ELLE: migration 049
+- [İç Çalışma 08 · Üç Sesin Nabzı](ic-calisma-8-uc-sesin-nabzi.md) — 08-31: 6 faz TAM (1–5 GLM, 6 Opus); sec/kilit/dus AYRI sayılır; üç kırığın üçü de PLANIN hatasıydı; ELLE: migration 050
+- [Kanıt Bekleyen Alanlar](kanit-bekleyen-alanlar.md) — 08-19: 24 alan kanıtsız doğuyordu (0 seri, 'İyi geceler.'); LLM sıçraması AYNI kök; data-kb + görünürlük, METİN değişmez
+- [Açılış tek dalga](acilis-tek-dalga.md) — 08-19: ana ekran BİR kez kurulur; perde örtüydü (reload=kat 0); kanıt kapısı + idempotent çizim + tek cascade
+- [Çekirdek omurga haritası](cekirdek-omurga-haritasi.md) — state.js 8 slice→S; main.js hub; 03 SIRALI post-auth init
+- [Admin ayrı sayfa](admin-ayri-sayfa.md) — admin.html aynı bundle; GOTCHA: load'ta body NULL
+- [Yerel tarih anahtarı](yerel-tarih-anahtari.md) — günlük anahtar localISODate(); toISOString TR'de gün kaydırır
+- [SafeStorage kuyruk flush kilidi](safestorage-kuyruk-flush-kilidi.md) — eşzamanlı flush çift tüketiyordu
+- [3 ana renk · Lapis](uc-ana-renk-lapis.md) — obsidyen/altın/lapis; altın=eylem+mühür, lapis=hayal
+- [Kart görsel dili · 12c](kart-gorsel-dili.md) — TÜM kartlar 12c şablonu; altın=olduğun / lapis=hedef; 08-25 BOY KART: detay=kartın kendisi + ikvMesafeCizgi + canlı ölçüm (kkTick); yeşil test kapı olmayabilir
+- [Yaşayan Kart Motoru](yasayan-kart-motoru.md) — KARAR 08-07: kart bir pencere, canlı SVG (GIF değil); kkCanliMi→kkAltinMi
+- [Yüz Çizgisi motoru · 12g](yuz-cizgisi-motoru.md) — 08-04: iki ana kartın çizimi kullanıcının FOTOĞRAFI; 08-07 çerçeve OVAL, karar `data-yuz`
+- [Kart salon dili · Fener Salonu](kart-salon-dili.md) — 12c tören primitifleri; 10q salon+eşik+detay
+- [Wanderer gamification engine](wanderer-gamification-engine.md) — kitap felsefesi→10g–10m; 4 ritüel direği
+- [Personalization engine layers](personalization-engine-layers.md) — 09a 6 katman; P6 Life Memory; TR regex \b gotcha
+- [Auto-build on Stop](auto-build-on-stop.md) — Stop hook her tur sonu production build; Emre elle build almaz
+- [Preview tek origin · no-store](preview-sw-bayat-modul.md) — 08-17 KÖK ÇÖZÜM: :3030 + no-store sunucu + sw kill-switch; YENİ PORT AÇMA (eski reçete yanlışlandı)
+- [Preview harness · anon oturum](preview-harness-anon-oturum.md) — 08-10: oturum verili ekran preview'da açılmaz → .claude/harness/*.html
+- [Geliştirme hesabı · preview oturumu](gelistirme-hesabi-preview-oturumu.md) — 08-21: emrethewanderertr@ ile GİRİŞLİ kalıcı oturum; parola hiçbir yere yazılmaz
+- [Wanderer Studio markası](wanderer-studio-marka.md) — Wanderer=LLM ücretsiz / Studio=arka yüz ücretli
+- [Mağaza aboneliği](magaza-aboneligi.md) — Capacitor 8/RevenueCat; tier → [[fiyatlandirma-plani-v2]]
+- [İç Meclis · Suretler](ic-meclis-suretler.md) — suret=ters çevrilen kart; Divan iki kutup; ELLE: şema
+- [Feature gate: door + intro video](feature-gate-door-intro.md) — 10o kapı+video; feature_videos tablosu
+- [Benlik Kartı · onboarding](benlik-karti.md) — 02c ilk-giriş; 4 kategori→LLM sentez; ELLE: şema
+- [Benlik Kartı 2.0 · Olunan [Ad]](benlik-karti-2-olunan-ad.md) — kart evrimi+versiyon+doğuş töreni; ELLE: şema
+- [Kart adları yeniden adlandırma](kart-adlari-yeniden-adlandirma.md) — KARAR 07-24 → [[ad-senkronu-kurali]]
+- [Ad senkronu kuralı](ad-senkronu-kurali.md) — KURAL 07-25: iç ad = görünen ad; ad haritası + storage/DB göçü
+- [Benim Kartım · TEK kart](an-karti.md) — 10A iki kapı; "Anın Ocağı" görsel sil-baştan
+- [Karşılaşma odası · tam ekran kartlar](karsilasma-odasi.md) — KARAR 08-18: kartlar iki ana kartın ARKASINDA; 13B üç sayfa + dikey deste + flip; 08-23 ana kartlar ÇEVRİLMEZ→detay + altında masa butonu
+- [Geçiş Ekranı · masa destesi](gecis-ekrani-masa-destesi.md) — KARAR 08-10: masanın üstü iki DESTE; kkDeck* yüzeyi + 4 gotcha + görsel kalibre
+- [Gündem öneriye yedirildi](gundem-oneriye-yedirildi.md) — KARAR 08-10: haftanın gündeminin kendi kutusu YOK; kk-emre şeridi + tekrar kapısı
+- [Mesajın arkasındaki kart](mesajin-arkasindaki-kart.md) — KARAR 08-02: chip KALKTI; TUTARSA çerçeve+shimmer, tutmazsa davet yok
+- [Eşik Ekranı · iki kart](esik-ekrani.md) — 08-27: tetik Studio flip'inden UYGULAMAYA GİRİŞE döndü (esikShowOnce, kapı gün değil GİRİŞ + kutup yarışı); görsel kabuk Fable 5'in ilk hâline (kendi göğü, sabit ölçü, altyazılar, dolmayan çubuk); istif = sahnenin minyatürü
+- [Olmak İstediğin Kişi · 10D](olmak-istedigin-kisi.md) — TEK KAYNAK oikGetDesired/Context; ELLE: şema
+- [OİK 2.0 · Pencere](olmak-istedigin-kisi-2-pencere-tasarimi.md) — UI sil-baştan; 08-02 Boyut Penceresi + hub vitrini
+- [Fiyatlandırma v2](fiyatlandirma-plani-v2.md) — kod TAM; ELLE mağaza/RC → SETUP-STORE-BILLING.md
+- [Cazibe Motoru · Cialdini](cazibe-motoru-cialdini.md) — 10r 8 ilke; window.cz* TDZ-güvenli
+- [İmge Kapısı · Zaltman](imge-kapisi-zaltman.md) — 13z 12 arketip + kanıtlı Zirve Mührü; önek `ig` (`im` DOLU)
+- [Günlük Ritüel · Armağan+Söz](gunluk-ritus-armagan-soz.md) — 10s ilk girişte pop-up; Elmas +3/(5/12/20)/−3; 08-20 tören STUDIO'ya has (sohbet köprüleri hariç)
+- [Kişilerim kart motoru](kisilerim-kart-motoru.md) — ANA MEKANİK: 10q motor + 12b deste; TDZ tuzağı
+- [Deste 12'lik kesit](deste-12-kesit-karari.md) — KARAR 08-07: 112→12; kesit MEKANİĞE göre; nadirlik 5·4·2·1
+- [Kart yağmuru · teşhis](kart-yagmuru-toren-ritmi.md) — minEvidence barajı (78 kart); panzehir SÖKÜLDÜ
+- [Oluş Mührü · kart dağıtılmaz](olus-muhru-karari.md) — KARAR 07-27: kazanım beyana bağlı; ELLE: esik JSONB
+- [Oluş Mührü II · mührü sen basarsın](olus-muhru-2-muhru-sen-basarsin.md) — dört boyut ikna kapısı + basılı-tut mühür
+- [Oluş Sınaması · kanıt kapısı](olus-sinamasi-kanit-kapisi.md) — 08-03: hüküm modelin `gecti`sinden ALINDI → kanıtlı boyut>=3; beş durak
+- [Mesafe Motoru · Aradaki Yol](mesafe-motoru.md) — 13x hazirlik=en zayıf halka; hero'da sayı VAR→Sabır Kartı; 08-03 sayı Eşik cümlesinde
+- [İki Kişi, Bir Deste](iki-kisi-bir-deste.md) — Hedef Mührü (10q↔10D) + 10q2 deste; ELLE hedefler kolonu
+- [Holo Kart Motoru](holo-kart-motoru.md) — 12c tilt TEK motor; yeni tören kartına ikvHoloScan yeter
+- [Kart Üretim Motoru](kart-uretim-motoru-huzura-cikis.md) — 12d kum* besteci + 12b reçete; nested-flip GOTCHA
+- [Kimlik Motoru](kimlik-motoru.md) — 13l erdem vektörü→histerezisli çözücü; ELLE: şema
+- [Emek sayar, bakış saymaz](emek-sayar-bakis-saymaz.md) — KARAR 08-19: defteri tamamlanan ritüel besler; pasif ekran açılışı ÇIKARILDI
+- [Ritüellerin Nabzı](ritus-nabzi.md) — 08-19 wtLogRitus 9 yüzey + 13q paneli; küme aynası dikişi; ELLE: migration 045
+- [Tören Kuyruğu · 13B](toren-kuyrugu.md) — sahne sırası tek yerden; bütçe 2 + korumalı son birim; kendi portal guard'ı SAHİBİNDE
+- [Ritüel-seri bütünlüğü](ritual-streak-unity.md) — 3 ritüel→ledger; KRİTİK hydrate post-auth
+- [Seri Mührü töreni](seri-muhru-toreni.md) — 10t günü-mühürleme + 8 kilometre kartı
+- [Ultra Seri · Üç Mühür](ultra-seri-uc-muhur.md) — 10u 3 seri → [[uc-muhur-yol-tasarimi]]
+- [Üç Mühür · Yol tasarımı](uc-muhur-yol-tasarimi.md) — 10f GELDİN/GÖRDÜN/YAPTIN→halka; 08-03 kutup şeridi; 08-23 sahne ters + taşlar TEK kartta + "Bu kartı kuranlar"
+- [Gren kaydırma sarmalı](gren-kaydirma-sarmali.md) — GOTCHA 08-23: kaydırma kabına asılı süs KAYAR; .wn-grain motoru + 8 yüzey + kapı testi
+- [Gün Serisi vs Üç Mühür](gun-serisi-vs-uc-muhur.md) — Üç Mühür Studio'ya has; Gün Serisi (13r) LLM'e özel; 08-20 6. sızıntı (10s töreni) kapandı
+- [Gördün · Pencereden Bakış](gordun-pencereden-bakis.md) — 10E Bakış anı; visions defteri; z-index 9658 GOTCHA
+- [Bugün ekranı düzeni](bugun-ekrani-yeniden-duzen.md) — merkezî selam+input; İçsel Hava=Gün Özeti
+- [Persona sunucuda](persona-server-side.md) — 08-19 llm-chat VENDORLANDI; persona=anayasa çıktısı, ayrı kopya YOK; 07b register göçü açık
+- [Merhaba, Emre anayasası](merhaba-emre-anayasa.md) — 07 ME_SECTIONS 15 bölüm; `## N.` parse'a bağlı
+- [Emre'nin Sesi · canlı yönlendirme](emre-sesi-yonlendirme.md) — 16d persona_directives; p() zinciri
+- [Persona İç Çalışması](persona-ic-calisma.md) — 08-19 10 FAZ TAM: llm-chat vendor + anayasa register göçü + pServer + geçmiş + prova + ses kapısı; ELLE 4 adım
+- [Emre yönlendirme: hardcode yasak](emre-yonlendirme-hardcode-yasak.md) — persona talimatı DAİMA p() anahtarı
+- [LLM sağlayıcı · LLMAPI](llm-saglayici-llmapi.md) — api.llmapi.ai; deepseek-v4-flash; IMAGE_MODEL ayrı
+- [Wanderer Modelleri · Öz/Bağ/Eser](odak-modelleri.md) — 10w 3 model; admin "Model Stüdyosu"; ELLE: şema
+- [Dil modeli kabuğu](dil-modeli-kabugu.md) — 10y kart ön=Sohbet↔arka=app; flip+✦FAB
+- [Web Push motoru](web-push-bildirim-motoru.md) — 10x send-push+VAPID; ELLE: şema + SETUP-PUSH.md
+- [Sohbet Çekirdeği İç Çalışması](sohbet-cekirdegi-ic-calisma.md) — 08-18: mesaj kimliği + dürüst kalıcılık + kuyruk + TTFT + bütçeli pencere + deko-ledger; ELLE: migration 041
+- [Sohbet çekirdeği kontrol](sohbet-cekirdek-kontrol.md) — 06 _runLLMTurn; pencere 16+özet; DELETE RLS ELLE
+- [Hafıza paneli + drawer arama](hafiza-paneli-drawer-arama.md) — 09c görünür hafıza; TR arama; DELETE RLS ELLE
+- [Ses katmanı · dikte+okuma](ses-katmani-dikte-okuma.md) — 10z Web Speech; tamamen client-side
+- [Araç motoru + vision](arac-motoru-vision-kaynakca.md) — 13a [ARAC]/[KAGIT]/[TAKIP] + 13b/13c; ELLE setup
+- [LLM biçimleri geri sızar](llm-bicimleri-geri-sizar.md) — GOTCHA: model etiketi Türkçeleştirir ([TAKİP])
+- [Claude-tarzı görsel dil](claude-tarzi-gorsel-dil.md) — --ease-out; Fraunces; grain; kart 18–20px
+- [İkon-buton denetimi kararı](ikon-buton-denetimi-karari.md) — KARAR 08-03: dil STROKE; Tekrar dene YERİNDE
+- [İkon-buton dili](ikon-buton-dili.md) — --ikon-* (28/16, hedef 44); msgRawText tek kaynak; 3 gotcha
+- [Gezgine Mektup](gezgine-mektup.md) — 13d mektup overlay+admin; ELLE: şema; grende blend-mode yasak
+- [Kullanıcı Mektubu](kullanici-mektubu.md) — Studio ayda 1; send-user-letter; ELLE: şema + SETUP
+- [Karar: Emre'nin sesi (TTS)](karar-emre-sesi-sonra.md) — araştırma TAM; Emre'nin kararını bekliyor
+- [His + Doku + Paylaşım](his-doku-paylasim.md) — 13e/13f/13g temeli; GÜNCEL DEĞİL → [[his-motoru-2-0]]
+- [His Motoru 2.0](his-motoru-2-0.md) — Wanderer Akordu + 10 cue + haptik; gece kısıklığı
+- [Tören katmanı](toren-katmani-aksam-meclis-wrapped.md) — 13h akşam+13i meclis+13j film; localDayKey tuzağı
+- [Hayal görseli + Widget](hayal-gorsel-widget.md) — hayal-gorsel edge fn ELLE; 13k widget köprüsü
+- [Sistem sağlık taraması](sistem-saglik-taramasi.md) — 06-11; açık: client mesaj limiti, llm-chat repoda yok
+- [Kod Kapısı · adres hem anahtar hem adres](kod-kapisi-ve-posta.md) — e-posta+kod ZEMİN (08-27, şifre yok); 08-28 SAHA ÖLÇÜMÜ: Google+Apple kestirmeleri zeminin ALTINA geri geldi, seçim ekranı yok, passkey ertelendi; ELLE: migration 047 + SMTP + sağlayıcılar
+- [Sekme Kalkanı](sekme-kalkani.md) — GOTCHA 08-27: doğrulama gerçek gönderim tetikledi → bounce uyarısı; riza≠teslim edilebilirlik; RFC 8058 + GET onaylar/POST uygular
+- [Eşik · anon giriş kapıları](esik-anon-giris-kapilari.md) — ⚠ SEÇİM EKRANI kısmı YANLIŞLANDI (08-27/28: şifre ve seçim ekranı ölü, Google/Apple adres panelinin ALTINA döndü) → [[kod-kapisi-ve-posta]]; düzen tuzakları + tören hâlâ geçerli
+- [Açılış Perdesi · wn-splash](acilis-perdesi.md) — 3 kademeli + dokun-geç + ⌘K (post-auth kapılı); Yol göğü
+- [Sohbet reasoning fix](sohbet-reasoning-fix.md) — boş yanıt kökü=token bütçesi; +1500 pay+fallback
+- [LLM yedek zinciri sıralı](llm-yedek-zinciri-sirali.md) — GOTCHA: 3. halka hiç denenmiyordu; indeksle ilerler
+- [Kota Motoru · 5s+hafta](kota-motoru.md) — 13m çift kota + Ultra Armağanı; 429→duvar; ELLE: şema
+- [Duyuru bandı + Kitaplık haberi](vasita-banner-kitaplik-haberi.md) — #announce-banner + #llm-announce; ELLE: şema
+- [Geri Çağrı Motoru](geri-cagri-motoru.md) — 13o sessizlik daveti; push recent_thread; send-push ELLE
+- [Ölü kod temizlikleri](olu-kod-temizlikleri.md) — KORUNANLAR listesi + ekran-kaldırma kontrol listesi; 08-17 route turu + FAZ 8 takası
+- [Route kapısı · boş ekran](route-kapisi-bos-ekran.md) — GOTCHA: odası olmayan hedef ekranı BOŞALTIR; iki statik kapı testi
+- [Derin Çalışma tezgâhı](derin-calisma-tezgahi.md) — 13A Max tezgâhı; kapı ayrımı dcCanWork/dcGuardWork; söz DAVET edilir; 08-17 denetimi: arşiv defteri + «sen»/"kitap" kaynak ayrımı + odak bağlamda
+- [Yetim köprü denetçisi](yetim-kopru-denetcisi.md) — 08-07 `window.foo?.()` + 08-19 İKİNCİ SINIF bare `foo()` + ÜÇÜNCÜ SINIF okuma; template körlüğü kapatıldı (795→962 ad)
+- [Bağsız ad kapısı](bagsiz-ad-kapisi.md) — 08-21: vite bundle scope'u DÜZLEŞTİRİR, build göremez; tsc checkJs kapısı; açılışta 56 vaka/26 ad, 3 ağır kırık
+- [Ödev zinciri + çipi](odev-zinciri-ve-cipi.md) — motor canlı; iki yüzey: sohbet çipi + 08-23 Drawer sol üstündeki ödev DEFTERİ (hwd)
+- [Geçmiş Günler · özet zinciri](gecmis-gunler-ozet-zinciri.md) — 08-19: kök ÜRETİMDİ (bare identifier); sahte ok:true + mühürlenen lastCheck + tembel yükleme yok
+- [Geçmiş Günler tıklanabilir](gecmis-gunler-tiklanabilir.md) — 08-19: kök çıplak `_currentLang`; +3 yetim; denetçi template körlüğü (06'nın %83'ü); liste birimi GÜN
+- [Mod Sistemi](mod-sistemi-plani.md) — Omurga+Kartuş, Mod Nabzı, Pusula; ELLE: directives + şema
+- [Örüntü Motoru](oruntu-motoru.md) — 09d sinyal defteri→haftalık damıtma + Ayna paneli
+- [Sahne göğü · tek kaynak](sahne-gogu-tek-kaynak.md) — KARAR 08-02: --sky-scene/--sky-stars; degradeyi kopyalama
+- [Wanderer Tasarım Prensipleri](tasarim-prensipleri.md) — ANAYASA: TASARIM-PRENSIPLERI.md · §0.1 Derin Metafor Haritası (7 Zaltman)
+- [Tasarım anayasa kapısı](tasarim-anayasa-kapisi.md) — 08-28/29: yazılı 3 madde uygulanmamıştı (mask 0 · reduced-motion 6 dosya · z-index 38); T1–T8 kapısı (JS kolu dahil) + `.wn-reveal` uyanan sahne + kapısı olmayan kural tavsiyeye döner
+- [Emre fotoğrafı · oval çerçeve](emre-foto-oval-cerceve.md) — DAİMA oval .wns-portrait; daire/kare DEĞİL
+- [Atlas ekranı kaldırıldı](atlas-ekrani-kaldirildi.md) — geri-getirme haritası dosyada; ATLAS_REGIONS canlı
+- [Giriş kademelenmesi · .casc](giris-kademelenmesi-casc.md) — .casc + --casc-base JS'ten; perdeyle örtüşür
+- [Kitaplık paylaşım + indirme](kitaplik-paylasim-indirme.md) — 13g çoklu sayfa canvas; 13n admin; ELLE: şema
+- [Sohbet köprüsü + sosyal feed](ilham-kartlari-sosyal-feed.md) — 10B [KART] parser + 10C rumuz SUNUCU mührü
+- [Kitaplık Sözü + toast kapıları](kitaplik-sozu-ve-toast-kapilari.md) — kk-toast yalnız Studio; ÇİP SÖKÜLDÜ → [[kisisel-baslaticilar-gunun-alintisi]]
+- [Kişisel Başlatıcılar + Günün Alıntısı](kisisel-baslaticilar-gunun-alintisi.md) — 10y2 bsl* üç katman + kanıt kapısı; alıntı Kitaplık okurunda; ELLE: deploy
+- [Sohbet topbar](sohbet-topbar-cok-ok-kart-portre.md) — kaydırınca çöker; flip↔ok takası; portre float; 08-17 GOTCHA: ters histerezis → 35px'lik scroll titremesi
+- [Yüzleşme/Kaçış kaldırma](yuzlesme-kacis-kaldirma.md) — ⚠️ AÇIK: sunucu llm-chat persona'sı eski
+- [TR/EN i18n tamamlama](tr-en-i18n-tamamlama.md) — dict 2606 parite; getter kalıbı; data-i18n-aria clobber
+- [Büyük harf dil kapısı](buyuk-harf-dil-kapisi.md) — GOTCHA 08-24: sabit tr-TR EN'i "THİS" basar; tek kaynak localeUpper + DIL-MUAF
+- [Dil beyanı kapısı](dil-beyani-kapisi.md) — 08-19 KARAR: tahmin boyar BEYAN kalır; kapı onboarding'in İLK adımı, bir kez sorulur
+- [Hukuki Çerçeve · 13p](hukuki-cerceve.md) — 3 belge TR/EN; HK_VERSION elle artır; metinler 13p2'de
+- [Güvenlik · Emniyet Katmanı](guvenlik-emniyet-katmani.md) — 6 faz KOD TAM; ELLE: llm-chat §5 + avukat
+- [Rapor tasarım şablonu](rapor-tasarim-sablonu.md) — plan/raporlar Emniyet Katmanı estetiğinde
+- [Belge Katmanı · doc primitifleri](belge-katmani-doc-primitifleri.md) — document.css doc-*; --gold-quiet/--green-ok
+- [Sıfırdan Başla · reset](sifirdan-basla-reset.md) — reset-user edge fn + etw_* temizlik; ELLE deploy
+- [Defterim → Notebook LLM'de](defterim-kaldirildi-notebook-llmde.md) — Not Defteri Drawer'da; Yansımalar kopyası
+- [Sohbet canlı DOM koruması](sohbet-canli-dom-korumasi.md) — marker eşleşince DOM sıfırlanmaz; reload'da gider
+- [Native kabuk + push + PWA ikon](native-kabuk-push-pwa-ikon.md) — 00d klavye + 00e FCM; VİTE GOTCHA
+- [Studio tek sayfa](studio-tek-sayfa.md) — Drawer emekli; odalar Bugün'de; wsSyncStudio canlı raf
+- [Topbar yıldızları · Maybach tavanı](bugun-topbar-maybach-yildizlari.md) — 08-17: Bugün'e özgü DEĞİL; 00g motoru 17 barın hepsine serper
+- [Sahne katmanı · .ws-body hapsi](sahne-katmani-ws-body-hapsi.md) — GOTCHA: padding kutusunda hapsolan gök; zemin fixed, eksen absolute
+- [Modalda tıklama kaçması](kapat-butonu-z-index-tuzagi.md) — V1 close+opacity sibling · V2 dekoratif kaplama yutar
+- [Dokunma hedefi → görsel boşluk](dokunma-hedefi-gorsel-bosluk.md) — GOTCHA: global min-height:44px 21px yastık; ::after
+- [Tüm Diller Native planı](tum-diller-native-plani.md) — v2 BEKLEMEDE: DE pilotu SİLİNDİ (TR/EN)
+- [Kusursuzluk Sprinti kararları](kusursuzluk-sprinti-kararlari.md) — 9 faz; bundle sert kapı + init refaktör
+- [Kusursuzluk Sprinti KAPANIŞ](kusursuzluk-sprinti-kapanisi.md) — 7b llm-chat kaynağı bekliyor; ELLE: şema + redeploy
+- [Benlik Kartı Kusursuzluk Sprinti](benlik-kusursuzluk-sprinti.md) — anında kayıt + dalga kalıcılığı + a11y
+- [Kişiselleştirme Kusursuzluk Sprinti](kisisellestirme-kusursuzluk-sprinti.md) — 09a-09h kalıcılık kök çözümü + i18n
+- [İç Çalışma Atlası](ic-calisma-atlasi.md) — 18 sistem analizi; delete-user açığı, send-push TR kilidi; 08-31 KURAL: rev.2 denetimi ARTIFACT'ı da günceller (kalıp + Atlas dikişi)
+- [Geçiş Motoru planı](gecis-motoru-plani.md) — 7 FAZ TAM; ELLE: şema + send-push + embed-kitaplar
+- [Hazine Destesi · kart paketleri](hazine-destesi-kart-paketleri.md) — pity/ölü-içerik/lost-update denetimi; ELLE: şema
+- [Emre portresi · kırık hotlink](emre-portre-harici-hotlink-kirik.md) — ÇÖZÜLDÜ: public/emre-portre.png + dual-copy
+- [Taahhüt Döngüsü · Hesap Günü](taahhut-dongusu-hesap-gunu.md) — Söz Defteri (Armağan'dan AYRI)
+- [Test kırılganlığı · jsdom](test-kirilganligi-jsdom-stil-isinmasi.md) — kkEnsureStyles ısıtması beforeAll'a + 20 sn
+- [Test hızı kalibrasyonu](test-hizi-kalibrasyonu.md) — 08-07: süit 6:34→3:10 (threads + maxWorkers 3); isolate:false reddedildi
+- [Geçiş Mührü · kanıt kapısı](gecis-muhru-kanit-kapisi.md) — KARAR 08-10: üç vuruş ÖLDÜ, mühür sınamayla düşer; köprüde tek ışık; ELLE: sinav kolonu
+- [Tek Deste, İki Kutup](tek-deste-iki-kutup.md) — ayrı Geçiş Kartım şeridi SÖKÜLDÜ; kutuplar destelerde
+- [Olunan + Niyet Alınan](olunan-ve-niyet-alinan-karari.md) — kırık halka kapandı + oikResynth
+- [Üç Usta, Tek Deste](uc-usta-tek-deste-plani.md) — çerçeve lehçesi, evrim+mertebe, sentez+aile; ELLE: `yapi JSONB`
+- [Dördüncü Usta · Hearthstone](dorduncu-usta-hearthstone.md) — beklenti ışığı, Üç Kapı, sırt koleksiyonu, ocak
+- [Söz İhtiyaç Motoru](soz-ihtiyac-motoru-karari.md) — 13u defter + 13v motor + 13w terzi; ELLE: deploy
+- [SafeStorage testlerde](safestorage-testlerde-kvcache.md) — GOTCHA: bellek-içi _kvCache; testlerde remove() şart
+- [Gerçeklik Mimarisi](gerceklik-mimarisi.md) — KARAR 08-01: sahte veri yasak; 13y köken; kanıtsız değer null
+- [İhtimalsel Dil Devrimi](ihtimalsel-dil-devrimi.md) — KARAR 08-09: yorum `-ebilir`, ölçüm kesin; anayasa `scripts/i18n-style/tr.md`; kapı K7
+- [Kesin Alıntı Mimarisi](kesin-alinti-mimarisi.md) — KARAR 08-02: alıntı EŞİKSİZ; `kanit_ref`; modelin `guven`i kapı OLAMAZ
+- [Kör Noktalar](koken-kor-noktalar.md) — 08-02: P6→`kanit_ref` + `confidence`→`n`; Sıfır Kanıt Sınavı (K5/K6)
+- [Kart Evreni · Koleksiyonun Nabzı](kart-evreni-koleksiyon-nabzi.md) — 08-19 İÇ 04 rev.2: 5 faz TAM; wtLogKart iki kol; ELLE: migration 044
+- [Deste EN kararı](deste-en-karari.md) — KARAR 08-19: 12 kart İngilizce; 12b 'en' istisnası KALKTI; register testle mühürlü
+- [GOTCHA · denetçi muafiyet penceresi](gerceklik-denetci-muafiyet-penceresi.md) — KOKEN-MUAF 6 satır içinde olmalı; uzatmak kapıyı kırar
+- [Tanıma Motoru](tanima-motoru.md) — 7/7 TAM: 09i seçici + keşif yuvası + "Neden bu?" paneli + beyan defteri; ELLE iş YOK (K4)
+- [Duyar, Anlar, Hatırlar](duyar-anlar-hatirlar.md) — 08-25 Character.ai analizi: 6 faz TAM; beyan-pin + [S#] görünür kanıt + dönüş köprüsü; ELLE iş YOK
+- [Dönüşüm Aynası 2.0](donusum-aynasi-2.md) — 08-24: 8 faz TAM; kanıt yazılıyordu ama gösterilmiyordu; ELLE iş YOK
+- [Tanımsız CSS tokeni · hayalet](tanimsiz-css-tokeni-hayalet.md) — 08-25: tanımsız var(--x) SESSİZCE inherit edilir; --text-light/--text-high hiç doğmamıştı (14 kullanım); metin hiyerarşisi ÜÇ kademe; kapı eklendi
+- [Duygu Motoru planı](duygu-motoru-plani.md) — KARAR 08-28: uygulamanın TAMAMI + Yanılma Kapısı; okuma yüzeyin bedeli kadar kanıt ister; ehliyet mood_history beyanıyla kazanılır; 19 faz TAM + 08-30 uçtan uca inceleme (yay dirildi, taban mutlak, iki defter birlikte)
+- [Saf yeşil, çağrı ölü](saf-yesil-cagri-olu.md) — GOTCHA 08-30: üretici/tüketici alan adı ayrışınca fonksiyon daima null; birim testi göremez, kapı ÇAĞRIDA olmalı

@@ -9,7 +9,7 @@ type: gotcha
 > **Bu dosya hakkında.** `tests/13m-kota.test.js:18`, `js/parts/09i-secici.js:298`
 > ve `tests/05-closure-parts.test.js:28` bu ada `[[yerel-tarih-anahtari]]`
 > diye bağ veriyordu; hedef dosya `.claude/memories/` altında YOKTU (kapı:
-> `tests/referans-butunlugu.test.js` TABAN'ı, `hafiza:yerel-tarih-anahtari`).
+> `tests/referans-butunlugu-kapisi.test.js` TABAN'ı, `hafiza:yerel-tarih-anahtari`).
 > Aynı isimli özgün dosya repoya hiç girmedi — `git log --all -- .claude/memories/yerel-tarih-anahtari.md`
 > boş döner ([[claude-altyapisi-commit-disi]]). **Bu dosya kurtarma değildir**;
 > içeriği bugünkü koddan (`js/parts/00a-infrastructure.js`,

@@ -8,7 +8,7 @@ type: mimari
 
 > **Bu dosya hakkında.** `tests/11-gecmis-gunler.test.js:245` bu ada
 > `[[yetim-kopru-denetcisi]]` diye bağ veriyordu; hedef dosya
-> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu.test.js`
+> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu-kapisi.test.js`
 > TABAN'ı, `hafiza:yetim-kopru-denetcisi`). Aynı isimli özgün dosya repoya
 > hiç girmedi — `git log --all -- .claude/memories/yetim-kopru-denetcisi.md`
 > boş döner ([[claude-altyapisi-commit-disi]]). **Bu dosya kurtarma

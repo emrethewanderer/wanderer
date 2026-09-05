@@ -8,7 +8,7 @@ type: mimari
 
 > **Bu dosya hakkında.** `js/parts/00a-infrastructure.js:900`'deki yorum bu
 > ada `[[belge-katmani-doc-primitifleri]]` diye bağ veriyordu; hedef
-> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu.test.js`
+> `.claude/memories/` altında YOKTU (kapı: `tests/referans-butunlugu-kapisi.test.js`
 > TABAN'ı). Aynı isimli bir özgün dosya repoya hiç girmedi —
 > `git log --all -- .claude/memories/` bu adı hiç döndürmüyor
 > ([[claude-altyapisi-commit-disi]]). **Bu dosya o özgün metnin kurtarılmış

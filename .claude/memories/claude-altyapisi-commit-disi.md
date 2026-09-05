@@ -24,7 +24,7 @@ tekrar doğrulandı):
     → yalnız üç commit: 1e7264f (önceki bir oturum, aynı gün 00:47) ·
       1bd6683 + 797aef2 (bu sprint)
 
-Oysa `tests/referans-butunlugu.test.js`'in TABAN'ı (ilk koşuda ölçülen 82
+Oysa `tests/referans-butunlugu-kapisi.test.js`'in TABAN'ı (ilk koşuda ölçülen 82
 kırık referans örneği, 36 ayrı ad — 33'ü devralınan borç) bunun tek seferlik
 bir eksiklik değil, **aylarca biriken bir örüntü** olduğunu gösteriyor: 23 ad
 `[[hafıza]]` bağı (`ad-senkronu-kurali`, `boot-nabzi`, `tanima-motoru`,
@@ -60,7 +60,7 @@ attach girdisi) ve iki mimari plan belgesi de aynı sebeple eksik çıktı.
   onu tanıtmaz, kanıt ancak SONRAKİ oturumda gelir.
 - Kayıp hafıza dosyalarının içeriği **uydurulamaz** (§6.10 gerçeklik kuralı) —
   yalnız lokal `.claude/` dizininin commit edilmesiyle geri gelir. Bu ELLE
-  bir iştir (§6.5); kapı (`tests/referans-butunlugu.test.js`) bu borcu
+  bir iştir (§6.5); kapı (`tests/referans-butunlugu-kapisi.test.js`) bu borcu
   TABAN'da dondurur, büyümesini yasaklar, ödenmesini serbest bırakır.
 - Ölçen aletin kendisi de bu körlükten payını alabilir: aynı sprintte devir
   nabzı (`scripts/devir-notu.sh`) `uygulayici` adının tanınmadığını
