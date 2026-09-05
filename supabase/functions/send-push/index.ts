@@ -99,21 +99,75 @@ function inQuietHours(hour: number, start: number, end: number): boolean {
 
 /* ───────────────────────── Öncelik merdiveni (felsefe-hizalı) ───────────────────────── */
 const MILESTONES = [7, 15, 30, 60, 120, 180, 240, 365];
-function pickTrigger(row: any, dateStr: string, hour: number): string | null {
+
+/* METNİ YAZILMIŞ TETİKLER — merdivenin seçebileceği tetikler bu kümeyle sınırlı.
+   Bir tetik burada YOKSA MERDİVENDE SEÇİLMEZ, ve sebebi FAZ 11 denetiminde
+   ölçüldü: `sosyal` merdivenin EN ÜSTÜNDE duruyor. Metni olmadığı için
+   `generateCopy` null dönüyor ve döngü `continue` ediyordu — yani kartına bir
+   beğeni düşen kullanıcı, o beğeni 24 saatlik pencerede kaldığı sürece
+   winback · streak_risk · soz · milestone · morning bildirimlerinin HEPSİNİ
+   kaybediyordu. **Teslim edilemeyen bir basamak yalnız kendini değil,
+   ALTINDAKİ HER ŞEYİ düşürür.** (FAZ 10'un chip kuralının merdivendeki hâli:
+   odası boş olan kapı çizilmez.)
+   FAZ 12 `sosyal`'in metnini yazdığında bu kümeye 'sosyal' ekler ve basamak
+   kendiliğinden açılır. Kapı: tests/tik-atifi.test.js — merdivenin koşulsuz
+   seçebildiği her tetiğin fallbackCopy'de bir `case`i olmak zorunda. */
+const METNI_HAZIR = new Set(['winback', 'streak_risk', 'soz', 'milestone', 'morning']);
+// sosyalVar: bu kullanıcının paylaştığı bir karta BAŞKASI tarafından bırakılmış,
+// henüz görülmemiş bir beğeni/yorum var mı (bkz. loadSosyalAdaylar). İç Çalışma
+// 12 · Sosyal & Paylaşım'ın kararı: bu merdivende winback'ten ÖNCE gelir — biri
+// sana dokunduysa bu haber, "bir süredir yoktun" çağrısından daha güçlü bir sebep.
+function pickTrigger(row: any, dateStr: string, hour: number, sosyalVar: boolean): string | null {
   const streak = row.streak || 0;
   const daysInactive = row.last_active_date ? daysBetween(row.last_active_date, dateStr) : 999;
 
-  // 1) Geri-çağırma — en güçlü kaldıraç (gün aralıkları eskale eder)
+  // 1) Sosyal dokunuş — kartına biri dokundu (Kalan Yol Haritası FAZ 11).
+  //    METNI_HAZIR kapısı: metni yazılana dek (FAZ 12) bu basamak ATLANIR —
+  //    yoksa altındaki beş tetiği de susturur (bkz. METNI_HAZIR).
+  if (sosyalVar && METNI_HAZIR.has('sosyal')) return 'sosyal';
+  // 2) Geri-çağırma — en güçlü kaldıraç (gün aralıkları eskale eder)
   if ([2, 4, 7, 14, 21, 30].includes(daysInactive) && hour >= 10 && hour <= 20) return 'winback';
-  // 2) Seri-riski — akşam, serisi var ama bugün hiç gelmemiş
+  // 3) Seri-riski — akşam, serisi var ama bugün hiç gelmemiş
   if (streak >= 1 && daysInactive >= 1 && hour >= 19 && hour <= 22) return 'streak_risk';
-  // 3) Verilen söz — akşam hesabı hatırlatması
+  // 4) Verilen söz — akşam hesabı hatırlatması
   if (row.pending_soz_text && hour >= 19 && hour <= 22) return 'soz';
-  // 4) Kilometre kutlaması — bugün aktif + eşik
+  // 5) Kilometre kutlaması — bugün aktif + eşik
   if (MILESTONES.includes(streak) && daysInactive === 0 && hour >= 10 && hour <= 21) return 'milestone';
-  // 5) Sabah kimlik dürtüsü — yakın zamanda aktif
+  // 6) Sabah kimlik dürtüsü — yakın zamanda aktif
   if (daysInactive <= 1 && hour >= 8 && hour <= 11) return 'morning';
   return null;
+}
+
+/* ───────────────────────── Sosyal adaylar (İç Çalışma 12 · FAZ 11) ─────────────────────────
+   "Yeni" ölçüsü kanıtlıdır (§6.10): son 24 saatte, kartın SAHİBİ olmayan biri
+   tarafından bırakılmış bir beğeni/yorum satırı gerçekten var mı. Pencerenin
+   24 saat olması freq-cap'in kendi 24 saatlik aynı-tip kısıtıyla aynı ritimde —
+   daha eski bir etkileşim bir sonraki koşuda sessizce düşer (uydurulmuş bir
+   "her zaman geçerli" pencere açmak yerine, motorun zaten koştuğu ritme bağlı
+   kalınır; SETUP-PUSH.md: pg_cron 30 dakikada bir). */
+async function loadSosyalAdaylar(): Promise<Map<string, string>> {
+  const adaylar = new Map<string, string>();
+  const sinceISO = new Date(Date.now() - 24 * 3600e3).toISOString();
+  try {
+    const [{ data: begeniler }, { data: yorumlar }] = await Promise.all([
+      admin.from('paylasim_begenileri').select('user_id, card_id, created_at').gte('created_at', sinceISO),
+      admin.from('paylasim_yorumlari').select('user_id, card_id, created_at').gte('created_at', sinceISO),
+    ]);
+    const etkilesimler = [...(begeniler || []), ...(yorumlar || [])];
+    if (!etkilesimler.length) return adaylar;
+    const cardIds = [...new Set(etkilesimler.map((e: any) => e.card_id))];
+    const { data: kartlar } = await admin.from('paylasilan_kartlar').select('id, owner_user_id').in('id', cardIds);
+    const sahibi = new Map((kartlar || []).map((k: any) => [k.id, k.owner_user_id]));
+    for (const e of etkilesimler) {
+      const owner = sahibi.get(e.card_id);
+      if (!owner || owner === e.user_id) continue; // kendi kartına kendi etkileşimi sayılmaz
+      const onceki = adaylar.get(owner);
+      if (!onceki || e.created_at > onceki) adaylar.set(owner, e.created_at);
+    }
+  } catch (e) {
+    console.warn('[send-push] sosyal aday sorgusu:', (e as Error)?.message);
+  }
+  return adaylar;
 }
 
 /* ───────────────────────── Freq-cap (günde max 1-2) ───────────────────────── */
@@ -228,7 +282,7 @@ const TRIGGER_INTENT: Record<string, string> = {
   morning:     'Sabah. Kitaptaki soruyu (#152) o kullanıcıya özel, somut, TEK bir cümleye damıt: "Bu gece uyumadan önce, bugün iyi ki yapmışım diyebileceğin ne olabilir?" Generic "bugün kim olmak istiyorsun" değil — bağlamdaki (temel mesele/hedef/son konu) somut bir örnek öner.',
 };
 
-function fallbackCopy(trigger: string, row: any, ctx: any): { title: string; body: string } {
+function fallbackCopy(trigger: string, row: any, ctx: any): { title: string; body: string } | null {
   const name = ctx.baslik ? ctx.baslik : 'Emre the Wanderer';
   const streak = row.streak || 0;
   switch (trigger) {
@@ -246,15 +300,21 @@ function fallbackCopy(trigger: string, row: any, ctx: any): { title: string; bod
     case 'milestone':
       return { title: `${streak} gün`, body: 'Eski sen bunu yapmazdı — demek ki değişen sensin. Devam.' };
     case 'morning':
-    default:
       return { title: name, body: 'Bu gece uyumadan önce, "iyi ki yapmışım" diyeceğin ne olabilir?' };
+    default:
+      // Merdivenin tanıdığı ama metni henüz yazılmamış bir tetik (bugün: 'sosyal' —
+      // microcopy'si Kalan Yol Haritası FAZ 12'nin işi). "morning" metnini basmak
+      // yanlış bağlamda doğru cümleyi göstermek olurdu (§6.2) — içerik yoksa hiç
+      // gönderilmez, uydurulmuş bir varsayılan yazılmaz (§6.10).
+      return null;
   }
 }
 
-async function generateCopy(trigger: string, row: any, ctx: any): Promise<{ title: string; body: string }> {
+async function generateCopy(trigger: string, row: any, ctx: any): Promise<{ title: string; body: string } | null> {
+  const intent = TRIGGER_INTENT[trigger];
+  if (!intent) return fallbackCopy(trigger, row, ctx); // tanımsız niyet → LLM'e generic bir bağlam verilmez
   if (!LLM_API_KEY) return fallbackCopy(trigger, row, ctx);
   try {
-    const intent = TRIGGER_INTENT[trigger] || TRIGGER_INTENT.morning;
     const persona = [
       'Sen Emre the Wanderer\'sın — bir dönüşüm koçu. Teselli etmezsin, görünür kılarsın.',
       'Çekirdek tez: "Mesele Sensin" — olduğun kişiyi değiştirirsen hayatın değişir.',
@@ -447,18 +507,23 @@ function payloadFor(trigger: string, title: string, body: string, nid?: number |
 async function runEngine(): Promise<Response> {
   const { data: rows } = await admin
     .from('user_engagement').select('*').eq('push_enabled', true).limit(2000);
+  // Sosyal adaylar TEK sorguda, döngü dışında hesaplanır — her satır için ayrı
+  // sorgu atmak 2000 kullanıcıda gereksiz yük olurdu (bkz. loadSosyalAdaylar).
+  const sosyalAdaylar = await loadSosyalAdaylar();
   let evaluated = 0, delivered = 0;
   for (const row of (rows || [])) {
     evaluated++;
     try {
       const { dateStr, hour } = localParts(row.tz || 'Europe/Istanbul');
       if (inQuietHours(hour, row.quiet_start ?? 23, row.quiet_end ?? 8)) continue;
-      const trigger = pickTrigger(row, dateStr, hour);
+      const trigger = pickTrigger(row, dateStr, hour, sosyalAdaylar.has(row.user_id));
       if (!trigger) continue;
       if (!(await passesFreqCap(row.user_id, trigger))) continue;
 
       const ctx = await loadContext(row.user_id);
-      const { title, body } = await generateCopy(trigger, row, ctx);
+      const copy = await generateCopy(trigger, row, ctx);
+      if (!copy) continue; // bkz. fallbackCopy default — kapsamı olmayan tetik hiçbir şey göndermez
+      const { title, body } = copy;
       // SIRA TERSİNE ÇEVRİLDİ (FAZ 5, İç Çalışma 11 · boşluk B): nid payload'a
       // GÖNDERİMDEN ÖNCE gerekir, yani satır önce açılır. Teslim edilmezse
       // (sent === 0) satır SİLİNİR — notification_log'un "gönderildi" sözleşmesi

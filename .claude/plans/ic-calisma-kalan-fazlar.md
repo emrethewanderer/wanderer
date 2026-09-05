@@ -1134,7 +1134,88 @@ sözlükleri (önceki turun taşınan bulgusu) bu turda da BOYU ölçülmedi —
 adlandırıldı, sayılmadı. Kriz korpusunun kapsama oranı (hangi dil kaç satır)
 gözden geçirilmedi: FAZ 1–2 kendi kapısını taşıyor ve bu tur ona dokunmadı.
 
-**İlk hamle (FAZ 11):** sosyal bildirim altyapısı — 🅢, DEVREDİLİR
+- **FAZ 11 · BİTTİ** (2026-09-05). `uygulayici`da (🅢) + parent'ın denetimi.
+  Merdivene `sosyal` girdi (winback'ten önce, freq-cap'e tabi),
+  `loadSosyalAdaylar()` adayları **döngü dışında tek sorguda** hesaplıyor ve
+  kendi kartına kendi etkileşimini eliyor; `10C`'ye oda köşesinde taze nokta
+  (`sfRefreshRoomPulse`) eklendi — rozet `13B` tören kuyruğuna sormuyor.
+
+  **Ajanın kendi keşfi ve düzeltmesi — bu fazın en değerli bulgusu.**
+  `paylasim_begenileri`'nin RLS'i anonimlik gerekçesiyle `own read`'e
+  daraltılmış (`000:860-870`, şemanın kendi yorumu bunu yazıyor). İlk yazdığı
+  rozet sorgusu `.neq('user_id', uid)` ile **başkasının** beğeni satırını
+  arıyordu: RLS zaten yalnız kendi satırlarını görünür kılıyor, filtre onları
+  da eleyince sorgu **hata vermeden hep boş dönerdi** — rozet beğeni için asla
+  yanmazdı ve hiçbir kapı kırmızıya dönmezdi. Kaynağı okuyup düzeltti: beğeni
+  artık herkese açık agregat sayacın (`paylasilan_kartlar.like_count`) bir
+  tabana göre **delta**sıyla ölçülüyor, yorum ise satır bazında (`all read`).
+  İki tablo aynı alandayken FARKLI politikalara sahip — birini ötekinin
+  kalıbıyla yazmak tam bu tuzaktır. Hafızaya girdi:
+  [[rls-daralmasi-istemci-sorgusu]].
+
+  **Faz denetimi (parent · Opus) — bir DAVRANIŞ REGRESYONU bulundu ve
+  kapatıldı.** `sosyal` merdivenin EN ÜSTÜNE kondu, metni ise (doğru biçimde)
+  FAZ 12'ye bırakıldı. Ama `pickTrigger` onu koşulsuz seçiyor, `generateCopy`
+  `null` dönüyor ve `runEngine` `continue` ediyordu — yani **kartına bir
+  beğeni düşen kullanıcı, o etkileşim 24 saatlik pencerede kaldığı sürece
+  winback · streak_risk · soz · milestone · morning bildirimlerinin HEPSİNİ
+  kaybediyordu.** Ajanın raporu "hiçbir push gönderilmez" derken haklıydı,
+  ama bunun yalnız `sosyal`'i değil ALTINDAKİ BEŞ BASAMAĞI da kapsadığını
+  görmedi. Teslim edilemeyen bir basamak yalnız kendini değil altındaki her
+  şeyi düşürür — FAZ 10'un chip kuralının merdivendeki birebir aynısı:
+  *odası boş olan kapı çizilmez.*
+  Düzeltme `METNI_HAZIR` kümesi: merdiven yalnız metni yazılmış tetikleri
+  seçer, `sosyal` kapının arkasında bekler ve FAZ 12 metni yazıp kümeye
+  eklediğinde **kendiliğinden açılır**. Kapı `tests/tik-atifi.test.js`'e
+  girdi ve değeri ölçüldü — kapı kaldırıldığında test kırmızı bastı ve aç
+  kalan tetiği adıyla saydı.
+  Ayrıca ajanın kendi testi düzeltmenin harfine takıldı (`if (sosyalVar)`
+  satırını birebir arıyordu); iddia korunup harf gevşetildi — *sınav harfi
+  değil iddiayı tutmalı.*
+
+  **Altı Durak, altı karar:**
+  1. *Sosyal microcopy yazılmadı* — **doğru**, FAZ 12'nin (🅞) işi. Kabul.
+  2. *Hangi etkileşimler sosyal sayılır* — beğeni + yorum **evet**, "kayıt"
+     (koleksiyona alma) **hayır**. Gerekçe: kayıt alanın SESSİZ bir eylemidir;
+     sahibine haber vermek o eylemin karakterini değiştirir ve kaydedeni
+     görünür kılar. Karar kabul edildi, gerekçesiyle yazıldı.
+  3. *24 saatlik aday penceresi* — kabul; freq-cap'in kendi 24 saatlik
+     aynı-tip kısıtıyla aynı ritimde ve dosyada gerekçesi yazılı.
+  4. *Rozetin "görüldü" semantiği geniş fırça* — kabul; 09d/09h'nin
+     `lastSeenWeek` kalıbıyla aynı hassasiyet. İnce ayar ayrı bir karardır.
+  5. *Kapsam sapması* (`_src.html` +1 · `css/parts/sosyal.css` +17 ·
+     `10-features-w2.js` +4) — **onaylandı ve doğru karardı.** Alternatifi
+     paralel bir DOM-enjeksiyon mekanizması icat etmekti (§1.3 ihlali).
+     Rozet mevcut `.ws-om-pulse`/`.ws-ay-pulse` desenine üçüncü tüketici
+     olarak bindi, `prefers-reduced-motion` dahil. Planın "Değişen:" listesi
+     desen keşfedilmeden yazılmıştı — sapma ajanın değil planın eksiğiydi.
+  6. *RLS tuzağı hafızaya değer* — **evet**, yazıldı (yukarıda).
+
+  **Tarayıcıda bir yanılgı ve dramasız teşhisi (§3.3), sonraki oturum aynı
+  telaşı yaşamasın diye:** `--eval "typeof window.sfRefreshRoomPulse"`
+  **`"undefined"`** döner ve bu bir kırık DEĞİLDİR. `#ws-sf-pulse` DOM'da,
+  CSS yerinde (`opacity: 0`), ama expose `sfInit()`'in içinde — yani §5.2'nin
+  çift boot ayrımına göre POST-AUTH (`03-auth-shell.js:1264`, dinamik import).
+  Koşucu anon oturum açar, `sfInit` hiç koşmaz. Doğru kanıt kaynakta ve
+  birim testlerdedir; rozetin canlı kanıtı ancak oturumlu bir senaryoyla
+  alınabilir.
+
+  Kapı: build ✅ 717KB · **tam süit ✅ 4070/4070** (faz kapısı hedefli süit
+  ister; canlı push hattına dokunulduğu ve iki faz birden push edildiği için
+  tam süit tercih edildi) · `dogrula` ✅ exit 0 "Konsol temiz."
+  **ELLE bekleyen:** `send-push` redeploy (merdiven değişti). Yeni migration
+  gerekmedi — `notification_log.type` serbest metin, "görüldü" damgası
+  SafeStorage'da.
+
+**İlk hamle (FAZ 12):** sosyal bildirim microcopy'si — 🅞, parent'ta.
+`send-push`'ta iki nokta bekliyor ve ikisi de tek satır: `TRIGGER_INTENT`'e
+`sosyal` niyeti, `fallbackCopy`'ye `case 'sosyal'`, sonra `METNI_HAZIR`
+kümesine `'sosyal'` — üçüncüsü basamağı açar ve kapı (`tik-atifi`) ikisinin
+birlikte yapılmasını zorunlu kılar. Rozet metni `10C`'de. Ton: sayı
+BAĞIRMAZ — *"Kartına biri yazmış."* (planın Ton Rehberi'nin verdiği tek
+örnek); "3 yeni yorum!" bu ürüne girmez.
+
+**Eski İlk hamle (FAZ 11, tamamlandı):** sosyal bildirim altyapısı — 🅢, DEVREDİLİR
 (`uygulayici`). `supabase/functions/send-push/index.ts` merdivenine `sosyal`
 tipi girer ve **winback'ten ÖNCE** gelir (raporun kararı); freq-cap'e tabidir.
 `10C-sosyal-feed.js`'e in-app rozet eklenir ve rozet `13B` tören kuyruğuna

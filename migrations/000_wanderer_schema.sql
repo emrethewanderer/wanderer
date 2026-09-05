@@ -1051,7 +1051,7 @@ CREATE POLICY "user_engagement owner all"
 CREATE TABLE IF NOT EXISTS notification_log (
   id         BIGSERIAL PRIMARY KEY,
   user_id    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  type       TEXT NOT NULL,   -- winback | streak_risk | soz | armagan | person_pack | morning | milestone | test | broadcast
+  type       TEXT NOT NULL,   -- winback | streak_risk | soz | armagan | person_pack | morning | milestone | sosyal | test | broadcast
   title      TEXT,
   body       TEXT,
   sent_at    TIMESTAMPTZ DEFAULT now(),

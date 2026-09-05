@@ -68,6 +68,11 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   ölçüm boşluğundan daha sinsi bir kusur üretir: okuyanı yapılmış işi
   yeniden yapmaya çağırır; oda 02 ve 08 tam bunu yapıyordu — durum satırı
   koda karşı grep'lenmeden okunmaz, kod yorumları rapordan güncel olabilir
+- [[rls-daralmasi-istemci-sorgusu]] — anonimlik için daraltılmış bir RLS
+  politikası ("own read"), istemcinin "başkasının beğenisi var mı" sorgusunu
+  hata vermeden HEP BOŞ döndürür; filtre RLS'ten sonra çalışır ve ölüdür —
+  doğru kanal herkese açık agregat sayacın taban-delta'sıdır, ve mock'lu bir
+  test bu sınıfı asla kanıtlayamaz
 - [[silinen-mekanizmanin-gerekcesi]] — bir mekanizma koddan silinince onu
   ANLATAN yorum da silinmelidir: kalan gerekçe bir sonraki tüketiciyi aynı
   silinmiş yola davet eder ve yorumları sökerek bakan kapılar (ör.
