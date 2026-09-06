@@ -26,7 +26,7 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 import { S } from '../state.js';
-import { SafeStorage, recordActivityDay, localDayKey, getActivityDays, showToast, localISODate, parseDayKey, escapeHTML } from './00a-infrastructure.js';
+import { SafeStorage, localDayKey, getActivityDays, showToast, localISODate, parseDayKey, escapeHTML } from './00a-infrastructure.js';
 import { ikvMilestoneScene, ikvCardFace, ikvCardBack } from './12c-kart-gorsel.js';
 import { t } from './15-i18n.js';
 

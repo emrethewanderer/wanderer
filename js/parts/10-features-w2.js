@@ -1,15 +1,15 @@
 import { S } from '../state.js';
-import { sb, SUPABASE_URL, SUPABASE_ANON, EDGE_FN_BASE, ADMIN_EMAIL, SUMMARY_MODEL, EMRE_IMG } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, MemCache, ErrorBoundary, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast, getActivityDays, localDayKey, localISODate } from './00a-infrastructure.js';
+import { EMRE_IMG } from '../config.js';
+import { EventBus, escapeHTML, localISODate } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { p, reTest } from './16-i18n-prompts.js';
-import { callLLM, loadMoodHistory } from './04-llm-hero-history.js';
+import { loadMoodHistory } from './04-llm-hero-history.js';
 import { loadSomaticHistory, loadPartsHistory } from './05-closure-parts.js';
 import { p3GetProactiveGreeting, p6GetProactiveCheckin } from './09a-personalization-engine.js';
 import { nowTR } from './00-config-tracking.js';
 import { loadKnowledge } from './07-settings-knowledge.js';
-import { getSuggestedArchetype, getArchetypeById, getAllArchetypeData } from './12a-archetypes.js';
-import { HASIM_BOSSES } from './10h-w2-library-challenges.js';
+import { getSuggestedArchetype, getArchetypeById } from './12a-archetypes.js';
+
 import { showDailyThought } from './10d-w2-quickask.js';
 import { isGreetingOnly } from './01-prompts-modes.js';
 import { kokenOlc } from './13y-koken.js';

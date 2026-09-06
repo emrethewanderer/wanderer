@@ -22,7 +22,7 @@
    varsayılan boş döner (özellik bozulmaz, sadece footer'da link olmaz).
 ═══════════════════════════════════════════════════════════════════ */
 
-import { S } from '../state.js';
+
 import { sb } from '../config.js';
 import { showToast, escapeHTML } from './00a-infrastructure.js';
 

@@ -1,6 +1,6 @@
 import { S } from '../state.js';
-import { sb, SUPABASE_URL, SUPABASE_ANON, EDGE_FN_BASE, ADMIN_EMAIL, SUMMARY_MODEL } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, MemCache, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast, localDayKey, parseDayKey } from './00a-infrastructure.js';
+import { sb, SUMMARY_MODEL } from '../config.js';
+import { STORAGE_KEYS, SafeStorage, escapeHTML, localDayKey, parseDayKey } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
 import { callLLM, loadRemainingHistory } from './04-llm-hero-history.js';
 

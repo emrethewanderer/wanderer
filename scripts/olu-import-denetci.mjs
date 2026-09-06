@@ -58,7 +58,78 @@ const IMPORT_RE = /import\s*\{([^}]*)\}\s*from\s*['"][^'"]+['"]/g;
 /** Yorumları söker — kör nokta #3'ün gereği. Şablon içi metin de gider,
  *  ama orada bir import adının geçmesi zaten kullanım sayılmaz. */
 function kodu(ham) {
-  return ham.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  /* SOLDAN SAĞA DURUM MAKİNESİ — ve bunun neden bir regex olmadığı ölçüldü.
+     İlk hâl iki `replace` idi: önce `/*…*​/`, sonra `//…`. 2026-09-06'da o
+     hâl bir YANLIŞ POZİTİF üretti ve betiğin kendi kör nokta defterindeki
+     *"canlı olanı ölü SANMAZ"* iddiasını çürüttü:
+
+       fi.accept = 'image/*';
+
+     Bu string'in içindeki `/*` sahte bir blok yorum AÇTI ve bir sonraki
+     gerçek `*​/`'a kadar 1324 karakter GERÇEK KODU yuttu — `13c`'nin
+     `S.currentUser` ve `sb.storage` kullanımları o yutulan aralıktaydı.
+     Sonuç: iki canlı import ölü raporlandı. Silinseydi görsel yükleme
+     sessizce ölürdü — kapının kendisi bir kırık üretecekti.
+
+     Ders bu turun tekrar eden sınıfı: bir yorum (burada bir belge iddiası)
+     kodun yaptığından fazlasını söylüyordu (§5.2). Yön güvenliği bir NİYET
+     değil, ancak ayrıştırıcının şekliyle GARANTİ edilebilir bir şeydir.
+
+     Makine dört hâl tutar: kod · satır yorumu · blok yorum · string
+     (tek/çift/şablon). Regex literalleri ayrıca izlenmez — blok-yorum
+     açan bir dizi taşıyan bir regex bu repoda yoktur, ve olsa da yön yine
+     güvenli tarafa düşer: fazladan kod görülür, ad "kullanılıyor" sayılır.
+     Ters bölü ile kaçırılan tırnak string içinde onurlandırılır.
+
+     KÜÇÜK BİR İRONİ, kayda değer: bu yorumun ilk yazımı blok-yorum kapatan
+     diziyi bir örnek olarak İÇİNDE taşıyordu ve yorumu erken kapattı —
+     yani düzeltilen kırığın aynısını, düzelten yorumun kendisi yaptı. */
+  let out = '';
+  let i = 0;
+  const n = ham.length;
+  while (i < n) {
+    const c = ham[i], c2 = ham[i + 1];
+    if (c === '/' && c2 === '*') {                       // blok yorum
+      const son = ham.indexOf('*/', i + 2);
+      i = son === -1 ? n : son + 2;
+      continue;
+    }
+    if (c === '/' && c2 === '/') {                       // satır yorumu
+      const son = ham.indexOf('\n', i);
+      i = son === -1 ? n : son;
+      continue;
+    }
+    if (c === "'" || c === '"' || c === '`') {
+      /* String / şablon: İÇERİK AYNEN KORUNUR. Makinenin tek işi, string'in
+         İÇİNDEKİ `/*` ya da `//` dizisinin bir YORUM AÇMASINI engellemektir —
+         kırık buydu (`fi.accept = 'image/*'` 1324 karakter gerçek kodu
+         yutuyordu). İçeriği ayrıca düşürmek İKİ yeni kırık üretir ve ikisi
+         de ölçüldü (2026-09-06):
+           · tırnakları yemek `from 'x'` kalıbını bozar → hiç import
+             bulunmaz → kapı "0 ölü import" diye SAHTE YEŞİL basar;
+           · şablon içeriğini yemek `${S.currentUser.id}` gibi GERÇEK
+             kullanımları siler → düzeltilen yanlış pozitif geri gelir.
+         İçeriği korumak betiğin kendi kör nokta defteriyle de tutarlıdır
+         (madde 2): bir ad yalnız bir string'de geçiyorsa "kullanılıyor"
+         sayılır ve yön güvenli tarafa düşer — kapı ölü importu KAÇIRABİLİR,
+         canlı olanı ölü SANMAZ. */
+      const tirnak = c;
+      out += c;
+      i++;
+      while (i < n) {
+        if (ham[i] === '\\') { out += ham[i] + (ham[i + 1] || ''); i += 2; continue; }
+        if (ham[i] === tirnak) { break; }
+        out += ham[i];
+        i++;
+      }
+      out += tirnak;
+      i++;
+      continue;
+    }
+    out += c;
+    i++;
+  }
+  return out;
 }
 
 /** Bir dosyadaki ölü named import adları. Saf fonksiyon — kapı bunu sınar. */

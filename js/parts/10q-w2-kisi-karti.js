@@ -17,7 +17,7 @@ import { S } from '../state.js';
 import { sb } from '../config.js';
 import { showToast, localISODate, escapeHTML } from './00a-infrastructure.js';
 import { switchViewHooks } from './03-auth-shell.js';
-import { getFullDeck, getCardById, getCardsByCategory, getDeckStats, RARITIES, CATEGORIES } from './12b-kart-destesi.js';
+import { getFullDeck, getCardById, RARITIES, CATEGORIES } from './12b-kart-destesi.js';
 import { EMRE_ONERI, _saveArchetypeProgress } from './12a-archetypes.js';   // wsArchFigure nudge'la birlikte emekli oldu
 import { ikvCardFace, ikvCardBack, ikvRing, ikvLantern, ikvComposeBackdrop, ikvEnsureStyles, ikvMesafeCizgi, SIRTLAR } from './12c-kart-gorsel.js';
 import { dfGetBeliefStats, dfGetChoiceStats } from './09b-depth-foundations.js';
