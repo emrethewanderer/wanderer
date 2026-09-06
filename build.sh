@@ -80,24 +80,75 @@ sed 's#<title>[^<]*</title>#<title>Wanderer Studio · Yönetim</title>#' "$TMP/i
 # SW cache versiyonunu bu build'in bundle hash'iyle damgala. Deterministik:
 # bundle içeriği değişmezse hash (ve sw.js) aynı kalır → gereksiz diff yok.
 # Yeni hash → activate handler eski cache girdilerini otomatik temizler.
+#
+# GOTCHA (2026-09-06, FAZ 15 teşhisi — oda 13 "SW dil pürüzü"): sidecar'lar
+# (assets/ext-*.js, ör. EN dil paketi) vite'ın bağımlılık grafiğinin DIŞINDA,
+# esbuild ile ayrı derlenir (js/ext/*.js → assets/ext-<ad>.js) — bundle_hash
+# yalnız ana `_src.js` içeriğini izler, sidecar İÇERİĞİ değişse bile SESSİZCE
+# aynı kalır. Bugüne dek her EN sözlük değişimi parite kapısı yüzünden TR
+# çekirdeğini de (vite-bundled) değiştirdiği için hash hep birlikte kaydı —
+# ama yalnız BİR sidecar'ın DEĞERİNİ değiştiren (yeni anahtar EKLEMEYEN, ör.
+# bir çeviri düzeltmesi) bir commit bunu kırar: sw.js byte-aynı kalır,
+# tarayıcı güncellemeyi hiç fark etmez, activate hiç tetiklenmez ve
+# staleWhileRevalidate eski sözlüğü cache'ten SÜRESİZ servis eder —
+# kullanıcı "bazı açılışlarda yanlış dilde" bir ekran görür (loadExtScript'in
+# `?v=` cache-bust'ı da aynı bundle_hash'ten türediği için aynı köre düşer).
+# Damgaya sidecar içeriğinin özeti de eklenir ki sidecar-ONLY bir değişiklik
+# de CACHE adını (ve dolayısıyla `?v=`'yi) döndürsün.
+# SW-DAMGA-BASLA — sentinel: tests/sw-damga-kapisi.test.js bu bloğu sed ile
+# ÇIKARIP sentetik $TMP fixture'ıyla çalıştırır (mantığı KOPYALAMAZ, gerçek
+# bloğu koşar) — biçim değişirse test kırılır, kopyası sessizce eskimez.
 if [ -f sw.js ]; then
   bundle_hash="$(grep -oE 'assets/_src-[A-Za-z0-9_-]+\.js' "$TMP/index.html" | head -1 | sed -E 's#.*_src-([A-Za-z0-9_-]+)\.js#\1#')"
+  ext_hash=""
+  if ls "$TMP"/assets/ext-*.js >/dev/null 2>&1; then
+    # sha256sum Linux'ta (CI), shasum macOS'ta (Emre'nin lokali) hazır gelir —
+    # ikisi de yoksa cksum'a düşülür (POSIX, kriptografik değil ama yeterli:
+    # tek ihtiyaç "içerik değişince değer değişsin").
+    if command -v sha256sum >/dev/null 2>&1; then
+      ext_hash="$(cat "$TMP"/assets/ext-*.js | sha256sum | cut -c1-10)"
+    elif command -v shasum >/dev/null 2>&1; then
+      ext_hash="$(cat "$TMP"/assets/ext-*.js | shasum -a 256 | cut -c1-10)"
+    else
+      ext_hash="$(cat "$TMP"/assets/ext-*.js | cksum | tr -d ' \n')"
+    fi
+  fi
   if [ -n "$bundle_hash" ]; then
-    sed -i.bak -E "s/const CACHE = '[^']*';/const CACHE = 'etw-${bundle_hash}';/" sw.js && rm -f sw.js.bak
+    damga="${bundle_hash}${ext_hash:+-$ext_hash}"
+    sed -i.bak -E "s/const CACHE = '[^']*';/const CACHE = 'etw-${damga}';/" sw.js && rm -f sw.js.bak
     # Sessiz başarısızlık kapısı — index.html'deki kardeşinin (yukarısı) SW
     # tarafındaki eşi. sed hiçbir şey değiştirmezse de 0 döner: `const CACHE`
     # satırının biçimi bir gün değişirse (örn. boşluksuz `const CACHE='x';`)
     # damga sessizce boşa düşer, build YEŞİL görünür ama Service Worker eski
     # hash'te kalır — kullanıcı yeni bundle'ı almaz. Damganın gerçekten
     # oturduğunu doğrulamak bu yüzden kapıdır, tören değil.
-    if ! grep -q "const CACHE = 'etw-${bundle_hash}';" sw.js; then
+    if ! grep -q "const CACHE = 'etw-${damga}';" sw.js; then
       echo "✗ sw.js damgası oturmadı — 'const CACHE' satırının biçimi sed desenine uymuyor."
-      echo "  beklenen: const CACHE = 'etw-${bundle_hash}';"
+      echo "  beklenen: const CACHE = 'etw-${damga}';"
       echo "  bulunan : $(grep -n "^const CACHE" sw.js | head -1)"
       exit 1
     fi
   fi
+
+  # ── İKİNCİ KATMAN: sidecar'ın `?v=` cache-bust'ı ──
+  # SW'nin CACHE adını döndürmek YETMEZ ve bu faz denetiminde ölçüldü:
+  # `staleWhileRevalidate` (sw.js) düz `fetch(req)` kullanır, yani SW kendi
+  # cache'ini boşaltsa bile TAZELEME isteği tarayıcının HTTP cache'inden
+  # karşılanabilir. `loadExtScript` (00-ext-loader.js) URL'i
+  # `?v=<bundle_hash>` ile kurar ve o hash sidecar-only bir değişimde
+  # kıpırdamaz — URL byte-aynı kalır, HTTP cache eski sözlüğü verir.
+  # Damga index.html'e de basılır; yükleyici varsa onu kullanır, yoksa
+  # eski davranışa düşer (geriye uyumlu).
+  if [ -n "$ext_hash" ]; then
+    sed -i.bak -E "s#(<script src=\"[^\"]*_src-[A-Za-z0-9_-]+\.js\")#\1 data-ext-v=\"${ext_hash}\"#" \
+      "$TMP/index.html" && rm -f "$TMP/index.html.bak"
+    if ! grep -q "data-ext-v=\"${ext_hash}\"" "$TMP/index.html"; then
+      echo "✗ index.html'e data-ext-v damgası basılamadı (script etiketi biçimi değişmiş olabilir)"
+      exit 1
+    fi
+  fi
 fi
+# SW-DAMGA-BITTI
 
 # sw.js'i (damgalı haliyle) TMP'ye kopyala — SW root scope'ta register ediliyor.
 [ -f sw.js ] && cp sw.js "$TMP/sw.js"

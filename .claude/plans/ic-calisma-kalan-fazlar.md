@@ -1513,6 +1513,74 @@ kullanıcıya gitmeden ÖNCE `send-push` redeploy edilmeli. Aksi hâlde uygulama
 "90 gün sonra silinir" der ama silen şey henüz canlı değildir — 8a'nın tam
 olarak reddettiği durum, yalnız tersten. İkisi ayrı deploy döngüsündedir.
 
+- **FAZ 15 · BİTTİ** (2026-09-06). `uygulayici`da (🅢) + parent'ın denetimi.
+  **"Teşhissiz" madde artık teşhisli — ve kök gerçekten vardı.** Faz bir
+  yanlışlamayla da kapanabilirdi (planın kendi izni); kapanmadı.
+
+  **Kök:** sidecar'lar (`assets/ext-*.js`, ör. 110KB'lık EN dil paketi)
+  vite'ın bağımlılık grafiğinin DIŞINDA, ayrı bir `esbuild` çağrısıyla
+  derleniyor (`build.sh:35-42`). `sw.js`'in `CACHE` damgası ise yalnız
+  `bundle_hash`'ten üretiliyordu — yani **sidecar içeriği değişse bile damga
+  kıpırdamıyordu.** Bugüne dek görünmemesinin sebebi bir tesadüf: i18n parite
+  kapısı her YENİ anahtarı TR çekirdeğine de yazdırıyor ve o dosya
+  vite-bundled, dolayısıyla hash birlikte kayıyor. Ama **var olan bir EN
+  çevirisinin yalnız DEĞERİNİ düzelten** bir commit (yeni anahtar eklemeyen)
+  bunu kırar: `sw.js` byte-aynı kalır, tarayıcı güncellemeyi hiç fark etmez,
+  `staleWhileRevalidate` eski sözlüğü **süresiz** servis eder ve kullanıcı
+  yeni anahtarlarda TR'ye düşen karışık-dil bir ekran görür — *"bazı
+  açılışlarda yanlış dilde"* şikâyetinin birebir tarifi.
+  Ajan bunu iddia etmekle kalmadı, **eski `build.sh` mantığını sentetik bir
+  fixture'a karşı koşturup damganın değişmediğini gösterdi.**
+
+  **Dil sırası ise KIRIK DEĞİL ve bu da yanlışlanarak kapandı:** `initI18n`
+  boot'ta yalnız `localStorage`'ı okur (SafeStorage hidrasyonu auth-sonrasıdır),
+  beyan yoksa `navigator.languages` yalnız ilk boyamayı tahmin eder ve **hiç
+  kaydedilmez** — beyanı `openLangGate` alır. §6.10'a bilinçli uyum.
+
+  **Faz denetimi (parent) — düzeltme YARIM kalmıştı ve yorumu fazlasını
+  söylüyordu.** Ajan `CACHE` damgasına sidecar özetini ekledi (doğru) ve
+  yorumuna *"ve dolayısıyla `?v=`'yi döndürsün"* yazdı (yanlış). `?v=`
+  CACHE'ten türemiyor: `loadExtScript` onu DOM'daki `_src-<hash>.js`
+  etiketinden okur, yani yalnız bundle hash'inden. Ve bu kozmetik değil —
+  `staleWhileRevalidate` düz `fetch(req)` kullanıyor, yani SW kendi cache'ini
+  boşaltsa bile **tazeleme isteği tarayıcının HTTP cache'inden karşılanabilir**;
+  URL byte-aynı kaldığı sürece eski sözlük yine gelir. Kırığın iki katmanı
+  vardı, düzeltme birini kapatmıştı.
+  İkinci katman kapatıldı: `build.sh` aynı özeti `index.html`e `data-ext-v`
+  olarak da basar, `loadExtScript` varsa onu URL'e katar
+  (`?v=<bundle>-<ext>`), yoksa eski davranışa düşer — geriye uyumlu.
+  Kapı `tests/ext-yukleyici-surum-kapisi.test.js`; eski yükleyiciye karşı
+  koşuldu ve tam o iki iddia kırmızı bastı. Üretilmiş ağaçta iki damganın
+  AYNI özeti taşıdığı da ayrıca mühürlendi.
+
+  **Bu, bu turda ikinci kez görülen sınıftır** ([[silinen-mekanizmanin-gerekcesi]]
+  ailesi): kod bir şey yapar, yorum daha fazlasını söyler. FAZ 12'de de
+  bir yorumun gerekçesi yanlıştı. Yorum bir NEDEN'dir ve yanlış bir neden,
+  hiç yorum olmamasından kötüdür (§5.2) — çünkü sonraki tur onu okur ve
+  ölçmeden inanır.
+
+  **Üç Durak, üçü de karara bağlandı:**
+  1. *Plandan sapma* — plan `16c-*`/`14-boot` öngörmüştü (teşhis öncesi
+     tahmin), kanıt `build.sh`'e işaret etti. **Doğru davranış:** ajan
+     tahmine değil kanıta uydu ve sapmayı Durak olarak geri döndürdü.
+     Planın "Değişen:" satırı bir tahmindi, bir sözleşme değil.
+  2. *Ajan `./build.sh` koşarken öteki fazın WIP'i dist'e gömüldü* — zararsız,
+     çıktı türetilmiş bir artefakttır ve sprint sonunda temiz ağaçta yeniden
+     üretiliyor. Kayda geçti çünkü fark edilmesi iyi bir refleks.
+  3. *`native-senkron-kapisi` sidecar BYTE içeriğini bağımsız doğrulamıyor* —
+     yalnız `_src-<hash>.js` eşleşmesine bakıyor. Bugün güvenli bir vekil
+     (`npx cap copy` tüm `dist/`i atomik kopyalar), ama sıkılaştırma ayrı bir
+     iş. **Plana taşındı** (aşağıdaki `### Taşınan bulgu`).
+
+### Taşınan bulgu — native senkron kapısı sidecar'ı vekaleten ölçüyor
+`tests/native-senkron-kapisi.test.js` yalnız `_src-<hash>.js` adının
+eşleşmesine bakıyor; `assets/ext-*.js`'in byte içeriğini bağımsız
+doğrulamıyor. Bugün risksiz çünkü `build.sh:186-192` `npx cap copy` ile tüm
+`dist/` klasörünü atomik kopyalıyor — yani vekil ölçüm doğru sonucu veriyor.
+Ama FAZ 15 tam da "hash bir şeyi izliyor sanılıyordu, izlemiyordu" sınıfının
+kırığıydı; aynı sınıf burada bir kapı olarak duruyor. Sıkılaştırma tek satır
+(sidecar özetini iki tarafta karşılaştır) ama bu sprintin kapsamı değil.
+
 **İlk hamle (FAZ 13):** eşik alarmı altyapısı — 🅢, DEVREDİLİR
 (`uygulayici`). `13q-gozlemevi.js`'te kartların ZATEN yazdığı teşhis
 cümleleri (oda 17: "her kart eşiği aşınca kendi tanısını yazıyor") tek yerde
