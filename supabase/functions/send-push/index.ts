@@ -557,11 +557,91 @@ async function pruneGunluk(): Promise<void> {
   }
 }
 
+/* ───────────────────────── EŞİK ALARMI (İç Çalışma 17·F2 · FAZ 13b) ─────────────────────────
+   Kadranın 24 kartı eşiği aşınca kendi tanısını yazıyor — ama o cümleler
+   tarayıcıda, Emre admin sayfasını AÇTIĞINDA doğuyor. Yani bir alarm,
+   bakılmadıkça yoktu. `admin_alarms()` (migration 056) o eşiklerin
+   push atmayı hak eden İKİSİNİ sunucuda hesaplar; burası onları teslim eder.
+
+   ── `admin` MERDİVENE GİRMEZ, ve bu FAZ 11'in dersinin ta kendisidir ──
+   Planın ilk taslağı bu tipi `pickTrigger` merdivenine koyup `METNI_HAZIR`
+   kapısına bağlamayı öngörüyordu. Kaynağa bakınca yer YANLIŞ çıktı:
+   merdiven KULLANICI satırları üzerinde döner ve her basamak altındakileri
+   susturur — `sosyal`'in bir kez yaptığı tam buydu. Bir ADMIN alarmının
+   orada işi yok: alıcısı tek bir kişi, tetiği kullanıcının davranışı değil
+   sistemin hâli. Merdivene koymak, ona hiç ait olmayan bir riski
+   (beş tetiği susturma) satın almak olurdu. Bu yüzden alarm merdivenin
+   DIŞINDA, koşu başına BİR KEZ değerlendirilir.
+   Planın "Değişen:" satırı bir tahmindi, bir sözleşme değil (FAZ 15 emsali).
+
+   ── Metin LLM'e verilmez ──
+   Öteki tetikler kişisel bir cümle üretir; bu bir ÖLÇÜM RAPORUDUR. Sayıyı
+   modele yazdırmak, ölçülmüş bir değeri uydurulabilir hâle getirmek olurdu
+   (§6.10). Alarmın gövdesi doğrudan `olcum`dan kurulur.
+   Sayının BAĞIRMAMASI kuralı burada geçerli DEĞİL ve sebebi alıcıdır:
+   kullanıcıya sayı bir baskıdır, Emre'ye ise alarmın kendisi sayıdır.
+
+   Freq-cap'e TABİDİR (`passesFreqCap`): aynı tip 24 saatte bir. Alarm
+   sürerse günde bir kez hatırlatır; gürültüye dönen bir alarm, alarm
+   olmaktan çıkar. */
+function alarmMetni(alarm: any): { title: string; body: string } | null {
+  const o = alarm?.olcum || {};
+  switch (alarm?.alan) {
+    case 'emniyet':
+      return {
+        title: 'Kadran · emniyet',
+        body: `Kriz sinyali düştü (${o.sinyal}) ama kriz kartı hiç açılmadı. Soğuma penceresi yutuyor olabilir.`,
+      };
+    case 'hata':
+      return {
+        title: 'Kadran · hata',
+        body: `Hataların %${o.pay}'i tek etikette toplanıyor: ${o.etiket}. Tek bir kırık herkesi vuruyor olabilir.`,
+      };
+    default:
+      // Tanımadığı bir alan için SESSİZ kalır — kapsamı olmayan bir tetik
+      // hiçbir şey göndermez (`fallbackCopy` default'unun aynı sözleşmesi).
+      return null;
+  }
+}
+
+async function alarmGonder(): Promise<void> {
+  try {
+    const { data, error } = await admin.rpc('admin_alarms', { p_gun: 1 });
+    if (error) throw error;                       // 056 koşulmadıysa burada düşer
+    const alarmlar = Array.isArray(data) ? data : [];
+    if (!alarmlar.length) return;                 // kadran sessizse alarm da sessiz
+
+    const { data: adminler } = await admin
+      .from('profiles').select('id').eq('is_admin', true);
+    if (!adminler?.length) return;
+
+    for (const alarm of alarmlar) {
+      const copy = alarmMetni(alarm);
+      if (!copy) continue;
+      for (const a of adminler) {
+        if (!(await passesFreqCap(a.id, 'admin'))) continue;
+        const { data: logRow } = await admin.from('notification_log')
+          .insert({ user_id: a.id, type: 'admin', title: copy.title, body: copy.body })
+          .select('id').single();
+        const sent = await sendToUser(a.id, payloadFor('admin', copy.title, copy.body, logRow?.id ?? null));
+        // FAZ 5'in sözleşmesi: yalnız TESLİM EDİLEN satır defterde kalır.
+        if (sent === 0 && logRow) await admin.from('notification_log').delete().eq('id', logRow.id);
+      }
+    }
+  } catch (e) {
+    // 056 koşulmamışsa ya da sorgu düşerse bildirimlerin GERİ KALANI çalışır.
+    console.warn('[send-push] admin_alarms:', (e as Error)?.message);
+  }
+}
+
 /* ───────────────────────── ENGINE (cron) ───────────────────────── */
 async function runEngine(): Promise<Response> {
   // Saklama temizliği bildirimlerden ÖNCE ve onlardan BAĞIMSIZ koşar:
   // kullanıcı satırı hiç olmasa da (push_enabled boş) vaat tutulmalı.
   await pruneGunluk();
+  // Eşik alarmı da kullanıcı döngüsünden BAĞIMSIZ koşar: alıcısı admin'dir,
+  // `user_engagement` satırlarının hâliyle ilgisi yoktur.
+  await alarmGonder();
   const { data: rows } = await admin
     .from('user_engagement').select('*').eq('push_enabled', true).limit(2000);
   // Sosyal adaylar TEK sorguda, döngü dışında hesaplanır — her satır için ayrı

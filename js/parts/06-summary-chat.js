@@ -5,7 +5,7 @@ import { ktGate, ktWallText, ktStatus } from './13m-kota.js';
 import { t } from './15-i18n.js';
 import { p, ensurePromptLang } from './16-i18n-prompts.js';
 import { callLLM, renderHistory, updateStreakUI, calculateStreak } from './04-llm-hero-history.js';
-import { updateAIMode, stripModeTag, stripModeWatermark, cleanHistoryText, logResistanceMoment, trackSilenceTopic, captureCommitments, trackEmotionalFlow, getUserFirstName, getAllMessages, getResistanceInsight, getSilenceInsight, getPendingCommitmentContext, createModeAwareChunkHandler, extractDgReading, nowTR, toTR } from './00-config-tracking.js';
+import { updateAIMode, stripModeWatermark, cleanHistoryText, logResistanceMoment, trackSilenceTopic, captureCommitments, trackEmotionalFlow, getUserFirstName, getAllMessages, getResistanceInsight, getSilenceInsight, getPendingCommitmentContext, createModeAwareChunkHandler, extractDgReading, nowTR, toTR } from './00-config-tracking.js';
 import { resetSilencePressure, getOnboardingContext, handleEmotionalSpike, detectEmotionalSpike, trackSelfContradiction, trackIdentityDrift, getIdentityDriftInsight } from './02-features-onboarding.js';
 import { analyzeMessagePart, checkPastSelfEcho, applySessionPartDots, openDailyClosure } from './05-closure-parts.js';
 import { userFriendlyError, generateAndSaveCard } from './08-trends-payment.js';

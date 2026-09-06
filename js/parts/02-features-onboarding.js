@@ -1,8 +1,8 @@
 import { S } from '../state.js';
-import { sb, AI_MODES, ADMIN_EMAIL, EMRE_IMG } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, SecureStorage, ErrorBoundary, showToast, escapeHTML } from './00a-infrastructure.js';
+import { sb, AI_MODES, EMRE_IMG } from '../config.js';
+import { STORAGE_KEYS, SafeStorage, SecureStorage, showToast } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
-import { p, dpTest, pArray } from './16-i18n-prompts.js';
+import { p, dpTest } from './16-i18n-prompts.js';
 import { appendMsg } from './06-summary-chat.js';
 import { updateModeBadge, nowTR, detectMessageTone, getAllMessages } from './00-config-tracking.js';
 

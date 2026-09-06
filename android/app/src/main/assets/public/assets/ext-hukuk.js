@@ -102,6 +102,7 @@ Bu sa\u011Flay\u0131c\u0131lar\u0131n sunucular\u0131 yurt d\u0131\u015F\u0131nd
 - Verini, hesab\u0131n aktif oldu\u011Fu s\xFCrece saklar\u0131z.
 - Ayarlar'daki ara\xE7larla diledi\u011Fin an: t\xFCm verini JSON olarak indirebilir (Verimi \u0130ndir), hesab\u0131n\u0131 silmeden t\xFCm i\xE7eri\u011Fini temizleyebilir (S\u0131f\u0131rdan Ba\u015Fla) veya hesab\u0131n\u0131 t\xFCm verinle birlikte kal\u0131c\u0131 olarak silebilirsin (Hesab\u0131m\u0131 Kal\u0131c\u0131 Olarak Sil).
 - Kal\u0131c\u0131 silme talebinde verilerin, yasal saklama y\xFCk\xFCml\xFCl\xFCkleri d\u0131\u015F\u0131nda, sistemlerimizden ve yedeklerimizden makul s\xFCre i\xE7inde silinir.
+- **Kullan\u0131m \xF6l\xE7\xFCmleri** (hangi ekran\u0131 a\xE7t\u0131\u011F\u0131n, orada ne kadar kald\u0131\u011F\u0131n gibi ham hareket kay\u0131tlar\u0131) ham h\xE2lde en fazla **90 g\xFCn** tutulur. S\xFCre dolan kay\u0131tlar g\xFCnl\xFCk toplamlara indirgenir ve ham sat\u0131rlar silinir. Toplamlar bir ekran\u0131n ka\xE7 kez a\xE7\u0131ld\u0131\u011F\u0131n\u0131 sayar; orada ne yazd\u0131\u011F\u0131n\u0131 ta\u015F\u0131maz.
 
 ## 8. Haklar\u0131n
 KVKK m.11 ve GDPR kapsam\u0131nda; verine eri\u015Fme, d\xFCzeltme, silme, i\u015Flemeyi k\u0131s\u0131tlama, itiraz etme, verini ta\u015F\u0131nabilir bi\xE7imde alma ve verdi\u011Fin r\u0131zay\u0131 geri \xE7ekme haklar\u0131na sahipsin. Bu haklar\u0131n \xE7o\u011Funu Ayarlar'dan kendin kullanabilirsin; kalanlar i\xE7in ${e} adresine yaz. B\xFClten aboneli\u011Fini her iletinin dibindeki ba\u011Fdan ya da Ayarlar'dan sonland\u0131rabilirsin. Ayr\u0131ca ilgili denetim makam\u0131na (T\xFCrkiye'de Ki\u015Fisel Verileri Koruma Kurumu) \u015Fik\xE2yette bulunma hakk\u0131n vard\u0131r.
@@ -258,6 +259,7 @@ These providers' servers may be located abroad; transfers are made with safeguar
 - We keep your data for as long as your account is active.
 - Using the tools in Settings you can, at any time: download all your data as JSON (Download My Data), wipe all your content without deleting the account (Start Over), or permanently delete your account together with all your data (Delete My Account Permanently).
 - Upon a permanent-deletion request, your data is removed from our systems and backups within a reasonable period, except where retention is legally required.
+- **Usage measurements** (raw activity records such as which screen you opened and how long you stayed there) are kept in raw form for at most **90 days**. Once that period passes, those records are reduced to daily totals and the raw rows are deleted. The totals count how often a screen was opened; they do not carry what you wrote there.
 
 ## 8. Your Rights
 Under KVKK art. 11 and the GDPR you have the right to access, rectify and erase your data, restrict or object to processing, receive your data in a portable format, and withdraw consent you have given. You can exercise most of these rights yourself in Settings; for the rest, write to ${e}. You also have the right to lodge a complaint with the competent supervisory authority (in T\xFCrkiye, the Personal Data Protection Authority).

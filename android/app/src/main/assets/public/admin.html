@@ -47,8 +47,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Barlow:wght@300;400;500&family=Cinzel:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&display=swap" rel="stylesheet">
 
-  <script src="./assets/_src-DCsupOJ6.js"></script>
-  <link rel="stylesheet" href="./assets/style-DS-Sxi8l.css">
+  <script src="./assets/_src-ZV_GhUHn.js"></script>
+  <link rel="stylesheet" href="./assets/style-CjRiHIe3.css">
 </head>
 <body>
 
@@ -1357,6 +1357,20 @@
           <input type="checkbox" id="fx-sound-toggle" checked onchange="fxToggleSound(this.checked)"
                  style="width:22px;height:22px;accent-color:var(--gold);cursor:pointer;flex:none;">
         </label>
+        <!-- SES KADEMESİ (13e · FAZ 16) — aç/kapa yeterli değildi: "duyulsun ama
+             bu kadar değil" hâli bir seçenek istiyordu. Slider DEĞİL, iki ad:
+             uygulama sesi bir sayıyla değil bir dozla anlatır (gece kısıklığı
+             da öyle yapar). Ses kapalıyken bu satır gizlenir — kapalı bir sesin
+             şiddetini sormak bir ayar değil bir çelişkidir. -->
+        <div id="fx-kademe-row" style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;">
+          <span style="font-size:14px;color:var(--text-mid);">Sesler ne kadar duyulsun?</span>
+          <div role="radiogroup" aria-label="Ses şiddeti" style="display:flex;gap:6px;flex:none;">
+            <button type="button" class="fx-kademe-btn" data-kademe="tam" role="radio" aria-checked="true"
+                    onclick="fxKademeSec('tam')">Tam</button>
+            <button type="button" class="fx-kademe-btn" data-kademe="kisik" role="radio" aria-checked="false"
+                    onclick="fxKademeSec('kisik')">Kısık</button>
+          </div>
+        </div>
         <label for="fx-haptic-toggle" style="display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;margin-bottom:12px;">
           <span style="font-size:14px;color:var(--text-mid);">Titreşim</span>
           <input type="checkbox" id="fx-haptic-toggle" checked onchange="fxToggleHaptic(this.checked)"

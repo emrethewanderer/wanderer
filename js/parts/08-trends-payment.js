@@ -1,10 +1,10 @@
 import { S } from '../state.js';
-import { sb, SUPABASE_URL, SUPABASE_ANON, EDGE_FN_BASE, EMRE_IMG } from '../config.js';
-import { SafeStorage, EventBus, escapeHTML, showToast } from './00a-infrastructure.js';
+import { sb, SUPABASE_ANON, EDGE_FN_BASE, EMRE_IMG } from '../config.js';
+import { SafeStorage, escapeHTML, showToast } from './00a-infrastructure.js';
 import { t, getCurrentLanguage } from './15-i18n.js';
 import { initDrawerPremiumGates } from './03-auth-shell.js';
-import { sendMessage, appendMsg } from './06-summary-chat.js';
-import { cleanHistoryText, getAllMessages } from './00-config-tracking.js';
+import { sendMessage } from './06-summary-chat.js';
+import { getAllMessages } from './00-config-tracking.js';
 
 
 /* ═══ ŞİFRE SIFIRLAMA SÖKÜLDÜ (2026-08-27) ═══
