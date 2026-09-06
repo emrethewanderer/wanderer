@@ -2,9 +2,9 @@ name: Deploy Supabase Functions
 
 on:
   push:
-    branches: [ main ]  # main branch'ine push atınca çalışır
+    branches: [ main ]
     paths:
-      - 'supabase/functions/**'  # Sadece fonksiyonlar değişince çalışsın
+      - 'supabase/functions/**'
 
 jobs:
   deploy:
