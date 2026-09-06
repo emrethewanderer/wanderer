@@ -1465,6 +1465,70 @@ redeploy" sanılmasın.
 hâle gelmeden gizlilik metnine saklama cümlesi yazmak, tutulmayan bir
 taahhüt olur (§6.2 · §6.5). Kilit tek adımlıktır.
 
+- **FAZ 16 · BİTTİ** (2026-09-06). 🅞, parent'ta.
+  **Planın önerdiği yol üründe düzeltildi.** Plan *"kademe `_master.gain`
+  üstünden geçmeli"* diyordu; iki sebeple orası YANLIŞ yerdi ve ikisi de
+  ancak kaynağa bakınca görünür:
+  1. **`_master.gain` serbest bir yuva değil** — `_ready()` HER cue'da gece/
+     akşam mood'unu oraya yazar (`setTargetAtTime(mood.g …)`, `13e:127`).
+     Kullanıcı ayarı oraya konsaydı ilk cue'da sessizce silinirdi: ayar
+     değişir, hiçbir şey olmaz, hiçbir yerde hata görünmez — §6.2'nin en
+     sinsi hâli.
+  2. **Fener Ambiyansı `_master`'ı ATLAR** (K7, `13e:82`'nin kendi yorumu) ve
+     doğrudan `_moodFilter`'a bağlanır. `_master`'da kısmak ambiyansı hiç
+     kısmazdı: *"sesi kıstım ama fener hâlâ aynı."*
+  Doğru yer zincirin SONU: `_kademeGain` düğümü `_moodFilter` ile
+  `destination` arasına girdi. İki zincir de oradan geçer, mood mantığıyla
+  hiç çakışmaz — **mood tonu ayarlar, kademe şiddeti.**
+
+  **Dozun gerekçesi (🅞) uydurulmadı, ödünç alındı:** gece kısıklığı
+  `_master`'ı 0.5'ten 0.22'ye indiriyor (≈0.45). Uygulamanın "sessiz ama
+  duyulur" dediği ölçü zaten oydu; ikinci bir sayı icat etmek §6.10'a göre
+  kanıtsız bir değer olurdu. Üçüncü kademe eklenmedi: aç/kapa zaten var ve
+  gece kısıklığı bunun ÜSTÜNE biner (kısık bir gecede 0.22×0.45 ≈ 0.10).
+
+  Yüzey iki adlı hap: **Tam · Kısık** — slider değil, çünkü uygulama sesi bir
+  sayıyla değil bir dozla anlatır. Düğme dili icat edilmedi, `.takip-pill`in
+  biçimi ödünç alındı (§1.3). Ses kapalıyken satır `hidden` — kapalı bir sesin
+  şiddetini sormak bir ayar değil bir çelişkidir. Ayar grubu yerelleşmemiş
+  (hardcoded TR) ve o **kalıba uyuldu**; grubun tamamının i18n borcu ayrı.
+  Kapı: dört davranış testi + bir YAPISAL regresyon kilidi (kademe
+  `_master.gain`'e taşınırsa kırmızı yanar — sessizce kırılacak tek yol oydu).
+
+- **FAZ 17 · BİTTİ** (2026-09-06). 🅞, parent'ta.
+  **Planın sayısı mekanik olarak imkânsızdı ve bunu ancak kod söyledi.**
+  Plan *"3 ✕ → bugün sus"* diyordu; oysa `13B` kuyruğunun günlük davetsiz
+  bütçesi **`TRN_TAVAN = 2`** — aynı gün üç davetsiz açılış olamaz, yani
+  eşiğe hiç varılamazdı. Sayı bütçe görülmeden yazılmış. Doğru ölçü aynı gün
+  değil **ARDIŞIK** rettir: üç kez üst üste kapatılan bir tören bir tercih
+  söylüyordur.
+
+  Motor doğru yere kondu: kuyruğun kendisine (`13B`), tek töreme değil —
+  ritmi kuyruk sahiplenir. `trnRet` / `trnKabul` + `trnIzin`'in davetsiz
+  dalında bir kontrol. Tüketici `13h`: ✕ yolu `trnRet`, mühür yolu `trnKabul`.
+
+  **Sözleşmenin özü üç KODLA garanti edilir** (✕ "şimdi değil"dir, "asla"
+  değil) ve üçü de ayrı ayrı test edilir çünkü üçü de tek başına bozulabilir:
+  1. yalnız **davetsiz** açılış susar — kullanıcının kendi açtığı kapı
+     (`davetsiz:false`) bu satıra hiç uğramaz;
+  2. sessizlik **sürelidir** (7 gün — uygulamanın hafta ritmi zaten kurulu,
+     09d/09h `lastSeenWeek`; yeni ritim icat edilmedi);
+  3. tek bir **kabul** sayacı anında sıfırlar — bir katılım üç retten ağır
+     basar, çünkü mesele ceza değil ritim.
+
+  **Fazın kendi testi fazın kendi kırığını buldu:** ilk yazımda gün farkı
+  `localDayKey()` üzerinden hesaplanıyordu — o anahtar `${yıl}-${getMonth()}-${gün}`
+  üretir, ay SIFIR TABANLI ve padding YOK (`2026-8-6`): ne ayrıştırılabilir ne
+  sıralanabilir, `Date.parse` onu bir ay kaydırarak okur. 00a'nın kendi yorumu
+  zaten `localISODate()` diyor ([[yerel-tarih-anahtari]]). Süre testi kırmızı
+  bastı, kod düzeldi. Kuyruğun gün BÜTÇESİ hâlâ `localDayKey` kullanır ve
+  doğru kullanır — o yalnız eşitlik sorar, aritmetik yapmaz.
+
+  **Ölçüm tarafı (Gözlemevi sorgusu) bilinçli olarak YAPILMADI** — planın
+  kendi kararı: *"ölçüm tarafı veriye bağlıdır; kural tarafı bugün yazılabilir."*
+  Defter (`etw_trn_ret_v1_<uid>`) bugünden itibaren birikir; sorgu, veri
+  oluştuğunda yazılır.
+
 **İlk hamle (FAZ 13):** eşik alarmı altyapısı — 🅢, DEVREDİLİR
 (`uygulayici`). `13q-gozlemevi.js`'te kartların ZATEN yazdığı teşhis
 cümleleri (oda 17: "her kart eşiği aşınca kendi tanısını yazıyor") tek yerde

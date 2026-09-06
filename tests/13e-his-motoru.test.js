@@ -92,7 +92,7 @@ describe('fx prefs — varsayılan + kalıcılık', () => {
     const { SafeStorage } = await import('../js/parts/00a-infrastructure.js');
     fx.fxToggleSound(false);
     fx.fxToggleHaptic(false);
-    expect(SafeStorage.get('etw_fx_prefs_v1_anon')).toEqual({ sound: false, haptic: false, nightDim: true, ambient: false });
+    expect(SafeStorage.get('etw_fx_prefs_v1_anon')).toEqual({ sound: false, haptic: false, nightDim: true, ambient: false, sesKademe: 'tam' });
 
     fx.fxLoad();
     const vibSpy = vi.spyOn(window.navigator, 'vibrate');
@@ -581,5 +581,83 @@ describe('Kontrat regresyonu (FAZ F) — sözleşme sabitleri', () => {
     const vibSpy = vi.spyOn(window.navigator, 'vibrate');
     fx.fxHaptic('heavy'); // haptic:false korunmuş olmalı
     expect(vibSpy).not.toHaveBeenCalled();
+  });
+});
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SES KADEMESİ (FAZ 16) — "kısık" bir sayı değil bir doz
+
+   Kademe zincirin EN SONUNDAKİ kendi düğümündedir ve bu bir tercih değil bir
+   ZORUNLULUKTU; iki sebep de burada sınanır:
+     1. `_master.gain` serbest değil — `_ready()` her cue'da gece/akşam
+        mood'unu oraya yazar. Kademe oraya konsaydı ilk cue'da SESSİZCE
+        silinirdi (§6.2: kullanıcı ayarı değiştirir, hiçbir şey olmaz).
+     2. Fener Ambiyansı `_master`'ı atlar (K7) — `_master`'da kısmak
+        ambiyansı hiç kısmazdı.
+   Dozun kendisi uydurulmadı: gece kısıklığının kendi oranı (0.22/0.5 ≈ 0.45)
+   ödünç alındı — uygulamanın "sessiz ama duyulur" dediği ölçü zaten oydu.
+═══════════════════════════════════════════════════════════════════════ */
+describe('ses kademesi — doz, zincirin sonunda tek düğümde', () => {
+  it('varsayılan "tam" ve bilinmeyen değer "tam"a düşer', async () => {
+    const { fx } = await freshModule();
+    expect(fx.fxGetSesKademe()).toBe('tam');
+    expect(fx.fxSetSesKademe('bilinmeyen')).toBe('tam');
+    expect(fx.fxSetSesKademe('kisik')).toBe('kisik');
+  });
+
+  it('seçim KALICIDIR — fxSave zincirine girer', async () => {
+    const { fx } = await freshModule();
+    const { SafeStorage } = await import('../js/parts/00a-infrastructure.js');
+    fx.fxSetSesKademe('kisik');
+    expect(SafeStorage.get('etw_fx_prefs_v1_anon').sesKademe).toBe('kisik');
+  });
+
+  it('kademe satırı ses KAPALIYKEN gizlenir — kapalı sesin şiddeti sorulmaz', async () => {
+    const { fx } = await freshModule();
+    document.body.innerHTML = `
+      <input type="checkbox" id="fx-sound-toggle">
+      <div id="fx-kademe-row">
+        <button class="fx-kademe-btn" data-kademe="tam"></button>
+        <button class="fx-kademe-btn" data-kademe="kisik"></button>
+      </div>`;
+    fx.fxToggleSound(false);
+    expect(document.getElementById('fx-kademe-row').hidden).toBe(true);
+    fx.fxToggleSound(true);
+    expect(document.getElementById('fx-kademe-row').hidden).toBe(false);
+  });
+
+  it('seçili düğme hem sınıfı hem aria-checked\'i taşır (tek gerçek)', async () => {
+    const { fx } = await freshModule();
+    document.body.innerHTML = `
+      <input type="checkbox" id="fx-sound-toggle" checked>
+      <div id="fx-kademe-row">
+        <button class="fx-kademe-btn" data-kademe="tam" aria-checked="true"></button>
+        <button class="fx-kademe-btn" data-kademe="kisik" aria-checked="false"></button>
+      </div>`;
+    fx.fxKademeSec('kisik');
+    const [tam, kisik] = document.querySelectorAll('.fx-kademe-btn');
+    expect(kisik.classList.contains('active')).toBe(true);
+    expect(kisik.getAttribute('aria-checked')).toBe('true');
+    expect(tam.classList.contains('active')).toBe(false);
+    expect(tam.getAttribute('aria-checked')).toBe('false');
+  });
+
+  /* Bu kapı bir REGRESYON kilidi: kademe `_master`'a taşınırsa sessizce
+     kırılırdı ve hiçbir test görmezdi. Kaynak taraması meşru çünkü iddia
+     YAPISALDIR (düğümün zincirdeki yeri), davranışsal değil — jsdom'da
+     WebAudio yok, gerçek gain okunamaz. */
+  it('kademe düğümü zincirin SONUNDA — mood yazımıyla aynı düğümü paylaşmaz', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { fileURLToPath } = await import('node:url');
+    const { dirname, join } = await import('node:path');
+    const src = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), '..', 'js/parts/13e-his-motoru.js'), 'utf8');
+    expect(src).toMatch(/_moodFilter\.connect\(_kademeGain\)/);
+    expect(src).toMatch(/_kademeGain\.connect\(_ctx\.destination\)/);
+    // mood HÂLÂ _master'a yazar; kademe ORAYA yazmaz.
+    expect(src).toMatch(/_master\.gain\.setTargetAtTime\(mood\.g/);
+    expect(src, 'kademe _master.gain\'e yazıyor — mood ilk cue\'da onu siler')
+      .not.toMatch(/_master\.gain[^\n]*_kademeCarpani/);
   });
 });
