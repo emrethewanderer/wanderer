@@ -278,6 +278,9 @@ export const I18N_CORE = {
     // ── Hukuki Çerçeve (13p) — belge gövdeleri modülde yaşar, bunlar UI etiketleri
     'hk.section': 'Hukuki Çerçeve',
     'hk.section_desc': 'Wanderer ile aranızdaki sözleşme, verinin nasıl korunduğu ve eserin hakları.',
+    'hk.banner.metin': 'Gizlilik metni değişti — kullanım ölçümlerini ne kadar sakladığımızı yazdık.',
+    'hk.banner.oku': 'OKU',
+    'hk.banner.kapat': 'Kapat',
     'hk.kabul.var': 'Bu sürümü okudun.',
     'hk.kabul.yok': 'Bu sürümü okuduğuna dair bir kaydımız yok — başlıklar yukarıda, dilediğin an açık.',
     'hk.eyebrow': 'WANDERER · HUKUKİ ÇERÇEVE',

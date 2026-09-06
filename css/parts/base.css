@@ -182,6 +182,12 @@
   --z-dinlenme-panel: 940;
   --z-dinlenme-ust: 950;
   --z-okuyucu: 2400;    /* Manifesto okuyucu — tam sayfa, tören altı */
+  /* Hukuk sürüm şeridi (13p · FAZ 8b) — "değişeni oku" haberi.
+     YERİ BİR YARGIDIR: okuyucudan (2400) ve her olağan yüzeyden YUKARIDA,
+     ama daldırmadan (7000) ve törenden (9650+) AŞAĞIDA. Bir hukuk haberi
+     görülmeli, ama ne bir töreni ne de tam ekran bir okumayı böler —
+     törenin gücü seyrekliğinden gelir (13B'nin açılış cümlesi). */
+  --z-hukuk-serit: 6900;
   --z-daldirma: 7000;   /* daldırma modu (chat tam ekran okuma) */
   --z-cazibe-portal: 9400;    /* Cazibe Motoru portalı */
   --z-cazibe-kivilcim: 9500;  /* ve kıvılcım şeridi, portalın üstünde */

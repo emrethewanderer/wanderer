@@ -1,5 +1,5 @@
 import { S } from '../state.js';
-import { getCurrentLanguage } from './15-i18n.js';
+import './15-i18n.js';
 import { PROMPT_I18N_CORE } from './16b-i18n-prompt-dict-core.js';
 import { DETECT_I18N } from './16c-i18n-detect-dict.js';
 import { ensureExt } from './00-ext-loader.js';

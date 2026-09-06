@@ -158,7 +158,7 @@ describe('send-push/index.ts — insert → id → gönder → sent===0 sil (FAZ
 });
 
 /* ═══ SOSYAL DOKUNUŞ — İç Çalışma 12 · FAZ 11 (kaynak taraması) ═══════════
-   Ölçü sınırı tik-atifi.test.js ile aynı gerekçe: send-push bir Deno Edge
+   Ölçü sınırı tik-atifi-kapisi.test.js ile aynı gerekçe: send-push bir Deno Edge
    Function'dır, vitest onu import edip koşturamaz. Bu blok üç şeyi kanıtlar:
    'sosyal' winback'ten ÖNCE gelir, adaylar döngü dışında TEK sorguda
    hesaplanır, ve microcopy'si henüz yazılmamış bir tetik (bugün: 'sosyal')

@@ -1,9 +1,9 @@
 import { S } from '../state.js';
-import { sb, EDGE_FN_BASE, SUMMARY_MODEL } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, showToast, localISODate, SecureStorage } from './00a-infrastructure.js';
+import '../config.js'; // sb/EDGE_FN_BASE/SUMMARY_MODEL ölü — modül başka yerlerden zaten yükleniyor, ad yok
+import { STORAGE_KEYS, SafeStorage, localISODate, SecureStorage } from './00a-infrastructure.js';
 import { t } from './15-i18n.js';
-import { p, dp, reTest, dpNormalize } from './16-i18n-prompts.js';
-import { callLLM } from './04-llm-hero-history.js';
+import { p, reTest, dpNormalize } from './16-i18n-prompts.js';
+import './04-llm-hero-history.js'; // callLLM ölü ama boot IIFE'leri (yan etki) kalmalı
 import { getSuggestedArchetype } from './12a-archetypes.js';
 
 /* ═══════════════════════════════════════════════════════════════════════

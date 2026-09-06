@@ -1,7 +1,7 @@
 import { S } from '../state.js';
-import { sb, SUPABASE_URL, SUPABASE_ANON, EDGE_FN_BASE, ADMIN_EMAIL, SUMMARY_MODEL, AI_MODES } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, MemCache, ErrorBoundary, EventBus, RateLimiter, VirtualScroller, CryptoLite, SecureStorage, Z_LAYERS, A11y, AnimUtils, debounce, throttle, escapeHTML, showToast } from './00a-infrastructure.js';
-import { t, getCurrentLanguage } from './15-i18n.js';
+import { AI_MODES } from '../config.js';
+import { STORAGE_KEYS, SecureStorage, AnimUtils, escapeHTML } from './00a-infrastructure.js';
+import { t } from './15-i18n.js';
 import { p, dp, dpTest, dpNormalizeKonum } from './16-i18n-prompts.js';
 import { p2GetEmotionalCycleInsight } from './09a-personalization-engine.js';
 import { dgNabiz, dgYay, dgIklimTabanEkle, dgIklimKaydet, DG_KARSILAMALAR } from './13D-duygu-motoru.js';

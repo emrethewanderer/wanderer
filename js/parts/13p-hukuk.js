@@ -12,15 +12,15 @@
 ═══════════════════════════════════════════════════════════════ */
 import { S } from '../state.js';
 import { t } from './15-i18n.js';
-import { escapeHTML } from './00a-infrastructure.js';
+import { escapeHTML, SafeStorage } from './00a-infrastructure.js';
 import { ensureExt } from './00-ext-loader.js';
 import { sb } from '../config.js';
 
 // export: tanışma paneli (03-auth-shell) bülten rızasının kaynak sürümünü
 // (bulten_izin_surum) buradan okur — ikinci bir sürüm sabiti TANIMLANMAZ,
 // tek gerçek burasıdır (Anayasa §1.3).
-export const HK_VERSION = '1.3'; // 1.3: Kod kapısı — şifresiz giriş, kullanıcı adı, e-posta iletileri + bülten rızası ve teslimat kayıtları
-const HK_EFFECTIVE = '2026-08-27'; // yürürlük tarihi (ISO) — metin güncellenince artır
+export const HK_VERSION = '1.4'; // 1.4: Kullanım ölçümlerinin saklama süresi (90 gün ham → günlük toplam). 1.3: Kod kapısı — şifresiz giriş, kullanıcı adı, e-posta iletileri + bülten rızası ve teslimat kayıtları
+const HK_EFFECTIVE = '2026-09-06'; // yürürlük tarihi (ISO) — metin güncellenince artır
 const HK_CONTACT   = 'emre.gulluce.eg@gmail.com';
 
 /* DEFTERİ OKUYAN TARAF (FAZ 8a) — ve buradaki tek karar şu:
@@ -305,7 +305,71 @@ export function mountHukukUI() {
   }).catch(() => {});
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   SÜRÜM-DEĞİŞİM ŞERİDİ (İç Çalışma 15·F3 · FAZ 8b)
+   ───────────────────────────────────────────────────────────────
+   SÖZLEŞME: bu bir ONAY KAPISI DEĞİL, "değişeni oku" haberidir. Kullanıcı
+   şeridi kapatarak hiçbir şeyi kabul etmiş olmaz — ve kod bunu bir yorumla
+   değil bir YOKLUKLA garantiler: şerit `hukuk_kabul`'e HİÇBİR ŞEY YAZMAZ.
+   Rıza defterini yazan tek yer kayıt akışıdır (`03-auth-shell:732`).
+   Bir "okudum" satırını buradan atmak, kullanıcının vermediği bir rızayı
+   uydurmak olurdu (§6.10) — kapatma bir cevap değil, bir jesttir.
+
+   ÜÇ HÂL, İKİ DEĞİL (FAZ 8a'nın kararı, aynen sürüyor): şerit yalnız
+   `kabul === false` iken çıkar — yani defteri OKUYABİLDİĞİMİZ ve o sürümün
+   satırının OLMADIĞI hâlde. `null` (tablo yok / oturum yok / ağ düştü)
+   sessizliktir: bilmediğimiz bir şey için kimseyi uyarmayız.
+
+   Kapatma damgası CİHAZ-YERELDİR ve sürümü taşır: yeni bir sürüm geldiğinde
+   damga eşleşmez, şerit yeniden çıkar. Kalıcılık `SafeStorage` per-uid
+   (`etw_hk_banner_v1_<uid>`) — aynı cihazı paylaşan iki gezgin birbirinin
+   haberini yutmasın diye (`etw_sosyal_gorulen_v1_*` emsali).
+═══════════════════════════════════════════════════════════════ */
+const HK_BANNER_KEY = 'etw_hk_banner_v1';
+const _hkBannerKey = () => `${HK_BANNER_KEY}_${(S.currentUser && S.currentUser.id) || 'anon'}`;
+
+function _hkBannerKapat(el) {
+  try { SafeStorage.set(_hkBannerKey(), HK_VERSION); } catch (e) { console.warn('hkBanner:', e && e.message); }
+  if (el) el.remove();
+}
+
+/** Post-auth init (§5.2 çift boot ayrımı: kullanıcı verisi okur, kendiliğinden
+ *  boot ETMEZ — `03-auth-shell` SafeStorage hidrasyonundan sonra çağırır). */
+export function hkBannerInit() {
+  try {
+    if (document.getElementById('hk-surum-banner')) return;
+    let damga = null;
+    try { damga = SafeStorage.get(_hkBannerKey(), null); } catch (_) {}
+    if (damga === HK_VERSION) return;              // bu sürümün haberi zaten kapatılmış
+
+    hkKabulVarMi(HK_VERSION).then((durum) => {
+      // `null` → bilmiyoruz → sus. `true` → okumuş → şerit gereksiz.
+      if (!durum || durum.kabul !== false) return;
+      if (document.getElementById('hk-surum-banner')) return;
+      const el = document.createElement('div');
+      el.id = 'hk-surum-banner';
+      el.className = 'hk-acik';
+      el.setAttribute('role', 'status');
+      el.innerHTML = `
+        <span class="hk-banner-metin">${escapeHTML(t('hk.banner.metin',
+          'Gizlilik metni değişti — kullanım ölçümlerini ne kadar sakladığımızı yazdık.'))}</span>
+        <button type="button" class="hk-banner-oku">${escapeHTML(t('hk.banner.oku', 'OKU'))}</button>
+        <button type="button" class="hk-banner-kapat"
+          aria-label="${escapeHTML(t('hk.banner.kapat', 'Kapat'))}">×</button>`;
+      el.querySelector('.hk-banner-oku').addEventListener('click', () => {
+        /* Okumaya gitmek de bir rıza DEĞİLDİR — defter yine yazılmaz.
+           Şerit kapanır çünkü haber ulaştı; kabul, kayıt akışının işidir. */
+        _hkBannerKapat(el);
+        try { hkOpen('privacy'); } catch (_) {}
+      });
+      el.querySelector('.hk-banner-kapat').addEventListener('click', () => _hkBannerKapat(el));
+      document.body.appendChild(el);
+    }).catch(() => {});
+  } catch (_) { /* şerit bir haberdir; düşerse uygulamayı bloklamaz (§5.2) */ }
+}
+
 /* Inline onclick erişimi — minify'a dayanıklı */
+window.hkBannerInit = hkBannerInit;
 window.hkOpen  = hkOpen;
 window.hkClose = hkClose;
 window.mountHukukUI = mountHukukUI;

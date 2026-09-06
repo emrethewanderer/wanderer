@@ -1,10 +1,10 @@
 import { S } from '../state.js';
-import { sb, SUPABASE_URL, ADMIN_EMAIL, AI_MODES, IS_ADMIN_PAGE } from '../config.js';
+import { sb, ADMIN_EMAIL, AI_MODES, IS_ADMIN_PAGE } from '../config.js';
 import { STORAGE_KEYS, SafeStorage, ErrorBoundary, showToast, storageInit, createHookRegistry, localISODate, localDayKey } from './00a-infrastructure.js';
 import { bnMark, bnSar, bnHazir } from './00h-boot-nabzi.js';
 import { kbSerbest } from './00i-kanit-bekleyen.js';
 import { t } from './15-i18n.js';
-import { p } from './16-i18n-prompts.js';
+import './16-i18n-prompts.js'; // p() adı ölü ama modülün i18nchange dinleyicisi (yan etki) kalmalı
 import { updateModeBadge, nowTR, loadResistanceLog, loadSilenceTopicLog, markCommitmentsChecked, cleanHistoryText } from './00-config-tracking.js';
 import { generatePreSessionContext, loadNarrativeMemory, loadSessionPatterns } from './01-prompts-modes.js';
 import { startOnboardingSequence, scheduleEndOfDayJudgment, resetSilencePressure } from './02-features-onboarding.js';
@@ -13,7 +13,7 @@ import { loadSomaticHistory, loadPartsHistory, syncClosureStatusFromDB } from '.
 import { loadSummarizedSessionIds, loadSummaries, appendMsg, startStreamingMsg, resetSessionRing, showTyping, removeTyping, chatKuyrukInit } from './06-summary-chat.js';
 import { loadSettings, loadKnowledge, loadDashboard, loadNotebook, adminShowHome } from './07-settings-knowledge.js';
 import { syncAnalyticsFromSupabase, showMicroOnboarding, loadUserProfile, loadRoadmap, buildOnboardingContext } from './09-reports-tracks.js';
-import { w2RenderGreetingCard, w2Nav, w2CloseDrawer, w2CloseProfile, w2OpenProfile, w2RefreshProfilePanel, loadBugunView, loadMuhrumView, wsTab, updateChatIdentityBanner, w2ResetContextualCards } from './10-features-w2.js';
+import { w2CloseDrawer, w2CloseProfile, w2OpenProfile, w2RefreshProfilePanel, loadBugunView, loadMuhrumView, updateChatIdentityBanner, w2ResetContextualCards } from './10-features-w2.js';
 // 10h (Sefer/Engeller) buradan import EDİLMİYOR: eski `library`/`challenge`
 // switchView dalları ölüydü (o ekranlar DOM'da yok). `loadLibrary` ve AI
 // challenge zinciri 2026-08-17'de tümüyle söküldü; Sefer'in yüzeyi artık
@@ -1287,6 +1287,12 @@ export async function initApp(user) {
   import('./13h-aksam-toreni.js').then(m => { try { m.atInit(); } catch (_) {} }).catch(() => {});
   // Wanderer Wrapped (13j) — ayın ilk haftasında geçen ayın filmi daveti
   import('./13j-wrapped.js').then(m => { try { m.wrInit(); } catch (_) {} }).catch(() => {});
+  /* Hukuk sürüm şeridi (13p · FAZ 8b) — rıza defterini OKUR, yazmaz.
+     Post-auth çağrılır çünkü defter kullanıcı satırıdır (§5.2). */
+  import('./13p-hukuk.js').then(m => { try { m.hkBannerInit(); } catch (_) {} }).catch(() => {});
+  /* Kanallar-üstü tavan (13B · FAZ 14b) — bugün kaç bildirim gitmiş, tören
+     bütçesi onu da saysın. `notification_log` kullanıcı satırıdır (§5.2). */
+  import('./13B-toren-kuyrugu.js').then(m => { try { m.trnKanalTazele(); } catch (_) {} }).catch(() => {});
   // Widget Köprüsü (13k) — native ana ekran widget'ına veri senkronu
   import('./13k-widget-koprusu.js').then(m => { try { m.wkInit(); } catch (_) {} }).catch(() => {});
   // Cazibe Motoru (10r) — Cialdini etki ilkeleri; state hidrasyonu

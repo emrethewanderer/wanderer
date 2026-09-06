@@ -311,3 +311,67 @@ describe('ısrar dozu — ✕ bir cevaptır, sessizlik değil', () => {
     expect(trnIzin('baska-sahne'), 'bir törenin reddi başka töreni sustursun istemiyoruz').toBe(true);
   });
 });
+
+/* ═══════════════════════════════════════════════════════════════
+   KANALLAR-ÜSTÜ TAVAN (İç Çalışma 11·F3 · FAZ 14b)
+   ───────────────────────────────────────────────────────────────
+   Sözleşme: bildirim ile tören AYNI günlük deftere yazılır. Bugüne dek
+   iki defter vardı ve toplamı kimse saymıyordu — en kötü gün dört
+   dokunuştu. Aşağıdaki dört iddia, o toplamın gerçekten tek olduğunu
+   ve tavanın töreni ASLA öldürmediğini ayrı ayrı tutar; üçü de tek
+   başına bozulabilir.
+═══════════════════════════════════════════════════════════════ */
+describe('kanallar-üstü tavan — bildirim ve tören tek defterde', () => {
+  it('push yokken bugünkü davranış aynen sürer (regresyon)', () => {
+    expect(trnIzin('gunluk-ritus')).toBe(true);   // zorunlu, muaf
+    expect(trnIzin('seri-muhru')).toBe(true);     // öncelik 2, korumalı yuva
+    // Üçüncü davetsiz sahne oturum tavanına (TRN_TAVAN=2) takılır.
+    expect(trnIzin('imge-kapisi')).toBe(false);
+  });
+
+  it('teşhis yüzeyi kanalı da gösteriyor — sayı görünmezse denetlenemez', () => {
+    const d = trnDurum();
+    expect(d).toHaveProperty('push');
+    expect(d).toHaveProperty('gunTavan');
+    expect(d.gunTavan).toBe(3);
+    expect(d.push).toBe(0);
+  });
+
+  it('sayı UYDURULMADI, ödünç alındı: günlük tavan 3 — modülün kendi ölçüsü', () => {
+    /* 13B'nin açılış yorumu: akşam yığılması üç sahnedir ve ÜÇÜNCÜSÜ tören
+       olmaktan çıkıp bildirime dönüşür. Tavan o cümledir, yeni bir sayı değil
+       (§6.10). Sabit kaynaktan okunur ki "3" bir gün sessizce 5 olmasın. */
+    const src = readFileSync(
+      resolve(dirname(fileURLToPath(import.meta.url)), '../js/parts/13B-toren-kuyrugu.js'), 'utf8');
+    expect(src).toMatch(/const TRN_GUN_TAVAN = 3;/);
+  });
+
+  it('iki defter AYNI şeyi saymalı: test/broadcast iki tarafta da dışarıda', () => {
+    /* Bu kapının konusu bir davranış değil bir EŞLEŞMEDİR. `passesFreqCap`
+       (send-push) `test` ve `broadcast`i motor bütçesinden düşürmez;
+       istemci onları sayarsa tavan sessizce daralır ve tören haksız yere
+       kesilir. Sessiz ayrışma bu sprintin en pahalı sınıfıydı (K6). */
+    const kok = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+    const istemci = readFileSync(resolve(kok, 'js/parts/13B-toren-kuyrugu.js'), 'utf8');
+    const motor   = readFileSync(resolve(kok, 'supabase/functions/send-push/index.ts'), 'utf8');
+    for (const tip of ['test', 'broadcast']) {
+      expect(istemci, `istemci '${tip}' tipini dışarıda bırakmıyor`)
+        .toMatch(new RegExp(`!==\\s*'${tip}'`));
+      expect(motor, `motor '${tip}' tipini dışarıda bırakmıyor`)
+        .toMatch(new RegExp(`!==\\s*'${tip}'`));
+    }
+  });
+
+  it('ASLA BLOKLAMAZ: sayım düşerse tavan bugünkü davranışa iner (§5.2)', () => {
+    /* `trnKanalTazele` hatada `_pushSayisi = 0` yazar — yani bilinmeyen bir
+       dokunuş, OLMUŞ bir dokunuş sayılmaz. Kanıtı kaynakta: catch dalı
+       sayacı sıfırlar, tavanı daraltmaz. */
+    const src = readFileSync(
+      resolve(dirname(fileURLToPath(import.meta.url)), '../js/parts/13B-toren-kuyrugu.js'), 'utf8');
+    const i = src.indexOf('export async function trnKanalTazele');
+    expect(i).toBeGreaterThan(-1);
+    const govde = src.slice(i, i + 1400);
+    expect(govde).toMatch(/catch/);
+    expect(govde, 'catch dalı sayacı sıfırlamıyor').toMatch(/catch[\s\S]{0,200}_pushSayisi\s*=\s*0/);
+  });
+});

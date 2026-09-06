@@ -51,22 +51,72 @@ describe('ölü import kapısı — borç büyüyemez', () => {
     expect(kod, `ölü import artmış:\n${cikti}`).toBe(0);
   });
 
-  it('taban gerçek bir ölçüdür — boş değil, dosya başına sayı tutuyor', () => {
-    // [[kapi-sessiz-gec]]: boş bir taban her ağacı geçirir ve kapı sessizce
-    // yeşil yanar. Taban en az bir dosya saymalı ve sayılar sayı olmalı.
+  it('TABAN SIFIR — kapı artık sert 0-toleranstadır (2026-09-06)', () => {
+    /* Bu testin ÖNCEKİ hâli tabanın BOŞ OLMAMASINI şart koşuyordu
+       ([[kapi-sessiz-gec]]: boş bir taban her ağacı geçirir). O şart borç
+       döneminin doğru şartıydı; borç 2026-09-06'da sıfırlandı ve artık BOŞ
+       TABAN doğru hâldir. Kapının koruduğu şey değişmedi, yalnız yer
+       değiştirdi: "taban dolu olmalı" yerine "taban SIFIR olmalı" — ve bir
+       borç geri dönerse `--taban-yaz` ile sessizce meşrulaştırılamaz, çünkü
+       bu satır kırmızı yanar. */
     const satirlar = Object.entries(TABAN).filter(([k]) => !k.startsWith('_'));
-    expect(satirlar.length).toBeGreaterThan(0);
-    for (const [f, n] of satirlar) {
-      expect(typeof n, `${f} tabanı sayı değil`).toBe('number');
-      expect(n).toBeGreaterThan(0);
-    }
+    expect(satirlar, `ölü import borcu geri gelmiş: ${satirlar.map(([f, n]) => `${f}=${n}`).join(', ')}`)
+      .toEqual([]);
   });
 
-  it('tarama gerçekten bir şey buluyor — ayrıştırıcı kırılırsa sessiz kalmaz', () => {
-    const { cikti } = kostur(['--liste']);
-    expect(cikti).toMatch(/ölü import \/ \d+ dosya/);
-    const m = cikti.match(/── (\d+) ölü import/);
-    expect(Number(m?.[1] ?? 0)).toBeGreaterThan(0);
+  it('AYRIŞTIRICI CANLI — "0 ölü import" gerçek bir 0, kırık bir tarayıcı DEĞİL', () => {
+    /* Sıfır borç, kapıyı en tehlikeli hâline sokar: gerçek bir 0 ile HİÇ
+       IMPORT BULAMAYAN kırık bir ayrıştırıcının çıktısı BİREBİR AYNIDIR
+       ([[kapi-sessiz-gec]]). Ve bu bir varsayım değil: 2026-09-06'da tam
+       bu oldu — `kodu()` yeniden yazılırken string sınırları da düşürüldü,
+       `from 'x'` kalıbı bozuldu, tarayıcı hiçbir import göremedi ve kapı
+       "0 ölü import" diye SAHTE BİR YEŞİL bastı.
+       Bu yüzden sıfır, ayrıştırıcının ÇALIŞTIĞI kanıtlanmadan kabul
+       edilmez: sentetik bir kökte canlı ve ölü bir import birlikte verilir,
+       tarayıcının ikisini de DOĞRU ayırması beklenir. */
+    const kok = mkdtempSync(join(tmpdir(), 'olu-import-'));
+    try {
+      writeFileSync(join(kok, 'x.js'),
+        "import { canli, olu } from './y.js';\nexport const a = canli(1);\n");
+      const { cikti } = kostur(['--liste'], kok);
+      expect(cikti, 'ayrıştırıcı ölü importu göremiyor — tarayıcı kırık').toMatch(/\bolu\b/);
+      expect(cikti, 'ayrıştırıcı canlı importu ölü sanıyor — yön yanlış').not.toMatch(/\bcanli\b/);
+      expect(cikti).toMatch(/── 1 ölü import \/ 1 dosya/);
+    } finally { rmSync(kok, { recursive: true, force: true }); }
+  });
+
+  it('STRING İÇİNDEKİ `/*` bir yorum AÇMAZ — bugünün yanlış pozitifi (2026-09-06)', () => {
+    /* Ölçülen kırık: `kodu()` yorumları iki `replace` ile söküyordu ve
+       `fi.accept = 'image/*'` satırındaki dizi sahte bir blok yorum AÇIP
+       bir sonraki gerçek kapanışa kadar 1324 karakter GERÇEK KODU yuttu.
+       Sonuç: `13c-gorsel-ekleme.js`'in CANLI `S` ve `sb` import'ları ölü
+       raporlandı. Silinselerdi görsel yükleme sessizce ölürdü — yani kapının
+       kendisi bir kırık üretecekti.
+       Betiğin kör nokta defteri "canlı olanı ölü SANMAZ" diyordu; bu satır
+       o cümleyi bir iddia olmaktan çıkarıp bir ölçüye çevirir. */
+    const kok = mkdtempSync(join(tmpdir(), 'olu-import-'));
+    try {
+      writeFileSync(join(kok, 'x.js'),
+        "import { S } from './state.js';\n" +
+        "const fi = {};\n" +
+        "fi.accept = 'image/*';\n" +
+        "export const a = () => S.currentUser;\n");
+      const { kod, cikti } = kostur([], kok);
+      expect(kod, `string içindeki /* bir yorum açtı ve canlı import yutuldu:\n${cikti}`).toBe(0);
+    } finally { rmSync(kok, { recursive: true, force: true }); }
+  });
+
+  it('ŞABLON İÇİNDEKİ kullanım sayılır — `${S.x}` bir kullanımdır', () => {
+    /* İlk düzeltme denemesi string içeriğini tümüyle düşürüyordu; o hâlde
+       şablon literallerindeki `${…}` GERÇEK KODU da silinir ve düzeltilen
+       yanlış pozitif başka bir kapıdan geri gelirdi. */
+    const kok = mkdtempSync(join(tmpdir(), 'olu-import-'));
+    try {
+      writeFileSync(join(kok, 'x.js'),
+        "import { S } from './state.js';\nexport const p = `yol/${S.id}/son`;\n");
+      const { kod } = kostur([], kok);
+      expect(kod, 'şablon içindeki kullanım görülmedi').toBe(0);
+    } finally { rmSync(kok, { recursive: true, force: true }); }
   });
 
   it('kapının kendisi çalışıyor — YENİ bir ölü import gerçekten kırmızı yakar (§10.5)', () => {
@@ -98,7 +148,7 @@ describe('ölü import kapısı — borç büyüyemez', () => {
     } finally { rmSync(kok, { recursive: true, force: true }); }
   });
 
-  it('taban listesi ile gerçek tarama aynı dosyalardan bahsediyor', () => {
+  it('taban listesi ile gerçek tarama aynı dosyalardan bahsediyor (taban boşken boş döngü — üstteki 0 testi kapsar)', () => {
     const { cikti } = kostur(['--liste']);
     const taranan = new Set(cikti.split('\n').map((l) => l.split(':')[0].trim()).filter(Boolean));
     for (const f of Object.keys(TABAN).filter((k) => !k.startsWith('_'))) {

@@ -323,6 +323,35 @@ işindir. §6.6'nın üç basamağı burada tamdır: kural yoktu değil, yanlı�
 de durmuyordu — ölçülemiyordu; yarısı ölçülebilir hâle getirildi, kalan yarısı
 adıyla buraya yazıldı.
 
+**Ve bir kapının kendisi yalan söyleyebilir — ölçüldü (2026-09-06).**
+`scripts/olu-import-denetci.mjs`'in kör nokta defteri *"kapı ölü importu
+KAÇIRABİLİR, ama canlı olanı ölü SANMAZ — yani yanlış pozitif üretmez"*
+diyordu. Bu bir kod değil bir İDDİAYDI ve yanlıştı: yorum sökümü iki
+`replace` ile yapılıyordu ve `fi.accept = 'image/*'` satırındaki dizi sahte
+bir blok yorum açıp **1324 karakter gerçek kodu yuttu**; iki CANLI import
+ölü raporlandı. Silinselerdi görsel yükleme sessizce ölürdü — yani kapı bir
+kırığı önlemek yerine ÜRETECEKTİ.
+
+Kural buradan çıkar ve ölçülebilir: **bir yorum davranış hakkında
+yanlışlanabilir bir iddia taşıyorsa, o iddia bir teste bağlanır.** "Şunu
+asla yapmaz" cümlesi bir sözleşmedir; sözleşmenin kapısı yoksa zamanla bir
+temenniye döner (§6.6). Bu turda dört kez aynı sınıf görüldü — üçü yorumda,
+biri belgede — ve hepsinin ortak biçimi şuydu: *kod bir şey yapar, yorum
+daha fazlasını söyler.* Yanlış bir NEDEN, hiç yorum olmamasından kötüdür
+(§5.2), çünkü sonraki tur onu okur ve **ölçmeden inanır**.
+
+**TABAN'lı kapıların sıfıra inişi ayrı bir tuzaktır ve gündeminde tutulmalı.**
+Bir borç kapısı sıfıra indiğinde, *gerçek bir sıfır* ile *hiçbir şey
+bulamayan kırık bir tarayıcının* çıktısı BİREBİR AYNI olur
+([[kapi-sessiz-gec]]). Ölçüldü: aynı gün `kodu()` yeniden yazılırken string
+sınırları da düşürüldü, `from 'x'` kalıbı bozuldu, tarayıcı hiç import
+göremedi ve kapı **"0 ölü import" diye sahte bir yeşil bastı.** Bu yüzden
+taban tutan her kapı, **daha ilk günden**, sentetik bir kökte tarayıcının
+GERÇEKTEN çalıştığını kanıtlayan bir test taşır — yoksa sıfıra varmak
+kapıyı sessizce silahsızlandırır. Aynı sebeple, borç dönemi için yazılmış
+"taban boş olmasın / tarama bir şey bulsun" testleri sıfırda **silinmez,
+taşınır**: koruduğu şey yer değiştirir, ortadan kalkmaz.
+
 **Faz denetimi ÇAPRAZ MODELDİR (Emre'nin kararı, 2026-08-23).** Bir fazın
 öz-denetimini o fazı YAZAN model yapmaz — **öteki model** yapar:
 
@@ -366,6 +395,24 @@ Ve önce **mekanizmayı yokla**: o gün kota aslında çoktan sıfırlanmıştı
 "devredemiyorum" gerekçesi bir saat eski bir bilgiye dayanıyordu. §10.5'in
 dersi burada zamana da uygular — bir kuralın uygulanmadığını görünce
 disipline yormadan önce o AN mekanik olarak mümkün olup olmadığına bak.
+
+**Aynı duvar UYGULAYICIYI da vurur — ve orada kural farklıdır** (2026-09-06).
+Madde yukarıda yalnız denetçiyi düşünmüş; o gün iki `uygulayici` çağrısı da
+Sonnet oturum limitine çarpıp **fazın ortasında** öldü. Denetim ertelenebilir
+çünkü borç görünür kalır; **yarım bir faz ertelenemez** — ağaçta çalışan ama
+kapısı olmayan bir kod bırakır, ve o hâl sonraki turda "bitmiş" görünür.
+
+Doğru hamle üçtür ve sırası önemlidir: (1) ajanın diskte NE bıraktığını ölç
+(`git diff --stat` + hedefli grep), (2) fazı **parent bitirir** — kalan iş
+devredilemez, çünkü devredilecek model yoktur, (3) sapma raporlanır: fazın
+kaydı "ajanda başladı, parent'ta bitti" der. Bu turda ikisi de böyle kapandı
+ve bir yan kazanç çıktı: fazı Sonnet yazmış olduğu için denetimi zaten
+Opus'a düşüyordu, yani "yazan denetlemez" kuralı kendiliğinden doğru işledi.
+
+**Kapıyı devralırken en riskli an, ajanın yazdığı ama SINAMADIĞI koddur.**
+Bu turda tam o hâl çıktı (13a: motor yazılmış, kapı yazılmamış) ve parent'ın
+denetimi üç kırık buldu. Ajanın raporu gelmediyse faz bitmiş sayılmaz —
+rapor gelse de sayılmazdı (§4.4).
 
 ### 3.4 Görev listesi protokolü (varsayılan davranış)
 TaskCreate/TaskUpdate ile ilerlerken, bir görevi `completed` işaretlemeden
@@ -1234,6 +1281,10 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] `git status`/`diff` gözden geçir + **commit** (push değil)
 - [ ] Uzak oturumsa: push sonrası **Kapı koşusu izlendi** — kırmızıysa
       tur bitmez, kırık düzeltilir (§10.4)
+- [ ] **İzleme döngüsü KURULMADI** (§10.6 üçüncü yasak): `send_later` ile
+      saatlik kontrol randevusu yok, PR aboneliği açık bırakılmadı. Turun
+      sonunda BİR KEZ denetlenir ve bitirilir — her uyanış bir tur harcar.
+      Emre açıkça "izle" dediyse bu madde onun talimatıyla düşer
 
 ---
 
@@ -1359,6 +1410,33 @@ Kapı: `tests/bekleme-dongusu-kapisi.test.js` — kabuk yüzeylerinde (`scripts/
 büyümesi yasaktır. Kapı kendi ihlalini de sınar (§10.5: ölçen alet de
 ölçülür). Adı `*-kapisi` olduğu için `npm run kapi:genel`
 desenine kendiliğinden girer.
+
+**ÜÇÜNCÜ YASAK: süren bir izleme döngüsü KURULMAZ** (Emre'nin kuralı,
+2026-09-06). Yukarıdaki iki yasak kabuktaki bekleyişi kapatır; bu madde
+ZAMANLANMIŞ olanı kapatır — `send_later` ile kurulan saatlik "PR'ı yokla"
+randevusunu, PR aboneliğinin uyandırma zincirini, kendi kendine yenilenen
+kontrol turlarını.
+
+Gerekçe kabuktakiyle aynı değil, daha somut: **her uyanış bir tur harcar.**
+Kabuk döngüsü bir oturumun içinde zaman yer; zamanlanmış döngü KOTA yer, ve
+"hiçbir şey değişmedi" demek için de tam bir tur öder. Bir PR'ı merge olana
+kadar saat başı yoklamak, iş bitmişken çalışan bir motordur.
+
+Kural tek cümledir: **turun sonunda BİR KEZ denetle ve bitir.** Push sonrası
+Kapı koşusu yine okunur (§10.4 — kırmızı bir kapı bir iştir), ama okuma
+turun içinde olur; kapanmayan bir izleme için yeni bir tur zamanlanmaz. İş
+bittiyse tur biter: kalan ELLE adımlar rapora yazılır ve Emre'ye bırakılır.
+
+**Bu madde harness'in PR-abonelik yönergesini EZER ve bu bilinçlidir.**
+Harness "PR merge ya da kapanana kadar abonelik bitmez, bir saat sonrasına
+kontrol randevusu kur" der; Emre bunu 2026-09-06'da durdurdu. Öncelik sırası
+belgenin başında yazılı: *Emre'nin anlık talimatı → bu protokol → genel model
+varsayılanları.* Bir sonraki oturum harness'e dayanarak döngüyü yeniden
+açmasın diye buraya adıyla yazıldı.
+
+Abonelik zaten kurulmuşsa kapatılır (`unsubscribe_pr_activity`), zamanlanmış
+randevu varsa silinir (`delete_trigger`). Emre AÇIKÇA "izle" derse döngü
+kurulur — o zaman kural onun talimatıdır, varsayılan değil.
 
 ---
 

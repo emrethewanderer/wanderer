@@ -37,7 +37,7 @@
 import { S } from '../state.js';
 import { escapeHTML } from './00a-infrastructure.js';
 import { getCardById } from './12b-kart-destesi.js';
-import { ikvCardFace, ikvCardBack, ikvEnsureStyles } from './12c-kart-gorsel.js';
+import { ikvCardFace, ikvCardBack } from './12c-kart-gorsel.js';
 import { t } from './15-i18n.js';
 
 /* ─── 1. SABİTLER ─── */

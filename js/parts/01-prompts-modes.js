@@ -1,10 +1,10 @@
 import { S } from '../state.js';
-import { sb, EDGE_FN_BASE, SUMMARY_MODEL, AI_MODES, PROMPT_VERSION, TOKEN_LIMITS } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, SecureStorage, localISODate } from './00a-infrastructure.js';
-import { t, getCurrentLanguage } from './15-i18n.js';
-import { p, dp, pArray, reTest } from './16-i18n-prompts.js';
+import { sb, AI_MODES, PROMPT_VERSION } from '../config.js';
+import { STORAGE_KEYS, SafeStorage, localISODate } from './00a-infrastructure.js';
+import { t } from './15-i18n.js';
+import { p, reTest } from './16-i18n-prompts.js';
 import { callLLM, getSessionLastActivity } from './04-llm-hero-history.js';
-import { nowTR, getUserMsgCount, getEmotionalFlowInsight, buildModeSelectionGuide, getResistanceInsight, getSilenceInsight, getPendingCommitmentContext, detectTopics } from './00-config-tracking.js';
+import { nowTR, getEmotionalFlowInsight, buildModeSelectionGuide, getResistanceInsight, getSilenceInsight, getPendingCommitmentContext, detectTopics } from './00-config-tracking.js';
 import { dfGetActiveDepthTarget, dfGetActiveFoundationTarget, dfGetPersonTransitionContext, dfGetPhilosophyLayersContext } from './09b-depth-foundations.js';
 import { p2GetEmotionalChainInsight, p2GetEmotionalCycleInsight, p3GetPredictiveInsight, p5GetRelationshipContext } from './09a-personalization-engine.js';
 import { getPartsContext, getSomaticContext } from './05-closure-parts.js';

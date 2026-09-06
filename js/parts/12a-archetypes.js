@@ -12,7 +12,7 @@
 //   arch.view.day / arch.view.youAre / arch.view.details / arch.view.quote / arch.view.cta
 
 import { S } from '../state.js';
-import { ikvCardFace } from './12c-kart-gorsel.js';
+import './12c-kart-gorsel.js';
 
 /* ══════════════════════════════════════════════════════
    VERİ — 12 Arketip (wsv3-data.jsx birebir)

@@ -1,6 +1,6 @@
 import { S } from '../state.js';
-import { sb, SUMMARY_MODEL, AI_MODES } from '../config.js';
-import { STORAGE_KEYS, SafeStorage, localISODate } from './00a-infrastructure.js';
+import { SUMMARY_MODEL, AI_MODES } from '../config.js';
+import { SafeStorage, localISODate } from './00a-infrastructure.js';
 import { p, reTest } from './16-i18n-prompts.js';
 import { t } from './15-i18n.js';
 import { callLLM } from './04-llm-hero-history.js';
@@ -9,7 +9,7 @@ import { detectBreakthrough } from './09-reports-tracks.js';
 import { kokenKirp, kokenIcerir, kokenSozBlok, kokenAlintiCoz, kokenKayitVar } from './13y-koken.js';
 import { dgNabiz, dgKarsilamaPuani, dgIklimDefterEkle, dgIklimKaydet } from './13D-duygu-motoru.js';
 import {
-  dfLoad, dfSave, dfSyncToSupabase, dfSyncFromSupabase,
+  dfLoad, dfSave,
   dfAnalyzeDepthSignals, dfAnalyzeFoundationSignals, dfExtractPersonTransition,
   dfExtractHayalVision, dfAnalyzeBeliefs, dfAnalyzeChoices, dfDetectWorksheetOpportunity,
   dfGetAffirmationContext, dfGetDepthContext, dfGetFoundationsContext, dfGetPersonTransitionContext,

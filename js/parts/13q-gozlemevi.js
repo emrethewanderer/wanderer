@@ -68,6 +68,97 @@ let _report  = null;  // son RPC sonucu
 let _insight = null;  // son usage_insights satırı
 let _busy    = false;
 
+/* ── Alarm defteri (FAZ 13a, K6) — kartların ZATEN yazdığı tanı
+   cümlelerini TEK yerde toplar. Yeni bir teşhis motoru DEĞİL: her nabız
+   fonksiyonu kendi `if/else if` şelalesini çözüp `tani`sini üretir,
+   `gzAlarm` onu bir kez kaydeder. `_renderAll` başında sıfırlanır — yoksa
+   ikinci render'da liste katlanır (FAZ 4'te bir kez yaşanmış kırığın
+   ikizi). Eşik SAYILARI bu fazın işi DEĞİL (FAZ 14, 🅞); burada yalnız
+   var olan cümleler toplanır. ── */
+let _ALARMLAR = [];
+
+/* ── EŞİK TABLOSU (FAZ 14a · K6) — hangi tanı Emre'yi RAHATSIZ ETMEYİ hak eder
+   ───────────────────────────────────────────────────────────────────────────
+   Kadranın on dört kartı tanı yazıyor, ama hepsi bir ALARM değil. Çoğu bir
+   GÖZLEMDİR ("ölçüm yeni açıldı", "henüz kimse gelmedi") — kadran açıldığında
+   okunur, telefonu titretmez. Ayrımın ölçüsü tek cümledir ve bu fazın (🅞)
+   asıl yargısı odur:
+
+     Bir tanı, ancak KULLANICI TARAFINDA bir zarar ya da bir sessizlik
+     anlatıyorsa alarmdır. Kadranın "veri yok" cümleleri bir ölçümün genç
+     olduğunu söyler; bir kırığı değil.
+
+   `kritik` olan İKİSİ ve yalnız ikisi push atabilir:
+     • emniyet — kriz sinyali düşüyor ama kriz kartı hiç açılmıyor. Yani
+       birisi 112'yi GÖRMÜYOR. Kadranın en ağır cümlesi budur ve eşiği bir
+       orana değil bir YOKLUĞA bağlıdır: tek bir kaçırma bile yeter.
+     • hata — hataların payı tek bir etikette toplanıyor. Dağınık hata
+       yaşamın gürültüsüdür; toplanmış hata TEK bir kırığın herkesi
+       vurduğunu söyler.
+
+   İKİ KAYNAK, TEK SAYI: bu bloktaki `esik` değerleri
+   `migrations/056_esik_alarmlari.sql`'in `WHERE`'iyle BİREBİR aynı olmak
+   zorundadır — Emre'nin 2026-09-06'da kabul ettiği borç tam olarak budur ve
+   `tests/alarm-esik-kapisi.test.js` iki kaynağı da ayrıştırıp karşılaştırır.
+   Blok bu yüzden dağınık `if` sabitleri değil, TEK ve adlandırılmış bir
+   tablodur: grep'lenemeyen bir borç sessizce ayrışır (§6.6).
+
+   SINIRI DÜRÜSTÇE: seviye ALAN başınadır, dal başına değil. Bugün bu KESİN,
+   çünkü `kritik` iki kartın da tanı yazan TEK dalı zaten alarmın kendisidir
+   (`_emniyetNabzi` → `sinyal && !kart`; `_hataNabzi` → `pay >= esik`).
+   Bir gün o kartlara ikinci bir dal eklenirse seviye dala inmelidir —
+   bugün gereksiz bir soyutlama kurmak, olmayan bir sorunu çözmek olurdu. ── */
+const GZ_ALARM_ESIK = {
+  /* KRİTİK — push atabilen tek iki alan. */
+  emniyet:    { seviye: 'kritik', esik: 0 },   // esik 0: YOKLUK eşiği — tek kaçırma yeter
+  hata:       { seviye: 'kritik', esik: 40 },  // en sık etiketin payı, yüzde
+
+  /* UYARI — bir huni kapalı, bir yol tıkanmış. Şeritte görünür, telefonu
+     titretmez. On dört kartın hepsi burada AÇIKÇA yazılı: tablonun eksiksiz
+     olması, yeni bir kartın sessizce bir varsayılana düşmesini engeller ve
+     bu fazın (🅞) yargısını tek yerde okunabilir kılar. */
+  hafiza:     { seviye: 'uyari' },
+  koleksiyon: { seviye: 'uyari' },
+  ritus:      { seviye: 'uyari' },
+  esik:       { seviye: 'uyari' },
+  duygu:      { seviye: 'uyari' },
+  donusum:    { seviye: 'uyari' },
+  ses:        { seviye: 'uyari' },
+  davet:      { seviye: 'uyari' },
+  gelir:      { seviye: 'uyari' },
+  arac:       { seviye: 'uyari' },
+  bolge:      { seviye: 'uyari' },
+  halka:      { seviye: 'uyari' },
+};
+const GZ_ALARM_VARSAYILAN = 'uyari';
+
+/** Kartın tanı cümlesini deftere kaydeder. Boş/undefined cümleyi YUTAR —
+ *  alarmı olmayan kart şeritte yer kaplamaz. Kart cümlesi her zaman
+ *  `<span class="gz-n">— …</span>` sargısıyla üretilir (kartın kendi
+ *  CSS'i için); şerit aynı cümleyi çıplak metin olarak taşıyacağı için
+ *  sargı TEK bir desenle soyulur. Desen eşleşmezse cümle OLDUĞU GİBİ
+ *  saklanır — bir sargı değişirse şerit susmaz, yalnız biçimsiz gösterir. */
+export function gzAlarm(alan, tani) {
+  if (!tani) return;
+  const m = /^\s*<span class="gz-n">—\s*([\s\S]*)<\/span>\s*$/.exec(tani);
+  /* KOKEN-MUAF: ölçüm varsayılanı DEĞİL, YÖNLENDİRME varsayılanı — `seviye`
+     kullanıcı hakkında bir şey iddia etmez, yalnız bu cümlenin hangi kanaldan
+     gideceğini söyler (şerit mi, push mu). Yön güvenli tarafa düşer: tanınmayan
+     alan `uyari` olur, yani telefonu TİTRETMEZ; tersi tehlikeli olurdu. Tablo
+     on dört alanı zaten açıkça taşıyor — bu satır, plana yazılmamış bir kartın
+     sessizce push atmasını engelleyen son kilittir. */
+  const seviye = (GZ_ALARM_ESIK[alan] && GZ_ALARM_ESIK[alan].seviye) || GZ_ALARM_VARSAYILAN;
+  _ALARMLAR.push({ alan, seviye, metin: m ? m[1] : tani });
+}
+
+/** Test erişimi — defterin O ANKİ hâlini döner.
+ *  DİKKAT: `_renderAll` diziyi yeniden ATAR (`_ALARMLAR = []`), mutasyona
+ *  uğratmaz. Yani bu fonksiyonun döndürdüğü referans render'dan sonra
+ *  BAYATLAR; testler her ölçümde yeniden çağırmalı. (İlk yazımda buradaki
+ *  yorum "canlı referans" diyordu — kodun yaptığından fazlası; yanlış bir
+ *  NEDEN, hiç yorum olmamasından kötüdür, §5.2.) */
+export function _alarmDefteriOku() { return _ALARMLAR; }
+
 /* ── biçimleyiciler ── */
 function _sure(sec) {
   sec = Math.max(0, Math.round(sec || 0));
@@ -185,7 +276,8 @@ function _onClick(e) {
   if (e.target.closest('#gz-yorumla')) gzYorumla();
 }
 
-function _renderAll(d) {
+export function _renderAll(d) {
+  _ALARMLAR = [];   // her render'da sıfırla — yoksa alarm listesi katlanır (FAZ 4'teki kırığın ikizi)
   const ov = d.overview || {};
   const active = ov.active_users || 0;
   const chips = [7, 30, 90].map(p =>
@@ -193,13 +285,21 @@ function _renderAll(d) {
   ).join('');
 
   if (!active) {
+    /* Bu dalda şerit ÇAĞRILMAZ ve bu bir unutma değil: kart fonksiyonlarının
+       hiçbiri koşmadığı için defter tanım gereği boştur. Buraya bir
+       `_alarmSeridi()` koymak, hiçbir zaman bir şey basmayacak bir satırı
+       çalışıyormuş gibi gösterirdi — sonraki okuyucu ona inanır (§5.2). */
     return `<div class="gz-chips">${chips}</div>
       <div class="gz-empty">Kadran henüz sessiz. Gezginler yürüdükçe izleri burada birikecek.</div>
       ${_insightShell()}`;
   }
 
-  return `
-    <div class="gz-chips">${chips}</div>
+  // Kartların HTML'i ÖNCE üretilir — her nabız fonksiyonu kendi tanısını
+  // burada `gzAlarm`'a yazar. Şerit bu satırdan SONRA okunur: tersi sırada
+  // (şerit doğrudan aşağıdaki template'in İÇİNE konsaydı) defter henüz
+  // BOŞ olurdu — template literal soldan sağa değerlendirilir ve şerit
+  // kartlardan ÖNCE koşardı (sıra tuzağı, plan FAZ 13a).
+  const kartlar = `
     ${_kadran(ov)}
     ${_trend(d.trend)}
     ${_zamanHaritasi(d.screens, active)}
@@ -227,6 +327,36 @@ function _renderAll(d) {
     ${_gezginler(d.users)}
     ${_sessizler(d.silent_users)}
     ${_insightShell()}`;
+
+  /* Birleştirme template literal DEĞİL, düz toplama: üçü de bu dosyada
+     kurulmuş, kaçışı yerinde HTML parçalarıdır — araya interpolasyon
+     sokmak XSS kapısına yeni bir çıplak değer bildirmek olurdu, oysa
+     kaçışlanacak yeni bir değer YOK.
+     (İlk yazımda buraya bir muafiyet beyanı konmuştu — ve o beyan
+     backtick'lerin İÇİNDE kalıyordu, yani sayfaya METİN olarak basılırdı.
+     Kaçış kaydını doğru yere koymanın yolu, kaydı gerektirmemekti.) */
+  return `<div class="gz-chips">${chips}</div>` + _alarmSeridi() + kartlar;
+}
+
+/* ── Alarm şeridi — kadranın EN ÜSTÜ (K6/FAZ 13a). Yirmi dört kartın
+   altında duran bir alarm, alarm değildir. Hiç alarm yoksa şerit HİÇ
+   BASILMAZ — kadran sessizse sessizdir, boş bir kutu göstermez. */
+function _alarmSeridi() {
+  if (!_ALARMLAR.length) return '';
+  /* KRİTİK ÖNCE. Sıralamasız bir şerit yalnız bir ÖZETTİR: on dört cümlenin
+     arasında "kriz kartı açılmıyor" satırı, "ölçüm yeni açıldı" satırıyla
+     aynı ağırlıkta okunur. Seviye bir etiket değil bir KALDIRAÇ olmalı
+     (§1.1) — yoksa alarmı sıralamak için gözün kendisi çalışır.
+     `sort` KOPYA üzerinde koşar: defterin kendisi kayıt sırasını korur,
+     çünkü testler ve `_alarmDefteriOku` onu okuyor. */
+  const sirali = [..._ALARMLAR].sort((x, y) =>
+    (x.seviye === 'kritik' ? 0 : 1) - (y.seviye === 'kritik' ? 0 : 1));
+  const rows = sirali.map(a =>
+    // XSS-MUAF: a.metin kartın kendi esc()'lenmiş cümlesidir (gzAlarm ikinci kez kaçış uygulamaz, emsal: _halkaNabzi turRows+tani); a.alan burada YENİ giren değerdir ve esc() ile sarılır.
+    `<div class="gz-flow"><div>${a.seviye === 'kritik'
+        ? '<b style="color:var(--gold);">▲</b> ' : ''}<code>${esc(a.alan)}</code> <span class="gz-n">${a.metin}</span></div></div>`
+  ).join('');
+  return `<div class="gz-sec">Alarm Şeridi — kartların kendi tanısı</div>${rows}`;
 }
 
 /* ── 1. kadran kartları ── */
@@ -368,6 +498,7 @@ export function _hafizaNabzi(mp) {
     <span class="gz-bar-track"><span class="gz-bar${x.yol === 'uzak' ? '' : ' gz-bar--lapis'}" style="width:${Math.max(1.5, (x.count || 0) / max * 100)}%"></span></span>
     <span class="gz-bar-val">${x.count}</span>
   </div>`).join('');
+  gzAlarm('hafiza', tani);
   return `<div class="gz-sec">Hafıza Nabzı — anlamsal hafıza yaşıyor mu</div>
     <div class="gz-flow"><div><b>${mp.recall || 0}</b> geri çağırma · <b>${mp.ingest || 0}</b> yazma${mp.prefetch ? ` · <b>${mp.prefetch}</b> ön-getirme` : ''} · uzak yol <b>%${uzak}</b> · ort. <b>${mp.avg_ms || 0} ms</b>${tani}</div></div>
     ${rows}`;
@@ -472,6 +603,7 @@ export function _koleksiyonNabzi(kp) {
 
   const ilk = Number(kp.ilk_karti_acan) || 0;
   const ortKol = Number(kp.ort_koleksiyon) || 0;
+  gzAlarm('koleksiyon', tani);
   return `<div class="gz-sec">Koleksiyonun Nabzı — kimlik dağılıyor mu, Elmas dönüyor mu</div>
     <div class="gz-flow"><div><b>${ilk}</b> gezgin ilk kartını açtı · <b>${kazanim}</b> kimlik teslimi${ortKol ? ` · ort. koleksiyon <b>${ortKol}</b> kart` : ''} · <b>${paket}</b> paket · Elmas <b>−${harcanan}</b> / <b>+${iade}</b>${tani}</div></div>
     ${rows}`;
@@ -549,6 +681,7 @@ export function _ritusNabzi(rp) {
         `${esc(_RITUS_AD[x.ad] || x.ad)} <b>${x.adim}.</b> adım (${x.count})`).join(' · ')}</div></div>`
     : '';
 
+  gzAlarm('ritus', tani);
   return `<div class="gz-sec">Ritüellerin Nabzı — hangi direk taşıyor, hangisi sessiz</div>
     <div class="gz-flow"><div><b>${baslayan}</b> gezgin bir ritüele başladı · <b>${tamamlayan}</b>'i sonuna kadar kaldı${birakti ? ` · <b>${birakti}</b> kez yarıda bırakıldı` : ''}${tani}</div></div>
     <div class="gz-flow"><div>Söz veren <b>${sozVeren}</b> · akşam hesabını veren <b>${hesapVeren}</b>${tutulan ? ` · tutulan söz <b>${tutulan}</b>` : ''}${Number(rp.soz_atlanan) ? ` · atlanan <b>${rp.soz_atlanan}</b>` : ''}</div></div>
@@ -649,6 +782,7 @@ export function _esikNabzi(ep) {
     ? `<div class="gz-flow"><div>Giriş eşiği <b>${say(ee.acildi)}</b> kez açıldı · <b>${say(ee.kapandi)}</b> kez kapandı</div></div>`
     : '';
 
+  gzAlarm('esik', tani);
   return `<div class="gz-sec">Eşiğin Nabzı — kaç gezgin kendi kartını yazdı</div>
     <div class="gz-flow"><div><b>${basladi}</b> gezgin eşiğe geldi · <b>${dogus}</b>'i kartını mühürledi${atladi ? ` · <b>${atladi}</b> kez şimdilik atlandı` : ''}${tani}</div></div>
     ${rows}
@@ -710,6 +844,7 @@ export function _duyguNabzi(dp) {
     <span class="gz-bar-val">${r.val}</span>
   </div>`).join('');
 
+  gzAlarm('duygu', tani);
   return `<div class="gz-sec">Yanılma Nabzı — motor kaç kez konuştu, kaç kez düzeltildi</div>
     <div class="gz-flow"><div><b>${dp.total}</b> duygu-güdümlü satır bu dönemde işlendi${tani}</div></div>
     ${barRows}`;
@@ -790,6 +925,7 @@ export function _donusumNabzi(km, rp) {
     serbest ? satir('Niyetten dönüş (madde bırakıldı)', String(serbest)) : '',
   ].filter(Boolean).join('');
 
+  gzAlarm('donusum', tani);
   return `<div class="gz-sec">Dönüşümün Nabzı — tasarladı, okudu, kaydı</div>
     <div class="gz-flow"><div>Üçgenin üç köşesi yan yana${tani}</div></div>
     <div class="admin-stat-row">
@@ -884,6 +1020,7 @@ export function _sesNabzi(mp) {
   const secRows = secDag.map(x => satir(ad(x.model), `${say(x.n)} seçim · ${say(x.gezgin)} gezgin`)).join('');
   const gecRows = gecis.map(x => satir(`${ad(x.from)} → ${ad(x.to)}`, String(say(x.n)))).join('');
 
+  gzAlarm('ses', tani);
   return `<div class="gz-sec">Üç Sesin Nabzı — hangi eksende konuşuluyor</div>
     <div class="gz-flow"><div>Niyet, talep ve yaşanan yan yana${tani}</div></div>
     <div class="admin-stat-row">
@@ -942,6 +1079,7 @@ export function _emniyetNabzi(sp) {
     <div class="stat-label">${esc(ad)}</div>
   </div>`;
 
+  gzAlarm('emniyet', tani);
   return `<div class="gz-sec">Emniyet Nabzı — sinyal karta, kart lütfa geçiyor mu</div>
     <div class="gz-flow"><div>Sinyal <b>${gzSayi(sinyal)}</b> · Kart <b>${gzSayi(kart)}</b> · Lütuf <b>${gzSayi(lutuf)}</b>${tani}</div></div>
     <div class="admin-stat-row">
@@ -969,7 +1107,7 @@ export function _hataNabzi(ep) {
   let tani = '';
   if (enSik) {
     const pay = total ? Math.round((Number(enSik.n) || 0) / total * 100) : 0;
-    if (pay >= 40) {
+    if (pay >= GZ_ALARM_ESIK.hata.esik) {
       tani = ` <span class="gz-n">— hataların %${gzSayi(pay)}'i tek etikette toplanıyor: <code>${esc(enSik.label)}</code></span>`;
     }
   }
@@ -986,6 +1124,7 @@ export function _hataNabzi(ep) {
     <span class="gz-bar-val">${Number(x.n) || 0}</span>
   </div>`).join('');
 
+  gzAlarm('hata', tani);
   return `<div class="gz-sec">Hata Nabzı — hangi hata tekrarlıyor</div>
     <div class="gz-flow"><div><b>${gzSayi(total)}</b> hata · <b>${gzSayi(etkilenen)}</b> etkilenen gezgin${tani}</div></div>
     <div class="admin-stat-row">
@@ -1061,6 +1200,7 @@ export function _davetNabzi(np) {
     ? `<div class="gz-flow"><div class="gz-n">Tık sütunu artık konuşuyor: <code>notification_log.clicked_at</code> dolmuş — <b>${gzSayi(t)}</b> / <b>${gzSayi(tot)}</b> gönderim tıklanmış.</div></div>`
     : `<div class="gz-flow"><div class="gz-n">Tık sütunu henüz konuşmuyor: atıf zinciri kodda kurulu (<code>052</code> RPC · send-push <code>nid</code> · sw.js · native köprü) ama ikisi ELLE bekliyor — <code>052</code> migration'ı ve send-push redeploy'u. Buradaki sıfır iki şeyden biri: zincir daha koşmadı, ya da koştu ve kimse tıklamadı. İkisini AYIRT EDEMİYORUZ, o yüzden "kimse tıklamıyor" diye okunmamalı.</div></div>`;
 
+  gzAlarm('davet', tani);
   return `<div class="gz-sec">Davetin Nabzı — davet gidiyor mu, dönüyor mu</div>
     <div class="gz-flow"><div><b>${gzSayi(total)}</b> gönderim · <b>${gzSayi(tiklanma)}</b> tıklanma${tani}</div></div>
     <div class="admin-stat-row">
@@ -1109,6 +1249,7 @@ export function _gelirNabzi(kp) {
     <span class="gz-bar-val">${Number(x.n) || 0} · ${Number(x.gezgin) || 0} gezgin</span>
   </div>`).join('');
 
+  gzAlarm('gelir', tani);
   return `<div class="gz-sec">Gelirin Nabzı — paywall hunisinin ilk basamakları</div>
     <div class="gz-flow"><div>Duvar <b>${gzSayi(duvar)}</b> · Kapı <b>${gzSayi(kapi)}</b> · Sheet <b>${gzSayi(sheet)}</b> · İptal <b>${gzSayi(iptal)}</b>${tani}</div></div>
     <div class="admin-stat-row">
@@ -1163,6 +1304,7 @@ export function _aracNabzi(ap) {
       </div>`;
     }).join('');
 
+  gzAlarm('arac', tani);
   return `<div class="gz-sec">Araç Nabzı — öneri kabul mü ret mi görüyor</div>
     <div class="gz-flow"><div>Öneri <b>${gzSayi(oner)}</b> · Onay <b>${gzSayi(onayla)}</b> · Ret <b>${gzSayi(reddet)}</b>${tani}</div></div>
     <div class="admin-stat-row">
@@ -1203,6 +1345,7 @@ export function _bolgeNabzi(bp) {
     </div>`;
   }).join('');
 
+  gzAlarm('bolge', tani);
   return `<div class="gz-sec">Bölge Nabzı — Bugün'ün altına kaç kişi iniyor</div>
     <div class="gz-flow"><div><b>${gzSayi(gorenler)}</b> gezgin bu pencerede Bugün'e girdi${tani}</div></div>
     ${rows}`;
@@ -1256,6 +1399,7 @@ export function _halkaNabzi(pp) {
      interpolasyon eklenirse kapı onu GÖREMEZ. Kural elle taşınır — sayılar
      `gzSayi()` üstünden basılır, serbest metin `esc()` ile sarılır.
      XSS-MUAF: turRows + tani — kaçışlı parçalardan kurulmuş HTML (gerekçe üstte). */
+  gzAlarm('halka', tani);
   return `<div class="gz-sec">Halkanın Nabzı — paylaşım nereye düşüyor</div>
     <div class="gz-flow"><div>Story <b>${gzSayi(story)}</b> · Yazı <b>${gzSayi(yazi)}</b> · Kopyala <b>${gzSayi(kopyala)}</b> · İndir <b>${gzSayi(indir)}</b>${tani}</div></div>
     <div class="admin-stat-row">
