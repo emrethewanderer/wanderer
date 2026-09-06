@@ -281,6 +281,9 @@ export const I18N_EN = {
     // ── Legal framework (13p) — document bodies live in the module, these are UI labels
     'hk.section': 'Legal',
     'hk.section_desc': 'The agreement between you and Wanderer, how your data is protected, and the rights of the work.',
+    'hk.banner.metin': 'The privacy text has changed — we wrote down how long we keep usage measurements.',
+    'hk.banner.oku': 'READ',
+    'hk.banner.kapat': 'Close',
     'hk.kabul.var': 'You\'ve read this version.',
     'hk.kabul.yok': 'We have no record of you reading this version — the sections above are open whenever you like.',
     'hk.eyebrow': 'WANDERER · LEGAL',

@@ -7,11 +7,11 @@
  * (13p-hukuk.js) kayıt anında (03-auth-shell.js) o deftere yazar.
  *
  * NOT — 054 bir Postgres migration dosyasıdır; vitest onu KOŞTURAMAZ. Bu
- * yüzden dosya KAYNAK TARAMASIYLA sınanır — aynı gerekçe `tik-atifi.test.js` /
+ * yüzden dosya KAYNAK TARAMASIYLA sınanır — aynı gerekçe `tik-atifi-kapisi.test.js` /
  * `saklama-politikasi.test.js`'in kabul ettiği yöntemdir: biçim değişirse
  * sahte kırmızı verebilir, ama SÖZLEŞMEYİ statik olarak kanıtlar.
  * `hkKabulYaz`'ın kendisi ise gerçek JS'tir ve DAVRANIŞSAL sınanır —
- * `tik-atifi.test.js`'in `_markNotifClicked` mock kalıbının aynısı.
+ * `tik-atifi-kapisi.test.js`'in `_markNotifClicked` mock kalıbının aynısı.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -65,7 +65,7 @@ describe('migrations/054_riza_defteri.sql — hukuk_kabul sözleşmesi', () => {
   });
 });
 
-/* ═══ 2. hkKabulYaz — davranışsal (tik-atifi.test.js `_markNotifClicked` kalıbı) ═══ */
+/* ═══ 2. hkKabulYaz — davranışsal (tik-atifi-kapisi.test.js `_markNotifClicked` kalıbı) ═══ */
 
 /** config.js'in sb'sini mock'lu auth.getSession + from().upsert() ile değiştirir. */
 async function mockSb({ session = null, upsertImpl = () => ({ error: null }) } = {}) {
@@ -192,12 +192,34 @@ describe('03-auth-shell.js — kayıt anında rıza defteri yazımı', () => {
   });
 });
 
-/* ═══ 4. K4 kilidi — HK_VERSION bu fazda DEĞİŞMEDİ ═══ */
+/* ═══ 4. K4 kilidi — TEK ARTIŞ, ve artış GERÇEKLEŞTİ ═══
+   Kilit FAZ 7'de `1.3`'e mühürlenmişti ve işini yaptı: sürüm artışının
+   FAZ 8'e ait olduğunu, o faza varmadan artırılamayacağını tuttu — bu
+   satır 2026-09-06'da FAZ 8b'yi gerçekten durdurdu ve durdurması doğruydu.
 
-describe('K4 — HK_VERSION bu fazda artmaz (sürüm artışı FAZ 8\'in işi)', () => {
-  it('HK_VERSION hâlâ 1.3', async () => {
+   K4'ün içeriği "sürüm 1.3'te kalsın" DEĞİLDİ; "saklama cümlesi (17·F3) ile
+   rıza defteri (15·F3) TEK artışta gelsin" idi — iki ayrı artış kullanıcıya
+   iki banner gösterirdi. İkisi de artık `1.4`'ün içinde. Mühür bu yüzden
+   silinmiyor, TAŞINIYOR: sabit bir sürüme çakılı bir test, bir sonraki
+   artışı da bilinçli bir karar hâline getirir — biri onu değiştirmek için
+   önce buraya bakmak, sonra neden artırdığını yazmak zorunda kalır.
+   Kapısız bir kural tavsiyeye döner (§6.6); bu kural kapısını burada tutar. */
+
+describe('K4 — saklama cümlesi ile rıza defteri TEK sürüm artışında geldi', () => {
+  it('HK_VERSION 1.4 — artış bir kez oldu', async () => {
     const { HK_VERSION } = await import('../js/parts/13p-hukuk.js');
-    expect(HK_VERSION).toBe('1.3');
+    expect(HK_VERSION).toBe('1.4');
+  });
+
+  it('artışın iki gerekçesi de metinde DURUYOR — sürüm boş yere artmadı', () => {
+    const metin = readFileSync(join(ROOT, 'js/parts/13p2-hukuk-metin.js'), 'utf8');
+    // 17·F3 — saklama süresi cümlesi (TR + EN, ikisi birden)
+    expect(metin).toMatch(/90\s*gün/);
+    expect(metin).toMatch(/90\s*days/);
+    // 15·F3 — rıza defterini yazan akış hâlâ yerinde (yukarıdaki 3. bölüm;
+    // `src` orada describe'a kapalı olduğu için burada yeniden okunuyor)
+    const shell = readFileSync(join(ROOT, 'js/parts/03-auth-shell.js'), 'utf8');
+    expect(shell).toContain('hkKabulYaz(HK_VERSION);');
   });
 });
 

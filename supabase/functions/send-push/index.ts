@@ -521,8 +521,47 @@ function payloadFor(trigger: string, title: string, body: string, nid?: number |
   return { title, body, type: trigger, tag: trigger, url: './index.html', icon: EMRE_IMG, nid };
 }
 
+/* ───────────────────────── Saklama politikasının ÇALIŞAN yarısı ─────────────────────────
+   (İç Çalışma 17·F3 — FAZ 6 fonksiyonu yazdı, FAZ 8b vaadi buna dayanıyor.)
+
+   `usage_events_prune(90)` bir migration'da çağrılabilir olarak duruyordu ama
+   onu ÇAĞIRAN yoktu: gizlilik metni "90 gün sonra silinir" diyecekti, silen
+   şey ise hiç koşmayacaktı — §6.2'nin en pahalı hâli, çünkü yalanı kullanıcıya
+   söyler. Planın kendi teşhisi de bir körlüktü: `053`'ün yorumu "pg_cron bu
+   repoda hiç kullanılmamış" diyordu, oysa SETUP-PUSH.md §4 tam olarak pg_cron
+   kurup BU motoru 30 dakikada bir çağırıyor. Yani periyodik motor zaten vardı.
+
+   Bu yüzden yeni bir cron KURULMADI, var olan yeniden kullanıldı (§1.3):
+   motorun kendisi günde bir kez prune'u çağırır. `prune` SECURITY DEFINER'dır
+   ve `service_role`'a açıktır (`055:1522`) — bu istemci service-role'dür,
+   yani yeni bir sır, yeni bir kurulum, Emre'ye yeni bir adım YOKTUR.
+
+   PENCERE bir SAATTİR, bir dakika değil: cron 30 dakikada bir koşar ve
+   kayarsa dar bir pencere HİÇ tutmayabilir — sessizce hiç koşmayan bir
+   temizlik, tam da kapatmaya çalıştığımız kırığın kendisi olurdu. Saat 04
+   seçildi çünkü varsayılan sessiz saat penceresinin (23–08) içindedir: motor
+   zaten kimseye dokunmuyor. Aynı saatte iki kez çağrılması zararsızdır —
+   fonksiyon idempotenttir (`055:1533`'ün kendi notu: "ikinci çağrı: 0").
+
+   Hata YUTULUR ve loglanır: temizliğin düşmesi bildirimleri durdurmaz
+   (§5.2 "asla bloklama"). */
+async function pruneGunluk(): Promise<void> {
+  try {
+    const { hour } = localParts('Europe/Istanbul');
+    if (hour !== 4) return;
+    const { data, error } = await admin.rpc('usage_events_prune', { p_gun: 90 });
+    if (error) throw error;
+    console.log('[send-push] usage_events_prune(90):', data, 'ham satır silindi');
+  } catch (e) {
+    console.warn('[send-push] usage_events_prune:', (e as Error)?.message);
+  }
+}
+
 /* ───────────────────────── ENGINE (cron) ───────────────────────── */
 async function runEngine(): Promise<Response> {
+  // Saklama temizliği bildirimlerden ÖNCE ve onlardan BAĞIMSIZ koşar:
+  // kullanıcı satırı hiç olmasa da (push_enabled boş) vaat tutulmalı.
+  await pruneGunluk();
   const { data: rows } = await admin
     .from('user_engagement').select('*').eq('push_enabled', true).limit(2000);
   // Sosyal adaylar TEK sorguda, döngü dışında hesaplanır — her satır için ayrı

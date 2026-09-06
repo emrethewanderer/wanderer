@@ -8,7 +8,7 @@
  *
  * NOT — bu bir Postgres migration dosyasıdır; vitest onu KOŞTURAMAZ (Deno/
  * Postgres yok). Bu yüzden dosya KAYNAK TARAMASIYLA sınanır — aynı gerekçe
- * `tests/tik-atifi.test.js`'in kabul ettiği yöntemdir: biçim değişirse sahte
+ * `tests/tik-atifi-kapisi.test.js`'in kabul ettiği yöntemdir: biçim değişirse sahte
  * kırmızı verebilir, ama SIRAYI ve SÖZLEŞMEYİ statik olarak kanıtlar.
  * Tarama DAR tutulur — her iddia migration metninin somut bir parçasına
  * bağlanır, "muhtemelen doğrudur" bir madde yoktur.

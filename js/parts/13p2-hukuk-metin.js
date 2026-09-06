@@ -120,6 +120,7 @@ Bu sağlayıcıların sunucuları yurt dışında bulunabilir; aktarım, KVKK m.
 - Verini, hesabın aktif olduğu sürece saklarız.
 - Ayarlar'daki araçlarla dilediğin an: tüm verini JSON olarak indirebilir (Verimi İndir), hesabını silmeden tüm içeriğini temizleyebilir (Sıfırdan Başla) veya hesabını tüm verinle birlikte kalıcı olarak silebilirsin (Hesabımı Kalıcı Olarak Sil).
 - Kalıcı silme talebinde verilerin, yasal saklama yükümlülükleri dışında, sistemlerimizden ve yedeklerimizden makul süre içinde silinir.
+- **Kullanım ölçümleri** (hangi ekranı açtığın, orada ne kadar kaldığın gibi ham hareket kayıtları) ham hâlde en fazla **90 gün** tutulur. Süre dolan kayıtlar günlük toplamlara indirgenir ve ham satırlar silinir. Toplamlar bir ekranın kaç kez açıldığını sayar; orada ne yazdığını taşımaz.
 
 ## 8. Hakların
 KVKK m.11 ve GDPR kapsamında; verine erişme, düzeltme, silme, işlemeyi kısıtlama, itiraz etme, verini taşınabilir biçimde alma ve verdiğin rızayı geri çekme haklarına sahipsin. Bu hakların çoğunu Ayarlar'dan kendin kullanabilirsin; kalanlar için ${HK_CONTACT} adresine yaz. Bülten aboneliğini her iletinin dibindeki bağdan ya da Ayarlar'dan sonlandırabilirsin. Ayrıca ilgili denetim makamına (Türkiye'de Kişisel Verileri Koruma Kurumu) şikâyette bulunma hakkın vardır.
@@ -293,6 +294,7 @@ These providers' servers may be located abroad; transfers are made with safeguar
 - We keep your data for as long as your account is active.
 - Using the tools in Settings you can, at any time: download all your data as JSON (Download My Data), wipe all your content without deleting the account (Start Over), or permanently delete your account together with all your data (Delete My Account Permanently).
 - Upon a permanent-deletion request, your data is removed from our systems and backups within a reasonable period, except where retention is legally required.
+- **Usage measurements** (raw activity records such as which screen you opened and how long you stayed there) are kept in raw form for at most **90 days**. Once that period passes, those records are reduced to daily totals and the raw rows are deleted. The totals count how often a screen was opened; they do not carry what you wrote there.
 
 ## 8. Your Rights
 Under KVKK art. 11 and the GDPR you have the right to access, rectify and erase your data, restrict or object to processing, receive your data in a portable format, and withdraw consent you have given. You can exercise most of these rights yourself in Settings; for the rest, write to ${HK_CONTACT}. You also have the right to lodge a complaint with the competent supervisory authority (in Türkiye, the Personal Data Protection Authority).

@@ -44,9 +44,15 @@ demek değildir. Sıra oradan başlar.
 ## Denetim defteri — on üç maddenin durumu
 
 Ölçüm 2026-09-04'te koda karşı yapıldı; **durum sütunu her faz kapanışında
-tazelenir** (son tazeleme 2026-09-05, FAZ 12). Bir plan tablosunun bayatlaması
+tazelenir** (son tazeleme 2026-09-06, FAZ 13–18). Bir plan tablosunun bayatlaması
 [[rapor-bayatligi]]'nın kendisidir: "AÇIK" diye duran bitmiş bir madde,
 okuyanı yapılmış işi yeniden yapmaya çağırır.
+
+**Ve tam bu tablo bir kez bayatladı, ölçüldü:** 16 ile 17 `61129dc`'de bitti,
+tablo iki gün "AÇIK" dedi. Sebebi ihmal değil bir SİLİNTİYDİ (`0b9c3c5`,
+bkz. aşağıdaki kayıt onarımı) — yani tablo, defterin geri kalanıyla birlikte
+yanlışa düştü. Ders: bir durum satırı olduğu gibi kullanılmaz, **kanıtı
+koddadır ve grep'lenir** (§3.7 madde 1).
 
 | Oda | Faz | Madde | Durum | Kanıt / faz |
 |---|---|---|---|---|
@@ -57,17 +63,21 @@ okuyanı yapılmış işi yeniden yapmaya çağırır.
 | 17 | F3 | Saklama politikası | **BİTTİ · ELLE bekliyor** | FAZ 6 — `053` + periyodik `usage_events_prune(90)` |
 | 15 | F3 | Rıza defteri | **BİTTİ · ELLE bekliyor** | FAZ 7 — `054`; okuyan taraf FAZ 8a |
 | 09 | F2 | Araç registry | **BİTTİ** | FAZ 9 — `_ARAC_DEFS` + saf yaprak `13a1` |
-| 09 | F3 | Yeni araçlar | **BİTTİ** | FAZ 10 — `gordun` · `sabir` · `ayna` + `hazir()` |
+| 09 | F3 | Yeni araçlar | **BİTTİ** | FAZ 10 — `inanc` · `engel` · `gordun` · `sabir` + `hazir()`; sekiz araç |
 | 12 | F2 | Sosyal bildirim | **BİTTİ · ELLE bekliyor** | FAZ 11+12 — merdivende `sosyal` + rozet; `send-push` redeploy |
-| 17 | F2 | Eşik alarmları | **AÇIK** | FAZ 13–14 |
-| 13 | D | SW dil pürüzü | **AÇIK (teşhissiz)** | FAZ 15 |
-| 10 | D kalan | Ses şiddet kademesi | **AÇIK** | FAZ 16 |
-| 10 | F3 | Akşam ısrar dozu | **AÇIK** | FAZ 17 |
+| 17 | F2 | Eşik alarmları | **SÜRÜYOR** | FAZ 13+14 — bu turda; kapandığında burası tazelenir |
+| 13 | D | SW dil pürüzü | **BİTTİ** | FAZ 15 — kök `build.sh`'ta: `CACHE` damgası sidecar'ı izlemiyordu |
+| 10 | D kalan | Ses şiddet kademesi | **BİTTİ** | FAZ 16 — `_kademeGain` zincirin sonunda (`13e:100`) |
+| 10 | F3 | Akşam ısrar dozu | **BİTTİ** | FAZ 17 — `trnRet`/`trnKabul` (`13B:152`), ardışık üç ret → 7 gün |
 
-**Sürüm banner'ı (FAZ 8b) ayrı bir hâldedir:** yapılmadı ve yapılamaz —
-`053` ELLE koşulup `usage_events_prune` periyodik hâle gelene kadar
-gizlilik metnindeki saklama cümlesi **yanlış** olurdu (bkz. FAZ 8a kaydı).
-Bu bir gecikme değil bir dürüstlük kısıtıdır.
+**Sürüm banner'ı (FAZ 8b) — 2026-09-06'da AÇILDI ve kilidi bir kod satırı
+açtı.** Faz iki koşula bağlıydı: `053` koşulmuş olmalı (Emre 09-06'da
+bildirdi) **ve** `usage_events_prune` periyodik olmalı. İkincisi bir plan
+cümlesinde "çözüldü" görünüyordu ama koda hiç girmemişti; bu turda gerçekten
+yazıldı (`send-push` → `pruneGunluk()`). Sıra artık terstir ve ELLE
+defterinin 4. maddesinde duruyor: **HK 1.4 kullanıcıya gitmeden ÖNCE
+`send-push` redeploy edilmeli.** Gecikme değil, dürüstlük kısıtı — yalnız
+yönü değişti.
 
 **Bu planın DIŞINDA kalanlar ve sebepleri** — sessizce düşmesinler diye:
 
@@ -119,6 +129,38 @@ artıştır ve iki fazın ikisi de kapandıktan sonra yapılır.
 olarak bağlanır. Kendi `run` semantikleri farklıdır (chip değil, metin
 dönüşümü) — bu yüzden registry alanı `marker` + `parse` ile genişler, ama
 `[ARAC:x]{json}` token biçimi (korunan sözleşme) **hiç değişmez**.
+
+### K6 — Alarmın eşiği iki yerde yaşar; borç kabul edildi ve KAPIYA bağlandı
+(Emre'nin kararı, 2026-09-06 · gerçek çatal, `AskUserQuestion` ile soruldu.)
+
+Kanıt önce: tanı cümleleri **tarayıcıda** doğuyor (`13q`, 24 nabız kartı),
+push ise **sunucuda** gidiyor (`send-push`, service-role, cron). İkisini
+birleştirmenin önündeki engel bir tercih değil bir kilit:
+`admin_usage_report` yetkisini `auth.uid()`'den okur
+(`000_wanderer_schema.sql:1933`), service-role'ün JWT'si yoktur — yani
+motor bugünkü kadranın verisine **erişemez**.
+
+Üç yol soruldu; Emre **"şerit + SQL alarm RPC'si + push"**i seçti ve
+seçenek metni borcu adıyla söylüyordu: *eşikler artık İKİ yerde yaşar.*
+Karar kabul edildi, borç saklanmadı — **ölçülebilir hâle getirildi** (§6.6'nın
+üçüncü basamağı: kapıya bağlanamayan kural yeniden keşfedilmeyi bekler).
+
+Borcun yeri tam olarak şurasıdır ve dardır: **eşik SAYILARI.** Cümleler
+ikizlenmez — kartın kendi tanısı yerinde kalır, şerit onu `gzAlarm` ile
+**toplar** (planın "yeni teşhis motoru yazılmaz" kuralı korunur), push ise
+kendi kısa cümlesini taşır çünkü bir push zaten zengin bir tanıyı taşıyamaz.
+Ayrışan tek şey sayıdır: `13q`'nun `if`'i ile `056`'nın `WHERE`'i aynı
+sayıyı söylemek zorundadır.
+
+**Kapı:** `tests/alarm-esik-kapisi.test.js` iki kaynağı da AYRIŞTIRIR
+(`js/parts/13q-gozlemevi.js`'in `GZ_ALARM_ESIK` tablosu ·
+`migrations/056_esik_alarmlari.sql`'in eşik sabitleri) ve sayıların birebir
+eşleştiğini sınar. Ayrıştırılabilir olması için sayılar iki tarafta da
+**tek bir adlandırılmış blokta** durur — dağınık `if` sabitleri
+grep'lenemez, ve grep'lenemeyen bir borç sessizce ayrışır.
+
+Emsal `tests/tik-atifi-kapisi.test.js`'tir: o da bir istemci sözleşmesini
+bir edge function'a karşı ölçer. Yeni bir kapı türü icat edilmiyor.
 
 ## Fazlar (her biri bağımsız ship edilebilir)
 
@@ -368,16 +410,82 @@ Devir: 🅞 — "Kartına yorum geldi" cümlesinin kitap-köklü hâli ve rozet
 metni üründe bulunur; sayaç dili ("3 yeni yorum!") bu ürüne girmez.
 
 ### FAZ 13 — Eşik alarmı altyapısı · 🅢 · ~1 oturum
-**Değişen:** `js/parts/13q-gozlemevi.js` (eşik okuma + alarm satırı) ·
-`supabase/functions/send-push/index.ts` (`admin` tipi) · gerekirse yeni migration
+**K6'nın kararıyla İKİYE BÖLÜNDÜ (2026-09-06)** ve sıra kasıtlıdır:
+13a → FAZ 14 → 13b. Sebebi Emre'nin eline düşen bedeldir — migration ELLE
+bir iştir (§6.5) ve sayıları FAZ 14 kararlaştırmadan yazılan bir `056`,
+sayılar değişince İKİNCİ bir migration ister. Bir kez yazılır, doğru yazılır.
+
+#### FAZ 13a — Kadran şeridi · 🅢 · DEVREDİLİR
+**Değişen:** `js/parts/13q-gozlemevi.js` · **Yeni:** `tests/gozlemevi-alarm.test.js`
 Kartların **zaten** yazdığı teşhis cümleleri (oda 17: "her kart eşiği aşınca
-kendi tanısını yazıyor") tek yerde toplanır ve bir alarm listesine dönüşür.
-Yeni bir teşhis motoru yazılmaz — var olan cümleler toplanır.
+kendi tanısını yazıyor") tek yerde toplanır ve kadranın EN ÜSTÜNDE bir alarm
+şeridine dönüşür. **Yeni bir teşhis motoru yazılmaz** — var olan cümleler
+toplanır. Mekanik: modül düzeyinde bir `_ALARMLAR` defteri, `_renderAll`'ın
+başında sıfırlanır; `tani` yazan her kart aynı yerde bir kez `gzAlarm(alan,
+seviye, metin)` çağırır. Şerit `_ALARMLAR`'ı okur. İkinci bir `if` YOK —
+alarm, kartın kendi koşulunun yan ürünüdür.
+Şeridin yeri yukarıdır ve bu bir yargı değil bir gerekçedir: yirmi dört
+kartın altında duran bir alarm, alarm değildir.
+
+**Ölçüldü (2026-09-06): 51 `tani` ataması / 14 nabız fonksiyonu.** Ama
+51 yere dokunmak GEREKMEZ ve dokunmamalı: her fonksiyonun içinde kalıp
+aynı — `let tani = ''` + bir `if/else if` şelalesi, yani kart başına
+YALNIZ BİR cümle kazanır. Bu yüzden çağrı sayısı 51 değil **14**'tür:
+her nabız fonksiyonu, şelale çözüldükten sonra `return`'den hemen önce
+bir kez `gzAlarm(alan, tani)` çağırır. Az dokunuş, az risk — ve toplanan
+şey kartın EKRANDA gösterdiği cümlenin ta kendisi olur, bir kopyası değil.
+
+`gzAlarm` boş `tani`'yi yutar ve `<span class="gz-n">— …</span>` sargısını
+TEK ve test edilmiş bir desenle soyar (eşleşmezse cümleyi olduğu gibi
+saklar — bir sargı değişirse şerit susmaz, biçimsiz gösterir). Kaçış
+üretilmez ve ikinci kez uygulanmaz: cümle `13q` içinde zaten `esc()` ile
+kurulmuştur, şerit AYNI string'i basar.
+
+**Yapısal kapı (`tests/gozlemevi-alarm.test.js`):** `tani` değişkeni olan
+her `_…Nabzi` fonksiyonunun `gzAlarm` çağırdığını KAYNAKTAN sınar. Gerekçe
+FAZ 11'in dersinin genellenmiş hâlidir: bir kanalın tanıdığı ama beslemediği
+bir basamak, sessizce boş kalır — ve boşluk, kırıktan daha uzun yaşar.
+
+#### FAZ 13b — SQL alarm RPC'si + `admin` push · 🅢 · FAZ 14'TEN SONRA
+**Yeni:** `migrations/056_esik_alarmlari.sql` (`admin_alarms()` —
+SECURITY DEFINER, service_role'a açık, `auth.uid()` KAPISI YOK çünkü çağıran
+motorun JWT'si yoktur; `REVOKE ... FROM anon, authenticated` ile daraltılır)
+**Değişen:** `supabase/functions/send-push/index.ts`
+`admin` tipi merdivene girer. **FAZ 11'in dersi burada da geçerlidir:**
+metni yazılmadan `METNI_HAZIR`'a EKLENMEZ — yoksa merdivende altındaki her
+şeyi susturur. `admin` yalnız ADMIN_EMAIL'in satırında değerlendirilir ve
+freq-cap'e tabidir; bir alarm gürültüye dönerse alarm olmaktan çıkar.
 
 ### FAZ 14 — Eşik değerleri + kanallar-üstü tavan · 🅞 · ~1 oturum
 Devir: 🅞 — hangi sayı bir alarmı hak eder ve günde kaç dokunuş çoktur;
 ikisi de üründe ayarlanır. 11·F3 buraya biner: tavan, 13B'nin oturum
 bütçesiyle aynı deftere yazılır.
+
+**14a — alarm eşikleri.** 13a'nın topladığı alarm kümesinin hangi
+üyeleri Emre'yi RAHATSIZ ETMEYİ hak eder. Çıktı `GZ_ALARM_ESIK` —
+tek, adlandırılmış, grep'lenebilir bir blok (K6'nın kapısı onu ayrıştırır).
+
+**14b — kanallar-üstü tavan (11·F3).** Bugün iki kanal birbirini
+GÖRMÜYOR ve toplamı kimse saymıyor:
+- `13B` oturum başına **2** davetsiz sahne (`TRN_TAVAN`, `13B:74`)
+- `send-push` 24 saatte **2** bildirim (`passesFreqCap`, min 4 saat arayla)
+
+Yani bugünün en kötü hâli **dört dokunuştur** ve dördünü de kimse bir
+arada görmez. Oysa `13B`'nin kendi yorumu sınırı çoktan adlandırmış:
+*"akşam girişinde doğal yığılma üç sahnedir ve ÜÇÜNCÜSÜ tören olmaktan
+çıkıp bildirime dönüşür."* Sayı uydurulmayacak, **ödünç alınacak** (§6.10):
+günlük tavan **3**, ve günün taşıyıcı ritüeli (`TRN_ZORUNLU`) bugünkü
+gibi MUAF kalır — bütçenin işi akşam yığılmasını seyreltmek, günün
+omurgasını kesmek değil.
+
+**Mekanik — yeni migration YOK.** `notification_log`'un bugünkü RLS
+politikası (`notif_log owner read`, `000:1065`) kullanıcıya KENDİ
+satırlarını okutuyor; yani istemci son 24 saatte kaç push gittiğini
+kanıta dayanarak öğrenebilir (§6.10: sayılan şey gerçekten gönderilmiş
+satırdır, bir tahmin değil). Servis çalışanı bu deftere yazamaz —
+SW'nin `localStorage`'ı yoktur — o yüzden kaynak SW değil TABLODUR.
+Sorgu düşerse tavan bugünkü davranışa düşer ve sahneyi ENGELLEMEZ
+(§5.2 "asla bloklama"): bir ölçüm hatası töreni öldürmez.
 
 ### FAZ 15 — SW dil pürüzü teşhisi · 🅢 · ~0.5 oturum
 **Değişen:** `js/parts/16c-*.js` (dil algılama) veya `14-boot` boot sırası
@@ -473,7 +581,7 @@ hiç görünmez — orada ton değil **doğruluk** ölçülür.
    → `"gordun,sabir,ayna"` (FAZ 10: registry ve rehber AYNI üç adı taşır —
    biri ötekisiz kalırsa model olmayan bir araç önerir ya da var olan araç
    hiç önerilmez; ikisi de sessizdir).
-7. `npx vitest run tests/tik-atifi.test.js` → merdivenin KOŞULSUZ seçebildiği
+7. `npx vitest run tests/tik-atifi-kapisi.test.js` → merdivenin KOŞULSUZ seçebildiği
    her tetiğin `fallbackCopy`'de bir `case`i var (FAZ 11–12). Bu kapı bir
    üslup değil bir DAVRANIŞ kilidi: metni olmayan bir tetik merdivende
    koşulsuz durursa yalnız kendini değil **altındaki her basamağı** susturur
@@ -1310,7 +1418,7 @@ gözden geçirilmedi: FAZ 1–2 kendi kapısını taşıyor ve bu tur ona dokunm
   *odası boş olan kapı çizilmez.*
   Düzeltme `METNI_HAZIR` kümesi: merdiven yalnız metni yazılmış tetikleri
   seçer, `sosyal` kapının arkasında bekler ve FAZ 12 metni yazıp kümeye
-  eklediğinde **kendiliğinden açılır**. Kapı `tests/tik-atifi.test.js`'e
+  eklediğinde **kendiliğinden açılır**. Kapı `tests/tik-atifi-kapisi.test.js`'e
   girdi ve değeri ölçüldü — kapı kaldırıldığında test kırmızı bastı ve aç
   kalan tetiği adıyla saydı.
   Ayrıca ajanın kendi testi düzeltmenin harfine takıldı (`if (sosyalVar)`
@@ -1430,7 +1538,7 @@ gözden geçirilmedi: FAZ 1–2 kendi kapısını taşıyor ve bu tur ona dokunm
 
   **Sınıf iki fazda iki kez kırıldı, o yüzden artık bir kapısı var.** §3.7'nin
   dördüncü ekseni: aynı kırık iki kez çıktıysa mesele kırık değil onu üreten
-  kuraldır. `tests/tik-atifi.test.js` artık yapışkan tetiğin reddinin turu
+  kuraldır. `tests/tik-atifi-kapisi.test.js` artık yapışkan tetiğin reddinin turu
   koşulsuz bitirmesini yasaklıyor; kapı kaldırılıp sınandı, kırmızı bastı.
   Denetimin bir bakım notu da alındı: `TRIGGER_INTENT.sosyal` araması tam
   boşlukla eşleşiyordu (hizalama bir sözleşme değildir), desene çevrildi.
@@ -1464,7 +1572,8 @@ BEYANDIR ve repodan doğrulanamaz (§6.5) — ama beyan da bir kaynaktır (§6.1
 |---|---|---|---|
 | 1 | `055_birlesik_041_054.sql` | **Emre: koşuldu** | `052·053·054`'ün üçünü de içerir (`:1318` `notif_mark_clicked`, `usage_events_daily`, `prune`, `hukuk_kabul`) — ayrı ayrı koşmaya gerek yoktu |
 | 2 | `send-push` redeploy | **Emre: yapıldı** | FAZ 5'in `nid`'i + FAZ 11'in basamağı + FAZ 12'nin metni birlikte canlandı |
-| 3 | **`usage_events_prune(90)` periyodik** | **AÇIK — ve artık ELLE DEĞİL** | aşağıya bak |
+| 3 | **`usage_events_prune(90)` periyodik** | **KAPANDI — kod oldu** | `send-push` `runEngine`'in ilk adımı `pruneGunluk()`; saat 04 penceresi. Yeni cron/sır/kurulum yok |
+| 4 | **`send-push` redeploy — İKİNCİ KEZ, ve SIRALI** | **AÇIK · PAZARLIKSIZ** | aşağıya bak |
 
 **Numara çakışması YOKTU ve yeniden numaralama yapılmadı.** PR #13'ün `055`'i
 benim üçümü zaten kapsıyor; numaraları oynatmak *"en güncel tanım en yüksek
@@ -1508,10 +1617,19 @@ görmemiş, ve o körlük 8b'yi bir aydır gereksiz yere kilitli tutmuş.
 istemcisiyle koşar. Yeni sır yok, yeni kurulum yok, Emre'ye yeni adım yok —
 vaat mevcut mekanizmayla **yapısal olarak** doğru hâle gelir.
 
-**SIRA KISITI (yeni ELLE maddesi, tek satır ama pazarlıksız):** HK 1.4
-kullanıcıya gitmeden ÖNCE `send-push` redeploy edilmeli. Aksi hâlde uygulama
-"90 gün sonra silinir" der ama silen şey henüz canlı değildir — 8a'nın tam
-olarak reddettiği durum, yalnız tersten. İkisi ayrı deploy döngüsündedir.
+**SIRA KISITI (ELLE, tek satır ama pazarlıksız) — ARTIK YÜRÜRLÜKTE.**
+FAZ 8b bu turda kapandı: HK 1.4 ağaçta, saklama cümlesi TR+EN metinde,
+`pruneGunluk()` `send-push`'ta. İkisi AYRI deploy döngüsündedir ve sıra
+tersine dönerse uygulama tutmayacağı bir silmeyi vaat eder:
+
+> **`send-push` redeploy edilmeden uygulama yayınlanMAMALI.**
+> Yayınlanırsa kullanıcı "90 gün sonra silinir" cümlesini okur, ama silen
+> motor henüz canlı değildir — 8a'nın tam olarak reddettiği durum, yalnız
+> tersten. Bu bir tercih değil bir uyum açığıdır (§6.2 · §6.5).
+
+Bu redeploy, 09-06'da yapılan redeploy'un ÜSTÜNE gelir: o gün FAZ 5·11·12
+canlandı, bu sefer canlanacak olan `pruneGunluk()`'tür. Repodan
+doğrulanamaz (§6.5) — deploy edilmiş VARSAYILMAZ.
 
 - **FAZ 15 · BİTTİ** (2026-09-06). `uygulayici`da (🅢) + parent'ın denetimi.
   **"Teşhissiz" madde artık teşhisli — ve kök gerçekten vardı.** Faz bir
@@ -1571,6 +1689,157 @@ olarak reddettiği durum, yalnız tersten. İkisi ayrı deploy döngüsündedir.
      yalnız `_src-<hash>.js` eşleşmesine bakıyor. Bugün güvenli bir vekil
      (`npx cap copy` tüm `dist/`i atomik kopyalar), ama sıkılaştırma ayrı bir
      iş. **Plana taşındı** (aşağıdaki `### Taşınan bulgu`).
+
+
+> **KAYIT ONARIMI (2026-09-06).** Aşağıdaki iki kayıt `61129dc`'de yazıldı ve
+> `0b9c3c5`'te **kazara silindi** — o commit "ELLE kuyruğu" bölümünü
+> tazelerken 82 satır kaldırdı, 64'ü bu iki fazın kaydıydı. Kod ağaçta
+> duruyordu (`_kademeGain` · `trnRet`/`trnKabul` grep'le doğrulandı), yalnız
+> defter onları unutmuştu — [[rapor-bayatligi]]'nın en sinsi hâli: bitmiş bir
+> iş "hiç yapılmamış" görünür. `git show 61129dc` ile birebir geri kondu.
+- **FAZ 16 · BİTTİ** (2026-09-06). 🅞, parent'ta.
+  **Planın önerdiği yol üründe düzeltildi.** Plan *"kademe `_master.gain`
+  üstünden geçmeli"* diyordu; iki sebeple orası YANLIŞ yerdi ve ikisi de
+  ancak kaynağa bakınca görünür:
+  1. **`_master.gain` serbest bir yuva değil** — `_ready()` HER cue'da gece/
+     akşam mood'unu oraya yazar (`setTargetAtTime(mood.g …)`, `13e:127`).
+     Kullanıcı ayarı oraya konsaydı ilk cue'da sessizce silinirdi: ayar
+     değişir, hiçbir şey olmaz, hiçbir yerde hata görünmez — §6.2'nin en
+     sinsi hâli.
+  2. **Fener Ambiyansı `_master`'ı ATLAR** (K7, `13e:82`'nin kendi yorumu) ve
+     doğrudan `_moodFilter`'a bağlanır. `_master`'da kısmak ambiyansı hiç
+     kısmazdı: *"sesi kıstım ama fener hâlâ aynı."*
+  Doğru yer zincirin SONU: `_kademeGain` düğümü `_moodFilter` ile
+  `destination` arasına girdi. İki zincir de oradan geçer, mood mantığıyla
+  hiç çakışmaz — **mood tonu ayarlar, kademe şiddeti.**
+
+  **Dozun gerekçesi (🅞) uydurulmadı, ödünç alındı:** gece kısıklığı
+  `_master`'ı 0.5'ten 0.22'ye indiriyor (≈0.45). Uygulamanın "sessiz ama
+  duyulur" dediği ölçü zaten oydu; ikinci bir sayı icat etmek §6.10'a göre
+  kanıtsız bir değer olurdu. Üçüncü kademe eklenmedi: aç/kapa zaten var ve
+  gece kısıklığı bunun ÜSTÜNE biner (kısık bir gecede 0.22×0.45 ≈ 0.10).
+
+  Yüzey iki adlı hap: **Tam · Kısık** — slider değil, çünkü uygulama sesi bir
+  sayıyla değil bir dozla anlatır. Düğme dili icat edilmedi, `.takip-pill`in
+  biçimi ödünç alındı (§1.3). Ses kapalıyken satır `hidden` — kapalı bir sesin
+  şiddetini sormak bir ayar değil bir çelişkidir. Ayar grubu yerelleşmemiş
+  (hardcoded TR) ve o **kalıba uyuldu**; grubun tamamının i18n borcu ayrı.
+  Kapı: dört davranış testi + bir YAPISAL regresyon kilidi (kademe
+  `_master.gain`'e taşınırsa kırmızı yanar — sessizce kırılacak tek yol oydu).
+
+- **FAZ 17 · BİTTİ** (2026-09-06). 🅞, parent'ta.
+  **Planın sayısı mekanik olarak imkânsızdı ve bunu ancak kod söyledi.**
+  Plan *"3 ✕ → bugün sus"* diyordu; oysa `13B` kuyruğunun günlük davetsiz
+  bütçesi **`TRN_TAVAN = 2`** — aynı gün üç davetsiz açılış olamaz, yani
+  eşiğe hiç varılamazdı. Sayı bütçe görülmeden yazılmış. Doğru ölçü aynı gün
+  değil **ARDIŞIK** rettir: üç kez üst üste kapatılan bir tören bir tercih
+  söylüyordur.
+
+  Motor doğru yere kondu: kuyruğun kendisine (`13B`), tek töreme değil —
+  ritmi kuyruk sahiplenir. `trnRet` / `trnKabul` + `trnIzin`'in davetsiz
+  dalında bir kontrol. Tüketici `13h`: ✕ yolu `trnRet`, mühür yolu `trnKabul`.
+
+  **Sözleşmenin özü üç KODLA garanti edilir** (✕ "şimdi değil"dir, "asla"
+  değil) ve üçü de ayrı ayrı test edilir çünkü üçü de tek başına bozulabilir:
+  1. yalnız **davetsiz** açılış susar — kullanıcının kendi açtığı kapı
+     (`davetsiz:false`) bu satıra hiç uğramaz;
+  2. sessizlik **sürelidir** (7 gün — uygulamanın hafta ritmi zaten kurulu,
+     09d/09h `lastSeenWeek`; yeni ritim icat edilmedi);
+  3. tek bir **kabul** sayacı anında sıfırlar — bir katılım üç retten ağır
+     basar, çünkü mesele ceza değil ritim.
+
+  **Fazın kendi testi fazın kendi kırığını buldu:** ilk yazımda gün farkı
+  `localDayKey()` üzerinden hesaplanıyordu — o anahtar `${yıl}-${getMonth()}-${gün}`
+  üretir, ay SIFIR TABANLI ve padding YOK (`2026-8-6`): ne ayrıştırılabilir ne
+  sıralanabilir, `Date.parse` onu bir ay kaydırarak okur. 00a'nın kendi yorumu
+  zaten `localISODate()` diyor ([[yerel-tarih-anahtari]]). Süre testi kırmızı
+  bastı, kod düzeldi. Kuyruğun gün BÜTÇESİ hâlâ `localDayKey` kullanır ve
+  doğru kullanır — o yalnız eşitlik sorar, aritmetik yapmaz.
+
+  **Ölçüm tarafı (Gözlemevi sorgusu) bilinçli olarak YAPILMADI** — planın
+  kendi kararı: *"ölçüm tarafı veriye bağlıdır; kural tarafı bugün yazılabilir."*
+  Defter (`etw_trn_ret_v1_<uid>`) bugünden itibaren birikir; sorgu, veri
+  oluştuğunda yazılır.
+
+- **FAZ 8b · BİTTİ** (2026-09-06). 🅞, parent'ta. **Ve kilidi açan şey bir
+  kod satırıydı, bir bekleyiş değil.**
+
+  8a bu fazı iki koşula bağlamıştı: `053` koşulmuş olmalı **ve**
+  `usage_events_prune(90)` periyodik olmalı. Birincisini Emre 09-06'da
+  bildirdi. İkincisi için plan aynı gün *"çözüldü"* yazmıştı — motorun
+  kendisi prune'u çağırsın diye. **Ama çağrı hiç yazılmamıştı** (bu turun
+  Bulgu B'si): plan bir kararı geçmiş zamanda anlatıyordu, kod onu hiç
+  duymamıştı. İki kayıt ayrıştı, kimse yalan söylemedi ([[rapor-bayatligi]]).
+  Bedeli ölçülebilir bir yalan olurdu: gizlilik metni "90 gün sonra silinir"
+  der, silen hiçbir şey koşmaz (§6.2 · §6.5).
+
+  **Önce mekanizma:** `send-push`'a `pruneGunluk()` girdi ve `runEngine`'in
+  İLK adımı oldu. Yeni cron YOK — `SETUP-PUSH.md §4`'ün pg_cron'u motoru
+  zaten 30 dakikada bir çağırıyor; `prune` `SECURITY DEFINER` ve
+  `service_role`'a açık (`055:1522`), motor da service-role. Yeni sır, yeni
+  kurulum, Emre'ye yeni adım yok (§1.3).
+  **Pencere bir SAATTİR, bir dakika değil:** cron kayarsa dar bir pencere
+  HİÇ tutmayabilir ve sessizce hiç koşmayan bir temizlik, tam da kapatılan
+  kırığın kendisi olurdu. Saat 04 seçildi çünkü varsayılan sessiz saat
+  penceresinin (23–08) içinde — motor zaten kimseye dokunmuyor. İki kez
+  çağrılması zararsız: fonksiyon idempotent (`055:1533`'ün kendi notu).
+
+  **Sonra vaat:** `HK_VERSION` `1.3 → 1.4` (K4'ün TEK artışı), `HK_EFFECTIVE`
+  `2026-09-06`, ve gizlilik §7'ye TR+EN saklama cümlesi — `053`'ün
+  gerçeğiyle birebir: ham kayıt 90 gün, sonra günlük toplama indirgenir,
+  toplam "ne yazdığını" taşımaz.
+
+  **Şerit (🅞) bir onay kapısı DEĞİL.** Kullanıcı kapatarak hiçbir şeyi
+  kabul etmiş olmaz — ve bunu bir yorum değil bir YOKLUK garantiler: şerit
+  `hukuk_kabul`'e hiçbir şey yazmaz. "Okumaya git" bile yazmaz; rızayı yazan
+  tek yer kayıt akışıdır (`03:732`). Buradan bir "okudum" satırı atmak,
+  verilmemiş bir rızayı uydurmak olurdu (§6.10). 8a'nın üç hâli aynen
+  sürüyor: şerit yalnız `kabul === false`'ta çıkar, `null`'da SUSAR.
+  Biçim `#ios-install-banner`dan ödünç (§1.3), damga cihaz-yerel ve sürümü
+  taşır — yeni sürüm gelince şerit yeniden çıkar.
+
+  **Kapı — vaadi mekanizmaya bağlayan yeni bir tür:**
+  `tests/saklama-vaadi-kapisi.test.js`. Üç şeyi BİRLİKTE tutar: prune
+  `service_role`'a açık · motor onu gerçekten çağırıyor · **ve gizlilik
+  metni saklama süresi vaat ediyorsa ilk ikisi ŞART.** Üçüncüsü kapının
+  kalbi: FAZ 8b'yi mekanizmasız açmak artık MÜMKÜN DEĞİL. Kapının değeri
+  ölçüldü — düzeltmeden önceki ağaca karşı koşuldu ve kırmızı bastı.
+
+  K4 kilidi (`riza-defteri.test.js`) `1.3`'e çakılıydı ve **bu turda beni
+  gerçekten durdurdu** — durdurması doğruydu. Silinmedi, TAŞINDI: mühür
+  artık `1.4`'te ve yanında artışın iki gerekçesinin de metinde durduğunu
+  sınayan bir madde var. Sabit sürüme çakılı bir test, sonraki artışı da
+  bilinçli bir karar hâline getirir (§6.6).
+
+  Kapı: hedefli süit ✅ 63/63 (parite · aria · rıza defteri · saklama vaadi).
+
+- **FAZ 14b · BİTTİ** (2026-09-06). 🅞, parent'ta. **Kanallar-üstü tavan.**
+  İki kanal birbirini görmüyordu: kuyruk oturum başına 2 davetsiz sahne,
+  `send-push` 24 saatte 2 bildirim — **en kötü gün dört dokunuş**, ve dördü
+  de kendi defterinde meşru. Sayı uydurulmadı, **ödünç alındı** (§6.10):
+  13B'nin kendi açılış yorumu sınırı çoktan adlandırmış — *"akşam yığılması
+  üç sahnedir ve ÜÇÜNCÜSÜ tören olmaktan çıkıp bildirime dönüşür."*
+  `TRN_GUN_TAVAN = 3`.
+
+  **Kanıt nereden geliyor — ve neden SW'den değil:** servis çalışanının
+  `localStorage`'ı yoktur, damgayı oraya yazamaz. Kullanıcının kendi
+  `notification_log` satırlarını okumaksa RLS'te ZATEN açık
+  (`notif_log owner read`, `000:1065`) ve emsali var (`01-prompts-modes:63`).
+  Yeni migration, yeni tablo, yeni izin YOK.
+
+  **`test` ve `broadcast` iki tarafta da sayılmaz** ve bu bir tercih değil
+  bir EŞLEŞMEDİR: `passesFreqCap` de tam o ikisini dışarıda bırakır. İki
+  defter aynı şeyi saymazsa tavan sessizce ayrışır — K6'nın sınıfı. Kapı
+  bunu iki kaynağa karşı birden sınıyor.
+
+  **Kapı davranışsaldır, çünkü sabit doğru yazılıp hiçbir şeyi
+  etkilemeyebilir** — bu sprintte tam o sınıftan iki kırık çıktı (FAZ 16'nın
+  `_master.gain`'i, FAZ 17'nin `TRN_TAVAN`'ı). `tests/13B-kanal-tavani.test.js`
+  tavanın ISIRDIĞINI ölçer: iki push gitmişse ikinci davetsiz sahne susar ·
+  üç push gitmişse bile kullanıcının KENDİ açtığı kapı açılır · sorgu
+  düşerse tavan daralmaz (§5.2) · oturum yoksa hiç sorulmaz.
+
+  Kapı: hedefli süit ✅ 41/41 (13B kuyruğu 36 + kanal tavanı 5).
 
 ### Taşınan bulgu — native senkron kapısı sidecar'ı vekaleten ölçüyor
 `tests/native-senkron-kapisi.test.js` yalnız `_src-<hash>.js` adının

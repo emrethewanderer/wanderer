@@ -32,6 +32,7 @@
 ═══════════════════════════════════════════════════════ */
 import { localDayKey, localISODate, SafeStorage } from './00a-infrastructure.js';
 import { S } from '../state.js';
+import { sb } from '../config.js';
 
 /* ─── 1. SAHNE ENVANTERİ ─── */
 
@@ -184,6 +185,71 @@ function _tazele() {
   if (_gun !== bugun) { _gun = bugun; _sayac = 0; }
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   KANALLAR-ÜSTÜ TAVAN (İç Çalışma 11·F3 — FAZ 14b)
+   ───────────────────────────────────────────────────────────────────
+   İki kanal bugüne kadar birbirini GÖRMÜYORDU ve toplamı kimse saymıyordu:
+
+     • bu kuyruk        → oturum başına 2 davetsiz sahne (`TRN_TAVAN`)
+     • `send-push`      → 24 saatte 2 bildirim (`passesFreqCap`, min 4 saat)
+
+   Yani en kötü gün DÖRT dokunuştu — ve dördü de kendi defterinde meşruydu.
+   Oysa bu modülün kendi açılış yorumu sınırı çoktan adlandırmış: akşam
+   yığılması üç sahnedir ve ÜÇÜNCÜSÜ tören olmaktan çıkıp bildirime dönüşür.
+   Tavan bu yüzden UYDURULMADI, ödünç alındı (§6.10): günlük toplam 3.
+
+   KANIT NEREDEN GELİYOR — ve neden servis çalışanından değil: bir push
+   gönderildiğini istemci ancak `notification_log`'dan öğrenebilir. SW'nin
+   `localStorage`'ı yoktur, yani damgayı oraya yazamaz; kullanıcının kendi
+   satırlarını okumaksa RLS'te ZATEN açıktır (`notif_log owner read`,
+   `000:1065`) ve bu okumanın emsali de var (`01-prompts-modes:63`, son
+   push'u sohbet bağlamına taşıyan sorgu). Yani yeni bir migration, yeni
+   bir tablo, yeni bir izin YOK — var olan okuma yeniden kullanıldı (§1.3).
+
+   `test` ve `broadcast` SAYILMAZ ve bu bir tercih değil bir EŞLEŞMEDİR:
+   `passesFreqCap` de tam o ikisini dışarıda bırakır. İki defter aynı şeyi
+   saymazsa tavan sessizce ayrışır — ve sessiz ayrışma, bu sprintin en
+   pahalı sınıfıdır.
+
+   ASLA BLOKLAMAZ (§5.2): sorgu düşerse sayı `0` kalır, yani tavan bugünkü
+   davranışa iner. Bir ölçüm hatası töreni öldürmez.
+   `TRN_ZORUNLU` ('gunluk-ritus') bu tavandan da MUAFTIR — bütçenin işi
+   akşam yığılmasını seyreltmek, günün omurgasını kesmek değil.
+════════════════════════════════════════════════════════════════════ */
+const TRN_GUN_TAVAN = 3;
+
+/* Bildirim kanalının bugünkü dokunuş sayısı. `trnIzin` SENKRONDUR, o yüzden
+   sayı önceden çekilip burada tutulur; tazeleyen `trnKanalTazele`'dir. */
+let _pushSayisi = 0;
+let _pushGun    = null;
+
+/** Post-auth çağrılır (`03-auth-shell`). Son 24 saatte kaç KİŞİSEL bildirim
+ *  gitmiş — kanallar-üstü tavanın öteki yarısı. */
+export async function trnKanalTazele() {
+  try {
+    const uid = S.currentUser && S.currentUser.id;
+    if (!uid) return;
+    const since = new Date(Date.now() - 24 * 3600e3).toISOString();
+    const { data, error } = await sb.from('notification_log')
+      .select('type, sent_at').eq('user_id', uid).gte('sent_at', since);
+    if (error) throw error;
+    _pushSayisi = (data || []).filter(x => x.type !== 'test' && x.type !== 'broadcast').length;
+    _pushGun = (() => { try { return localDayKey(); } catch (_) { return null; } })();
+  } catch (e) {
+    // Sayamadıysak SIFIR sayarız: bilinmeyen bir dokunuş, olmuş bir dokunuş
+    // değildir (§6.10) — ve tavanı kanıtsız daraltmak töreni haksız yere keser.
+    _pushSayisi = 0;
+    console.warn('trnKanalTazele:', e && e.message);
+  }
+}
+
+/** Bugün bu kanaldan kaç dokunuş oldu — gün dönerse sayı düşer. */
+function _pushBugun() {
+  const bugun = (() => { try { return localDayKey(); } catch (_) { return null; } })();
+  if (_pushGun !== bugun) { _pushGun = bugun; _pushSayisi = 0; }
+  return _pushSayisi;
+}
+
 /* ─── 3. DIŞA AÇIK YÜZEY ─── */
 
 /** Açık tören portalının id'si — yoksa null. DOM tek gerçek kaynaktır. */
@@ -217,6 +283,8 @@ export function trnIzin(ad, { davetsiz = true } = {}) {
       _tazele();
       if (!TRN_ZORUNLU.has(ad)) {
         if (_sayac >= TRN_TAVAN) return false;
+        // Kanallar-üstü tavan (FAZ 14b): bildirim + sahne TEK deftere yazılır.
+        if (_pushBugun() + _sayac >= TRN_GUN_TAVAN) return false;
         const onc = TRN_ONCELIK[ad] ?? TRN_VARSAYILAN_ONCELIK;
         if (_sayac === TRN_TAVAN - 1 && onc > TRN_KORUMALI) return false;
       }
@@ -233,16 +301,21 @@ export function trnIzin(ad, { davetsiz = true } = {}) {
 /** Teşhis/test yüzeyi — bütçenin o anki hâli. */
 export function trnDurum() {
   _tazele();
-  return { sayac: _sayac, tavan: TRN_TAVAN, acik: trnAcikSahne(), ret: _retOku() };
+  return {
+    sayac: _sayac, tavan: TRN_TAVAN, acik: trnAcikSahne(), ret: _retOku(),
+    push: _pushBugun(), gunTavan: TRN_GUN_TAVAN,
+  };
 }
 
 /** Yalnız testler ve gün dönüşü senaryoları için. */
 export function trnSifirla() {
   _sayac = 0;
   _gun = null;
+  _pushSayisi = 0;
+  _pushGun = null;
   try { SafeStorage.set(_retKey(), {}); } catch (_) {}
 }
 
 if (typeof window !== 'undefined') {
-  Object.assign(window, { trnIzin, trnMesgul, trnAcikSahne, trnDurum, trnSifirla, trnRet, trnKabul });
+  Object.assign(window, { trnIzin, trnMesgul, trnAcikSahne, trnDurum, trnSifirla, trnRet, trnKabul, trnKanalTazele });
 }
