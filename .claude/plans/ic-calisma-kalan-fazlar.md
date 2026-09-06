@@ -1459,7 +1459,25 @@ BEYANDIR ve repodan doğrulanamaz (§6.5) — ama beyan da bir kaynaktır (§6.1
 **Numara çakışması YOKTU ve yeniden numaralama yapılmadı.** PR #13'ün `055`'i
 benim üçümü zaten kapsıyor; numaraları oynatmak *"en güncel tanım en yüksek
 numaradadır"* kuralını ve `tests/migration-blok-tasima.test.js` kapısını
-bozardı. Kayıt için: **PR #12 bu dal, PR #13 paralel FAZ 10 dalı.**
+bozardı.
+
+### PR defteri — üç dal, üçü de bu ağaçta (Emre'nin düzeltmesi, 2026-09-06)
+
+| PR | Dal | Ne getirdi | Durum |
+|---|---|---|---|
+| **#12** | `claude/ic-calismalar-analiz-n08hvw` | **bu dal** — FAZ 5–9 öz-denetimi · FAZ 10 (kendi ölçüsüyle) · 11 · 12 · 16 · 17 | açık |
+| **#13** | `claude/ic-calismalar-migrations-redeploy` | FAZ 10 (öteki ölçüyle: `inanc`·`engel`) · `055_birlesik_041_054.sql` · redeploy defteri | main'e alındı |
+| **#14** | `claude/wanderer-packages-setup` | **taşınabilir zemin** — protokol taşındı, hafıza köprüsü kuruldu, `referans-butunlugu` kapısı `-kapisi` adını aldı (böylece `kapi:genel`'e girdi), CLAUDE.md'ye **madde 13** eklendi, uygulanmamış XSS paketi silindi | main'e alındı |
+
+**#14 bu turun zeminini değiştirdi ve kontrol edildi:** hafıza artık İKİ
+depoda yaşıyor (`.claude/hafiza/` lokalin aynası · `.claude/memories/` repo
+tarafı) ve madde 13 uzak oturuma açık talimat veriyor — *"`.claude/memories/`
+altına yaz, `hafiza/`ya YAZMA"* (`disa` kolu `rsync --delete` kullanır).
+Bu turun iki hafıza dosyası ([[silinen-mekanizmanin-gerekcesi]] ·
+[[rls-daralmasi-istemci-sorgusu]]) doğru depoya yazılmış; `tests/hafiza-senkron-kapisi.test.js`
+ve `tests/referans-butunlugu-kapisi.test.js` merge sonrası yeşil (16/16).
+Kapının adı değiştiği için eski adla koşan her alışkanlık "test bulunamadı"
+alır — bu tur onu bir kez yaşadı ve kayda geçiyor.
 
 ### 8b'nin kilidi çözüldü — ve çözüm ELLE bir adım DEĞİL
 
