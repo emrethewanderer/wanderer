@@ -28,6 +28,13 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
 - [[kapi-sessiz-gec]] — bir kapı kırığı değil kırığı GÖRME YETENEĞİNİ
   kaybettiğinde de kırmızı yanmalı: boş bulgu listesi "temiz" demek değil
   (tsc TS18003 exit 0 ile gelir); sınır ölçülerek çizilir
+- [[kapinin-kendisi-yalan-soyleyebilir]] — bir denetçinin kör nokta defteri
+  YANLIŞ olabilir: ölü import tarayıcısı `'image/*'` yüzünden 1324 karakter
+  gerçek kodu yutup iki CANLI import'u ölü raporladı; ve sıfıra inen bir
+  TABAN kapısı kırık bir tarayıcıdan ayırt edilemez
+- [[vaadi-mekanizmaya-baglayan-kapi]] — kullanıcıya verilen süreli söz
+  ("90 gün sonra silinir") koda bağlanır: metin vaat ediyorsa mekanizma ŞART;
+  bir plan cümlesi kilidi "çözüldü" ilan etmişti, çağrı hiç yazılmamıştı
 - [[kapi-cifte-kosu]] — kapı workflow'u push+pull_request ile aynı ağacı
   iki kez sınıyordu; "ikisi farklı ağaçtır" gerekçesi beş PR'de de yanlış
   çıktı — tetik sökülmedi, gerekçe her koşuda ölçülür oldu

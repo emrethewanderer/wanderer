@@ -65,7 +65,7 @@ koddadır ve grep'lenir** (§3.7 madde 1).
 | 09 | F2 | Araç registry | **BİTTİ** | FAZ 9 — `_ARAC_DEFS` + saf yaprak `13a1` |
 | 09 | F3 | Yeni araçlar | **BİTTİ** | FAZ 10 — `inanc` · `engel` · `gordun` · `sabir` + `hazir()`; sekiz araç |
 | 12 | F2 | Sosyal bildirim | **BİTTİ · ELLE bekliyor** | FAZ 11+12 — merdivende `sosyal` + rozet; `send-push` redeploy |
-| 17 | F2 | Eşik alarmları | **SÜRÜYOR** | FAZ 13+14 — bu turda; kapandığında burası tazelenir |
+| 17 | F2 | Eşik alarmları | **BİTTİ · ELLE bekliyor** | FAZ 13a/13b/14a — şerit + `056` + `admin` push |
 | 13 | D | SW dil pürüzü | **BİTTİ** | FAZ 15 — kök `build.sh`'ta: `CACHE` damgası sidecar'ı izlemiyordu |
 | 10 | D kalan | Ses şiddet kademesi | **BİTTİ** | FAZ 16 — `_kademeGain` zincirin sonunda (`13e:100`) |
 | 10 | F3 | Akşam ısrar dozu | **BİTTİ** | FAZ 17 — `trnRet`/`trnKabul` (`13B:152`), ardışık üç ret → 7 gün |
@@ -1574,6 +1574,7 @@ BEYANDIR ve repodan doğrulanamaz (§6.5) — ama beyan da bir kaynaktır (§6.1
 | 2 | `send-push` redeploy | **Emre: yapıldı** | FAZ 5'in `nid`'i + FAZ 11'in basamağı + FAZ 12'nin metni birlikte canlandı |
 | 3 | **`usage_events_prune(90)` periyodik** | **KAPANDI — kod oldu** | `send-push` `runEngine`'in ilk adımı `pruneGunluk()`; saat 04 penceresi. Yeni cron/sır/kurulum yok |
 | 4 | **`send-push` redeploy — İKİNCİ KEZ, ve SIRALI** | **AÇIK · PAZARLIKSIZ** | aşağıya bak |
+| 5 | `056_esik_alarmlari.sql` | **AÇIK** | `admin_alarms()` — koşulmadan motor alarm gönderemez; RPC hatası yutulur, öteki bildirimler akmaya devam eder |
 
 **Numara çakışması YOKTU ve yeniden numaralama yapılmadı.** PR #13'ün `055`'i
 benim üçümü zaten kapsıyor; numaraları oynatmak *"en güncel tanım en yüksek
@@ -1628,8 +1629,15 @@ tersine dönerse uygulama tutmayacağı bir silmeyi vaat eder:
 > tersten. Bu bir tercih değil bir uyum açığıdır (§6.2 · §6.5).
 
 Bu redeploy, 09-06'da yapılan redeploy'un ÜSTÜNE gelir: o gün FAZ 5·11·12
-canlandı, bu sefer canlanacak olan `pruneGunluk()`'tür. Repodan
+canlandı, bu sefer canlanacak olan **iki** şey var — `pruneGunluk()` (saklama
+vaadinin çalışan yarısı) ve `alarmGonder()` (eşik alarmı). Repodan
 doğrulanamaz (§6.5) — deploy edilmiş VARSAYILMAZ.
+
+**Sıra, iki iş için de aynı:** `056` koşulmadan alarm gönderilemez (RPC yok),
+ama bu SESSİZ bir düşüştür — motor hatayı yutar ve öteki bildirimler akar.
+Yani `056`'nın gecikmesi bir kırık üretmez, yalnız alarmı geciktirir.
+`pruneGunluk()` ise farklıdır ve sırası PAZARLIKSIZDIR: HK 1.4 zaten ağaçta
+ve kullanıcıya "90 gün sonra silinir" diyecek.
 
 - **FAZ 15 · BİTTİ** (2026-09-06). `uygulayici`da (🅢) + parent'ın denetimi.
   **"Teşhissiz" madde artık teşhisli — ve kök gerçekten vardı.** Faz bir
@@ -1841,6 +1849,213 @@ doğrulanamaz (§6.5) — deploy edilmiş VARSAYILMAZ.
 
   Kapı: hedefli süit ✅ 41/41 (13B kuyruğu 36 + kanal tavanı 5).
 
+- **FAZ 13a · BİTTİ** (2026-09-06). 🅢, `uygulayici`da başladı, **parent'ta
+  bitti.** Ajan Sonnet kota duvarına çarpıp turun ortasında öldü (§3.3'ün
+  "karşı model erişilemezse" maddesinin uygulayıcı tarafı). Zemin yarım
+  değil, TESTSİZ kalmıştı: defter, `gzAlarm`, 14 çağrı ve şerit yazılmıştı;
+  kapı yazılmamıştı. Devir **atlanmadı, tamamlandı** — ve fazı Sonnet
+  yazdığı için denetimi Opus'a düştü, yani kural kendiliğinden doğru işledi.
+
+  Mekanik planda yazıldığı gibi: `_ALARMLAR` defteri, `_renderAll` başında
+  sıfırlanır, her nabız fonksiyonu şelalesini çözdükten sonra **bir kez**
+  `gzAlarm(alan, tani)` çağırır — 51 atama yerine **14 çağrı**.
+
+  **Sıra tuzağı gerçekti ve mutasyonla ölçüldü.** Şerit kartlarla aynı
+  template'e konsaydı defter henüz BOŞ olurdu: template soldan sağa
+  değerlendirilir, şerit kartlardan önce koşardı ve **sessizce hiç
+  görünmezdi**. Ajan bunu doğru çözdü (kartlar önce bir değişkene toplanır).
+  Kapı o hâli geri koyup ölçtü: iki test kırmızı yanıyor.
+
+  **Faz denetimi (parent · Opus) — üç bulgu, üçü de bu turda düzeltildi:**
+  1. `!active` dalındaki `_alarmSeridi()` çağrısı **tanım gereği hep boştu**
+     (kart fonksiyonlarının hiçbiri koşmamış olur). Çalışıyormuş gibi duran
+     bir satır, sonraki okuyucuyu yanıltır — kaldırıldı, gerekçesi yazıldı.
+  2. `${kartlar}` XSS kapısında **çıplak** kaldı (taban büyüdü). Muafiyet
+     beyanı yazdım ve beyan backtick'lerin İÇİNDE kalıyordu — yani sayfaya
+     METİN olarak basılırdı. Kaçış kaydını doğru yere koymanın yolu **kaydı
+     gerektirmemekmiş**: birleştirme düz toplamaya çevrildi, interpolasyon
+     kalmadı.
+  3. Bir yorum kodun yaptığından **fazlasını** söylüyordu: `_alarmDefteriOku`
+     "canlı referans döner" diyordu, oysa `_ALARMLAR` yeniden ATANIYOR —
+     tutulan referans bayatlar. Bu turun üçüncü kez görülen sınıfı (§5.2).
+
+- **FAZ 14a · BİTTİ** (2026-09-06). 🅞, parent'ta. **Eşik yargısı.**
+  Ölçü tek cümledir ve fazın asıl kararı odur: *bir tanı, ancak KULLANICI
+  TARAFINDA bir zarar ya da bir sessizlik anlatıyorsa alarmdır.* Kadranın
+  "ölçüm yeni açıldı" cümleleri bir ölçümün genç olduğunu söyler, bir kırığı
+  değil — kadranda okunur, telefonu titretmez.
+
+  `kritik` olan **iki** alan: `emniyet` (kriz sinyali düşüyor, kart hiç
+  açılmıyor — birisi 112'yi GÖRMÜYOR) ve `hata` (payın tek etikette
+  toplanması: tek bir kırık herkesi vuruyor). İkisinin de tanı yazan TEK
+  dalı zaten alarmın kendisi, yani seviye ALAN başına olmak **bugün
+  kesindir**; bu sınır yorumda adıyla yazılı.
+
+  `GZ_ALARM_ESIK` on dört alanın hepsini açıkça taşır — eksiksiz bir tablo,
+  yeni bir kartın sessizce bir varsayılana düşmesini engeller. Şerit
+  **kritiği önce basar** ve bu da mutasyonla ölçüldü: sıralama sökülünce
+  test kırmızı yanıyor. Sıralama testinin İLK hâli yanlıştı — seçtiğim kart
+  (`kota_pulse`) zaten `hata`'dan sonra render ediliyordu, yani sıralamayı
+  hiç sınamıyordu ve yeşil yanıyordu; `ritus_pulse`'a çevrildi.
+  **Sınav, sınadığını sınamalı** (FAZ 2c'nin dersi, üçüncü kez).
+
+  Gerçeklik kapısı (§6.10) seviye yedeğini yakaladı ve **haklıydı**: tablo
+  tamamlandı, kalan dar yedek gerekçesiyle beyan edildi — bu bir ölçüm
+  değil **yönlendirme** varsayılanı ve yön güvenli tarafa düşer (tanınmayan
+  alan telefonu titretmez).
+
+- **FAZ 13b · BİTTİ · ELLE bekliyor** (2026-09-06). 🅢, parent'ta (14a'nın
+  sayıları olmadan yazılamazdı — K6'nın sıra kararı).
+  `migrations/056_esik_alarmlari.sql` → `admin_alarms(p_gun)`; SECURITY
+  DEFINER, `auth.uid()` kapısı YOK ve bu bir gevşetme değil: çağıran motorun
+  JWT'si yoktur, kilit kimlikten YETKİYE taşındı (`REVOKE ALL FROM PUBLIC,
+  anon, authenticated` + `GRANT ... TO service_role`, `usage_events_prune`
+  emsali). Dönen JSON'da serbest metin yoktur — yalnız alan, seviye, sayı.
+
+  **`admin` merdivene GİRMEZ — planın tahmininden bilinçli sapma.** Plan
+  onu `pickTrigger` + `METNI_HAZIR` kapısına koymayı öngörüyordu; kaynağa
+  bakınca yer yanlış çıktı. Merdiven KULLANICI satırları üzerinde döner ve
+  her basamak altındakileri susturur (`sosyal`'in bir kez yaptığı buydu).
+  Bir admin alarmının alıcısı tek kişi, tetiği kullanıcının davranışı değil
+  sistemin hâli — oraya konsaydı, ona hiç ait olmayan bir riski satın
+  alırdık. Alarm koşu başına **bir kez**, döngünün DIŞINDA değerlendirilir.
+  FAZ 15'in dersi: planın "Değişen:" satırı bir tahmindi, bir sözleşme değil.
+
+  **Metin LLM'e verilmez:** öteki tetikler kişisel bir cümle üretir, bu bir
+  ÖLÇÜM RAPORUDUR. Sayıyı modele yazdırmak, ölçülmüş bir değeri
+  uydurulabilir kılardı (§6.10). "Sayı bağırmaz" kuralı burada geçerli
+  değil ve sebebi alıcıdır: kullanıcıya sayı bir baskıdır, Emre'ye alarmın
+  kendisi sayıdır.
+
+  Kapı `tests/alarm-esik-kapisi.test.js` (15 test): iki kaynağın eşiği
+  birebir aynı mı · 056'nın ürettiği her alanın motorda bir `case`'i var mı
+  (liste elle değil SQL'den türetilir) · `admin` merdivende yok mu · yetki
+  ve mahremiyet · ve 056 koşulmamışsa motorun ayakta kalması.
+
+- **FAZ 18 · BİTTİ** (2026-09-06). 🅢, `uygulayici`da başladı (121 → 65),
+  **parent'ta bitti** (65 → 0). Ajan yine kota duvarına çarptı.
+
+  **Ve silmeden önce yapılan bağımsız doğrulama, tarayıcının KENDİSİNDE bir
+  kırık buldu.** `scripts/olu-import-denetci.mjs` yorumları iki `replace`
+  ile söküyordu; `13c-gorsel-ekleme.js`'teki `fi.accept = 'image/*'`
+  satırının içindeki dizi **sahte bir blok yorum açtı** ve bir sonraki
+  gerçek kapanışa kadar **1324 karakter gerçek kodu yuttu** — `S.currentUser`
+  ve `sb.storage` kullanımları oradaydı. Yani iki CANLI import ölü
+  raporlanıyordu; silinselerdi görsel yükleme sessizce ölürdü. Betiğin kör
+  nokta defteri *"canlı olanı ölü SANMAZ"* diyordu ve **o cümle yanlıştı**:
+  bir belge iddiası, kodun yaptığından fazlasını söylüyordu.
+
+  `kodu()` soldan sağa bir durum makinesine çevrildi. Yazarken aynı sınıfa
+  **iki kez daha** düşüldü ve ikisi de kayda geçti: (a) yorumun İÇİNE
+  blok-yorum kapatan bir dizi örnek olarak kondu ve yorum erken kapandı;
+  (b) string sınırları da düşürüldü, `from 'x'` bozuldu, tarayıcı hiç import
+  bulamadı ve kapı **"0 ölü import" diye sahte bir yeşil bastı.** İkincisi
+  en tehlikelisiydi: sıfır borç hâlinde gerçek 0 ile kırık ayrıştırıcının
+  çıktısı BİREBİR AYNIDIR ([[kapi-sessiz-gec]]).
+
+  Bu yüzden kapının iki testi yeniden yazıldı. Eskiler borç dönemine aitti
+  ("taban boş olmasın", "tarama bir şey bulsun") ve sıfırda **yapıları
+  yanlıştı**. Yenileri aynı şeyi korur ama doğru yerden: taban SIFIR olmalı,
+  ve sıfır ancak ayrıştırıcının çalıştığı sentetik bir kökte kanıtlandıktan
+  sonra kabul edilir. Bugünün iki kırığı ayrı birer regresyon kilidi aldı.
+
+  Temizlik **63 ad / 8 dosya**. Dört import satırının adları tümüyle öldü ve
+  orada kanıt istendi (§3.1): `10h` ve `state.js` yan etkisiz → satır
+  silindi; `12c` üst düzey `try`, `15-i18n` üst düzey `initI18n()` taşıyor →
+  satır **çıplak import olarak kaldı**, yükleme sırası birebir korundu.
+
+  Taban **0**; kapı artık sert 0-toleransta.
+
+
+## Opus öz-denetimi — 2026-09-06 · sprint kapanışı (FAZ 8b · 13 · 14 · 18)
+
+**Plana karşı.** On sekiz fazın hepsi artık kayıtlı ve her biri koda karşı
+grep'lendi (`_kademeGain` · `trnRet` · `_shareCanvas` · `_ARAC_DEFS` ·
+`hukuk_kabul` · `reTest` …). Üç sapma var ve üçü de gerekçeli:
+(1) **FAZ 13 ikiye bölündü** (13a şerit · 13b motor) ve araya FAZ 14a girdi —
+sıra kasıtlı, çünkü sayıları kararlaşmadan yazılan bir `056` Emre'ye İKİNCİ
+bir migration ödetirdi. (2) **`admin` merdivene konmadı**, planın öngördüğü
+yer kaynağa bakınca yanlış çıktı (FAZ 15 emsali: "Değişen:" bir tahmindir).
+(3) `## Duraklar` maddesi kalmadı; iki taşınan bulgu (09b'nin paralel
+sözlüğü · OİK bağlam başlığı · native senkron kapısı) bilinçli olarak
+kapsam dışında duruyor ve planda adıyla yazılı.
+
+**Sessizce düşen üç madde bulundu ve üçü de kapatıldı** — en sık kırık budur
+ve bu turda üçü birden çıktı: **(a)** `0b9c3c5` FAZ 16 ve 17'nin BİTTİ
+kayıtlarını (64 satır) kazara silmişti; kod ağaçtaydı, defter unutmuştu.
+**(b)** Denetim defteri `ayna` aracını var sayıyordu; `_ARAC_DEFS`'te sekiz
+araç var ve `ayna` onlardan biri değil (`13a:187` "bilerek yok" diyor).
+**(c)** En ağırı: plan 8b'nin kilidinin *"çözüldüğünü"* yazıyordu — motor
+`usage_events_prune`'u çağırsın diye — ve **o çağrı hiç yazılmamıştı.**
+Bedeli ölçülebilir bir yalan olurdu: gizlilik metni "90 gün sonra silinir"
+der, silen hiçbir şey koşmaz.
+
+**Koda karşı.** Beş taban çizgisinin **toplam borcu 0**: xss · ihtimalsel ·
+tasarım · eksen · ölü import. Sonuncusu bu turda 121'den sıfıra indi ve
+kapı sert 0-toleransa döndü. `*-MUAF` beyanlarının hepsi gerekçe taşıyor;
+bu turda bir yenisi eklendi (alarm seviyesinin yönlendirme varsayılanı) ve
+gerekçesi yazılı. **İkiz motor doğmadı:** `gzAlarm` yeni bir teşhis
+üretmez, kartların kendi cümlesini toplar — 17 çağrı, sıfır yeni koşul.
+
+**Kapıların GÖRMEDİĞİ yerde asıl bulgu şuydu: bir kapının kendisi yalan
+söylüyordu.** `olu-import-denetci`'nin kör nokta defteri *"canlı olanı ölü
+SANMAZ"* diyordu; `'image/*'` içindeki dizi sahte bir yorum açıp 1324
+karakter gerçek kodu yutuyordu ve iki CANLI import ölü raporlanıyordu.
+Silinselerdi görsel yükleme sessizce ölürdü — kapı bir kırığı önlemek
+yerine ÜRETECEKTİ. Düzeltildi, ve iddia artık bir teste bağlı.
+
+**Vizyona karşı.** Alarm şeridi **kart değil kaldıraç**: yeni bir ölçü
+eklemiyor, var olan cümleleri görünür kılıp kritiği öne alıyor — Emre'nin
+kadranı açmasını beklemek yerine ona gidiyor. Anlam ekseni korundu: şeridin
+kritik işareti ve hukuk şeridinin çerçevesi **altın** (eylem/davet), yeni
+bir renk dili icat edilmedi. Manevi register sekülerleşmedi; hukuk şeridinin
+cümlesi kitap-köklü değil ama olması da gerekmiyor — bir hukuk haberi
+törenselleştirilirse yalan söyler.
+**§6.10 iki yerde güçlendi:** saklama vaadi artık bir mekanizmaya bağlı
+(kapısı var), ve şerit `hukuk_kabul`'e hiçbir şey yazmıyor — kapatmak bir
+rıza DEĞİL, ve bunu bir yorum değil bir YOKLUK garantiliyor.
+**Bir kural bilinçli olarak esnetildi ve gerekçesi alıcıdır:** admin
+alarmının metni SAYI taşır ("hataların %40'ı"). "Sayı bağırmaz" kuralı
+kullanıcı içindir — kullanıcıya sayı bir baskıdır, Emre'ye alarmın kendisi
+sayıdır. Bunu bir istisna olarak yazmak, sessizce yapmaktan iyidir.
+
+**Sürece karşı.** Üç kural değişti ve üçü de `PROTOKOL-FABLE.md`'ye yazıldı:
+1. **§3.3 — uygulayıcı da kota duvarına çarpar.** Madde yalnız denetçiyi
+   düşünmüştü. Denetim ertelenebilir (borç görünür kalır); **yarım bir faz
+   ertelenemez** — ağaçta çalışan ama kapısı olmayan kod bırakır ve sonraki
+   turda "bitmiş" görünür. Doğru hamle: ölç → **parent bitirir** → sapmayı
+   raporla. Bu turda iki faz böyle kapandı.
+2. **§3.3 — bir yorum davranış hakkında yanlışlanabilir bir iddia taşıyorsa,
+   o iddia bir teste bağlanır.** Bu turda aynı sınıf **dört kez** görüldü
+   (üçü yorumda, biri belgede) ve ortak biçimi hep aynıydı: *kod bir şey
+   yapar, yorum daha fazlasını söyler.* Kural §5.2'de VARDI ama
+   ölçülemiyordu — §6.6'nın üçüncü basamağı; şimdi ölçülebilir.
+3. **§3.3 — TABAN'lı bir kapının sıfıra inişi ayrı bir tuzaktır.** Sıfırda
+   *gerçek bir sıfır* ile *hiçbir şey bulamayan kırık bir tarayıcının*
+   çıktısı birebir aynıdır. Ölçüldü: kapı bu turda bir kez tam olarak öyle
+   sahte bir yeşil bastı. Artık taban tutan her kapı, ilk günden, sentetik
+   bir kökte tarayıcının çalıştığını kanıtlayan bir test taşır.
+
+**Ve bir dördüncüsü kurala DÖNÜŞMEDİ, çünkü zaten kural:** *sınav sınadığını
+sınamalı.* Bu turda iki testim bu yüzden yeniden yazıldı (sıralama testi
+zaten sıralı bir veriyle koşuyordu; kapı testi bir yorumdaki adı kullanım
+sanıyordu). Kural §10.5'te duruyor ve yerinde — eksik olan disiplindi, kapı
+değil. Not edilip geçilmedi: ikisi de düzeltildi ve mutasyonla ölçüldü.
+
+**Bulgular.** 12 — düzeltildi 12 · plana taşındı 0 · reddedildi 0
+- `.claude/plans/ic-calisma-kalan-fazlar.md` — FAZ 16/17 kayıtları silinmiş — düzeltildi (git'ten birebir geri kondu)
+- `.claude/plans/ic-calisma-kalan-fazlar.md:66` — defter `ayna`'yı var sayıyor — düzeltildi
+- `supabase/functions/send-push/index.ts` — 8b'nin kilidi "çözüldü" deniyor, çağrı yok — düzeltildi (`pruneGunluk`)
+- `tests/tik-atifi.test.js` — repo-geneli kapı ama adı `kapisi` taşımıyor — düzeltildi (ad göçü)
+- `js/parts/13q-gozlemevi.js` — `!active` dalında hep boş kalan şerit çağrısı — düzeltildi
+- `js/parts/13q-gozlemevi.js` — `${kartlar}` XSS tabanını büyütüyor — düzeltildi (düz toplama)
+- `js/parts/13q-gozlemevi.js` — muafiyet beyanı template'in İÇİNDE, ekrana basılırdı — düzeltildi
+- `js/parts/13q-gozlemevi.js` — `_alarmDefteriOku` yorumu "canlı referans" diyor, dizi yeniden atanıyor — düzeltildi
+- `js/parts/13q-gozlemevi.js:126` — seviye yedeği gerçeklik kapısını kırıyor — düzeltildi (tablo tamamlandı + gerekçeli muafiyet)
+- `scripts/olu-import-denetci.mjs` — string içindeki `/*` gerçek kodu yutuyor, YANLIŞ POZİTİF — düzeltildi (durum makinesi + iki regresyon kilidi)
+- `tests/olu-import-kapisi.test.js` — borç dönemine ait iki test sıfırda yapısal olarak yanlış — düzeltildi (taşındı)
+- `tests/gozlemevi-alarm.test.js` — sıralama testi sıralamayı sınamıyordu — düzeltildi (`ritus_pulse`)
+
 ### Taşınan bulgu — native senkron kapısı sidecar'ı vekaleten ölçüyor
 `tests/native-senkron-kapisi.test.js` yalnız `_src-<hash>.js` adının
 eşleşmesine bakıyor; `assets/ext-*.js`'in byte içeriğini bağımsız
@@ -1912,3 +2127,59 @@ cümlesi; `10x`'e yazan fonksiyon (`etw_sessiz_saat_v1_<uid>`, `{start,end}`),
 parametreyi (`tur`) alsın, `shrShareStory` onu `params.tur`'dan geçirsin;
 `13g:301`'in sabit `tur:'kart'`'ı o değere devredilsin; yedi çağırana
 planda yazılı eşleme konsun.
+
+---
+
+## Kapanış — 2026-09-06
+
+**Plan kapandı. On sekiz fazın hepsi bitti** (1·2·2c·2d·2e·3·4·5·6·7·8a·8b·
+9·10·11·12·13a·13b·14a·14b·15·16·17·18) ve denetim defterinin on üç maddesi
+artık "AÇIK" satırı taşımıyor.
+
+### Bu turda kapananlar
+- **FAZ 8b** — HK 1.4 + saklama cümlesi (TR+EN) + sürüm şeridi. Kilidi bir
+  plan cümlesi değil, `pruneGunluk()` açtı.
+- **FAZ 13a/13b/14a** — kadran alarm şeridi · `056` alarm RPC'si · `admin`
+  push · eşik tablosu.
+- **FAZ 14b** — kanallar-üstü tavan (`TRN_GUN_TAVAN = 3`).
+- **FAZ 18** — 121 → 0 ölü import; ve tarayıcının kendi yanlış pozitifi.
+
+### Plandan sapmalar (dürüstlük kaydı)
+1. **FAZ 13 ikiye bölündü ve araya 14a girdi.** Sıra kasıtlı: sayıları
+   kararlaşmadan yazılan bir `056`, Emre'ye ikinci bir migration ödetirdi.
+2. **`admin` merdivene konmadı.** Plan `pickTrigger` + `METNI_HAZIR`
+   öngörüyordu; kaynak yerin yanlış olduğunu söyledi (merdiven kullanıcı
+   satırları üzerinde döner ve altındakileri susturur). FAZ 15 emsali.
+3. **FAZ 13a ajanda başladı, parent'ta bitti** — Sonnet kota duvarı. Aynısı
+   FAZ 18'de de oldu (121→65 ajanda, 65→0 parent'ta). Devir atlanmadı;
+   yarım kalan faz devredilemediği için parent tamamladı ve sapma buraya
+   yazıldı. Kural `PROTOKOL-FABLE.md` §3.3'e eklendi.
+4. **Bir alarm metni SAYI taşıyor** ("hataların %40'ı") — "sayı bağırmaz"
+   kuralının bilinçli istisnası; gerekçe alıcıdır (kullanıcıya sayı bir
+   baskıdır, Emre'ye alarmın kendisi sayıdır).
+
+### Protokole yazılan üç yeni kural
+1. §3.3 — **uygulayıcı da kota duvarına çarpar**: denetim ertelenebilir,
+   yarım bir faz ertelenemez.
+2. §3.3 — **bir yorum yanlışlanabilir bir davranış iddiası taşıyorsa, o
+   iddia bir teste bağlanır** (bu turda dört kez aynı sınıf çıktı).
+3. §3.3 — **TABAN'lı bir kapı sıfıra inince kendini silahsızlandırabilir**;
+   ilk günden sentetik bir "tarayıcı canlı mı" testi taşımalı.
+
+### Doğrulama
+| Kontrol | Durum |
+|---|---|
+| `./build.sh` | ✅ 719KB gzip |
+| tam süit (`npx vitest run`) | ✅ **188 dosya / 4174 test** |
+| `npm run kapi:genel` | ✅ 463/463 |
+| `node scripts/dogrula.mjs` | ✅ exit 0 · "Konsol temiz." |
+| tasarım · gerçeklik · XSS denetçileri | ✅ temiz |
+| CI Kapı #125 · #126 | ✅ · ✅ |
+
+### ELLE bekleyenler (§6.5 — deploy edilmiş VARSAYILMAZ)
+1. **`send-push` redeploy** — `pruneGunluk()` + `alarmGonder()` canlanır.
+   **SIRA PAZARLIKSIZ:** HK 1.4 zaten ağaçta ve kullanıcıya "90 gün sonra
+   silinir" diyecek; redeploy önce gelmeli.
+2. **`migrations/056_esik_alarmlari.sql`** — koşulmadan alarm gönderilemez.
+   Bu düşüş SESSİZDİR ve zararsızdır: motor RPC hatasını yutar, öteki
+   bildirimler akmaya devam eder.
