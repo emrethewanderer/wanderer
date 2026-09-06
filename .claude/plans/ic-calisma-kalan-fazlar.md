@@ -1443,91 +1443,47 @@ gözden geçirilmedi: FAZ 1–2 kendi kapısını taşıyor ve bu tur ona dokunm
   kalanlar" tablosundaki `13·F1 kalan · fallbackCopy` maddesi budur ve
   kapsam dışı kalmaya devam ediyor.
 
-### ELLE kuyruğu — bugünkü toplam (2026-09-05)
+### ELLE kuyruğu — Emre'nin turu sonrası (2026-09-06)
 
-Her fazın kendi kaydında yazılı, ama dağınık duruyorlardı; **görünmeyen bir
-borç olmayan bir borç gibi okunur** ([[rapor-bayatligi]]'nın ELLE hâli).
+**Emre 2026-09-06'da migration'ları ve deploy'ları yaptığını bildirdi.** Bu bir
+BEYANDIR ve repodan doğrulanamaz (§6.5) — ama beyan da bir kaynaktır (§6.10'un
+üç kökeninden biri) ve defter ona göre tazelendi. Repodan doğrulanabilen tek
+şey dosyanın VARLIĞIdır, uygulanmışlığı değil.
 
-| # | İş | Hangi fazlar bekliyor | Not |
+| # | İş | Durum | Kanıt / not |
 |---|---|---|---|
-| 1 | `migrations/052_tik_atifi.sql` | FAZ 5 | RPC `notif_mark_clicked` |
-| 2 | `migrations/053_saklama_politikasi.sql` | FAZ 6 | + **periyodik** `usage_events_prune(90)` |
-| 3 | `migrations/054_riza_defteri.sql` | FAZ 7, 8a | tablo yokken `hkKabulVarMi` `null` döner (doğru davranış) |
-| 4 | **`send-push` redeploy** | FAZ 5, 11, 12 | **üç fazın işi tek redeploy'a binmiş** |
+| 1 | `055_birlesik_041_054.sql` | **Emre: koşuldu** | `052·053·054`'ün üçünü de içerir (`:1318` `notif_mark_clicked`, `usage_events_daily`, `prune`, `hukuk_kabul`) — ayrı ayrı koşmaya gerek yoktu |
+| 2 | `send-push` redeploy | **Emre: yapıldı** | FAZ 5'in `nid`'i + FAZ 11'in basamağı + FAZ 12'nin metni birlikte canlandı |
+| 3 | **`usage_events_prune(90)` periyodik** | **AÇIK — ve artık ELLE DEĞİL** | aşağıya bak |
 
-**Redeploy'un kapsamı büyüdü ve bu bilinçli olarak kaydediliyor:** FAZ 5 ona
-`nid`i (tık atıfı) koydu, FAZ 11 merdivene `sosyal` basamağını, FAZ 12 o
-basamağın metnini. Redeploy yapıldığı gün **üçü birden canlanır** — yani
-sosyal bildirimler o gün akmaya başlar. Tek tek düşünülüp "küçük bir
-redeploy" sanılmasın.
+**Numara çakışması YOKTU ve yeniden numaralama yapılmadı.** PR #13'ün `055`'i
+benim üçümü zaten kapsıyor; numaraları oynatmak *"en güncel tanım en yüksek
+numaradadır"* kuralını ve `tests/migration-blok-tasima.test.js` kapısını
+bozardı. Kayıt için: **PR #12 bu dal, PR #13 paralel FAZ 10 dalı.**
 
-**FAZ 8b hâlâ (2)'ye kilitli:** `053` koşup `usage_events_prune` periyodik
-hâle gelmeden gizlilik metnine saklama cümlesi yazmak, tutulmayan bir
-taahhüt olur (§6.2 · §6.5). Kilit tek adımlıktır.
+### 8b'nin kilidi çözüldü — ve çözüm ELLE bir adım DEĞİL
 
-- **FAZ 16 · BİTTİ** (2026-09-06). 🅞, parent'ta.
-  **Planın önerdiği yol üründe düzeltildi.** Plan *"kademe `_master.gain`
-  üstünden geçmeli"* diyordu; iki sebeple orası YANLIŞ yerdi ve ikisi de
-  ancak kaynağa bakınca görünür:
-  1. **`_master.gain` serbest bir yuva değil** — `_ready()` HER cue'da gece/
-     akşam mood'unu oraya yazar (`setTargetAtTime(mood.g …)`, `13e:127`).
-     Kullanıcı ayarı oraya konsaydı ilk cue'da sessizce silinirdi: ayar
-     değişir, hiçbir şey olmaz, hiçbir yerde hata görünmez — §6.2'nin en
-     sinsi hâli.
-  2. **Fener Ambiyansı `_master`'ı ATLAR** (K7, `13e:82`'nin kendi yorumu) ve
-     doğrudan `_moodFilter`'a bağlanır. `_master`'da kısmak ambiyansı hiç
-     kısmazdı: *"sesi kıstım ama fener hâlâ aynı."*
-  Doğru yer zincirin SONU: `_kademeGain` düğümü `_moodFilter` ile
-  `destination` arasına girdi. İki zincir de oradan geçer, mood mantığıyla
-  hiç çakışmaz — **mood tonu ayarlar, kademe şiddeti.**
+FAZ 8a saklama cümlesini iki koşula bağlamıştı: `053` koşulmuş olmalı **ve**
+`usage_events_prune(90)` periyodik olmalı. Birincisi tamam; ikincisi için Emre
+*"bu konuda bir fikrim yok"* dedi — yani kurulmuş sayılamaz (§6.10: kanıtı
+olmayan değer yoktur, ve bir gizlilik taahhüdü tam da kanıt isteyen şeydir).
 
-  **Dozun gerekçesi (🅞) uydurulmadı, ödünç alındı:** gece kısıklığı
-  `_master`'ı 0.5'ten 0.22'ye indiriyor (≈0.45). Uygulamanın "sessiz ama
-  duyulur" dediği ölçü zaten oydu; ikinci bir sayı icat etmek §6.10'a göre
-  kanıtsız bir değer olurdu. Üçüncü kademe eklenmedi: aç/kapa zaten var ve
-  gece kısıklığı bunun ÜSTÜNE biner (kısık bir gecede 0.22×0.45 ≈ 0.10).
+**Ama `053`/`055`'in kendi yorumu yanıltıcı çıktı.** *"`pg_cron` bu repoda hiç
+kullanılmamış"* diyor; bu yalnız `migrations/` için doğru. `SETUP-PUSH.md §4`
+tam olarak `pg_cron`'u kurar ve `send-push` motorunu **30 dakikada bir**
+çağırır. Yani projede ZATEN çalışan periyodik bir motor var — migration onu
+görmemiş, ve o körlük 8b'yi bir aydır gereksiz yere kilitli tutmuş.
 
-  Yüzey iki adlı hap: **Tam · Kısık** — slider değil, çünkü uygulama sesi bir
-  sayıyla değil bir dozla anlatır. Düğme dili icat edilmedi, `.takip-pill`in
-  biçimi ödünç alındı (§1.3). Ses kapalıyken satır `hidden` — kapalı bir sesin
-  şiddetini sormak bir ayar değil bir çelişkidir. Ayar grubu yerelleşmemiş
-  (hardcoded TR) ve o **kalıba uyuldu**; grubun tamamının i18n borcu ayrı.
-  Kapı: dört davranış testi + bir YAPISAL regresyon kilidi (kademe
-  `_master.gain`'e taşınırsa kırmızı yanar — sessizce kırılacak tek yol oydu).
+Çözüm bu yüzden yeni bir cron değil, var olanın yeniden kullanılmasıdır (§1.3):
+**motorun kendisi günde bir kez `usage_events_prune` çağırır.** `prune`
+`SECURITY DEFINER` ve `service_role`'a açıktır; `send-push` zaten service-role
+istemcisiyle koşar. Yeni sır yok, yeni kurulum yok, Emre'ye yeni adım yok —
+vaat mevcut mekanizmayla **yapısal olarak** doğru hâle gelir.
 
-- **FAZ 17 · BİTTİ** (2026-09-06). 🅞, parent'ta.
-  **Planın sayısı mekanik olarak imkânsızdı ve bunu ancak kod söyledi.**
-  Plan *"3 ✕ → bugün sus"* diyordu; oysa `13B` kuyruğunun günlük davetsiz
-  bütçesi **`TRN_TAVAN = 2`** — aynı gün üç davetsiz açılış olamaz, yani
-  eşiğe hiç varılamazdı. Sayı bütçe görülmeden yazılmış. Doğru ölçü aynı gün
-  değil **ARDIŞIK** rettir: üç kez üst üste kapatılan bir tören bir tercih
-  söylüyordur.
-
-  Motor doğru yere kondu: kuyruğun kendisine (`13B`), tek töreme değil —
-  ritmi kuyruk sahiplenir. `trnRet` / `trnKabul` + `trnIzin`'in davetsiz
-  dalında bir kontrol. Tüketici `13h`: ✕ yolu `trnRet`, mühür yolu `trnKabul`.
-
-  **Sözleşmenin özü üç KODLA garanti edilir** (✕ "şimdi değil"dir, "asla"
-  değil) ve üçü de ayrı ayrı test edilir çünkü üçü de tek başına bozulabilir:
-  1. yalnız **davetsiz** açılış susar — kullanıcının kendi açtığı kapı
-     (`davetsiz:false`) bu satıra hiç uğramaz;
-  2. sessizlik **sürelidir** (7 gün — uygulamanın hafta ritmi zaten kurulu,
-     09d/09h `lastSeenWeek`; yeni ritim icat edilmedi);
-  3. tek bir **kabul** sayacı anında sıfırlar — bir katılım üç retten ağır
-     basar, çünkü mesele ceza değil ritim.
-
-  **Fazın kendi testi fazın kendi kırığını buldu:** ilk yazımda gün farkı
-  `localDayKey()` üzerinden hesaplanıyordu — o anahtar `${yıl}-${getMonth()}-${gün}`
-  üretir, ay SIFIR TABANLI ve padding YOK (`2026-8-6`): ne ayrıştırılabilir ne
-  sıralanabilir, `Date.parse` onu bir ay kaydırarak okur. 00a'nın kendi yorumu
-  zaten `localISODate()` diyor ([[yerel-tarih-anahtari]]). Süre testi kırmızı
-  bastı, kod düzeldi. Kuyruğun gün BÜTÇESİ hâlâ `localDayKey` kullanır ve
-  doğru kullanır — o yalnız eşitlik sorar, aritmetik yapmaz.
-
-  **Ölçüm tarafı (Gözlemevi sorgusu) bilinçli olarak YAPILMADI** — planın
-  kendi kararı: *"ölçüm tarafı veriye bağlıdır; kural tarafı bugün yazılabilir."*
-  Defter (`etw_trn_ret_v1_<uid>`) bugünden itibaren birikir; sorgu, veri
-  oluştuğunda yazılır.
+**SIRA KISITI (yeni ELLE maddesi, tek satır ama pazarlıksız):** HK 1.4
+kullanıcıya gitmeden ÖNCE `send-push` redeploy edilmeli. Aksi hâlde uygulama
+"90 gün sonra silinir" der ama silen şey henüz canlı değildir — 8a'nın tam
+olarak reddettiği durum, yalnız tersten. İkisi ayrı deploy döngüsündedir.
 
 **İlk hamle (FAZ 13):** eşik alarmı altyapısı — 🅢, DEVREDİLİR
 (`uygulayici`). `13q-gozlemevi.js`'te kartların ZATEN yazdığı teşhis
