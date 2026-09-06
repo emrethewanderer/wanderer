@@ -236,3 +236,78 @@ describe('zorunlu sahne — bütçe günün omurgasını kesmez', () => {
     expect(trnIzin('gunluk-ritus')).toBe(false);
   });
 });
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ISRAR DOZU (FAZ 17) — "✕ şimdi değil demektir, asla değil"
+
+   Bu blok bir SÖZLEŞME testidir: sayılar değişebilir, garantiler değişemez.
+   Üçü de ayrı ayrı sınanır çünkü üçü de tek başına bozulabilir:
+     1. yalnız DAVETSİZ açılış susar — kullanıcının kendi kapısı hep açık
+     2. sessizlik SÜRELİDİR, kalıcı değil
+     3. tek bir kabul sayacı ANINDA sıfırlar
+
+   Sayının gerekçesi de burada mühürlü: plan "3 ✕ → bugün sus" diyordu ama
+   `TRN_TAVAN = 2`, yani aynı gün üç davetsiz açılış imkânsız. Ölçü ardışık
+   rettir, aynı gün değil.
+═══════════════════════════════════════════════════════════════════════ */
+describe('ısrar dozu — ✕ bir cevaptır, sessizlik değil', () => {
+  const ARA = 'aksam-toreni';
+
+  beforeEach(async () => {
+    const q = await import('../js/parts/13B-toren-kuyrugu.js');
+    q.trnSifirla();
+    document.body.innerHTML = '';
+  });
+
+  async function q() { return import('../js/parts/13B-toren-kuyrugu.js'); }
+
+  it('eşiğin ALTINDA davetsiz açılış engellenmez', async () => {
+    const { trnRet, trnIzin, trnSifirla } = await q();
+    trnRet(ARA); trnRet(ARA);              // iki ret — eşik üç
+    trnSifirla.length;                      // (no-op, okunabilirlik)
+    expect(trnIzin(ARA)).toBe(true);
+  });
+
+  it('ÜÇ ardışık ret sonrası davetsiz açılış susar', async () => {
+    const { trnRet, trnIzin } = await q();
+    trnRet(ARA); trnRet(ARA); trnRet(ARA);
+    expect(trnIzin(ARA)).toBe(false);
+  });
+
+  it('GARANTİ 1: kullanıcının KENDİ açtığı kapı susturulmaz', async () => {
+    const { trnRet, trnIzin } = await q();
+    trnRet(ARA); trnRet(ARA); trnRet(ARA);
+    expect(trnIzin(ARA), 'davetsiz susmalı').toBe(false);
+    expect(trnIzin(ARA, { davetsiz: false }),
+      'kullanıcı kendi açtı ama kapı kilitli — ✕ "asla"ya dönüştü').toBe(true);
+  });
+
+  it('GARANTİ 2: tek bir KABUL sayacı anında sıfırlar', async () => {
+    const { trnRet, trnKabul, trnIzin } = await q();
+    trnRet(ARA); trnRet(ARA); trnRet(ARA);
+    expect(trnIzin(ARA)).toBe(false);
+    trnKabul(ARA);
+    expect(trnIzin(ARA), 'bir kabul üç retten ağır basmadı').toBe(true);
+  });
+
+  it('GARANTİ 3: sessizlik SÜRELİDİR — yedi gün sonra davet döner', async () => {
+    const { trnRet, trnIzin, trnDurum } = await q();
+    const { SafeStorage } = await import('../js/parts/00a-infrastructure.js');
+    trnRet(ARA); trnRet(ARA); trnRet(ARA);
+    expect(trnIzin(ARA)).toBe(false);
+    // Defteri sekiz gün geriye al — süre dolmuş olsun.
+    const d = SafeStorage.get('etw_trn_ret_v1_anon', {});
+    const eski = new Date(Date.now() - 8 * 86400000).toISOString().slice(0, 10);
+    SafeStorage.set('etw_trn_ret_v1_anon', { [ARA]: { n: 3, son: eski } });
+    expect(trnIzin(ARA), 'sessizlik kalıcı oldu — süre dolmasına rağmen susuyor').toBe(true);
+    expect(trnDurum().ret[ARA], 'süre dolunca defter temizlenmedi').toBeUndefined();
+    expect(d).toBeDefined();
+  });
+
+  it('ısrar YALNIZ o töreni susturur — başka sahne etkilenmez', async () => {
+    const { trnRet, trnIzin } = await q();
+    trnRet(ARA); trnRet(ARA); trnRet(ARA);
+    expect(trnIzin(ARA)).toBe(false);
+    expect(trnIzin('baska-sahne'), 'bir törenin reddi başka töreni sustursun istemiyoruz').toBe(true);
+  });
+});

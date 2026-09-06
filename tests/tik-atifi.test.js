@@ -157,6 +157,78 @@ describe('send-push/index.ts — insert → id → gönder → sent===0 sil (FAZ
   });
 });
 
+/* ═══ SOSYAL DOKUNUŞ — İç Çalışma 12 · FAZ 11 (kaynak taraması) ═══════════
+   Ölçü sınırı tik-atifi.test.js ile aynı gerekçe: send-push bir Deno Edge
+   Function'dır, vitest onu import edip koşturamaz. Bu blok üç şeyi kanıtlar:
+   'sosyal' winback'ten ÖNCE gelir, adaylar döngü dışında TEK sorguda
+   hesaplanır, ve microcopy'si henüz yazılmamış bir tetik (bugün: 'sosyal')
+   yanlış bağlamda bir metin basmak yerine sessizce hiçbir şey göndermez. */
+describe('send-push/index.ts — sosyal tetik merdivende winback\'ten önce (FAZ 11)', () => {
+  const src = readFileSync(join(ROOT, 'supabase/functions/send-push/index.ts'), 'utf8');
+
+  it('pickTrigger sosyalVar parametresi alır ve sosyal dalı winback dalından ÖNCE gelir', () => {
+    const idx = src.indexOf('function pickTrigger');
+    expect(idx).toBeGreaterThan(-1);
+    expect(src).toContain('function pickTrigger(row: any, dateStr: string, hour: number, sosyalVar: boolean): string | null {');
+    const body = src.slice(idx);
+    /* Dalın HARFİ değil YERİ sınanır. İlk hâl `if (sosyalVar) return 'sosyal';`
+       satırını birebir arıyordu ve faz denetiminin açlık düzeltmesi
+       (`&& METNI_HAZIR.has('sosyal')`) onu sahte kırmızıya çevirdi — oysa
+       iddia ("sosyal winback'ten önce gelir") bozulmamıştı. Sınav, harfi
+       değil iddiayı tutmalı. */
+    const sosyalIdx = body.search(/if \(sosyalVar[\s\S]*?return 'sosyal';/);
+    const winbackIdx = body.indexOf("return 'winback';");
+    expect(sosyalIdx).toBeGreaterThan(-1);
+    expect(winbackIdx).toBeGreaterThan(-1);
+    expect(sosyalIdx).toBeLessThan(winbackIdx);
+  });
+
+  it('loadSosyalAdaylar kendi kartına kendi etkileşimini eler (owner === e.user_id hariç tutulur)', () => {
+    expect(src).toContain('async function loadSosyalAdaylar(): Promise<Map<string, string>> {');
+    expect(src).toContain("if (!owner || owner === e.user_id) continue;");
+  });
+
+  it('runEngine adayları döngü DIŞINDA tek kez hesaplar, pickTrigger\'a geçirir', () => {
+    const engineIdx = src.indexOf('async function runEngine');
+    const body = src.slice(engineIdx);
+    const adaylarIdx = body.indexOf('const sosyalAdaylar = await loadSosyalAdaylar();');
+    const forIdx = body.indexOf('for (const row of (rows || []))');
+    expect(adaylarIdx).toBeGreaterThan(-1);
+    expect(forIdx).toBeGreaterThan(-1);
+    expect(adaylarIdx).toBeLessThan(forIdx); // döngüden önce — satır başına sorgu atılmaz
+    expect(body).toContain('pickTrigger(row, dateStr, hour, sosyalAdaylar.has(row.user_id))');
+  });
+
+  it('fallbackCopy tanımsız bir tetikte null döner — "morning" metnini yanlış bağlamda basmaz', () => {
+    const idx = src.indexOf('function fallbackCopy');
+    const body = src.slice(idx, src.indexOf('async function generateCopy'));
+    expect(body).toMatch(/default:\s*\n(\s*\/\/[^\n]*\n)*\s*return null;/);
+  });
+
+  it('generateCopy tanımsız niyet için LLM\'e generic bağlam vermez, doğrudan fallbackCopy\'ye düşer', () => {
+    const idx = src.indexOf('async function generateCopy');
+    const body = src.slice(idx, idx + 400);
+    expect(body).toContain('const intent = TRIGGER_INTENT[trigger];');
+    expect(body).toContain('if (!intent) return fallbackCopy(trigger, row, ctx);');
+    expect(body).not.toContain('TRIGGER_INTENT[trigger] || TRIGGER_INTENT.morning');
+  });
+
+  it('runEngine kopyası olmayan bir tetikte (null) sessizce atlar — hiçbir şey loglanmaz/gönderilmez', () => {
+    const engineIdx = src.indexOf('async function runEngine');
+    const body = src.slice(engineIdx);
+    const copyIdx = body.indexOf('const copy = await generateCopy(trigger, row, ctx);');
+    const guardIdx = body.indexOf('if (!copy) continue;');
+    const insertIdx = body.indexOf(".from('notification_log')\n        .insert(");
+    expect(copyIdx).toBeGreaterThan(-1);
+    expect(guardIdx).toBeGreaterThan(copyIdx);
+    expect(guardIdx).toBeLessThan(insertIdx);
+  });
+
+  it('notification_log.type yorum listesi sosyal\'i taşıyor (belge tutarlılığı)', () => {
+    const sql = readFileSync(join(ROOT, 'migrations/000_wanderer_schema.sql'), 'utf8');
+    expect(sql).toMatch(/type\s+TEXT NOT NULL,\s+-- [^\n]*\bsosyal\b/);
+  });
+});
 
 /* ═══ NATIVE YOL — faz denetiminde bulundu (2026-09-04) ═══════════════════
    Ajan web yolunu (sw.js) kurmuştu; native yol (Capacitor → FCM/APNs) HİÇ
@@ -222,5 +294,154 @@ describe('Davetin Nabzı — sıfır dalının cümlesi bugünü anlatıyor', ()
   it('sıfır dalı iki durumu AYIRT EDEMEDİĞİNİ söylüyor (§6.10)', () => {
     const src = readFileSync(join(ROOT, 'js/parts/13q-gozlemevi.js'), 'utf8');
     expect(src).toContain('AYIRT EDEMİYORUZ');
+  });
+});
+
+/* ═══ 5. MERDİVEN AÇLIK KAPISI — teslim edilemeyen basamak altını susturur ═══
+   FAZ 11 denetiminde (parent · Opus) ölçülen kırık: `sosyal` merdivenin EN
+   ÜSTÜNE kondu, metni ise FAZ 12'ye bırakıldı. `generateCopy` null döndüğü
+   için `runEngine` `continue` ediyordu — yani kartına bir beğeni düşen
+   kullanıcı, o etkileşim 24 saatlik pencerede kaldığı sürece winback ·
+   streak_risk · soz · milestone · morning bildirimlerinin HEPSİNİ
+   kaybediyordu. Basamak yalnız kendini değil ALTINDAKİ HER ŞEYİ düşürür.
+
+   Kural ölçülebilir: merdivenin KOŞULSUZ seçebildiği her tetiğin
+   `fallbackCopy`'de bir `case`i olmalı. Metni olmayan bir tetik ancak
+   `METNI_HAZIR.has(...)` kapısının arkasında durabilir — FAZ 12 metni
+   yazınca kümeye ekler ve basamak kendiliğinden açılır. */
+describe('send-push merdiveni — seçilebilen her tetiğin metni var', () => {
+  const src = readFileSync(join(ROOT, 'supabase/functions/send-push/index.ts'), 'utf8');
+
+  /** `pickTrigger` gövdesindeki `return 'x'` satırları — kapının arkasında
+   *  olanlar (`METNI_HAZIR.has(`) ayrı işaretlenir. */
+  const merdivenTetikleri = () => {
+    const bas = src.indexOf('function pickTrigger');
+    const govde = src.slice(bas, src.indexOf('\n}', bas));
+    return [...govde.matchAll(/^(.*)return '([a-z_]+)';/gm)]
+      .map(m => ({ ad: m[2], kapili: m[1].includes('METNI_HAZIR.has(') }));
+  };
+  const metniHazir = () => {
+    const m = src.match(/METNI_HAZIR\s*=\s*new Set\(\[([^\]]*)\]\)/);
+    return m ? [...m[1].matchAll(/'([^']+)'/g)].map(x => x[1]) : [];
+  };
+  const copyCaseleri = () => {
+    const bas = src.indexOf('function fallbackCopy');
+    const govde = src.slice(bas, src.indexOf('\n}', bas));
+    return [...govde.matchAll(/case '([a-z_]+)':/g)].map(m => m[1]);
+  };
+
+  it('tarama gerçekten bir şey buldu — boş liste bir sonuç değildir', () => {
+    expect(merdivenTetikleri().length).toBeGreaterThanOrEqual(6);
+    expect(metniHazir().length).toBeGreaterThanOrEqual(5);
+    expect(copyCaseleri().length).toBeGreaterThanOrEqual(5);
+  });
+
+  it('koşulsuz seçilen her tetik METNI_HAZIR kümesinde', () => {
+    const hazir = metniHazir();
+    const acliktakiler = merdivenTetikleri()
+      .filter(t => !t.kapili && !hazir.includes(t.ad)).map(t => t.ad);
+    expect(acliktakiler,
+      `metni olmadan koşulsuz seçilen tetik(ler): ${acliktakiler.join(', ')} — ` +
+      'altındaki basamakları susturur').toEqual([]);
+  });
+
+  it('METNI_HAZIR üyelerinin hepsinin fallbackCopy\'de bir case\'i var', () => {
+    const caseler = copyCaseleri();
+    const eksik = metniHazir().filter(t => !caseler.includes(t));
+    expect(eksik, `fallbackCopy'de case'i olmayan tetik(ler): ${eksik.join(', ')}`)
+      .toEqual([]);
+  });
+
+  it('sosyal bugün kapının ARKASINDA — FAZ 12 metni yazınca açılır', () => {
+    const sosyal = merdivenTetikleri().find(t => t.ad === 'sosyal');
+    expect(sosyal, 'sosyal basamağı merdivende bulunamadı').toBeTruthy();
+    // Kapılı OLMASI ya da METNI_HAZIR'a girmiş olması — ikisi de geçerli hâl;
+    // yasak olan, metni yokken KOŞULSUZ durması.
+    expect(sosyal.kapili || metniHazir().includes('sosyal')).toBe(true);
+  });
+
+  /* ── FAZ 12 · sosyal microcopy'si (🅞) ──
+     Basamak ancak metni yazıldığında açılır; metnin kendisi de Ton
+     Rehberi'nin iki kuralını taşımak zorunda ve ikisi de ÖLÇÜLEBİLİR:
+     (a) sayaç dili yok ("3 yeni yorum!" bu ürüne girmez),
+     (b) dokunuşun TÜRÜ iddia edilmez — `loadSosyalAdaylar` beğeniyle yorumu
+         tek kovada birleştirir, yani "yazmış/yorum geldi" demek motorun
+         ölçmediği bir ayrıntıyı uydurmaktır (§6.10). Planın Ton Rehberi'nin
+         verdiği örnek ("Kartına biri yazmış.") tam bu yüzden ÜRÜNDE
+         daraltıldı — 🅞 fazın işi budur. */
+  const sosyalMetni = () => {
+    const bas = src.indexOf("case 'sosyal':");
+    return bas < 0 ? '' : src.slice(bas, src.indexOf('case ', bas + 10));
+  };
+
+  it('FAZ 12: sosyal basamağı açık — metni yazıldı', () => {
+    expect(metniHazir()).toContain('sosyal');
+    expect(copyCaseleri()).toContain('sosyal');
+    expect(src).toMatch(/^\s*sosyal:\s*'/m);   // TRIGGER_INTENT girdisi
+  });
+
+  it('sosyal metni SAYAÇ dili taşımaz — rakam yok', () => {
+    const metin = sosyalMetni();
+    expect(metin.length).toBeGreaterThan(40);        // tarama gerçekten buldu
+    const govde = metin.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(govde, 'sosyal metninde rakam var — sayaç dili').not.toMatch(/\d/);
+  });
+
+  it('sosyal metni dokunuşun TÜRÜNÜ iddia etmez (beğeni mi yorum mu belli değil)', () => {
+    const govde = sosyalMetni().replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(govde, 'metin "yazmış/yorum" diyor — bir beğeni yazmak değildir')
+      .not.toMatch(/yaz(mış|dı)|yorum/i);
+  });
+
+  it('sosyal NİYETİ modele bilinmeyeni açıkça söyler (tür ve kimlik)', () => {
+    /* Arama BİÇİME değil ANLAMA bağlı: ilk hâli `'  sosyal:      '` diye tam
+       boşlukla arıyordu ve obje bir kez hizalanınca `bas` -1 olurdu (çapraz
+       denetimin bakım notu). Hizalama bir sözleşme değildir. */
+    const bas = src.search(/^\s*sosyal:\s*'/m);
+    expect(bas, 'TRIGGER_INTENT.sosyal girdisi bulunamadı').toBeGreaterThan(-1);
+    const niyet = src.slice(bas, src.indexOf("',", bas));
+    expect(niyet).toMatch(/BİLMİYORSUN/);
+    expect(niyet).toMatch(/SAYI VERME/);
+  });
+
+  /* ── YAPIŞKAN TETİK KAPISI — sınıf iki fazda İKİ KEZ kırıldı ──
+     FAZ 11: `sosyal` metinsizken koşulsuz seçiliyordu → `generateCopy` null →
+     satır atlanıyordu. Kapatıldı (`METNI_HAZIR`).
+     FAZ 12: metin yazılıp basamak açılınca aynı susturma BAŞKA bir kapıdan
+     geri geldi — `passesFreqCap` "aynı tip 24s'te bir" diye reddediyor ve
+     satır yine atlanıyordu. Çapraz denetim (Sonnet) yakaladı.
+     Aynı kırığın iki sprintte iki kez çıkması, meselenin kırık değil onu
+     ÜRETEN KURAL olduğunu söyler (§3.7 dördüncü eksen). Kök şu: `sosyal`
+     merdivendeki tek YAPIŞKAN tetiktir — koşulu 24 saat doğru kalır, çünkü
+     sunucuda "bu dokunuşu zaten bildirdik" damgası yoktur. Öteki beş tetiğin
+     koşulu geçicidir. Yapışkan bir tetik reddedildiğinde tur BİTMEMELİ.
+     Ölçülebilir hâli: reddedilme dalı koşulsuz `continue` OLAMAZ; merdiven
+     yapışkan tetik olmadan bir kez daha çözülmeli. */
+  it('yapışkan tetik freq-cap\'e takılınca tur BİTMEZ — merdiven yeniden çözülür', () => {
+    const bas = src.indexOf('async function runEngine');
+    const govde = src.slice(bas, src.indexOf('\n}', bas));
+    expect(bas, 'runEngine bulunamadı').toBeGreaterThan(-1);
+
+    // Reddedilme dalı bir blok açmalı — koşulsuz `continue` yasak.
+    expect(govde, 'passesFreqCap reddi turu koşulsuz bitiriyor — yapışkan ' +
+      'tetik altındaki her basamağı 24 saat susturur')
+      .not.toMatch(/if \(!\(await passesFreqCap\([^)]*\)\)\) continue;/);
+
+    // Ve merdiven yapışkan tetik OLMADAN yeniden çözülmeli.
+    expect(govde, 'merdiven sosyal olmadan yeniden çözülmüyor')
+      .toMatch(/pickTrigger\([^)]*,\s*false\)/);
+  });
+
+  it('kapının kendisi çalışıyor — ihlali gerçekten yakalar (§10.5)', () => {
+    const sahte = `function pickTrigger(row, dateStr, hour, sosyalVar) {
+  if (sosyalVar) return 'sosyal';
+  if (x) return 'winback';
+}`;
+    const govde = sahte.slice(sahte.indexOf('function pickTrigger'), sahte.indexOf('\n}'));
+    const bulunan = [...govde.matchAll(/^(.*)return '([a-z_]+)';/gm)]
+      .map(m => ({ ad: m[2], kapili: m[1].includes('METNI_HAZIR.has(') }));
+    const hazir = ['winback'];
+    expect(bulunan.filter(t => !t.kapili && !hazir.includes(t.ad)).map(t => t.ad))
+      .toEqual(['sosyal']);   // ihlal görünür
   });
 });

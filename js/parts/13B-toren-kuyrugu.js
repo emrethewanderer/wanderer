@@ -30,7 +30,8 @@
    Kalıcılık: yok — bütçe oturumluktur; gün dönerse kendini sıfırlar.
    Konvansiyon: window.trn* expose (TDZ-güvenli); i18n gerekmez (yüzeysiz).
 ═══════════════════════════════════════════════════════ */
-import { localDayKey } from './00a-infrastructure.js';
+import { localDayKey, localISODate, SafeStorage } from './00a-infrastructure.js';
+import { S } from '../state.js';
 
 /* ─── 1. SAHNE ENVANTERİ ─── */
 
@@ -99,6 +100,85 @@ const TRN_ZORUNLU = new Set(['gunluk-ritus']);
 let _sayac = 0;
 let _gun   = null;
 
+/* ════════════════════════════════════════════════════════════════════
+   ISRAR DOZU (İç Çalışma 10 · FAZ 17) — "✕" bir cevaptır, sessizlik değil
+   ───────────────────────────────────────────────────────────────────
+   Bugüne dek kuyruk yalnız AÇILIŞLARI sayıyordu: kullanıcı bir töreni üst
+   üste kapatsa da, ertesi gün bütçe sıfırlanıyor ve tören yine davetsiz
+   geliyordu. `wtTorenSonuc` sonucu yazıyordu ama SORAN yoktu — ölçülen ama
+   kullanılmayan bir sinyal.
+
+   SÖZLEŞMENİN ÖZÜ KORUNUR: **✕ "şimdi değil" demektir, "asla" değil.**
+   Üç koruma bunu kodla garantiler:
+     1. Yalnız DAVETSİZ açılış susturulur. Kullanıcı töreni KENDİ açarsa
+        (`davetsiz:false`) kapı her zaman açılır — kendi kapısına kilit yok.
+     2. Sessizlik SÜRELİDİR (`TRN_RET_SUS_GUN`), kalıcı değil.
+     3. Tek bir kabul (`trnKabul`) sayacı ANINDA sıfırlar — bir kez katılan
+        kullanıcı yeniden davet edilir.
+
+   SAYININ GEREKÇESİ (🅞, plandan okunamaz): plan "3 ✕ → bugün sus" diyordu,
+   ama `TRN_TAVAN = 2` — aynı gün üç davetsiz açılış MEKANİK OLARAK
+   İMKÂNSIZ; plan bu sayıyı bütçeyi görmeden yazmış. Doğru ölçü aynı gün
+   değil ARDIŞIK rettir: üç kez üst üste kapatılan bir tören, bir tercihi
+   söylüyordur. Sessizlik süresi 7 gün çünkü uygulamanın hafta ritmi zaten
+   kurulu (09d/09h `lastSeenWeek`) — yeni bir ritim icat edilmedi.
+════════════════════════════════════════════════════════════════════ */
+const TRN_RET_ESIK    = 3;   // ardışık ✕ sayısı
+const TRN_RET_SUS_GUN = 7;   // eşiğe varınca davetsiz açılışın susma süresi
+const _RET_KEY = 'etw_trn_ret_v1';
+const _retKey = () => `${_RET_KEY}_${(S.currentUser && S.currentUser.id) || 'anon'}`;
+
+function _retOku() {
+  try { return SafeStorage.get(_retKey(), null) || {}; } catch (_) { return {}; }
+}
+function _retYaz(defter) {
+  try { SafeStorage.set(_retKey(), defter); } catch (e) { console.warn('trnRet:', e && e.message); }
+}
+/* TARİH ANAHTARI TUZAĞI ([[yerel-tarih-anahtari]]): burada `localDayKey()`
+   KULLANILMAZ. O anahtar `${yıl}-${getMonth()}-${gün}` üretir — ay SIFIR
+   TABANLI ve padding YOK (`2026-8-6`), yani ne ayrıştırılabilir ne
+   sıralanabilir; `Date.parse` onu bir ay kaydırarak okur. 00a'nın kendi
+   yorumu da bunu söylüyor: günlük "bugün oldu mu" kontrolleri
+   `localISODate()` kullanmalı. Kuyruğun gün BÜTÇESİ hâlâ `localDayKey`
+   ile karşılaştırılır (yalnız eşitlik sorar, aritmetik yapmaz) — ısrar
+   defteri ise gün FARKI hesapladığı için ISO'ya muhtaçtır.
+   Bu kırığı fazın kendi testi buldu, kod değil. */
+function _gunFarki(a, b) {
+  const ms = Date.parse(b) - Date.parse(a);
+  return Number.isFinite(ms) ? Math.floor(ms / 86400000) : 0;
+}
+
+/** Kullanıcı töreni kapattı (✕ / perde). Ardışık sayaç artar. */
+export function trnRet(ad) {
+  if (!ad) return;
+  const d = _retOku();
+  const k = d[ad] || { n: 0, son: null };
+  d[ad] = { n: (k.n || 0) + 1, son: localISODate() };
+  _retYaz(d);
+}
+
+/** Kullanıcı töreni TAMAMLADI ya da kendi açtı — ısrar sayacı sıfırlanır.
+ *  Tek bir kabul, üç retten ağır basar: mesele ceza değil ritim. */
+export function trnKabul(ad) {
+  if (!ad) return;
+  const d = _retOku();
+  if (!d[ad]) return;
+  delete d[ad];
+  _retYaz(d);
+}
+
+/** Bu tören davetsiz gelebilir mi — ısrar penceresi kapalı mı? */
+function _israrAcik(ad) {
+  const k = _retOku()[ad];
+  if (!k || (k.n || 0) < TRN_RET_ESIK) return true;
+  // Süre dolduysa defter temizlenir: sessizlik biter, sayaç sıfırdan başlar.
+  if (k.son && _gunFarki(k.son, localISODate()) >= TRN_RET_SUS_GUN) {
+    trnKabul(ad);
+    return true;
+  }
+  return false;
+}
+
 function _tazele() {
   const bugun = (() => { try { return localDayKey(); } catch (_) { return null; } })();
   if (_gun !== bugun) { _gun = bugun; _sayac = 0; }
@@ -131,6 +211,9 @@ export function trnIzin(ad, { davetsiz = true } = {}) {
   try {
     if (trnMesgul()) return false;
     if (davetsiz) {
+      // Israr dozu (FAZ 17) — yalnız DAVETSİZ açılışı susturur; kullanıcının
+      // kendi açtığı kapı (`davetsiz:false`) bu satıra hiç uğramaz.
+      if (!_israrAcik(ad)) return false;
       _tazele();
       if (!TRN_ZORUNLU.has(ad)) {
         if (_sayac >= TRN_TAVAN) return false;
@@ -150,15 +233,16 @@ export function trnIzin(ad, { davetsiz = true } = {}) {
 /** Teşhis/test yüzeyi — bütçenin o anki hâli. */
 export function trnDurum() {
   _tazele();
-  return { sayac: _sayac, tavan: TRN_TAVAN, acik: trnAcikSahne() };
+  return { sayac: _sayac, tavan: TRN_TAVAN, acik: trnAcikSahne(), ret: _retOku() };
 }
 
 /** Yalnız testler ve gün dönüşü senaryoları için. */
 export function trnSifirla() {
   _sayac = 0;
   _gun = null;
+  try { SafeStorage.set(_retKey(), {}); } catch (_) {}
 }
 
 if (typeof window !== 'undefined') {
-  Object.assign(window, { trnIzin, trnMesgul, trnAcikSahne, trnDurum, trnSifirla });
+  Object.assign(window, { trnIzin, trnMesgul, trnAcikSahne, trnDurum, trnSifirla, trnRet, trnKabul });
 }

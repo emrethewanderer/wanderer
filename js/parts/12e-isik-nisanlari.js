@@ -32,13 +32,11 @@ import { p } from './16-i18n-prompts.js';
 import { awardElmas } from './10g-w2-wanderer-game.js';
 import { ikvEnsureStyles } from './12c-kart-gorsel.js';
 import { NISANLAR, ISIK_TEMALAR } from './12e1-isik-veri.js';
-// 13a-arac-motoru.js STATİK import EDİLMEZ: 06-summary-chat + 13-extras
-// üstünden 03-auth-shell'e (bu dosyayı zaten import eden modül) döngü
-// kapatır — 10B'nin aynı gerekçesi (bkz. 10B-ilham-karti.js). 13a boot'ta
-// Etiket kaydı 13a1'de (SAF YAPRAK) — statik import, döngü yok.
-// sonunda mühürlüyor; 12e zaten 06-summary-chat için aynı döngü riskini
-// dinamik import ile çözüyor (bkz. isikInit) — burada window köprüsü yeterli
-// çünkü çağrı senkron olmak zorunda (isikExtractTag).
+// Yukarıdaki import 13a1'edir, 13a'ya DEĞİL — 10B ile aynı gerekçe
+// (bkz. 10B-ilham-karti.js): 13a statik alınırsa 13a→06-summary-chat/
+// 13-extras→03-auth-shell→12e döngüsü kapanır. 13a1 saf yapraktır.
+// `isikExtractTag` senkron olmak zorunda ve artık öyle: çözücü derleme
+// zamanında bağlı, hiçbir köprünün dolu olmasını beklemiyor.
 
 /* Veri 12e1 yaprağına taşındı (kart üretim motoru 12c/12d de besleniyor;
    12e→12c importu yüzünden 12c bu veriyi buradan çekemezdi). Mevcut

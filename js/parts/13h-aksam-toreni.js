@@ -334,7 +334,15 @@ function _render() {
      (00f-kullanim-nabzi.js, `_DG_YUZEY`); kapı: 13D-iki-defter-kapisi. */
   if (dgCumle) { try { window.wtLogDuygu?.(dgOkuma.eksen, { yuzey: 'toren', duzeltildi: false }); } catch (_) {} }
 
-  const _dismissNow = () => { _atDismissedSession = true; _closePortal(); };
+  /* ✕ artık YALNIZ bu oturumu değil, ısrarı da bildirir (FAZ 17). Üç ardışık
+     ret sonrası kuyruk bu töreni davetsiz getirmeyi bir hafta bırakır —
+     "şimdi değil" duyulur, ama "asla" sayılmaz: kullanıcı kendi açarsa kapı
+     açık, tek bir tamamlama sayacı sıfırlar. */
+  const _dismissNow = () => {
+    _atDismissedSession = true;
+    try { window.trnRet?.('aksam-toreni'); } catch (_) {}
+    _closePortal();
+  };
   document.getElementById('at-close')?.addEventListener('click', _dismissNow);
   portal.querySelector('.at-veil')?.addEventListener('click', _dismissNow);
 
@@ -380,6 +388,8 @@ function _render() {
     }
     S._aksamToreni.lastDay = _dayKey();
     atSave();
+    // Katılım ısrar sayacını SIFIRLAR (FAZ 17) — bir kabul, üç retten ağır basar.
+    try { window.trnKabul?.('aksam-toreni'); } catch (_) {}
     try { window.fxCue?.('soz'); } catch (_) {}
     const handoff = () => {
       _closePortal();

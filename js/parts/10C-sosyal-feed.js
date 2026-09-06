@@ -29,16 +29,26 @@
      client gönderimi yalnız migration'sız kurulum fallback'i.
    • Yeni paylaşımlar kind:'benim' (10A yazar); feed kind'a bakmaz.
 
+   3.0 (2026-09-05 — İç Çalışma 12 · FAZ 11, sosyal bildirim altyapısı):
+   • Oda köşesinde taze nokta (#ws-sf-pulse) — 09d/ws-om-pulse ve
+     09h/ws-ay-pulse ile AYNI dil (`sfRefreshRoomPulse`, wsSyncStudio çağırır).
+     Kartına biri dokunduysa yanar, halka pazarına girilince söner.
+   • Sunucu tarafı (send-push) merdivenine 'sosyal' tipi eklendi — bu modül
+     yalnız uygulama-içi işareti taşır, push metnini üretmez.
+
    Veri: paylasilan_kartlar / paylasim_begenileri / paylasim_yorumlari /
          paylasim_kayitlari / paylasim_raporlari + paylasilan_haftanin_topu
    ═══════════════════════════════════════════════════════════════════ */
 
 import { S }                       from '../state.js';
 import { sb }                      from '../config.js';
-import { showToast, escapeHTML }               from './00a-infrastructure.js';
+import { showToast, escapeHTML, SafeStorage }  from './00a-infrastructure.js';
 import { t }                       from './15-i18n.js';
 
 const PAGE_SIZE = 24;
+/* Rozetin "görüldü" damgası — SafeStorage per-uid (09d/09h'nin lastSeenWeek
+   kalıbıyla aynı dil, bkz. ws-om-pulse/ws-ay-pulse). */
+const SOSYAL_GORULEN_KEY = 'etw_sosyal_gorulen_v1';
 
 /* Tek kaynak: escapeHTML (00a). Eskiden bu modülün kendi ikizi vardı;
    ikizler birbirinden de farklıydı (bir kısmı tek tırnağı kaçırmıyordu). */
@@ -242,6 +252,90 @@ export function _sortByRank(cards) {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   ROZET — oda köşesindeki taze nokta (ws-sf-pulse)
+   ───────────────────────────────────────────────────────────
+   09d/09h'nin ".ws-XX-pulse" kalıbıyla AYNI dil (oruntu.css/ayna-ani.css'in
+   kendi yorumlarının dediği gibi): kartına biri dokunduysa (beğeni/yorum)
+   sessiz bir işaret yanar, halka pazarına girildiğinde söner. Rozet bir
+   sahne değil bir işarettir — 13B tören kuyruğuna hiç sormaz.
+
+   RLS TUZAĞI (dosya başındaki not: "Sayaçlar paylasilan_kartlar'ın trigger
+   kolonlarından okunur; client kendi satırını çeker"): `paylasim_begenileri`
+   RLS'i yalnız "own read" verir (`user_id = auth.uid()`) — bu istemci
+   başkasının beğeni SATIRINI hiç göremez, `neq('user_id', uid)` filtresi
+   RLS'ten SONRA hiç etki etmeyen ölü bir filtre olurdu. Yorum tablosu ise
+   herkese açıktır (`all read`, `hidden=false`) — o yüzden iki sinyal FARKLI
+   yollardan okunur: yorum satır bazında (gerçek), beğeni AGREGAT sayaç
+   delta'sıyla (`like_count` — herkese açık tek beğeni kanalı). */
+function _sosyalGorulenKey() {
+  return `${SOSYAL_GORULEN_KEY}_${(S.currentUser && S.currentUser.id) || 'anon'}`;
+}
+function _sosyalBegeniTabanKey() {
+  return `etw_sosyal_begeni_taban_v1_${(S.currentUser && S.currentUser.id) || 'anon'}`;
+}
+
+/** Kullanıcının paylaştığı kartlar — id + herkese açık beğeni sayacı. */
+async function _sosyalKendiKartlari(uid) {
+  try {
+    const { data } = await sb.from('paylasilan_kartlar').select('id, like_count').eq('owner_user_id', uid);
+    return data || [];
+  } catch (_) { return []; }
+}
+
+/** Rozetin "görüldü" damgasını VE beğeni tabanını şimdiki duruma çeker —
+ *  loadSosyalView girişinde ve ilk hiç-görülmemiş çalıştırmada çağrılır. */
+function _sosyalGorulduIsaretle(kartlar) {
+  const toplam = (kartlar || []).reduce((s, k) => s + (k.like_count || 0), 0);
+  SafeStorage.set(_sosyalGorulenKey(), new Date().toISOString());
+  SafeStorage.set(_sosyalBegeniTabanKey(), toplam);
+}
+
+/** Kartlarına son görüldüğünden SONRA biri dokundu mu (kendi etkileşimi
+ *  hariç). İlk çalıştırmada damga yoksa geçmişi "yeni" saymayız — damga
+ *  şimdi kurulur, yalnız BUNDAN SONRAKİ etkileşimler işaretlenir (§6.10:
+ *  uydurulmuş bir geçmiş aciliyet üretilmez). */
+async function _sosyalYeniEtkilesimVarMi() {
+  const uid = S.currentUser?.id;
+  if (!sb || !uid) return false;
+  try {
+    const kartlar = await _sosyalKendiKartlari(uid);
+    if (!kartlar.length) return false;
+
+    const gorulen = SafeStorage.get(_sosyalGorulenKey());
+    if (!gorulen) { _sosyalGorulduIsaretle(kartlar); return false; }
+
+    const cardIds = kartlar.map(k => k.id);
+    const { data: yorum } = await sb.from('paylasim_yorumlari').select('id')
+      .in('card_id', cardIds).gt('created_at', gorulen).neq('user_id', uid).limit(1);
+    if (yorum?.length) return true;
+
+    const toplam = kartlar.reduce((s, k) => s + (k.like_count || 0), 0);
+    const taban = SafeStorage.get(_sosyalBegeniTabanKey(), 0);
+    return toplam > taban;
+  } catch (e) { console.warn('sfRozet:', e?.message); return false; }
+}
+
+/** Studio oda köşesindeki taze noktayı günceller — wsSyncStudio çağırır
+ *  (09d omRefreshRoomSub / 09h ayRefreshRoomSub kalıbı). Nokta DOM'da yoksa
+ *  (henüz "Bugün" ekranına gelinmedi) sessizce düşer. */
+export async function sfRefreshRoomPulse() {
+  const pulse = document.getElementById('ws-sf-pulse');
+  if (!pulse) return;
+  const yeni = await _sosyalYeniEtkilesimVarMi();
+  pulse.classList.toggle('active', yeni);
+  /* ROZETİN "METNİ" ERİŞİLEBİLİR ADIDIR (FAZ 12). Nokta yalnız görsel bir
+     sinyaldi: boş bir `<span>` ekran okuyucuda hiç duyurulmaz, yani haber
+     yalnız GÖREN kullanıcıya ulaşıyordu. Ad JS'ten verilir, `data-i18n-aria`
+     ile DEĞİL: statik bir anahtar sönükken de duyururdu (`opacity: 0` ekran
+     okuyucuyu susturmaz) ve tests/15-i18n-aria.test.js zaten JS-yönetimli
+     elemanlara statik anahtar takılmasını yasaklıyor. Sönerken ad KALKAR —
+     olmayan bir haberi duyurmayız (§6.10). Metin de push'la aynı sınırı
+     taşır: sayı yok, kimlik yok, dokunuşun türü yok. */
+  if (yeni) pulse.setAttribute('aria-label', t('sf.rozet.aria', 'Kartında yeni bir dokunuş var'));
+  else pulse.removeAttribute('aria-label');
+}
+
+/* ══════════════════════════════════════════════════════════════
    ANA GÖRÜNÜM — Kişilerin Kişileri (view loader)
 ══════════════════════════════════════════════════════════════ */
 let _viewState = { feed: [], top: [], lastCursor: null, loading: false, ended: false };
@@ -255,6 +349,14 @@ export async function loadSosyalView() {
       <div class="sf-loading-sigil" aria-hidden="true">✦</div>
       <div class="sf-loading-txt">${t('sf.loading', 'Halka pazarı yükleniyor…')}</div>
     </div>`;
+
+  // Halka pazarına girildi — rozetin "görüldü" damgasını VE beğeni tabanını
+  // şimdiye çek (09d'nin panel-açılışında lastSeenWeek'i güncellemesiyle aynı an).
+  try {
+    const uid = S.currentUser?.id;
+    if (uid && sb) _sosyalGorulduIsaretle(await _sosyalKendiKartlari(uid));
+    document.getElementById('ws-sf-pulse')?.classList.remove('active');
+  } catch (_) {}
 
   // Hidrasyon
   await Promise.all([_hydrateLikedSet(), _hydrateSavedSet()]);
@@ -766,6 +868,7 @@ export function sfInit() {
     window.sfPostComment           = sfPostComment;
     window.sfCopyToMine            = sfCopyToMine;
     window.sfReportCard            = sfReportCard;
+    window.sfRefreshRoomPulse      = sfRefreshRoomPulse;
     window.renderHalkaRaporlarAdmin = renderHalkaRaporlarAdmin;
   } catch (_) {}
 }

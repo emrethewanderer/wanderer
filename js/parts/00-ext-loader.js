@@ -35,8 +35,19 @@ export function loadExtScript(fileName) {
       if (!src) { reject(new Error('built bundle yok (dev?)')); return; }
       const dir = src.slice(0, src.lastIndexOf('/') + 1);
       const hash = (src.match(/_src-([A-Za-z0-9_-]+)\.js/) || [])[1] || 'dev';
+      /* SIDECAR DAMGASI (FAZ 15 denetimi) — `hash` yalnız ANA bundle'ı izler;
+         sidecar'lar vite'ın grafiğinin dışında, ayrı esbuild ile derlenir.
+         Yalnız bir sidecar'ın DEĞERİ değişirse (yeni anahtar eklemeyen bir EN
+         çeviri düzeltmesi gibi) `hash` kıpırdamaz, URL byte-aynı kalır ve
+         tarayıcının HTTP cache'i eski dosyayı verir — SW'nin CACHE adını
+         döndürmek bunu KURTARMAZ, çünkü `staleWhileRevalidate`'in tazeleme
+         `fetch`'i de o cache'ten karşılanabilir. build.sh sidecar içeriğinin
+         özetini `data-ext-v` olarak bu etikete basar. Yoksa (eski build ya da
+         sidecar'sız kurulum) eski davranışa düşülür — geriye uyumlu. */
+      const extV = (main.getAttribute('data-ext-v') || '').trim();
+      const surum = extV ? `${hash}-${extV}` : hash;
       const el = document.createElement('script');
-      el.src = `${dir}${fileName}?v=${hash}`;
+      el.src = `${dir}${fileName}?v=${surum}`;
       el.onload = () => resolve(true);
       el.onerror = () => { el.remove(); reject(new Error(`ext yüklenemedi: ${fileName}`)); };
       document.head.appendChild(el);

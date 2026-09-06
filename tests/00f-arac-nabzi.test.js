@@ -92,10 +92,14 @@ describe('wtLogArac — sözleşme', () => {
     expect(row.user_id).toBe('u1');
   });
 
-  it('dört aracın hepsi kapalı kümededir', async () => {
+  /* Sekiz: iki paralel FAZ 10'un birleşimi (inanc/engel · gordun/sabir).
+     `ayna` birleşmede düştü — 09h Studio-gate'lidir ve premium kapılı bir
+     ritüel sohbetten önerilmez (bkz. 13a registry yorumu). */
+  it('sekiz aracın hepsi kapalı kümededir', async () => {
     const { wt } = await inited();
-    ['soz', 'not', 'gecis', 'imge'].forEach(a => wt.wtLogArac('oner', { arac: a }));
-    expect(arac().map(r => r.prev_screen)).toEqual(['soz', 'not', 'gecis', 'imge']);
+    const hepsi = ['soz', 'not', 'gecis', 'imge', 'inanc', 'engel', 'gordun', 'sabir'];
+    hepsi.forEach(a => wt.wtLogArac('oner', { arac: a }));
+    expect(arac().map(r => r.prev_screen)).toEqual(hepsi);
   });
 
   it('arac küme dışı değerde null olur, satır yine yazılır', async () => {

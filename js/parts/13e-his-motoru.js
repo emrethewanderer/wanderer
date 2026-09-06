@@ -46,7 +46,7 @@ import { SafeStorage, AnimUtils } from './00a-infrastructure.js';
 const STORAGE_KEY = 'etw_fx_prefs_v1';
 
 function _key() { return `${STORAGE_KEY}_${(S.currentUser && S.currentUser.id) || 'anon'}`; }
-function _default() { return { sound: true, haptic: true, nightDim: true, ambient: false }; }
+function _default() { return { sound: true, haptic: true, nightDim: true, ambient: false, sesKademe: 'tam' }; }
 
 let _prefs = _default();
 
@@ -65,6 +65,7 @@ export function fxLoad() {
 ════════════════════════════════════════════════════════════════════ */
 let _ctx = null;
 let _master = null;
+let _kademeGain = null;
 let _moodFilter = null;
 let _noiseBuf = null;
 let _unlocked = false;
@@ -84,8 +85,23 @@ function _ensureCtx() {
     _moodFilter = _ctx.createBiquadFilter();
     _moodFilter.type = 'lowpass';
     _moodFilter.frequency.value = 18000;
+    /* KULLANICI KADEMESİ (FAZ 16) — zincirin EN SONUNA, tek düğüm.
+       İki sebeple burada, `_master`'da değil (plan `_master.gain` demişti,
+       ürün onu düzeltti):
+       1. `_master.gain` SERBEST DEĞİL — `_ready()` her cue'da gece/akşam
+          mood'unu oraya YAZAR (`setTargetAtTime(mood.g …)`). Kullanıcı ayarı
+          oraya konsaydı ilk cue'da sessizce silinirdi; kullanıcı ayarı
+          değiştirir, hiçbir şey olmaz, hiçbir yerde hata görünmez (§6.2).
+       2. Fener Ambiyansı `_master`'ı ATLAR ve doğrudan `_moodFilter`'a
+          bağlanır (yukarıdaki yorum bunu söylüyor). `_master`'da kısmak
+          ambiyansı hiç kısmazdı — "sesi kıstım ama fener hâlâ aynı".
+       Buradan ikisi de geçer ve mood mantığıyla hiç çakışmaz: mood tonu
+       ayarlar, kademe şiddeti. Ayrı sorular, ayrı düğümler. */
+    _kademeGain = _ctx.createGain();
+    _kademeGain.gain.value = _kademeCarpani();
     _master.connect(_moodFilter);
-    _moodFilter.connect(_ctx.destination);
+    _moodFilter.connect(_kademeGain);
+    _kademeGain.connect(_ctx.destination);
   } catch (_) { _ctx = null; }
   return _ctx;
 }
@@ -114,6 +130,35 @@ function _bindUnlock() {
   document.addEventListener('pointerdown', unlock, true);
   document.addEventListener('keydown', unlock, true);
 }
+
+/* İki kademe, üç değil — ve dozu kulakla değil REPONUN KENDİ ölçüsüyle
+   seçildi: gece kısıklığı `_master`'ı 0.5'ten 0.22'ye indiriyor, yani ≈0.45.
+   Uygulamanın "sessiz ama duyulur" dediği doz zaten bu; ikinci bir sayı
+   uydurmak yerine o ölçü ödünç alındı (§6.10 — kanıtı olmayan değer yoktur;
+   burada kanıt reponun kendi gece davranışıdır).
+   Üçüncü bir kademe eklenmedi: aç/kapa zaten var, ve gece kısıklığı bunun
+   ÜSTÜNE biner — kısık bir gecede çarpan 0.22×0.45 ≈ 0.10'a iner, yani
+   "çok kısık" hâli ayrı bir seçenek olmadan da yaşıyor. */
+const _KADEME = { tam: 1, kisik: 0.45 };
+function _kademeCarpani() {
+  return _KADEME[_prefs.sesKademe] ?? 1;
+}
+/* Ayar anında duyulsun — bir sonraki cue'yu bekletmek, kullanıcının
+   değiştirdiği şeyin çalıştığını göremediği bir pencere açar. */
+function _kademeUygula() {
+  try {
+    if (!_kademeGain || !_ctx) return;
+    _kademeGain.gain.setTargetAtTime(_kademeCarpani(), _ctx.currentTime, 0.05);
+  } catch (_) {}
+}
+
+export function fxSetSesKademe(kademe) {
+  _prefs.sesKademe = (kademe in _KADEME) ? kademe : 'tam';
+  fxSave();
+  _kademeUygula();
+  return _prefs.sesKademe;
+}
+export function fxGetSesKademe() { return _prefs.sesKademe || 'tam'; }
 
 function _ready() {
   if (!_prefs.sound) return null;
@@ -556,6 +601,16 @@ export function fxToggleSound(on) {
   _prefs.sound = !!on; fxSave();
   if (on) { _bindUnlock(); fxCue('gift'); if (_prefs.ambient) _ambientStart(); } // canlı önizleme
   else { _ambientStop(); } // ana ses kapanınca Fener de susar
+  fxSyncSettingsUI();       // kademe satırı ses kapalıyken görünmez
+}
+
+/* Ayarlar'daki iki düğme — seçim kaydedilir, ANINDA duyulur (kademe zaten
+   uygulanır) ve bir cue çalınır: kullanıcı "kısık"ın ne demek olduğunu
+   okuyarak değil DUYARAK öğrenir. Ses kapalıysa cue zaten sessizce düşer. */
+export function fxKademeSec(kademe) {
+  fxSetSesKademe(kademe);
+  fxSyncSettingsUI();
+  fxCue('tap');
 }
 export function fxToggleAmbient(on) {
   _prefs.ambient = !!on; fxSave();
@@ -576,6 +631,17 @@ export function fxSyncSettingsUI() {
   if (s) s.checked = !!_prefs.sound;
   if (h) h.checked = !!_prefs.haptic;
   if (a) a.checked = !!_prefs.ambient;
+  /* Kademe satırı: ses kapalıyken GİZLENİR — kapalı bir sesin şiddetini
+     sormak bir ayar değil bir çelişkidir. `hidden` kullanılır, inline
+     display DEĞİL: görünürlük tek yoldan yönetilsin. */
+  const row = document.getElementById('fx-kademe-row');
+  if (row) row.hidden = !_prefs.sound;
+  const secili = fxGetSesKademe();
+  document.querySelectorAll('.fx-kademe-btn').forEach((b) => {
+    const on = b.dataset.kademe === secili;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -593,6 +659,9 @@ if (typeof window !== 'undefined') {
   window.fxCue = fxCue;
   window.fxHaptic = fxHaptic;
   window.fxToggleSound = fxToggleSound;
+  window.fxSetSesKademe = fxSetSesKademe;
+  window.fxKademeSec    = fxKademeSec;
+  window.fxGetSesKademe = fxGetSesKademe;
   window.fxToggleHaptic = fxToggleHaptic;
   window.fxToggleAmbient = fxToggleAmbient;
   window.fxAmbientAcik   = fxAmbientAcik;

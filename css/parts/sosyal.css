@@ -10,6 +10,23 @@
    ik-emre-cta da burada — 10B artık stil enjekte etmez.
 ═══════════════════════════════════════════════════════════════════ */
 
+/* Oda köşesindeki taze-nokta — .ws-om-pulse (oruntu.css) / .ws-ay-pulse
+   (ayna-ani.css) ile AYNI dil. Kartına biri dokunduysa (beğeni/yorum) yanar,
+   halka pazarına girilince söner (bkz. 10C sfRefreshRoomPulse). */
+.ws-st-room .ws-sf-pulse { position: absolute; top: 12px; right: 12px; }
+.ws-sf-pulse {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0; opacity: 0; transition: opacity 0.4s;
+}
+.ws-sf-pulse.active { opacity: 1; animation: wsSfPulse 2.8s ease-in-out infinite; }
+@keyframes wsSfPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ws-sf-pulse.active { animation: none; opacity: 0.85; }
+}
+
 /* ── ik-btn yardımcıları — 10C feed + köprü yüzeyleri ── */
 .ik-btn{min-height:44px;padding:10px 18px;border-radius:12px;cursor:pointer;
   font-family:var(--cinzel);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;

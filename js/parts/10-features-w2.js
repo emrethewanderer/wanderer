@@ -331,6 +331,10 @@ export function wsSyncStudio() {
   // Ayna Anı — canlı alt-satır + taze nokta (09h, window köprüsü)
   try { window.ayRefreshRoomSub?.(); } catch (_) {}
 
+  // Kişilerin Kişileri — sosyal dokunuş taze noktası (10C, window köprüsü;
+  // async ama sonucu beklenmez — om/ay ile aynı "fire and forget" kalıbı).
+  try { window.sfRefreshRoomPulse?.(); } catch (_) {}
+
   // Geçiş Yolu — canlı gün/perde alt-satırı (13s, window köprüsü)
   try { window.gySyncRoomSub?.(); } catch (_) {}
 
