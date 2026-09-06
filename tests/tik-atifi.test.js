@@ -169,7 +169,12 @@ describe('send-push/index.ts — sosyal tetik merdivende winback\'ten önce (FAZ
   it('pickTrigger sosyalVar parametresi alır ve sosyal dalı winback dalından ÖNCE gelir', () => {
     const idx = src.indexOf('function pickTrigger');
     expect(idx).toBeGreaterThan(-1);
-    expect(src).toContain('function pickTrigger(row: any, dateStr: string, hour: number, sosyalVar: boolean): string | null {');
+    // İMZANIN HARFİ değil İDDİASI sınanır (yukarıdaki dersin aynısı): FAZ 13
+    // isteğe bağlı bir `adminHaric` parametresi ekledi — tam imza sabitlenirse
+    // her yeni tetik bu satırı da güncellemek zorunda kalırdı.
+    const imzaSatiri = src.slice(idx, src.indexOf('{', idx));
+    expect(imzaSatiri).toContain('row: any, dateStr: string, hour: number, sosyalVar: boolean');
+    expect(imzaSatiri).toContain('): string | null');
     const body = src.slice(idx);
     /* Dalın HARFİ değil YERİ sınanır. İlk hâl `if (sosyalVar) return 'sosyal';`
        satırını birebir arıyordu ve faz denetiminin açlık düzeltmesi
@@ -443,5 +448,48 @@ describe('send-push merdiveni — seçilebilen her tetiğin metni var', () => {
     const hazir = ['winback'];
     expect(bulunan.filter(t => !t.kapili && !hazir.includes(t.ad)).map(t => t.ad))
       .toEqual(['sosyal']);   // ihlal görünür
+  });
+});
+
+/* ═══ ADMİN EŞİK ALARMI — Kalan Yol Haritası FAZ 13 · "Eşik alarmı altyapısı"
+   (🅢). Gözlemevi'nin (13q-gozlemevi.js) topladığı teşhisler bugün yalnız
+   client'ta üretiliyor; bu blok yalnız merdivenin YAPISINI sınar — FAZ
+   11/12'nin dersi (üstteki YAPIŞKAN TETİK KAPISI) aynen `admin`'e de
+   uygulanmış mı. Eşik SAYILARI ve metni FAZ 14'ün (🅞) işi; o yüzden burada
+   "admin push gönderildi mi" gibi davranışsal bir iddia YOKTUR — koşulun
+   HEP false olduğu, ve false olsa bile disiplinin kurulu olduğu sınanır. */
+describe('send-push/index.ts — admin eşik alarmı yapısal olarak kurulu (FAZ 13)', () => {
+  const src = readFileSync(join(ROOT, 'supabase/functions/send-push/index.ts'), 'utf8');
+
+  it('ADMIN_ALARM_AKTIF hep false — eşik SAYILARI FAZ 14\'ün işi, burada uydurulmaz', () => {
+    expect(src).toContain('const ADMIN_ALARM_AKTIF = false;');
+  });
+
+  it('admin METNI_HAZIR kümesine EKLENMEDİ — metni yazılmadan basamak açılmaz', () => {
+    const m = src.match(/METNI_HAZIR\s*=\s*new Set\(\[([^\]]*)\]\)/);
+    const uyeler = m ? [...m[1].matchAll(/'([^']+)'/g)].map(x => x[1]) : [];
+    expect(uyeler).not.toContain('admin');
+  });
+
+  it('pickTrigger admin dalı METNI_HAZIR.has(\'admin\') kapısı ARKASINDA duruyor', () => {
+    const bas = src.indexOf('function pickTrigger');
+    const govde = src.slice(bas, src.indexOf('\n}', bas));
+    const adminSatiri = govde.match(/^(.*)return 'admin';/m);
+    expect(adminSatiri, 'admin dalı pickTrigger içinde bulunamadı').toBeTruthy();
+    expect(adminSatiri[1]).toContain("METNI_HAZIR.has('admin')");
+  });
+
+  it('YAPISKAN_TETIKLER hem sosyal hem admin\'i taşır — sticky disiplin ikisine de uygulanır', () => {
+    const m = src.match(/YAPISKAN_TETIKLER\s*=\s*new Set\(\[([^\]]*)\]\)/);
+    expect(m, 'YAPISKAN_TETIKLER tanımı bulunamadı').toBeTruthy();
+    const uyeler = [...m[1].matchAll(/'([^']+)'/g)].map(x => x[1]);
+    expect(uyeler.sort()).toEqual(['admin', 'sosyal']);
+  });
+
+  it('runEngine reddedilme dalı admin\'i dışlayarak da yeniden çözebiliyor (FAZ 11/12 dersinin genellemesi)', () => {
+    const bas = src.indexOf('async function runEngine');
+    const govde = src.slice(bas, src.indexOf('\n}', bas));
+    expect(govde).toContain('YAPISKAN_TETIKLER.has(trigger)');
+    expect(govde).toMatch(/pickTrigger\([^)]*,\s*sosyalAdaylar\.has\(row\.user_id\),\s*true\)/);
   });
 });

@@ -185,6 +185,66 @@ function _onClick(e) {
   if (e.target.closest('#gz-yorumla')) gzYorumla();
 }
 
+/* ── 0. Eşik Alarmları — Gözlemevi'nin gördüğü teşhislerin TEK listesi
+   (İç Çalışma 17 · F2, FAZ 13 — "Eşik alarmı altyapısı"). Oda 17'nin
+   tespiti: "her kart eşiği aşınca kendi tanısını zaten yazıyor" — bu
+   fonksiyon YENİ BİR TEŞHİS MOTORU KURMAZ (§1.3): her kartı `_renderAll`
+   ile AYNI kaynaktan (aynı çağrı, aynı veri) yeniden üretir ve kartın
+   kendi teşhis span'ini (`data-gz-alarm="1"`) ayıklar. Bir kart ikinci kez
+   render edilir (ucuz — kadran verisi zaten bellekte, tek admin sayfası
+   yüklemesinde bir kez koşar) ama teşhis MANTIĞI ikinci kez YAZILMAZ; tek
+   kaynak _xxxTani fonksiyonlarıdır (bkz. _ritusTani, _esikTani, …).
+   Kartın `<div class="gz-sec">` başlığı da BURADAN okunur — ayrı bir ad
+   haritası tutmak, kart adı değişince burada bayatlardı ([[rapor-bayatligi]]). */
+export function _alarmListesi(d) {
+  d = d || {};
+  const kaynaklar = [
+    () => _hafizaNabzi(d.memory_pulse),
+    () => _koleksiyonNabzi(d.kart_pulse),
+    () => _ritusNabzi(d.ritus_pulse),
+    () => _esikNabzi(d.esik_pulse),
+    () => _duyguNabzi(d.duygu_pulse),
+    () => _donusumNabzi(d.kimlik_pulse, d.ritus_pulse),
+    () => _sesNabzi(d.model_pulse),
+    () => _emniyetNabzi(d.safety_pulse),
+    () => _hataNabzi(d.error_pulse),
+    () => _davetNabzi(d.notification_pulse),
+    () => _gelirNabzi(d.kota_pulse),
+    () => _aracNabzi(d.arac_pulse),
+    () => _bolgeNabzi(d.bolge_pulse),
+    () => _halkaNabzi(d.paylasim_pulse),
+  ];
+  const alarmlar = [];
+  for (const uret of kaynaklar) {
+    let html = '';
+    // Bir kartın hesaplaması patlarsa bütün listeyi düşürmesin (asla bloklama, §5.2).
+    try { html = uret() || ''; } catch (_) { continue; }
+    if (!html) continue;
+    const baslikM = html.match(/<div class="gz-sec">([^<]+)<\/div>/);
+    const kart = baslikM ? baslikM[1] : '—';
+    for (const m of html.matchAll(/<span class="gz-n" data-gz-alarm="1">([\s\S]*?)<\/span>/g)) {
+      const mesaj = m[1].replace(/<[^>]+>/g, '').replace(/^—\s*/, '').trim();
+      if (mesaj) alarmlar.push({ kart, mesaj });
+    }
+  }
+  return alarmlar;
+}
+
+/* Alarm listesinin çizimi — boşsa HİÇ çizilmez: sessizlik de bir bilgidir
+   ama uydurulmuş bir "her şey sakin" cümlesi yazılmaz (§6.10), kart yoksa
+   satır da yok. `esc()` burada savunma amaçlı: mesaj bugün yalnız sabit
+   geliştirici metni + sayı taşıyor, ama ekrana giden hiçbir dinamik metin
+   kaçışsız bırakılmaz (§5.2 güvenlik). */
+export function _alarmListesiHTML(alarmlar) {
+  if (!alarmlar || !alarmlar.length) return '';
+  const rows = alarmlar.map(a => `<div class="gz-bar-row">
+    <span class="gz-bar-name">${esc(a.kart)}</span>
+    <span class="gz-bar-val">${esc(a.mesaj)}</span>
+  </div>`).join('');
+  return `<div class="gz-sec">Eşik Alarmları — ${alarmlar.length} kart teşhis yazdı</div>
+    <div class="gz-flow">${rows}</div>`;
+}
+
 function _renderAll(d) {
   const ov = d.overview || {};
   const active = ov.active_users || 0;
@@ -200,6 +260,7 @@ function _renderAll(d) {
 
   return `
     <div class="gz-chips">${chips}</div>
+    ${_alarmListesiHTML(_alarmListesi(d))}
     ${_kadran(ov)}
     ${_trend(d.trend)}
     ${_zamanHaritasi(d.screens, active)}
@@ -352,15 +413,25 @@ function _modNabzi(mp) {
    Bu kartın varlık sebebi TEK bir soru: motor uzak yoldan mı çalışıyor, yoksa
    şema/embed deploy edilmediği için sessizce hep yerel fallback'te mi? Sessiz
    düşüş mühendislikte erdemdir; ama sessizce HİÇ çalışmamak arızadır. ── */
+/* Hafıza Nabzı'nın teşhis cümlesi — FAZ 13'ün alarm listesi (_alarmListesi)
+   de BURADAN okur; ikinci bir hesap yazılmaz (§1.3). Uyarı eşiği bir yargı
+   değil, mimari olgu: uzak yol hiç görünmüyorsa anlamsal hafıza prod'da
+   YAŞAMIYOR demektir (kod kusursuz görünse bile). */
+function _hafizaTani(uzak, hata) {
+  if (uzak === 0) {
+    return `<span class="gz-n" data-gz-alarm="1">— uzak yol hiç görünmedi: <code>user_memories</code> şeması ya da <code>llm-embed</code> deploy'u eksik olabilir (ELLE iş)</span>`;
+  }
+  if (hata >= 20) {
+    return `<span class="gz-n" data-gz-alarm="1">— hata oranı %${hata}: RPC ya da embed ucu düşüyor olabilir</span>`;
+  }
+  return '';
+}
+
 export function _hafizaNabzi(mp) {
   if (!mp || !mp.total) return '';
   const uzak = Number(mp.uzak_pct) || 0;
   const hata = Number(mp.hata_pct) || 0;
-  // Uyarı eşiği bir yargı değil, mimari olgu: uzak yol hiç görünmüyorsa
-  // anlamsal hafıza prod'da YAŞAMIYOR demektir (kod kusursuz görünse bile).
-  const tani = uzak === 0
-    ? `<span class="gz-n">— uzak yol hiç görünmedi: <code>user_memories</code> şeması ya da <code>llm-embed</code> deploy'u eksik olabilir (ELLE iş)</span>`
-    : (hata >= 20 ? `<span class="gz-n">— hata oranı %${hata}: RPC ya da embed ucu düşüyor olabilir</span>` : '');
+  const tani = _hafizaTani(uzak, hata);
   const yollar = Array.isArray(mp.yollar) ? mp.yollar : [];
   const max = Math.max(1, ...yollar.map(x => x.count || 0));
   const rows = yollar.map(x => `<div class="gz-bar-row">
@@ -444,6 +515,23 @@ function _ctxAd(k) {
    Elmas'la açılır. Ayrımı meta.kategori='hazine' yapar.
    NADİRLİK DAĞILIMI pity eşiği kararının tek meşru girdisidir — plandaki
    bilinçli sınır: oranlara bu tablo dolmadan dokunulmaz. ── */
+/* Koleksiyonun Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). Teşhis eşikleri yargı
+   değil mimari olgu: bir kol hiç görünmüyorsa o kol prod'da yaşamıyor ya da
+   kapısı erişilemez demektir. */
+function _koleksiyonTani(kazanim, paket, harcanan, iade) {
+  if (!kazanim) {
+    return `<span class="gz-n" data-gz-alarm="1">— kimlik kolu sessiz: hiç kart teslim edilmemiş. Reçete eşikleri (<code>threshold</code>/<code>minEvidence</code>) erişilemiyor ya da <code>kisi_kartlari</code> şeması eksik olabilir (ELLE iş)</span>`;
+  }
+  if (!paket) {
+    return `<span class="gz-n" data-gz-alarm="1">— Hazine'nin girişi hiç kullanılmamış: Elmas birikiyor ama dönmüyor</span>`;
+  }
+  if (harcanan > 0 && iade / harcanan > 0.5) {
+    return `<span class="gz-n" data-gz-alarm="1">— iade, harcamanın yarısını geçti: paketler çoğunlukla kopya döndürüyor</span>`;
+  }
+  return '';
+}
+
 export function _koleksiyonNabzi(kp) {
   if (!kp || !kp.total) return '';
   const harcanan = Number(kp.elmas_harcanan) || 0;
@@ -451,16 +539,7 @@ export function _koleksiyonNabzi(kp) {
   const paket    = Number(kp.paket) || 0;
   const kazanim  = Number(kp.kazanim) || 0;
 
-  /* Teşhis eşikleri yargı değil mimari olgu: bir kol hiç görünmüyorsa o kol
-     prod'da yaşamıyor ya da kapısı erişilemez demektir. */
-  let tani = '';
-  if (!kazanim) {
-    tani = `<span class="gz-n">— kimlik kolu sessiz: hiç kart teslim edilmemiş. Reçete eşikleri (<code>threshold</code>/<code>minEvidence</code>) erişilemiyor ya da <code>kisi_kartlari</code> şeması eksik olabilir (ELLE iş)</span>`;
-  } else if (!paket) {
-    tani = `<span class="gz-n">— Hazine'nin girişi hiç kullanılmamış: Elmas birikiyor ama dönmüyor</span>`;
-  } else if (harcanan > 0 && iade / harcanan > 0.5) {
-    tani = `<span class="gz-n">— iade, harcamanın yarısını geçti: paketler çoğunlukla kopya döndürüyor</span>`;
-  }
+  const tani = _koleksiyonTani(kazanim, paket, harcanan, iade);
 
   const nad = Array.isArray(kp.nadirlikler) ? kp.nadirlikler : [];
   const max = Math.max(1, ...nad.map(x => x.count || 0));
@@ -497,6 +576,28 @@ const _RITUS_AD = {
   'oik-okuma':        'Geçiş Okuması',
 };
 
+/* Ritüellerin Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). Teşhis eşikleri yargı
+   değil mimari olgu; yarışmasınlar diye if/else, en ağır olan önce. */
+function _ritusTani(tamamlayan, sessiz, sozVeren, hesapVeren, baslayan) {
+  if (!tamamlayan) {
+    return `<span class="gz-n" data-gz-alarm="1">— hiçbir ritüel sonuna kadar gitmemiş: huninin çıkışı kapalı ya da ölçüm yeni açıldı</span>`;
+  }
+  if (sessiz.length >= 3) {
+    return `<span class="gz-n" data-gz-alarm="1">— ${sessiz.length} direğe hiç dokunulmadı: ${sessiz.map(a => esc(_RITUS_AD[a])).join(', ')}</span>`;
+  }
+  if (sozVeren > 0 && hesapVeren / sozVeren < 0.5) {
+    return `<span class="gz-n" data-gz-alarm="1">— sözünü veren iki gezginden biri akşam hesabına dönmüyor: döngü yarım kapanıyor</span>`;
+  }
+  if (baslayan > 0 && tamamlayan / baslayan < 0.4) {
+    return `<span class="gz-n" data-gz-alarm="1">— başlayanların yarıdan azı sonuna kalıyor; terk adımları aşağıda</span>`;
+  }
+  if (sessiz.length) {
+    return `<span class="gz-n" data-gz-alarm="1">— sessiz kalan: ${sessiz.map(a => esc(_RITUS_AD[a])).join(', ')}</span>`;
+  }
+  return '';
+}
+
 export function _ritusNabzi(rp) {
   if (!rp || !rp.total) return '';
   const baslayan   = Number(rp.baslayan_gezgin) || 0;
@@ -514,19 +615,7 @@ export function _ritusNabzi(rp) {
   const gorulen = new Set(rit.map(r => r.ad));
   const sessiz = Object.keys(_RITUS_AD).filter(a => !gorulen.has(a));
 
-  /* Teşhis eşikleri yargı değil mimari olgu; yarışmasınlar diye if/else. */
-  let tani = '';
-  if (!tamamlayan) {
-    tani = `<span class="gz-n">— hiçbir ritüel sonuna kadar gitmemiş: huninin çıkışı kapalı ya da ölçüm yeni açıldı</span>`;
-  } else if (sessiz.length >= 3) {
-    tani = `<span class="gz-n">— ${sessiz.length} direğe hiç dokunulmadı: ${sessiz.map(a => esc(_RITUS_AD[a])).join(', ')}</span>`;
-  } else if (sozVeren > 0 && hesapVeren / sozVeren < 0.5) {
-    tani = `<span class="gz-n">— sözünü veren iki gezginden biri akşam hesabına dönmüyor: döngü yarım kapanıyor</span>`;
-  } else if (baslayan > 0 && tamamlayan / baslayan < 0.4) {
-    tani = `<span class="gz-n">— başlayanların yarıdan azı sonuna kalıyor; terk adımları aşağıda</span>`;
-  } else if (sessiz.length) {
-    tani = `<span class="gz-n">— sessiz kalan: ${sessiz.map(a => esc(_RITUS_AD[a])).join(', ')}</span>`;
-  }
+  const tani = _ritusTani(tamamlayan, sessiz, sozVeren, hesapVeren, baslayan);
 
   const max = Math.max(1, ...rit.map(r => (Number(r.basladi) || 0) + (Number(r.tamam) || 0)));
   const rows = rit.map(r => {
@@ -578,6 +667,31 @@ const _ESIK_BASAMAK = [
   ['dogus',       'Kartını mühürledi'],
 ];
 
+/* Eşiğin Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de BURADAN
+   okur; ikinci bir hesap yazılmaz (§1.3). Teşhis eşikleri yargı değil mimari
+   olgu; yarışmasınlar diye if/else, en ağır olan önce. */
+function _esikTani(basladi, dogus, dususPct, dususAd, sOk, sFb, perdeN, perdeAt) {
+  if (!basladi) {
+    return '<span class="gz-n" data-gz-alarm="1">— bu dönemde eşiğe kimse gelmedi: ölçüm yeni açıldı ya da yeni gezgin yok</span>';
+  }
+  if (!dogus) {
+    return '<span class="gz-n" data-gz-alarm="1">— eşiğe gelen hiç kimse kartını mühürlemedi: huninin çıkışı kapalı</span>';
+  }
+  if (dususPct >= 0.4 && dususAd) {
+    return `<span class="gz-n" data-gz-alarm="1">— kalem <b>${esc(dususAd)}</b> basamağında düşüyor: oraya gelenlerin %${Math.round(dususPct * 100)}'i geçmiyor</span>`;
+  }
+  if (sOk + sFb > 0 && sFb / (sOk + sFb) >= 0.2) {
+    return `<span class="gz-n" data-gz-alarm="1">— sentez her beş turdan birinde düşüyor (${sFb}/${sOk + sFb}): kart LLM'siz doğuyor</span>`;
+  }
+  if (perdeN > 0 && perdeAt / perdeN >= 0.5) {
+    return '<span class="gz-n" data-gz-alarm="1">— perdeyi her iki gezginden biri atlıyor: tören bedelini aşmış olabilir</span>';
+  }
+  if (dogus / basladi < 0.5) {
+    return `<span class="gz-n" data-gz-alarm="1">— eşiğe gelenlerin yarıdan azı kartını mühürlüyor (${dogus}/${basladi})</span>`;
+  }
+  return '';
+}
+
 export function _esikNabzi(ep) {
   if (!ep || !ep.total) return '';
   const h = ep.huni || {};
@@ -604,22 +718,7 @@ export function _esikNabzi(ep) {
     if (kayip > dususPct) { dususPct = kayip; dususAd = basamaklar[i].ad; }
   }
 
-  /* Teşhis eşikleri yargı değil mimari olgu; yarışmasınlar diye if/else,
-     en ağır olan önce. */
-  let tani = '';
-  if (!basladi) {
-    tani = '<span class="gz-n">— bu dönemde eşiğe kimse gelmedi: ölçüm yeni açıldı ya da yeni gezgin yok</span>';
-  } else if (!dogus) {
-    tani = '<span class="gz-n">— eşiğe gelen hiç kimse kartını mühürlemedi: huninin çıkışı kapalı</span>';
-  } else if (dususPct >= 0.4 && dususAd) {
-    tani = `<span class="gz-n">— kalem <b>${esc(dususAd)}</b> basamağında düşüyor: oraya gelenlerin %${Math.round(dususPct * 100)}'i geçmiyor</span>`;
-  } else if (sOk + sFb > 0 && sFb / (sOk + sFb) >= 0.2) {
-    tani = `<span class="gz-n">— sentez her beş turdan birinde düşüyor (${sFb}/${sOk + sFb}): kart LLM'siz doğuyor</span>`;
-  } else if (perdeN > 0 && perdeAt / perdeN >= 0.5) {
-    tani = '<span class="gz-n">— perdeyi her iki gezginden biri atlıyor: tören bedelini aşmış olabilir</span>';
-  } else if (dogus / basladi < 0.5) {
-    tani = `<span class="gz-n">— eşiğe gelenlerin yarıdan azı kartını mühürlüyor (${dogus}/${basladi})</span>`;
-  }
+  const tani = _esikTani(basladi, dogus, dususPct, dususAd, sOk, sFb, perdeN, perdeAt);
 
   const max = Math.max(1, ...basamaklar.map(b => b.n));
   const rows = basamaklar.map((b, i) => {
@@ -679,6 +778,18 @@ const _DG_YUZEY_AD = {
   secici: 'Seçici sıralaması', push: 'Bildirim', kart: 'Kart sunumu',
 };
 
+/* Yanılma Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). */
+function _duyguTani(asilan, olculmusVarMi) {
+  if (asilan.length) {
+    return `<span class="gz-n" data-gz-alarm="1">— ${asilan.map(r => `${esc(r.ad)} (%${Math.round(r.oran * 100)})`).join(', ')} eşiği aştı: bu gezginlerde kendini kapatmış olabilir</span>`;
+  }
+  if (!olculmusVarMi) {
+    return '<span class="gz-n" data-gz-alarm="1">— henüz hiçbir yüzey 5 konuşmaya ulaşmadı: oran ölçülmüyor</span>';
+  }
+  return '';
+}
+
 export function _duyguNabzi(dp) {
   if (!dp || !dp.total) return '';
   const yuzeyler = Array.isArray(dp.yuzeyler) ? dp.yuzeyler : [];
@@ -696,12 +807,7 @@ export function _duyguNabzi(dp) {
   }).sort((a, b) => b.konustu - a.konustu);
 
   const asilan = rows.filter(r => r.oran !== null && r.oran > ESIK && r.yuzey !== 'sohbet');
-  let tani = '';
-  if (asilan.length) {
-    tani = `<span class="gz-n">— ${asilan.map(r => `${esc(r.ad)} (%${Math.round(r.oran * 100)})`).join(', ')} eşiği aştı: bu gezginlerde kendini kapatmış olabilir</span>`;
-  } else if (!rows.some(r => r.oran !== null)) {
-    tani = '<span class="gz-n">— henüz hiçbir yüzey 5 konuşmaya ulaşmadı: oran ölçülmüyor</span>';
-  }
+  const tani = _duyguTani(asilan, rows.some(r => r.oran !== null));
 
   const max = Math.max(1, ...rows.map(r => r.konustu));
   const barRows = rows.map(r => `<div class="gz-bar-row">
@@ -727,6 +833,31 @@ export function _duyguNabzi(dp) {
    rakam doğurur.
    ORAN PANELDE KURULUR, payda 0 ise HİÇ GÖSTERİLMEZ (§6.10 — kanıtsız
    değer yoktur; "%0 tasarladı" ile "henüz kimse gelmedi" aynı şey değil). */
+/* Dönüşümün Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). Teşhis eşikleri yargı
+   değil mimari olgu; yarışmasınlar diye if/else, en ağır olan önce. */
+function _donusumTani(tasarlayan, okumaOk, kayma, devir, ortTutus, ortMadde, serbest) {
+  if (!tasarlayan) {
+    return '<span class="gz-n" data-gz-alarm="1">— bu dönemde kimse olmak istediği kişiyi tasarlamadı: üçgenin lapis köşesi boş</span>';
+  }
+  if (okumaOk === 0) {
+    return '<span class="gz-n" data-gz-alarm="1">— kart tasarlandı ama okunmuyor: Geçiş Protokolü kâğıtta kaldı</span>';
+  }
+  if (!kayma && devir) {
+    return '<span class="gz-n" data-gz-alarm="1">— kimlik yalnız kart kazanımıyla el değiştiriyor; davranış henüz kendi hükmünü vermedi</span>';
+  }
+  if (ortTutus > 0 && ortTutus < 1) {
+    return '<span class="gz-n" data-gz-alarm="1">— kimlik günü doldurmadan el değiştiriyor: histerezis eşiği gerçekten tutuyor mu?</span>';
+  }
+  if (ortMadde > 0 && ortMadde < 4) {
+    return `<span class="gz-n" data-gz-alarm="1">— kartlar ortalama ${ortMadde} maddeyle doğuyor: dört boyutun hepsi dolmuyor</span>`;
+  }
+  if (serbest > 0 && tasarlayan > 0 && serbest >= tasarlayan) {
+    return '<span class="gz-n" data-gz-alarm="1">— tasarlandığı kadar vazgeçiliyor: niyet tutunamıyor</span>';
+  }
+  return '';
+}
+
 export function _donusumNabzi(km, rp) {
   if (!km || !km.total) return '';
   const say = (v) => Number(v) || 0;
@@ -752,22 +883,7 @@ export function _donusumNabzi(km, rp) {
   const okuyan  = okumaSatir ? say(okumaSatir.gezgin) : null;
   const okumaOk = okumaSatir ? say(okumaSatir.tamam)  : null;
 
-  /* Teşhis eşikleri yargı değil mimari olgu; yarışmasınlar diye if/else,
-     en ağır olan önce. */
-  let tani = '';
-  if (!tasarlayan) {
-    tani = '<span class="gz-n">— bu dönemde kimse olmak istediği kişiyi tasarlamadı: üçgenin lapis köşesi boş</span>';
-  } else if (okumaOk === 0) {
-    tani = '<span class="gz-n">— kart tasarlandı ama okunmuyor: Geçiş Protokolü kâğıtta kaldı</span>';
-  } else if (!kayma && devir) {
-    tani = '<span class="gz-n">— kimlik yalnız kart kazanımıyla el değiştiriyor; davranış henüz kendi hükmünü vermedi</span>';
-  } else if (ortTutus > 0 && ortTutus < 1) {
-    tani = '<span class="gz-n">— kimlik günü doldurmadan el değiştiriyor: histerezis eşiği gerçekten tutuyor mu?</span>';
-  } else if (ortMadde > 0 && ortMadde < 4) {
-    tani = `<span class="gz-n">— kartlar ortalama ${ortMadde} maddeyle doğuyor: dört boyutun hepsi dolmuyor</span>`;
-  } else if (serbest > 0 && tasarlayan > 0 && serbest >= tasarlayan) {
-    tani = '<span class="gz-n">— tasarlandığı kadar vazgeçiliyor: niyet tutunamıyor</span>';
-  }
+  const tani = _donusumTani(tasarlayan, okumaOk, kayma, devir, ortTutus, ortMadde, serbest);
 
   /* Üç köşe — payda yoksa sayı yerine davet durur, uydurma sıfır değil. */
   const kose = (n, ad, alt) => `<div class="stat-block" style="border:1px solid var(--border);">
@@ -812,6 +928,28 @@ export function _donusumNabzi(km, rp) {
    PANEL "MOD NABZI" DEĞİLDİR: o AI_MODES'un otomatik modlarını ölçer
    (kind='mode'). Bu repoda Modeller (elle) ile Modlar (otomatik) ayrı
    eksenlerdir ve karıştırılmaları bilinen bir tuzaktır. ── */
+/* Üç Sesin Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). Teşhis eşikleri yargı
+   değil mimari olgu; yarışmasınlar diye if/else, en ağır olan önce. */
+function _sesTani(kilit, secim, turToplam, tekSesPay, dus, turSayisi, gecisSayisi) {
+  if (kilit && !secim) {
+    return '<span class="gz-n" data-gz-alarm="1">— eksen seçimi yalnız kapıya çarpıyor: üç ses var, ikisi Pro\'nun arkasında</span>';
+  }
+  if (turToplam >= 20 && tekSesPay >= 90) {
+    return `<span class="gz-n" data-gz-alarm="1">— konuşmanın %${tekSesPay}'i tek eksende geçiyor: üç ses pratikte tek sese düşmüş</span>`;
+  }
+  if (dus) {
+    return `<span class="gz-n" data-gz-alarm="1">— ${dus} kez kayıtlı eksen sessizce Öz\'e döndü: gezgin seçtiğini kaybettiğini bilmiyor</span>`;
+  }
+  if (!turSayisi && secim) {
+    return '<span class="gz-n" data-gz-alarm="1">— eksen seçiliyor ama turlarda izi yok: meta.fm yazılmıyor olabilir (migration 050 uygulandı mı?)</span>';
+  }
+  if (secim && !gecisSayisi) {
+    return '<span class="gz-n" data-gz-alarm="1">— seçim var ama geçiş matrisi boş: eksenler arası dolaşım henüz doğmadı</span>';
+  }
+  return '';
+}
+
 export function _sesNabzi(mp) {
   const turlar = (mp && Array.isArray(mp.eksen_tur)) ? mp.eksen_tur : [];
   /* Kanal iki koldan beslenir; ikisi de boşsa panel HİÇ çizilmez. Seçim hiç
@@ -837,20 +975,7 @@ export function _sesNabzi(mp) {
   const enBuyuk   = turlar.length ? Math.max(...turlar.map(x => say(x.tur))) : 0;
   const tekSesPay = turToplam ? Math.round(enBuyuk / turToplam * 100) : 0;
 
-  /* Teşhis eşikleri yargı değil mimari olgu; yarışmasınlar diye if/else,
-     en ağır olan önce. */
-  let tani = '';
-  if (kilit && !secim) {
-    tani = '<span class="gz-n">— eksen seçimi yalnız kapıya çarpıyor: üç ses var, ikisi Pro\'nun arkasında</span>';
-  } else if (turToplam >= 20 && tekSesPay >= 90) {
-    tani = `<span class="gz-n">— konuşmanın %${tekSesPay}'i tek eksende geçiyor: üç ses pratikte tek sese düşmüş</span>`;
-  } else if (dus) {
-    tani = `<span class="gz-n">— ${dus} kez kayıtlı eksen sessizce Öz\'e döndü: gezgin seçtiğini kaybettiğini bilmiyor</span>`;
-  } else if (!turlar.length && secim) {
-    tani = '<span class="gz-n">— eksen seçiliyor ama turlarda izi yok: meta.fm yazılmıyor olabilir (migration 050 uygulandı mı?)</span>';
-  } else if (secim && !gecis.length) {
-    tani = '<span class="gz-n">— seçim var ama geçiş matrisi boş: eksenler arası dolaşım henüz doğmadı</span>';
-  }
+  const tani = _sesTani(kilit, secim, turToplam, tekSesPay, dus, turlar.length, gecis.length);
 
   /* Üç köşe — payda yoksa sayı yerine "—" durur, uydurma sıfır değil (§6.10). */
   const kose = (n, ad2, alt) => `<div class="stat-block" style="border:1px solid var(--border);">
@@ -923,6 +1048,16 @@ function _kpKol(k) {
    kalıbı ikisini birbirine karıştırır; o satır bu turda değiştirilmedi
    (kapsam), ama bu kartlar onu emsal ALMAZ. ── */
 const _SAFETY_AD = { crisis_signal: 'Sinyal', crisis_card: 'Kart', crisis_grace: 'Lütuf' };
+/* Emniyet Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). Tek teşhis — yarışacak
+   ikinci bir eşik yok. */
+function _emniyetTani(sinyal, kart) {
+  if (sinyal && !kart) {
+    return ' <span class="gz-n" data-gz-alarm="1">— sinyal yakalanıyor ama kart gösterilmiyor: 20 dk soğuma penceresi mi yutuyor?</span>';
+  }
+  return '';
+}
+
 export function _emniyetNabzi(sp) {
   if (!sp || !sp.total) return '';
   const olaylar = Array.isArray(sp.olaylar) ? sp.olaylar : [];
@@ -931,11 +1066,7 @@ export function _emniyetNabzi(sp) {
   const kart   = say('crisis_card');
   const lutuf  = say('crisis_grace');
 
-  /* Tek teşhis — yarışacak ikinci bir eşik yok. */
-  let tani = '';
-  if (sinyal && !kart) {
-    tani = ' <span class="gz-n">— sinyal yakalanıyor ama kart gösterilmiyor: 20 dk soğuma penceresi mi yutuyor?</span>';
-  }
+  const tani = _emniyetTani(sinyal, kart);
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
     <div class="stat-num">${n}</div>
@@ -959,6 +1090,17 @@ export function _emniyetNabzi(sp) {
    error_stack/context/user_agent rapora hiç girmez (mig 051 başlık
    notu) — kart bunları hiç isteyemez, yalnız geliştiricinin sabit
    `label` etiketini gösterir. ── */
+/* Hata Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de BURADAN
+   okur; ikinci bir hesap yazılmaz (§1.3). */
+function _hataTani(enSik, total) {
+  if (!enSik) return '';
+  const pay = total ? Math.round((Number(enSik.n) || 0) / total * 100) : 0;
+  if (pay >= 40) {
+    return ` <span class="gz-n" data-gz-alarm="1">— hataların %${gzSayi(pay)}'i tek etikette toplanıyor: <code>${esc(enSik.label)}</code></span>`;
+  }
+  return '';
+}
+
 export function _hataNabzi(ep) {
   if (!ep || !ep.total) return '';
   const etiketler = Array.isArray(ep.top_labels) ? ep.top_labels : [];
@@ -966,13 +1108,7 @@ export function _hataNabzi(ep) {
   const total = Number(ep.total) || 0;
   const etkilenen = Number(ep.affected_users) || 0;
 
-  let tani = '';
-  if (enSik) {
-    const pay = total ? Math.round((Number(enSik.n) || 0) / total * 100) : 0;
-    if (pay >= 40) {
-      tani = ` <span class="gz-n">— hataların %${gzSayi(pay)}'i tek etikette toplanıyor: <code>${esc(enSik.label)}</code></span>`;
-    }
-  }
+  const tani = _hataTani(enSik, total);
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
     <div class="stat-num">${n}</div>
@@ -1013,6 +1149,24 @@ export function _hataNabzi(ep) {
    kimse henüz tıklamadı / zincir hâlâ eksik) — bu yüzden o durumda kart
    dürüst boşluk notunu KORUR (§6.10: kanıtsız iddiada bulunulmaz). Not
    "kaldırılmadı, koşullu hâle geldi" — aşağıdaki `notAlt`. ── */
+/* Davetin Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). En ağır olan önce: motor
+   hiç koşmamışsa "dönüş yok" teşhisi anlamsız. tiklanma > 0 → atıf gerçekten
+   çalışıyor, sütun kendi verisiyle konuşur (oran). tiklanma === 0, "atıf
+   kurulu ama kimse tıklamadı" ile "atıf hâlâ eksik"i ayırt edemez — dürüst
+   boşluk notu bu yüzden kalır. */
+function _davetTani(total, tiklanma) {
+  if (!total) {
+    return ' <span class="gz-n" data-gz-alarm="1">— motor bu pencerede hiç koşmamış — pg_cron kurulu mu?</span>';
+  }
+  if (!tiklanma) {
+    // Tahmin değil olgu: veri henüz gelmedi (yukarıdaki dürüstlük sınırı).
+    return ' <span class="gz-n" data-gz-alarm="1">— tık sütunu henüz konuşmuyor: atıf zinciri kodda kurulu, 052 + redeploy ELLE bekliyor; bu sıfır bir sonuç değil bir boşluk</span>';
+  }
+  const oran = Math.round((tiklanma / total) * 100);
+  return ` <span class="gz-n" data-gz-alarm="1">— dönüş oranı %${gzSayi(oran)}</span>`;
+}
+
 export function _davetNabzi(np) {
   // Kol tekil ama net: `tip_dagilim` dizisinin VARLIĞI sorgunun gerçekten
   // koştuğunun kanıtıdır (RPC her zaman en az [] döner) — yokluğu, alanın
@@ -1023,20 +1177,7 @@ export function _davetNabzi(np) {
   const total = Number(np.total) || 0;
   const tiklanma = dagilim.reduce((a, x) => a + (Number(x.tiklanma) || 0), 0);
 
-  /* En ağır olan önce: motor hiç koşmamışsa "dönüş yok" teşhisi anlamsız.
-     tiklanma > 0 → atıf gerçekten çalışıyor, sütun kendi verisiyle konuşur
-     (oran). tiklanma === 0, "atıf kurulu ama kimse tıklamadı" ile "atıf
-     hâlâ eksik"i ayırt edemez — dürüst boşluk notu bu yüzden kalır. */
-  let tani = '';
-  if (!total) {
-    tani = ' <span class="gz-n">— motor bu pencerede hiç koşmamış — pg_cron kurulu mu?</span>';
-  } else if (!tiklanma) {
-    /* Tahmin değil olgu: veri henüz gelmedi (yukarıdaki dürüstlük sınırı). */
-    tani = ' <span class="gz-n">— tık sütunu henüz konuşmuyor: atıf zinciri kodda kurulu, 052 + redeploy ELLE bekliyor; bu sıfır bir sonuç değil bir boşluk</span>';
-  } else {
-    const oran = Math.round((tiklanma / total) * 100);
-    tani = ` <span class="gz-n">— dönüş oranı %${gzSayi(oran)}</span>`;
-  }
+  const tani = _davetTani(total, tiklanma);
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
     <div class="stat-num">${n}</div>
@@ -1079,6 +1220,20 @@ export function _davetNabzi(np) {
    GÖRDÜĞÜNÜ sayar; huninin son basamağı burada yoktur (sabit metin
    aşağıda, §6.10). ── */
 const _KOTA_OLAY_AD = { duvar: 'Duvar', gate: 'Kapı', sheet: 'Sheet', iptal: 'İptal', bonus: 'Bonus' };
+/* Gelirin Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). En ağır olan önce: duvara
+   çarpıp teklifi hiç görmemek, teklifi görüp sheet'e geçmemekten daha erken
+   bir huni kaybıdır. */
+function _gelirTani(duvar, kapi, sheet) {
+  if (duvar && !kapi) {
+    return ' <span class="gz-n" data-gz-alarm="1">— duvara çarpılıyor ama teklif hiç açılmıyor</span>';
+  }
+  if (kapi && !sheet) {
+    return " <span class=\"gz-n\" data-gz-alarm=\"1\">— teklif görülüyor, sheet'e geçilmiyor</span>";
+  }
+  return '';
+}
+
 export function _gelirNabzi(kp) {
   if (!kp || !kp.total) return '';
   const huni = Array.isArray(kp.huni) ? kp.huni : [];
@@ -1088,14 +1243,7 @@ export function _gelirNabzi(kp) {
   const sheet = say('sheet');
   const iptal = say('iptal');
 
-  /* En ağır olan önce: duvara çarpıp teklifi hiç görmemek, teklifi görüp
-     sheet'e geçmemekten daha erken bir huni kaybıdır. */
-  let tani = '';
-  if (duvar && !kapi) {
-    tani = ' <span class="gz-n">— duvara çarpılıyor ama teklif hiç açılmıyor</span>';
-  } else if (kapi && !sheet) {
-    tani = " <span class=\"gz-n\">— teklif görülüyor, sheet'e geçilmiyor</span>";
-  }
+  const tani = _gelirTani(duvar, kapi, sheet);
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
     <div class="stat-num">${n}</div>
@@ -1128,6 +1276,15 @@ export function _gelirNabzi(kp) {
    oranı BURADA HESAPLANMAZ (K3) — matris ham sayı döner, oranı panel
    kurar. ── */
 const _ARAC_AD = { soz: 'Söz', not: 'Not', gecis: 'Geçiş', imge: 'İmge' };
+/* Araç Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de BURADAN
+   okur; ikinci bir hesap yazılmaz (§1.3). */
+function _aracTani(oner, onayla, reddet) {
+  if (oner && !onayla && !reddet) {
+    return ' <span class="gz-n" data-gz-alarm="1">— chip çiziliyor ama kimse dokunmuyor: öneri ne kabul ne ret alıyor, sessizce kayboluyor</span>';
+  }
+  return '';
+}
+
 export function _aracNabzi(ap) {
   if (!ap || !ap.total) return '';
   const matris = Array.isArray(ap.matris) ? ap.matris : [];
@@ -1136,10 +1293,7 @@ export function _aracNabzi(ap) {
   const onayla = toplam('onayla');
   const reddet = toplam('reddet');
 
-  let tani = '';
-  if (oner && !onayla && !reddet) {
-    tani = ' <span class="gz-n">— chip çiziliyor ama kimse dokunmuyor: öneri ne kabul ne ret alıyor, sessizce kayboluyor</span>';
-  }
+  const tani = _aracTani(oner, onayla, reddet);
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
     <div class="stat-num">${n}</div>
@@ -1181,6 +1335,15 @@ export function _aracNabzi(ap) {
    yüzde yok (§6.10, K3). Bar genişliği doğrudan yüzdedir: "erişim yüzdesi"
    burada gerçekten ölçeğin kendisidir, ayrı bir max-normalize gerekmez. ── */
 const _BOLGE_AD = { ayrac: 'Ayraç', galeri: 'Galeri', icdunya: 'İç Dünya', yolculuk: 'Yolculuk', ocak: 'Ocak' };
+/* Bölge Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de BURADAN
+   okur; ikinci bir hesap yazılmaz (§1.3). */
+function _bolgeTani(ayracPct, gorenler) {
+  if (ayracPct < 50) {
+    return ` <span class="gz-n" data-gz-alarm="1">— Bugün'e giren ${gzSayi(gorenler)} gezginin yalnız %${gzSayi(ayracPct)}'i ayracın altına indi: STÜDYO fold altında kalıyor</span>`;
+  }
+  return '';
+}
+
 export function _bolgeNabzi(bp) {
   const gorenler = Number(bp && bp.bugun_gorenler) || 0;
   if (!bp || !gorenler) return '';
@@ -1188,10 +1351,7 @@ export function _bolgeNabzi(bp) {
   const gez = (k) => { const x = bolgeler.find(o => o.bolge === k); return x ? (Number(x.gezgin) || 0) : 0; };
   const ayracPct = Math.round(gez('ayrac') / gorenler * 100);
 
-  let tani = '';
-  if (ayracPct < 50) {
-    tani = ` <span class="gz-n">— Bugün'e giren ${gzSayi(gorenler)} gezginin yalnız %${gzSayi(ayracPct)}'i ayracın altına indi: STÜDYO fold altında kalıyor</span>`;
-  }
+  const tani = _bolgeTani(ayracPct, gorenler);
 
   const rows = bolgeler.map(x => {
     const g = Number(x.gezgin) || 0;
@@ -1216,6 +1376,15 @@ export function _bolgeNabzi(bp) {
    kendi 'tur'unu geçirmesi ayrı bir fazın işi); boşsa bu kırılım hiç
    çizilmez, uydurulmaz. Dördü de köşede zaten adıyla göründüğü için ayrı
    bir huni-bazlı çubuk listesi tekrar etmez — kartın tek kırılımı budur. ── */
+/* Halkanın Nabzı'nın teşhis cümlesi — alarm listesi (_alarmListesi) de
+   BURADAN okur; ikinci bir hesap yazılmaz (§1.3). */
+function _halkaTani(indir, story) {
+  if (indir > story) {
+    return " <span class=\"gz-n\" data-gz-alarm=\"1\">— paylaşım çoğunlukla indirmeye düşüyor: Share sheet'i olmayan cihazlar mı, vazgeçme mi?</span>";
+  }
+  return '';
+}
+
 export function _halkaNabzi(pp) {
   if (!pp || !pp.total) return '';
   const huni = Array.isArray(pp.huni) ? pp.huni : [];
@@ -1225,10 +1394,7 @@ export function _halkaNabzi(pp) {
   const kopyala = say('kopyala');
   const indir   = say('indir');
 
-  let tani = '';
-  if (indir > story) {
-    tani = " <span class=\"gz-n\">— paylaşım çoğunlukla indirmeye düşüyor: Share sheet'i olmayan cihazlar mı, vazgeçme mi?</span>";
-  }
+  const tani = _halkaTani(indir, story);
 
   const kose = (n, ad) => `<div class="stat-block" style="border:1px solid var(--border);">
     <div class="stat-num">${n}</div>

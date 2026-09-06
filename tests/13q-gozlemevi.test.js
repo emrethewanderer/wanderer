@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { _hafizaNabzi, _gecikmeNabzi, _baglamNabzi, _koleksiyonNabzi, _ritusNabzi, _esikNabzi, _duyguNabzi, _donusumNabzi, _sesNabzi, _sondaHTML, _emniyetNabzi, _hataNabzi, _davetNabzi, _gelirNabzi, _aracNabzi, _bolgeNabzi, _halkaNabzi } from '../js/parts/13q-gozlemevi.js';
+import { _hafizaNabzi, _gecikmeNabzi, _baglamNabzi, _koleksiyonNabzi, _ritusNabzi, _esikNabzi, _duyguNabzi, _donusumNabzi, _sesNabzi, _sondaHTML, _emniyetNabzi, _hataNabzi, _davetNabzi, _gelirNabzi, _aracNabzi, _bolgeNabzi, _halkaNabzi, _alarmListesi, _alarmListesiHTML } from '../js/parts/13q-gozlemevi.js';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -1035,5 +1035,83 @@ describe('Halkanın Nabzı — paylaşım nereye düşüyor (12·C)', () => {
     const html = _halkaNabzi({ total: 1, huni: [{ olay: 'story', n: 1 }], tur_dagilim: [{ tur: 'kart', n: 1 }] });
     expect(html).toContain('paylaşılan şeyin sınıfı');
     expect(html).toContain('kart');
+  });
+});
+
+/* ── Eşik Alarmları — İç Çalışma 17 · F2 (FAZ 13, "Eşik alarmı altyapısı") ──
+   Oda 17'nin tespiti: "her kart eşiği aşınca kendi tanısını yazıyor". Bu
+   testlerin işi YENİ bir teşhis mantığı sınamak DEĞİL — toplayıcının
+   kartların KENDİ üretimini (aynı fonksiyon, aynı veri) eksiksiz ve
+   doğru topladığını, ve salt BİLGİLENDİRME notlarını (işaretsiz gz-n)
+   alarm saymadığını kanıtlamaktır. */
+describe('Eşik Alarmları — _alarmListesi kartların ZATEN yazdığı teşhisi toplar', () => {
+  it('hiçbir kart çizilmiyorsa (boş rapor) alarm listesi boştur', () => {
+    expect(_alarmListesi({})).toEqual([]);
+    expect(_alarmListesi(undefined)).toEqual([]);
+  });
+
+  it('tek bir kartın teşhisi kartın KENDİ başlığıyla toplanır', () => {
+    const d = { safety_pulse: { total: 3, olaylar: [{ olay: 'crisis_signal', n: 3, gezgin: 2 }] } };
+    const alarmlar = _alarmListesi(d);
+    expect(alarmlar).toHaveLength(1);
+    expect(alarmlar[0].kart).toBe('Emniyet Nabzı — sinyal karta, kart lütfa geçiyor mu');
+    expect(alarmlar[0].mesaj).toContain('sinyal yakalanıyor ama kart gösterilmiyor');
+  });
+
+  it('salt bilgilendirme notu (işaretsiz gz-n) alarm SAYILMAZ', () => {
+    // Emniyet Nabzı HER ZAMAN "kaçırma oranını ölçmez" notunu taşır — bu
+    // teşhis değil sabit bir dürüstlük notudur (data-gz-alarm işaretsiz).
+    const d = { safety_pulse: { total: 1, olaylar: [{ olay: 'crisis_grace', n: 1, gezgin: 1 }] } };
+    const alarmlar = _alarmListesi(d);
+    expect(alarmlar.some(a => a.mesaj.includes('kaçırma oranını ölçmez'))).toBe(false);
+  });
+
+  it('birden fazla kart aynı turda teşhis yazınca hepsi tek listede toplanır', () => {
+    const d = {
+      safety_pulse: { total: 3, olaylar: [{ olay: 'crisis_signal', n: 3, gezgin: 2 }] },
+      kota_pulse: { total: 3, huni: [{ olay: 'duvar', n: 3, gezgin: 2 }] }, // gate yok → "teklif hiç açılmıyor"
+      arac_pulse: { total: 3, matris: [{ arac: 'soz', olay: 'oner', n: 3 }] }, // onay/ret yok
+    };
+    const alarmlar = _alarmListesi(d);
+    const kartlar = alarmlar.map(a => a.kart);
+    expect(kartlar).toContain('Emniyet Nabzı — sinyal karta, kart lütfa geçiyor mu');
+    expect(kartlar).toContain('Gelirin Nabzı — paywall hunisinin ilk basamakları');
+    expect(kartlar).toContain('Araç Nabzı — öneri kabul mü ret mi görüyor');
+    expect(alarmlar).toHaveLength(3);
+  });
+
+  it('mesaj kartın KENDİ render ettiği metinle birebir aynıdır — ikinci bir hesap yok (§1.3)', () => {
+    // esikTam (yukarıdaki fixture) _esikNabzi ile bağımsız çağrıldığında da
+    // AYNI teşhisi üretir — toplayıcı kaynağından alır, ikizini kurmaz.
+    // Karşılaştırma etiketsiz yapılır: kartın kendi HTML'i <b> taşır,
+    // toplayıcının mesajı düz metindir — ikisi aynı KAYNAKTAN gelir ama
+    // biçimleri farklıdır (biri ekran için, öteki liste için).
+    const dogrudanDuz = _esikNabzi(esikTam).replace(/<[^>]+>/g, '');
+    const alarmlar = _alarmListesi({ esik_pulse: esikTam });
+    expect(alarmlar).toHaveLength(1);
+    expect(dogrudanDuz).toContain(alarmlar[0].mesaj);
+  });
+
+  it('bozuk/eksik alanlarda çökmez — bir kartın patlaması listeyi düşürmez', () => {
+    expect(() => _alarmListesi({ ritus_pulse: { total: 3, ritueller: null, terk_adimlari: 'x' } })).not.toThrow();
+  });
+});
+
+describe('_alarmListesiHTML — boşsa hiç çizilmez, doluysa kart adıyla listelenir', () => {
+  it('boş liste hiçbir şey basmaz (uydurulmuş "her şey sakin" cümlesi yok)', () => {
+    expect(_alarmListesiHTML([])).toBe('');
+  });
+
+  it('dolu liste kart adını ve mesajı taşır', () => {
+    const html = _alarmListesiHTML([{ kart: 'Test Kartı', mesaj: 'teşhis metni' }]);
+    expect(html).toContain('Eşik Alarmları');
+    expect(html).toContain('Test Kartı');
+    expect(html).toContain('teşhis metni');
+  });
+
+  it('kart adı/mesaj HTML\'e kaçışsız gitmez (XSS savunması, §5.2)', () => {
+    const html = _alarmListesiHTML([{ kart: '<img src=x onerror=alert(1)>', mesaj: '<b>x</b>' }]);
+    expect(html).not.toContain('<img src=x');
+    expect(html).not.toContain('<b>x</b>');
   });
 });

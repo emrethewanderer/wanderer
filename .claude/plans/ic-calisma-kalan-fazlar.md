@@ -1581,7 +1581,50 @@ Ama FAZ 15 tam da "hash bir şeyi izliyor sanılıyordu, izlemiyordu" sınıfın
 kırığıydı; aynı sınıf burada bir kapı olarak duruyor. Sıkılaştırma tek satır
 (sidecar özetini iki tarafta karşılaştır) ama bu sprintin kapsamı değil.
 
-**İlk hamle (FAZ 13):** eşik alarmı altyapısı — 🅢, DEVREDİLİR
+- **FAZ 13 · BİTTİ** (2026-09-06). `uygulayici`da (🅢) + parent'ın denetimi.
+  Gözlemevi'nin kartlara DAĞILMIŞ teşhis cümleleri tek listeye toplandı:
+  on altı satır-içi cümle adlandırılmış `_xxxTani()` fonksiyonlarına çıkarıldı
+  ve `data-gz-alarm="1"` ile işaretlendi; `_alarmListesi(d)` onları topluyor.
+  **Yeni teşhis motoru YAZILMADI** — planın kısıtı buydu ve tutuldu: cümleler
+  icat edilmedi, yerinden çıkarılıp adlandırıldı.
+
+  `send-push` merdivenine `admin` basamağı **yapısal olarak** kuruldu ama
+  `ADMIN_ALARM_AKTIF = false` ile hiç seçilmiyor ve `METNI_HAZIR`'a
+  EKLENMEDİ — FAZ 11/12'nin dersi burada baştan uygulandı: metni yazılmadan
+  eklenen bir basamak altındaki her şeyi susturur. Ajan ayrıca yapışkan tetik
+  disiplinini **kümeye genelleştirdi** (`YAPISKAN_TETIKLER`) — benim tek
+  tetiğe bağlı düzeltmemden daha iyisi: reddedilen hangi yapışkan tetikse
+  yalnız o dışlanıyor, öbürüne yine şans tanınıyor.
+
+  **Ajanın keşfi (planda yoktu, FAZ 14'ün zeminini değiştiriyor):** Gözlemevi'nin
+  teşhisleri yalnız CLIENT'ta üretilebiliyor, çünkü kaynağı `admin_usage_report`
+  RPC'si ve o RPC `auth.uid()` + `profiles.is_admin` kontrol ediyor (mig 042).
+  `send-push`'un servis-rolü istemcisinin JWT'si yok — RPC'yi ÇAĞIRAMAZ. Yani
+  "hangi alarm aktif" sorusunun cevabı sunucuda bugün yok; FAZ 14 bunu ya ayrı
+  bir servis-rolü sorgusuyla ya da eşiklerin sunucuda yeniden hesaplanmasıyla
+  çözmek zorunda.
+
+  **Denetim (parent · Opus) — kabul, bir kayıtlı çekince ile.** `_alarmListesi`
+  on dört kart çizicisini YENİDEN çağırıp kendi ürettiği HTML'i regex'le
+  tarıyor. Mimari olarak zarif değil; kabul edilmesinin sebebi ölçüldü:
+  on dördünün de **saf** olduğu doğrulandı (DOM/storage/ağ/log sıfır eşleşme),
+  yani çift çağrının bedeli yalnız string üretimi. Alternatif — on altı
+  `_xxxTani`'yi yapısal veri döndürecek şekilde yeniden kurmak — daha büyük
+  bir değişiklik ve kullanıcıya görünür bir kazancı yok. İşaret
+  (`data-gz-alarm="1"`) bilinçli bir sözleşme ve testleri var; çekince burada
+  yazılı ki bir sonraki tur onu keşif sanmasın.
+  Kapı: build ✅ 718KB · hedefli süit ✅ 179/179 · `kapi:genel` ✅ 404/404 ·
+  `dogrula` ✅ exit 0 "Konsol temiz."
+
+**İlk hamle (FAZ 14):** eşik SAYILARI + kanallar-üstü tavan — 🅞, parent'ta.
+FAZ 13 zemini kurdu ve bir kısıt bıraktı: sunucu `admin_usage_report`'u
+çağıramıyor. İlk iş o kısıtı karara bağlamak, sonra `ADMIN_ALARM_AKTIF`'i
+gerçek bir koşulla değiştirmek ve `METNI_HAZIR`'a `admin`'i eklemek —
+**üçü birlikte**, yoksa basamak ya ölü kalır ya da altını susturur.
+11·F3 (kanallar-üstü tavan) buraya biner: tavan `13B`'nin oturum bütçesiyle
+aynı deftere yazılır (`trnIzin`/`TRN_TAVAN` + FAZ 17'nin `trnRet` defteri).
+
+**Eski İlk hamle (FAZ 13, tamamlandı):** eşik alarmı altyapısı — 🅢, DEVREDİLİR
 (`uygulayici`). `13q-gozlemevi.js`'te kartların ZATEN yazdığı teşhis
 cümleleri (oda 17: "her kart eşiği aşınca kendi tanısını yazıyor") tek yerde
 toplanıp bir alarm listesine dönüşür — **yeni bir teşhis motoru YAZILMAZ**,

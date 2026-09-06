@@ -117,10 +117,29 @@ const METNI_HAZIR = new Set(['winback', 'streak_risk', 'soz', 'milestone', 'morn
 // henüz görülmemiş bir beğeni/yorum var mı (bkz. loadSosyalAdaylar). İç Çalışma
 // 12 · Sosyal & Paylaşım'ın kararı: bu merdivende winback'ten ÖNCE gelir — biri
 // sana dokunduysa bu haber, "bir süredir yoktun" çağrısından daha güçlü bir sebep.
-function pickTrigger(row: any, dateStr: string, hour: number, sosyalVar: boolean): string | null {
+
+/* Eşik alarmı — Emre'ye sistem sağlığı uyarısı (Kalan Yol Haritası FAZ 13 ·
+   "Eşik alarmı altyapısı", 🅢). Gözlemevi'nin (13q-gozlemevi.js) topladığı
+   teşhis cümleleri yalnız CLIENT'ta üretiliyor — kaynağı `admin_usage_report`
+   RPC'sidir ve o RPC `auth.uid()` ile `profiles.is_admin` kontrol eder
+   (migrations/042); bu servis-rolü istemcinin JWT'si yoktur, yani RPC'yi
+   ÇAĞIRAMAZ ("yetkisiz" döner). Gerçek "aktif alarm var mı" hesaplaması ve
+   HANGİ eşik SAYILARININ alarm sayılacağı FAZ 14'ün (🅞) işidir — o faz bu
+   sabiti gerçek bir koşulla değiştirecek. Burada yalnız merdivenin YERİ ve
+   KAPISI kurulur: sabit hep false olduğu için dal hiçbir zaman seçilmez,
+   ama yapısı (öncelik sırası + METNI_HAZIR kapısı + yapışkan tetik
+   disiplini) FAZ 14'ü beklemeden hazırdır. */
+const ADMIN_ALARM_AKTIF = false;
+
+function pickTrigger(row: any, dateStr: string, hour: number, sosyalVar: boolean, adminHaric = false): string | null {
   const streak = row.streak || 0;
   const daysInactive = row.last_active_date ? daysBetween(row.last_active_date, dateStr) : 999;
 
+  // 0) Eşik alarmı (Kalan Yol Haritası FAZ 13 · altyapı). ADMIN_ALARM_AKTIF
+  //    hep false — dal yapısal olarak kurulu, METNI_HAZIR kapısı kapalı.
+  //    FAZ 11'in dersi burada da geçerli: metni yazılmadan METNI_HAZIR'a
+  //    eklenmez, yoksa altındaki her basamağı susturur (bkz. METNI_HAZIR).
+  if (!adminHaric && ADMIN_ALARM_AKTIF && METNI_HAZIR.has('admin')) return 'admin';
   // 1) Sosyal dokunuş — kartına biri dokundu (Kalan Yol Haritası FAZ 11).
   //    METNI_HAZIR kapısı: metni yazılana dek (FAZ 12) bu basamak ATLANIR —
   //    yoksa altındaki beş tetiği de susturur (bkz. METNI_HAZIR).
@@ -521,6 +540,16 @@ function payloadFor(trigger: string, title: string, body: string, nid?: number |
   return { title, body, type: trigger, tag: trigger, url: './index.html', icon: EMRE_IMG, nid };
 }
 
+/* Yapışkan tetikler — koşulu günler boyunca aynı kalabilir çünkü sunucuda
+   "bu tetiği zaten bildirdik" damgası YOKTUR (bkz. 'sosyal' yorumu aşağıda).
+   Böyle bir tetik freq-cap'e takıldığında tur BİTMEZ, merdiven bir kez daha
+   ONSUZ çözülür — yoksa altındaki geçici tetikler (winback, streak_risk…)
+   günlük bütçe boşken bile hiç seçilemez. 'admin' FAZ 13'te yapısal olarak
+   eklendi (bkz. ADMIN_ALARM_AKTIF — bugün hep false, hiç seçilmiyor) ama
+   disiplin şimdiden hazır: FAZ 14 gerçek koşulu bağladığında bu mekanizmaya
+   ayrı bir düzeltme gerekmesin diye. */
+const YAPISKAN_TETIKLER = new Set(['sosyal', 'admin']);
+
 /* ───────────────────────── ENGINE (cron) ───────────────────────── */
 async function runEngine(): Promise<Response> {
   const { data: rows } = await admin
@@ -554,9 +583,14 @@ async function runEngine(): Promise<Response> {
            reddi eskisi gibi turu bitirir — "önceliğin kapalıysa yerine
            başkasını koyma" merdivenin kendi anlamıdır ve o anlam korunur.
            Günlük tavan ile 4 saatlik aralık ayrı guard'lardır, ikinci
-           çözümde de aynen uygulanır. */
-        if (trigger !== 'sosyal') continue;
-        trigger = pickTrigger(row, dateStr, hour, false);
+           çözümde de aynen uygulanır. Ölçü artık TEK bir tetiğe (`sosyal`)
+           değil `YAPISKAN_TETIKLER` kümesine bağlı — reddedilen hangi
+           yapışkan tetikse SADECE O dışlanarak merdiven yeniden çözülür,
+           öbür yapışkan tetiğe (varsa) yine şans tanınır. */
+        if (!YAPISKAN_TETIKLER.has(trigger)) continue;
+        trigger = trigger === 'admin'
+          ? pickTrigger(row, dateStr, hour, sosyalAdaylar.has(row.user_id), true)
+          : pickTrigger(row, dateStr, hour, false);
         if (!trigger || !(await passesFreqCap(row.user_id, trigger))) continue;
       }
 
