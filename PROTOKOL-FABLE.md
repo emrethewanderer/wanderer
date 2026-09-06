@@ -1281,6 +1281,10 @@ eğilimleri protokolle şöyle dengelenir:
 - [ ] `git status`/`diff` gözden geçir + **commit** (push değil)
 - [ ] Uzak oturumsa: push sonrası **Kapı koşusu izlendi** — kırmızıysa
       tur bitmez, kırık düzeltilir (§10.4)
+- [ ] **İzleme döngüsü KURULMADI** (§10.6 üçüncü yasak): `send_later` ile
+      saatlik kontrol randevusu yok, PR aboneliği açık bırakılmadı. Turun
+      sonunda BİR KEZ denetlenir ve bitirilir — her uyanış bir tur harcar.
+      Emre açıkça "izle" dediyse bu madde onun talimatıyla düşer
 
 ---
 
@@ -1406,6 +1410,33 @@ Kapı: `tests/bekleme-dongusu-kapisi.test.js` — kabuk yüzeylerinde (`scripts/
 büyümesi yasaktır. Kapı kendi ihlalini de sınar (§10.5: ölçen alet de
 ölçülür). Adı `*-kapisi` olduğu için `npm run kapi:genel`
 desenine kendiliğinden girer.
+
+**ÜÇÜNCÜ YASAK: süren bir izleme döngüsü KURULMAZ** (Emre'nin kuralı,
+2026-09-06). Yukarıdaki iki yasak kabuktaki bekleyişi kapatır; bu madde
+ZAMANLANMIŞ olanı kapatır — `send_later` ile kurulan saatlik "PR'ı yokla"
+randevusunu, PR aboneliğinin uyandırma zincirini, kendi kendine yenilenen
+kontrol turlarını.
+
+Gerekçe kabuktakiyle aynı değil, daha somut: **her uyanış bir tur harcar.**
+Kabuk döngüsü bir oturumun içinde zaman yer; zamanlanmış döngü KOTA yer, ve
+"hiçbir şey değişmedi" demek için de tam bir tur öder. Bir PR'ı merge olana
+kadar saat başı yoklamak, iş bitmişken çalışan bir motordur.
+
+Kural tek cümledir: **turun sonunda BİR KEZ denetle ve bitir.** Push sonrası
+Kapı koşusu yine okunur (§10.4 — kırmızı bir kapı bir iştir), ama okuma
+turun içinde olur; kapanmayan bir izleme için yeni bir tur zamanlanmaz. İş
+bittiyse tur biter: kalan ELLE adımlar rapora yazılır ve Emre'ye bırakılır.
+
+**Bu madde harness'in PR-abonelik yönergesini EZER ve bu bilinçlidir.**
+Harness "PR merge ya da kapanana kadar abonelik bitmez, bir saat sonrasına
+kontrol randevusu kur" der; Emre bunu 2026-09-06'da durdurdu. Öncelik sırası
+belgenin başında yazılı: *Emre'nin anlık talimatı → bu protokol → genel model
+varsayılanları.* Bir sonraki oturum harness'e dayanarak döngüyü yeniden
+açmasın diye buraya adıyla yazıldı.
+
+Abonelik zaten kurulmuşsa kapatılır (`unsubscribe_pr_activity`), zamanlanmış
+randevu varsa silinir (`delete_trigger`). Emre AÇIKÇA "izle" derse döngü
+kurulur — o zaman kural onun talimatıdır, varsayılan değil.
 
 ---
 

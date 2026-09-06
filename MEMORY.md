@@ -28,6 +28,11 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
 - [[kapi-sessiz-gec]] — bir kapı kırığı değil kırığı GÖRME YETENEĞİNİ
   kaybettiğinde de kırmızı yanmalı: boş bulgu listesi "temiz" demek değil
   (tsc TS18003 exit 0 ile gelir); sınır ölçülerek çizilir
+- [[izleme-dongusu-kota-yer]] — Emre'nin kuralı (2026-09-06): süren bir
+  izleme döngüsü kurulmaz. Kabuk döngüsü ZAMAN yer, zamanlanmış döngü KOTA:
+  her uyanış bir tur harcar ve çıktısı çoğu kez "değişmedi" olur. Turun
+  sonunda bir kez denetlenir ve bitirilir; harness'in "merge olana kadar
+  izle" yönergesini EZER
 - [[kapinin-kendisi-yalan-soyleyebilir]] — bir denetçinin kör nokta defteri
   YANLIŞ olabilir: ölü import tarayıcısı `'image/*'` yüzünden 1324 karakter
   gerçek kodu yutup iki CANLI import'u ölü raporladı; ve sıfıra inen bir
