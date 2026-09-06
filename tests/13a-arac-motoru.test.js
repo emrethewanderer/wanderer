@@ -9,14 +9,6 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-/* showToast mock'lanır: "araç çalıştırılamadı" ARTIK bir sözleşmedir
-   (FAZ 10 · _ac) — köprü yokken sessizce başarı raporlanmadığını ancak
-   kullanıcıya bir şey söylendiğini görerek kanıtlayabiliriz. */
-vi.mock('../js/parts/00a-infrastructure.js', async (importOriginal) => {
-  const actual = await importOriginal();
-  return { ...actual, showToast: vi.fn() };
-});
-
 vi.mock('../js/parts/07-settings-knowledge.js', async (importOriginal) => {
   const actual = await importOriginal();
   return { ...actual, saveNoteDirect: vi.fn() };
@@ -24,18 +16,17 @@ vi.mock('../js/parts/07-settings-knowledge.js', async (importOriginal) => {
 
 import { S } from '../js/state.js';
 import { aracExtract, aracRunTool, aracDismiss, takipAsk, aracAfterReply } from '../js/parts/13a-arac-motoru.js';
-import { showToast } from '../js/parts/00a-infrastructure.js';
 import { cleanHistoryText } from '../js/parts/00-config-tracking.js';
 import { saveNoteDirect } from '../js/parts/07-settings-knowledge.js';
 
 beforeEach(() => {
   saveNoteDirect.mockReset();
-  showToast.mockReset();
   document.body.innerHTML = '';
   delete window.glGiveSozNow;
   delete window.oikOpenReading;
-  ['gorOpen', 'gorDayWindow', 'usGetTodayVision', 'yolOpenSabir', 'ayOpen',
-   'ypGetHipotezler', 'wtLogArac'].forEach(k => { delete window[k]; });
+  ['gorOpen', 'gorDayWindow', 'usGetTodayVision', 'yolOpenSabir', 'wtLogArac',
+   'igOpenKapi', 'gyStart', 'gyOpenToday', 'skOpen', 'skSelectSet', 'engOpen',
+  ].forEach(k => { delete window[k]; });
 });
 
 describe('aracExtract — blok ayrıştırma', () => {
@@ -265,20 +256,23 @@ describe('cleanHistoryText — eski kirli kayıtların geri-okuma temizliği', (
   });
 });
 
-
 /* ═══════════════════════════════════════════════════════════════════════
-   FAZ 10 — HAZIRLIK KAPISI ve DÜRÜST BAŞARISIZLIK
+   HAZIRLIK KAPISI — odası boş olan kapı çizilmez
 
-   İki sözleşme sınanır ve ikisi de aynı cümleden doğar: bir chip VAATTİR.
-     1. `hazir()` false ise chip HİÇ çizilmez — odası boş kapıya davet
-        edilmez (§1.1 kart değil kaldıraç).
-     2. Köprü yüklü değilse `run` başarı RAPORLAMAZ — kullanıcı bir şey
-        olmasını bekleyip hiçbir şey olmamasıyla baş başa bırakılmaz (§6.2).
-   İkincisi bu turdan ÖNCE kırıktı: `window.glGiveSozNow?.(); return true;`
-   köprü yokken sessizce `true` dönüyordu. Aşağıdaki "köprü yokken" testi
-   dün KIRMIZI olurdu — bir kapının değerini gösteren tek ölçü budur.
+   `hazir()` false ise chip HİÇ çizilmez: chip bir VAATTİR ve tutulamayan
+   vaat kart olur, kaldıraç olmaz (§1.1). Bu, `_acRitual`'ın köprü
+   yoklamasından AYRI bir sorudur — o köprünün VARLIĞINI, bu odanın
+   DOLULUĞUNU ölçer; ikisi de gerekir.
+
+   BİRLEŞME NOTU (2026-09-06): bu blok üç araç için yazılmıştı; `ayna`
+   birleşmede DÜŞTÜ (09h Studio-gate — ücretsiz kullanıcıya önerilen chip
+   paywall'a çıkarsa huni olur) ve testleri de onunla gitti. Kalan tek
+   `hazir()` taşıyıcısı `gordun`; `sabir` ve main'den gelen ikisi bilerek
+   ön koşulsuzdur. Toast artık GERÇEK DOM'dan okunur — main'in kapısı
+   showToast'ı mock'lamıyordu ve gerekçesi doğruydu (§10.5: ölçen alet de
+   ölçülür), o yaklaşım benimkinin yerine geçti.
 ═══════════════════════════════════════════════════════════════════════ */
-describe('FAZ 10 — hazırlık kapısı: odası boş olan kapı çizilmez', () => {
+describe('hazırlık kapısı — odası boş olan kapı çizilmez', () => {
   function ciz(tool) {
     document.body.innerHTML = '<div id="messages-area"><div id="msg"></div></div>';
     aracAfterReply(document.getElementById('msg'), { tools: [{ tool, args: null }], kagit: null, takip: [] });
@@ -303,38 +297,21 @@ describe('FAZ 10 — hazırlık kapısı: odası boş olan kapı çizilmez', () 
     expect(ciz('gordun')).toBeNull();
   });
 
-  it('ayna: aday hipotez varsa çizilir, yoksa ÇİZİLMEZ', () => {
-    window.ypGetHipotezler = () => [{ durum: 'aday' }];
-    expect(ciz('ayna')).not.toBeNull();
-    window.ypGetHipotezler = () => [{ durum: 'soruldu' }];
-    expect(ciz('ayna')).toBeNull();
-  });
-
-  it('ayna: köprü hiç yüklenmemişse ÇİZİLMEZ (doğrulanamayan oda açılmaz)', () => {
-    expect(ciz('ayna')).toBeNull();
-  });
-
-  /* Bu testin yokluğu gerçek bir kırık sakladı (kendi diff okumasında
-     bulundu): `gordun`'un ilk `hazir`'i `(window.gorDayWindow?.() || {})
-     .source !== 'empty'` yazıyordu ve 10E yüklü değilken `undefined !==
-     'empty'` DOĞRU dönüyordu — kapı, tam olarak engellemek için var olduğu
-     şeyi geçiriyordu. `ayna`nın aynı hâli tesadüfen doğruydu; simetri
-     sınanmadığı için görünmedi. Sınav, sınadığını sınamalıdır. */
-  it('gordun: köprü hiç yüklenmemişse ÇİZİLMEZ (ayna ile simetrik)', () => {
+  /* Bu testin yokluğu gerçek bir kırık sakladı: `gordun`'un ilk `hazir`'i
+     `(window.gorDayWindow?.() || {}).source !== 'empty'` yazıyordu ve 10E
+     yüklü değilken `undefined !== 'empty'` DOĞRU dönüyordu — kapı, tam
+     olarak engellemek için var olduğu şeyi geçiriyordu. */
+  it('gordun: köprü hiç yüklenmemişse ÇİZİLMEZ (doğrulanamayan oda açılmaz)', () => {
     expect(ciz('gordun')).toBeNull();
   });
 
   it('hazir() throw ederse chip ÇİZİLMEZ (sessiz düşüş, §5.2)', () => {
-    window.ypGetHipotezler = () => { throw new Error('portre yüklenmedi'); };
-    expect(ciz('ayna')).toBeNull();
+    window.gorDayWindow = () => { throw new Error('10E yüklenmedi'); };
+    expect(ciz('gordun')).toBeNull();
   });
 
-  it('sabir: ön koşulu YOK — hiçbir köprü yokken bile çizilir', () => {
-    expect(ciz('sabir')).not.toBeNull();
-  });
-
-  it('eski dört araç hazir() taşımaz — davranışları değişmedi', () => {
-    ['soz', 'gecis', 'imge'].forEach(tool => {
+  it('ön koşulsuz araçlar hazir() taşımaz — hiçbir köprü yokken bile çizilir', () => {
+    ['soz', 'gecis', 'imge', 'sabir', 'inanc', 'engel'].forEach(tool => {
       expect(ciz(tool), `${tool} chip'i çizilmedi`).not.toBeNull();
     });
   });
@@ -351,7 +328,7 @@ describe('FAZ 10 — hazırlık kapısı: odası boş olan kapı çizilmez', () 
   });
 });
 
-describe('FAZ 10 — üç yeni araç kendi törenini açar, yeni motor kurmaz', () => {
+describe('gordun · sabir — kendi törenini açar, yeni motor kurmaz', () => {
   function chip(tool) {
     const el = document.createElement('div');
     el.className = 'arac-chip';
@@ -361,6 +338,20 @@ describe('FAZ 10 — üç yeni araç kendi törenini açar, yeni motor kurmaz', 
     document.body.appendChild(el);
     return btn;
   }
+  function kurToastHost() {
+    const el = document.createElement('div');
+    el.id = 'toast';
+    document.body.appendChild(el);
+  }
+  const toastGorundu = () => {
+    const el = document.getElementById('toast');
+    return !!el && el.classList.contains('show') && el.classList.contains('err');
+  };
+
+  it('[ARAC:gordun] · [ARAC:sabir] blokları çıkarılır', () => {
+    expect(aracExtract('metin[ARAC:gordun]').tools[0].tool).toBe('gordun');
+    expect(aracExtract('metin[ARAC:sabir]').tools[0].tool).toBe('sabir');
+  });
 
   it('gordun → window.gorOpen', async () => {
     const spy = vi.fn();
@@ -378,15 +369,19 @@ describe('FAZ 10 — üç yeni araç kendi törenini açar, yeni motor kurmaz', 
     expect(spy).toHaveBeenCalled();
   });
 
-  it('ayna → window.ayOpen', async () => {
-    const spy = vi.fn();
-    window.ayOpen = spy;
-    window.ypGetHipotezler = () => [{ durum: 'aday' }];
+  /* ayna chip olarak YOKTUR — 09h Studio-gate'lidir ve sohbette önerilen bir
+     chip'in ücretsiz kullanıcıyı teaser'a bırakması onu huniye çevirir.
+     Kapı burada: bir sonraki tur onu sessizce geri koyarsa kırmızı basar. */
+  it('ayna: chip olarak YOKTUR — premium kapılı ritüel sohbetten önerilmez', async () => {
+    const ay = vi.fn();
+    window.ayOpen = ay;
     await aracRunTool(chip('ayna'));
-    expect(spy).toHaveBeenCalled();
+    expect(ay, 'premium kapılı Ayna Anı sohbetten önerildi — chip huniye döndü')
+      .not.toHaveBeenCalled();
   });
 
   it('BAYAT CHIP: çizildikten sonra oda boşaldıysa tören AÇILMAZ', async () => {
+    kurToastHost();
     const spy = vi.fn();
     window.gorOpen = spy;
     // Chip çizilirken hazırdı; kullanıcı başka bir sekmede bugünkü bakışı yaptı.
@@ -394,20 +389,137 @@ describe('FAZ 10 — üç yeni araç kendi törenini açar, yeni motor kurmaz', 
     window.usGetTodayVision = () => ({ text: 'başka sekmede yapıldı' });
     await aracRunTool(chip('gordun'));
     expect(spy).not.toHaveBeenCalled();
-    expect(showToast).toHaveBeenCalled();          // sessizce yutulmadı
-  });
-
-  it('KÖPRÜ YOKKEN başarı raporlanmaz — dün bu test KIRMIZI olurdu (§6.2)', async () => {
-    delete window.glGiveSozNow;                    // modül yüklenmemiş
-    await aracRunTool(chip('soz'));
-    expect(showToast).toHaveBeenCalled();
+    expect(toastGorundu(), 'bayat chip sessizce yutuldu').toBe(true);
   });
 
   it('onay yine de sayılır — nabız bayat chip\'te de "onayla" yazar', async () => {
     const nabiz = vi.fn();
     window.wtLogArac = nabiz;
-    window.ypGetHipotezler = () => [];             // aday yok → hazır değil
-    await aracRunTool(chip('ayna'));
-    expect(nabiz).toHaveBeenCalledWith('onayla', { arac: 'ayna' });
+    window.gorDayWindow = () => ({ source: 'empty' });   // hazır değil
+    await aracRunTool(chip('gordun'));
+    expect(nabiz).toHaveBeenCalledWith('onayla', { arac: 'gordun' });
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAZ 10 — ÜÇ YENİ ARAÇ ve "sahte başarı" kapısı
+   ───────────────────────────────────────────────────────────────────
+   İki ayrı iddia sınanır ve ikincisi bir REGRESYON kapısıdır:
+
+   1. yol · inanc · engel doğru ritüeli, doğru sırayla açar.
+   2. Ritüel YÜKLÜ DEĞİLSE chip `false` döner ve kullanıcı `arac.fail`
+      toast'ını görür. Eski kalıp `window.xOpen?.(); return true;` idi:
+      chip kapanıyor, hiçbir şey açılmıyor, kullanıcı "oldu" sanıyordu —
+      §6.2'nin sahte başarısı. aracRunTool `false`'u zaten toast'a
+      çeviriyordu (13a:156), yani dürüst hâl hep bekleniyordu; kimse
+      döndürmüyordu.
+   Kapı bu yüzden yalnız yeni üçünü değil ESKİ üçünü de sınar — düzeltme
+   onlarda yapıldı, regresyon da onlarda doğar.
+═══════════════════════════════════════════════════════════════════ */
+describe('FAZ 10 — üç yeni araç', () => {
+  function makeChip(tool, args) {
+    const chip = document.createElement('div');
+    chip.className = 'arac-chip';
+    chip.dataset.tool = tool;
+    if (args) chip.dataset.args = JSON.stringify(args);
+    const btn = document.createElement('button');
+    chip.appendChild(btn);
+    document.body.appendChild(chip);
+    return btn;
+  }
+
+  it('[ARAC:inanc] · [ARAC:engel] blokları çıkarılır', () => {
+    expect(aracExtract('metin[ARAC:inanc]').tools[0].tool).toBe('inanc');
+    expect(aracExtract('metin[ARAC:engel]').tools[0].tool).toBe('engel');
+  });
+
+  /* 13s Geçiş Yolu SOHBETE AÇILMAZ — 13s:27-29 "Studio-only (Wanderer Studio
+     kararı, 2026-07-19), Wanderer (LLM) ücretsiz yüzünde yolculuk
+     başlatılmaz." Faz onu önce ekledi, çapraz denetim kısıtı buldu, geri
+     alındı. Kapı burada: bir sonraki tur `yol`u sessizce geri koyarsa bu test
+     kırmızı basar ve kısıtı hatırlatır. `gyStart` kendi başına yüzey kontrolü
+     TAŞIMAZ (13s:97) — kısıt yalnız çağıranın disiplinidir, o yüzden ölçülür. */
+  it('yol: chip olarak YOKTUR — Geçiş Yolu sohbet yüzeyinden başlatılmaz', async () => {
+    const start = vi.fn();
+    window.gyStart = start;
+    await aracRunTool(makeChip('yol'));
+    expect(start, 'Geçiş Yolu sohbetten başlatıldı — 13s:27-29 Studio-only kısıtı delindi').not.toHaveBeenCalled();
+  });
+
+  it('Türkçeleşmiş [ARAÇ:engel] de tanınır (RE_ARAC toleransı)', () => {
+    expect(aracExtract('metin[ARAÇ:engel]').tools[0].tool).toBe('engel');
+  });
+
+  it('inanc: skOpen\'ı açar ve doğrudan İnanç Kazma setine geçirir', async () => {
+    const open = vi.fn(); const select = vi.fn();
+    window.skOpen = open; window.skSelectSet = select;
+    await aracRunTool(makeChip('inanc'));
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(select).toHaveBeenCalledWith('inanc');
+  });
+
+  it('engel: engOpen\'ı çağırır', async () => {
+    const eng = vi.fn();
+    window.engOpen = eng;
+    await aracRunTool(makeChip('engel'));
+    expect(eng).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('sahte başarı kapısı — ritüel yüklü değilse chip "oldu" demez', () => {
+  function makeChip(tool) {
+    const chip = document.createElement('div');
+    chip.className = 'arac-chip';
+    chip.dataset.tool = tool;
+    const btn = document.createElement('button');
+    chip.appendChild(btn);
+    document.body.appendChild(chip);
+    return btn;
+  }
+
+  /* Toast'ı GERÇEK DOM'dan okuruz: 00a'nın showToast'ı mock DEĞİL —
+     mock'lamak kapının kendisini kör ederdi (§10.5: ölçen alet de ölçülür).
+     showToast `#toast` elementini arar ve yoksa SESSİZCE döner (00a:showToast),
+     o yüzden host elementi burada kurulur; kapının ilk hâli tam bunu unuttu ve
+     altı testin altısı da "toast çıkmadı" dedi — kırık koddaymış gibi. */
+  function kurToastHost() {
+    const el = document.createElement('div');
+    el.id = 'toast';
+    document.body.appendChild(el);
+    return el;
+  }
+  function toastGorundu() {
+    const el = document.getElementById('toast');
+    return !!el && el.classList.contains('show') && el.classList.contains('err');
+  }
+
+  it.each(['soz', 'gecis', 'imge', 'inanc', 'engel'])(
+    '%s: ritüel window\'da yokken kullanıcı bir hata görür',
+    async (tool) => {
+      kurToastHost();
+      await aracRunTool(makeChip(tool));
+      expect(toastGorundu(), `${tool}: ritüel yokken sessizce "başarılı" sayıldı`).toBe(true);
+    },
+  );
+
+  /* ÇAPRAZ DENETİMİN DERSİ (Sonnet, 2026-09-05 · bulgu 2): iki adımlı bir
+     araçta İLK köprü varken İKİNCİsinin eksik olduğu hâl, kapının kör
+     noktasıydı — yukarıdaki it.each ikisini de silip sınadığı için ilk
+     kontrol zaten `false` dönüyor ve kapı DOĞRU sonucu YANLIŞ sebeple
+     veriyordu. Asıl kırık burada yaşar: chip "İnanç Kazma"yı vaat eder,
+     kullanıcıyı set menüsünde bırakır ve yine "oldu" der. */
+  it('inanc: skOpen VAR ama skSelectSet YOKken yarım açmaz — hata verir', async () => {
+    kurToastHost();
+    window.skOpen = vi.fn();
+    await aracRunTool(makeChip('inanc'));
+    expect(window.skOpen, 'ikinci köprü eksikken ritüel yarım açıldı').not.toHaveBeenCalled();
+    expect(toastGorundu(), 'yarım açılan ritüel "başarılı" sayıldı').toBe(true);
+  });
+
+  it('ritüel YÜKLÜYSE hata toast\'ı çıkmaz', async () => {
+    kurToastHost();
+    window.engOpen = vi.fn();
+    await aracRunTool(makeChip('engel'));
+    expect(toastGorundu()).toBe(false);
   });
 });

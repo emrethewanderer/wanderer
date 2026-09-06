@@ -297,6 +297,32 @@ bayatlar, yeni bir kapı ona kendiliğinden girmez ve kapı sessizce eksilir.
 Ucuzluğu ölçüldü çünkü ucuz olmayan bir kural yine atlanırdı: §3.3'ün tam
 süiti faz sonundan tam bu sebeple çıkarılmıştı.
 
+**Ama desen de bir ADA bağlıdır — ve 2026-09-05'te desenin kendisi ıskaladı.**
+`tests/referans-butunlugu.test.js` bütün ağacı tarıyordu, adı `kapisi` ile
+bitmediği için desene girmiyordu: faz kapısı yeşil bastı, CI kırmızı kapandı
+(Kapı #102, hafıza devrinin 209 kırık referansı). Aynı gün ikinci örnek
+çıktı — `tests/i18n-parity.test.js`, TASINABILIR-ZEMIN.md'nin denetçi
+listesinde yazılı dokuz kapıdan biri, yine desenin dışında. İkisi de
+`*-kapisi.test.js` olarak yeniden adlandırıldı (§4.3 ad göçü; eski ad repoda
+kalmadı).
+
+Kural bu yüzden bir cümleyle tamamlandı ve **yarısı kapıya bağlandı**:
+*repo-geneli her kapının adı `kapisi` taşır.* Ölçen kapı
+`tests/kapi-kapsami-kapisi.test.js`'tir ve ölçütü kasten DARDIR — bir test
+hem `spawnSync`/`execFileSync` çağırıyor hem de gövdesinde
+`scripts/<ad>.mjs` geçiyorsa repo-geneli bir denetçi koşturuyordur ve
+desene girmelidir. Desen sabit yazılmaz, `package.json`'dan okunur: betik
+değişirse kapı onu takip eder, ikinci bir gerçek kaynak doğmaz (§1.3).
+
+**Yargıya bırakılan yarısı:** ağacı bir denetçi çağırmadan, KENDİ İÇİNDE
+yürüyen kapılar (emsal: `referans-butunlugu-kapisi`) bu ölçütle yakalanmaz —
+çünkü "repo tarayan test" ile "kendi modülünün dosyasını okuyan test" statik
+olarak ayrılmıyor; geniş bir ölçüt modül testlerini kapı sanıp gürültü
+üretirdi. Böyle bir kapı yazarken adını `*-kapisi.test.js` koymak SENİN
+işindir. §6.6'nın üç basamağı burada tamdır: kural yoktu değil, yanlış yerde
+de durmuyordu — ölçülemiyordu; yarısı ölçülebilir hâle getirildi, kalan yarısı
+adıyla buraya yazıldı.
+
 **Faz denetimi ÇAPRAZ MODELDİR (Emre'nin kararı, 2026-08-23).** Bir fazın
 öz-denetimini o fazı YAZAN model yapmaz — **öteki model** yapar:
 
@@ -605,7 +631,7 @@ hasadını abartması, hiç koşulmamasından daha sinsidir — sonraki tur onu
 kaydı taşır** (§4.2 madde 11). Kayıt yoksa tur ya koşulmamıştır ya
 raporlanmamıştır — ikisi de aynı sonucu verir (§6.2). Kapı
 `tests/oz-denetim-kapisi.test.js`'tir; bugünkü borç TABAN'da tolere edilir,
-**büyümesi yasaktır** (kalıp: `tests/referans-butunlugu.test.js`). Gerekçesi
+**büyümesi yasaktır** (kalıp: `tests/referans-butunlugu-kapisi.test.js`). Gerekçesi
 ölçüldü: §4.4'ün devir kuralı yirmi dokuz günde öldü çünkü kağıtta doğru,
 ölçüde yoktu — 149 🅢 faza karşı 11 çağrı. Dördüncü bir denetim turu, kapısı
 olmazsa raporun bir başlığına döner.
@@ -1296,7 +1322,7 @@ başarısız bir `uygulayici` denemesi transkripte yazıldığı için **yapılm
 sayabilir**. 2026-09-02'de tam olarak bu oldu: nabız "2 çağrı" bastı, ikisi de
 başarısız denemeydi, gerçekte yapılan beş devir sayılmadı.
 
-Ders `tests/devir-nabzi.test.js`'in kendi cümlesidir: *"Ölçen aletin kendisi
+Ders `tests/devir-nabzi-kapisi.test.js`'in kendi cümlesidir: *"Ölçen aletin kendisi
 ölçülmezse ölçüm bir teselli olur."* Bir nabız kırmızı bastığında önce
 **aletin o ortamda ne ölçebildiğini** sor, sonra kuralın öldüğüne hükmet.
 

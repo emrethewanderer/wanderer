@@ -16,7 +16,7 @@ type: gotcha
 > **Kayıp olan:** "tamamlama"nın kendisi — hangi turda hangi ekranların EN'e
 > geçirildiği, kaç anahtarın eklendiği. Denetçinin banner'ı kaynağı
 > `.claude/plans/tum-diller-native-2.md` diye gösteriyor ama **o plan da
-> repoda yok** (`tests/referans-butunlugu.test.js` TABAN'ında donmuş bir
+> repoda yok** (`tests/referans-butunlugu-kapisi.test.js` TABAN'ında donmuş bir
 > borç). Bu dosya planın yerine geçmez; **tuzakları** belgeler.
 
 **Why:** EN paritesi bir çeviri işi değil, bir **zamanlama** işidir. Repodaki

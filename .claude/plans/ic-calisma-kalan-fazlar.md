@@ -141,7 +141,7 @@ Boş korpusla test **geçmez** — `korpus.length >= 30` bir iddiadır ve kapıd
 > katmanlıdır. Bu bir kırık mı bilinçli bir sınır mı, repodan okunamaz;
 > plan onu **uydurmuyor**, TABAN olarak beyan ediyor: korpus bugünkü
 > kapsamayı sayıya bağlar, büyümesi serbest, **daralması yasak**
-> (kalıp: `tests/referans-butunlugu.test.js`). Yumuşak desenleri on bir
+> (kalıp: `tests/referans-butunlugu-kapisi.test.js`). Yumuşak desenleri on bir
 > dile yazmak ayrı bir karardır ve Emre'nin masasına çıkar (§6.10: kanıtı
 > olmayan değer yoktur — uydurulmuş bir emniyet deseni de öyle).
 
@@ -939,6 +939,134 @@ henüz açılmadı; bu kayıt onları kapsamaz.
   Kapı: build ✅ 716KB · hedefli süit ✅ 337/337 · `kapi:genel` ✅ 346/346 ·
   `dogrula` ✅ exit 0 "Konsol temiz."
 
+- **FAZ 10 · BİTTİ** (2026-09-05). 🅞, parent'ta (Opus); çapraz denetim
+  (Sonnet) dört bulgu döndürdü, dördü de kapandı — **biri fazın kapsamını
+  daralttı.**
+
+  **Seçim ölçüsü "hangi ritüel güzel" değil, HANGİ AN BOŞTA idi.** Mevcut dört
+  araç (soz · not · gecis · imge) istisnasız TEK ANLIKtır: bir söz, bir not, bir
+  okuma, bir imge. Faz üç yeni an hedefledi; **ikisi ship edildi:**
+
+  | Araç | Ritüel | An |
+  |---|---|---|
+  | `inanc` | 10k Kendinle Konuşma · İnanç Kazma | kendini baltalayan inanç — "ben zaten hep böyleyim" |
+  | `engel` | 10m Engel Atlası (6 Perde·6 Zehir·7 Tuzak) | TEKRAR EDEN engel — "hep aynı yerde takılıyorum" |
+
+  **Üçüncüsü (`yol` → 13s Geçiş Yolu) yazıldı, denetimde GERİ ALINDI.**
+  `13s:27-29` bir sözleşme taşıyor ve keşifte kaçırıldı (dosyanın ilk 22
+  satırına bakılmıştı, kısıt 27'de): *"Studio-only (Wanderer Studio kararı,
+  2026-07-19) — Wanderer (LLM) ücretsiz yüzünde yolculuk başlatılmaz."* Mesele
+  abonelik değil **yüzey**: yolculuk Studio odasından başlar, sohbetten değil.
+  Chip tam bu kısıtı deliyordu. `gyStart` (13s:97) kendi başına yüzey kontrolü
+  TAŞIMAZ — kısıt yalnız çağıranın disiplinidir, yani kod onu durdurmazdı.
+  Kısıt Emre'nin kararıdır; tersine çevirmek de onun kararıdır, bu fazın değil.
+  **Emre'ye açık çatal:** kısıt gevşetilirse `yol` chip'i hazırdır (tek kayıt +
+  iki sözlük satırı); korunursa iki araçla kapanır. Kapı kondu:
+  `tests/13a-arac-motoru.test.js` → *"yol: chip olarak YOKTUR"* — bir sonraki
+  tur sessizce geri koyarsa kırmızı basar.
+
+  **Elenenler gerekçeli:** Ayna Anı (09h) ve Derin Çalışma (13A) premium
+  kapılıdır — ücretsiz kullanıcıya önerilen bir chip paywall'a çıkarsa o bir
+  kaldıraç değil huni olur (§1.1). Gezgine Mektup (13d) statiktir. Gördün (10E)
+  ile `[ARAC:gecis]` aynı OİK tabanında durur; model ikisini karıştırırdı — tam
+  da planın uyardığı "menü" hâli.
+
+  **Fazın asıl kazancı bir SAHTE BAŞARI sınıfının kapanması oldu.** Mevcut üç
+  araç (`soz`/`gecis`/`imge`) açıcıyı `?.()` ile çağırıp koşulsuz `true`
+  dönüyordu: ritüel yüklü değilse chip kapanıyor, hiçbir şey açılmıyor,
+  kullanıcı "oldu" sanıyordu (§6.2). Sözleşme dürüst hâli ZATEN bekliyordu —
+  `aracRunTool` `false`'u `arac.fail` toast'ına çevirir (13a:156); kimse
+  döndürmüyordu. Hepsi `_acRitual()` köprüsüne bağlandı.
+  **Denetim aynı kırığın ikinci katmanını buldu:** iki adımlı bir araçta İLK
+  köprü varken İKİNCİsi eksikse ritüel YARIM açılıyor ve chip yine "oldu"
+  diyordu (`yol`'da `gyOpenToday`, `inanc`'ta `skSelectSet`). `inanc` artık her
+  iki köprüyü de ÖNCEDEN sınar — yarım açılan bir ritüel de sahte başarıdır.
+  Kapının kendi kör noktası da aynı bulguyla kapandı: `it.each` her iki köprüyü
+  birden sildiği için doğru sonucu YANLIŞ sebeple veriyordu; ayrı bir test
+  eklendi.
+
+  **İki yorum gerekçesi çürütüldü ve düzeltildi.** Window köprüsü için "13a →
+  10k → 03 → 13a döngüsü doğar" yazılmıştı; denetim şüpheye aldı, grep
+  yanlışladı — 10k `03`'ü import etmez. Gerçek gerekçe registry'nin kurulu
+  kalıbıdır. Uydurulmuş bir zincir kapısız bir kuraldan beterdir: sonraki tur
+  onu arar, bulamaz (§6.10).
+
+  **Kapının kendi kırığı:** sahte-başarı testi ilk yazımda altı testte de
+  kırmızı bastı — `showToast` `#toast` elementini arar ve yoksa SESSİZCE döner
+  (00a); testte host kurulmamıştı. Kırık koddaymış gibi görünen şey ölçen
+  aletteydi (§10.5).
+
+  **ELLE bekleyen — yeni ve sessiz:** `prompt.arac.guide` bir
+  `persona_directives` anahtarıdır ve `p()` zinciri override'ı sözlüğün ÜSTÜNE
+  koyar (`16-i18n-prompts.js:86`). Anahtar `000`'da tohumlanmamıştır — satır
+  yalnız panelden "Yayınla" denince doğar, ama doğduysa koddaki yeni araç
+  satırları MODELE HİÇ GİTMEZ: chip'ler kodda durur, LLM onları asla önermez,
+  hiçbir yerde hata görünmez. Tuzak `16d`'nin panel açıklamasına yazıldı.
+
+  Kapı: build ✅ 716KB · hedefli süit ✅ (13a 44/44 · nabız+etiket · i18n parite
+  36/36 · 13s/ritüel 51/51 · 16d 33/33) · `kapi:genel` ✅ 346/346 ·
+  `dogrula` ✅ exit 0 "Konsol temiz."
+
+**İlk hamle (FAZ 11):** sosyal bildirim altyapısı — 🅢, `uygulayici`ya devredilir.
+`send-push` merdivenine `sosyal` tipi + `10C-sosyal-feed.js` in-app rozeti.
+Freq-cap'e tabi, merdivende winback'ten ÖNCE gelir; rozet `13B` tören kuyruğuna
+sormaz — rozet bir sahne değil, bir işarettir.
+
+**Eski İlk hamle (FAZ 10, tamamlandı):** registry üzerinde yeni araçlar — 🅞. Hangi üç
+ritüelin LLM'in eline verileceği ve chip cümlelerinin kitap-köklü hâli
+üründe bulunur. Onay-chip'i ilkesi gevşetilmez.
+
+### Birleşme — iki paralel FAZ 10 (2026-09-06)
+
+Aynı faz iki dalda bağımsız uygulandı: **PR #13** (main'e alındı) ve **PR #12**
+(bu dal). Aşağıda İKİ kayıt da duruyor çünkü ikisi de gerçek — ve ikisinin
+**ölçüleri farklıydı**, ki asıl kazanç budur:
+
+| | Sorusu | Seçtiği |
+|---|---|---|
+| PR #13 | *hangi AN boşta?* | `inanc` · `engel` (+ `yol` denetimde geri alındı) |
+| PR #12 | *anlam ekseni nerede eksik?* | `gordun` · `sabir` (+ `ayna`, birleşmede düştü) |
+
+**Birleşmenin kararları ve gerekçeleri:**
+
+1. **`ayna` DÜŞTÜ — birleşmenin tek geri alınan kararı.** PR #12 onu bilerek
+   `S.isPremium`'a bağlamamıştı; gerekçesi *"cümle ücretsiz kullanıcı için de
+   doğrudur, teaser bunu dürüstçe söyler"* idi. Gerekçe dürüsttü, **ölçüsü
+   yanlıştı**: §1.1'in ölçüsü dürüstlük değil, kart mı kaldıraç mı olduğudur.
+   PR #13'ün aynı fazda bağımsızca vardığı kural geçerlidir: *ücretsiz
+   kullanıcıya önerilen bir chip paywall'a çıkarsa o bir kaldıraç değil
+   HUNİ olur.* `09h:17-18` Studio-gate'i kendi başlığında yazıyor. Kapı kondu.
+2. **`_ac` ↔ `_acRitual` ikizi teke indi.** İki oturum aynı sahte-başarı
+   kırığını bağımsız buldu ve aynı gerekçeyle düzeltti — bu, bulgunun
+   sağlamlığının kanıtıdır. `_acRitual` kaldı (main'de birleşmişti, argüman
+   da geçirebiliyor); `_ac` silindi (§1.3).
+3. **`hazir()` korundu** — main tarafında karşılığı yoktu ve `gordun` onsuz
+   boş bir pencereye davet ederdi. `_acRitual` köprünün VARLIĞINI, `hazir()`
+   odanın DOLULUĞUNU yoklar: ayrı sorular, ikisi de gerekli.
+4. **Test yaklaşımında main'inki benimkinin yerine geçti.** PR #12 `showToast`'ı
+   mock'luyordu; PR #13 gerçek DOM'dan okuyor ve gerekçesi doğru: *mock'lamak
+   kapının kendisini kör ederdi* (§10.5). Mock kaldırıldı.
+5. **`_ARAC_ARAC` birleşik kümeye çekildi.** Main `inanc`/`engel` eklerken
+   Araç Nabzı'nın kapalı kümesini güncellememişti — PR #12'nin çapraz
+   denetiminde bulunan kırığın aynısı. `tests/arac-kumesi-kapisi.test.js`
+   birleşmede bunu kırmızı yaktı ve haklıydı; küme sekiz ada çekildi.
+
+**AÇIK ÇATAL — Emre'ye:** PR #13 `gordun`'u bilerek elemişti, gerekçesi
+*"Gördün (10E) ile `[ARAC:gecis]` aynı OİK tabanında durur; model ikisini
+karıştırırdı"*. Risk gerçek ama ikisi **ikame değil**: `gecis` bir OKUMA açar
+(Geçiş Protokolü, 10D), `gordun` günün **HAYAL mührünü** bastırır (10E) ve
+`hazir()` sayesinde yalnız o mühür bugün DÜŞMEMİŞKEN önerilir. Araç korundu ve
+karışma riski mekanizmayla kapatıldı: rehber cümlesi ikisini ayırıyor ve aynı
+yanıtta ikisinin birden önerilmesini yasaklıyor. **Emre bunu fazla bulursa
+`gordun` tek kayıt + iki sözlük satırı silinerek geri alınır** — `yol` için
+PR #13'ün bıraktığı çatalın aynısı, ters yönde.
+
+**Araç sayısı sekize çıktı** (soz · not · gecis · imge · inanc · engel ·
+gordun · sabir) ve planın kendi uyarısı burada geçerlidir: *fazla araç,
+sohbeti bir menüye çevirir.* Karşı önlem rehberdedir ve birleşmede
+güçlendirildi: en fazla BİR blok, ve *"hiçbiri bu ana tam oturmuyorsa
+HİÇBİRİNİ ekleme"*.
+
 - **FAZ 10 · BİTTİ** (2026-09-05). 🅞, parent'ta (Opus).
   `Devir dışı:` gerekmedi — 🅞 fazlar zaten devredilmez.
 
@@ -1363,7 +1491,6 @@ bu fazda yeni cümle İCAT EDİLMEZ, var olan anahtarlar kullanılır.
 **Eski İlk hamle (FAZ 10, tamamlandı):** registry üzerinde yeni araçlar — 🅞.
 Hangi üç ritüelin LLM'in eline verileceği ve chip cümlelerinin kitap-köklü
 hâli üründe bulunur. Onay-chip'i ilkesi gevşetilmez.
-
 **Eski İlk hamle (FAZ 9, tamamlandı):** `13a-arac-motoru.js`'te `_ARAC_DEFS` kayıtları
 `{ marker, parse, label, cta, run }`'a genişler; `[KART]` (`10B:126`
 `_IK_KART_TAG_RE`) ve `[NISAN]` (`12e:117` `ISIK_TAG_RE`) kendi regex'lerini

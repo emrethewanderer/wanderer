@@ -228,7 +228,7 @@ describe('migration blok taşıma kapısı', () => {
  * boş kümenin her zaman alt kümesidir). Bu blok, ayıklayıcıyı sahte iki
  * dosyalık bir fixture'a karşı çalıştırıp GERÇEKTEN bir blok eksikliğini
  * yakaladığını ve GERÇEKTEN tam bir taşımayı geçirdiğini kanıtlar (kalıp:
- * `tests/referans-butunlugu.test.js` ve `tests/bundle-kapisi.test.js`'in
+ * `tests/referans-butunlugu-kapisi.test.js` ve `tests/bundle-kapisi.test.js`'in
  * kendi-kendini-sınama bölümleri).
  */
 describe('kapının kendisi — mutasyon sınaması', () => {

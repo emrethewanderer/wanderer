@@ -102,24 +102,36 @@ export function aracExtract(text) {
    söyleyeceği (label/cta) ve onaylanınca ne olacağı (run) tanımlı.
    [KART] ve [NISAN] kendi `re`/`parse`'ını taşır; onlar için `label`/`cta`/
    `run` YOKTUR — registry'ye girmeleri onları chip'e çevirmez (K5). */
-/* Köprü yoksa BAŞARI RAPORLANMAZ (§6.2). `window.x?.()` modül yüklü
-   değilken sessizce hiçbir şey yapar ve `true` döner: chip kaybolur,
-   kullanıcı bir şey olmasını bekler, hiçbir şey olmaz — aracın en sinsi
-   hâli, çünkü kimse bir hata görmez. `_ac` köprüyü ÖNCE yoklar; yoksa
-   `false` döner ve kullanıcı dürüst bir toast alır. */
-const _ac = (ad) => () => {
-  const fn = (typeof window !== 'undefined') ? window[ad] : null;
-  if (typeof fn !== 'function') return false;
-  fn();
-  return true;
-};
+/* Ritüel köprüsü — window'daki açıcıyı çağırır, yüklü DEĞİLSE `false` döner.
+   Eski kalıp açıcıyı `?.()` ile çağırıp koşulsuz `true` dönüyordu ve bu
+   sahte bir başarıydı (§6.2): ritüel yüklü olmadığında chip kapanıyor,
+   hiçbir şey açılmıyor, kullanıcı "oldu" sanıyordu. Oysa sözleşme zaten
+   dürüst hâli bekliyor — aracRunTool `false`'u `arac.fail` toast'ına çevirir.
 
-/* HAZIRLIK KAPISI (FAZ 10) — `hazir()` taşıyan bir aracın odası boşsa chip
-   HİÇ çizilmez. Gerekçe §1.1'in ölçüsüdür: chip bir vaattir ve tutulamayan
-   vaat kart olur, kaldıraç olmaz. Emsal repoda zaten var — 10A'nın
+   BİRLEŞME NOTU (2026-09-06): bu kırığı İKİ paralel oturum bağımsız buldu ve
+   aynı gerekçeyle düzeltti — biri `_ac`, öteki `_acRitual` adıyla. Merge'de
+   ikizi yaşatmak §1.3 ihlali olurdu; `_acRitual` kaldı çünkü main'de zaten
+   birleşmişti ve argüman geçirebiliyor. İki oturumun aynı kırığı aynı
+   gerekçeyle bulması, bulgunun kendisinin sağlamlığının kanıtıdır.
+
+   Neden window köprüsü, statik import değil: bu registry'nin KURULU kalıbı
+   odur (glGiveSozNow · oikOpenReading · igOpenKapi üçü de öyle) ve chip'in
+   sözleşmesi zaten koşulludur — "ritüel varsa aç". */
+function _acRitual(fnName, ...args) {
+  const fn = window[fnName];
+  if (typeof fn !== 'function') return false;
+  fn(...args);
+  return true;
+}
+
+/* HAZIRLIK KAPISI — `hazir()` taşıyan bir aracın odası boşsa chip HİÇ
+   çizilmez. Gerekçe §1.1'in ölçüsüdür: chip bir vaattir ve tutulamayan vaat
+   kart olur, kaldıraç olmaz. Emsal repoda zaten var — 10A'nın
    `gkSinanabilir`'i: "kapı yalnız o zaman çizilir". `hazir` yoksa araç daima
-   hazırdır (dört eski araç böyledir); throw ederse HAZIR DEĞİLDİR —
-   doğrulayamadığımız bir odayı açmayı vaat etmeyiz (§5.2 sessiz düşüş). */
+   hazırdır (dört eski araç ve main'den gelen ikisi böyledir); throw ederse
+   HAZIR DEĞİLDİR — doğrulayamadığımız bir odayı açmayı vaat etmeyiz
+   (§5.2 sessiz düşüş). `_acRitual` köprünün VARLIĞINI yoklar, `hazir()` ise
+   odanın DOLULUĞUNU: ikisi ayrı sorudur ve ikisi de gerekir. */
 function _hazirMi(def) {
   if (typeof def?.hazir !== 'function') return true;
   try { return !!def.hazir(); } catch (_) { return false; }
@@ -130,7 +142,7 @@ const _ARAC_DEFS = {
     marker: 'ARAC',
     label: () => t('arac.soz', 'Bugün somut bir söz vermeye hazır görünüyorsun.'),
     cta:   () => t('arac.soz_cta', 'SÖZ VER'),
-    run:   _ac('glGiveSozNow')
+    run:   () => _acRitual('glGiveSozNow')
   },
   not: {
     marker: 'ARAC',
@@ -143,25 +155,69 @@ const _ARAC_DEFS = {
     marker: 'ARAC',
     label: () => t('arac.gecis', 'Geçiş Alanı okuması bu ana iyi gelir.'),
     cta:   () => t('arac.gecis_cta', 'AÇ'),
-    run:   _ac('oikOpenReading')
+    run:   () => _acRitual('oikOpenReading')
   },
   imge: {
     marker: 'ARAC',
     label: () => t('arac.imge', 'İmgeni seç.'),
     cta:   () => t('arac.imge_cta', 'SEÇ'),
-    run:   _ac('igOpenKapi')
+    run:   () => _acRitual('igOpenKapi')
   },
 
-  /* ── FAZ 10 · ÜÇ YENİ ARAÇ — anlam ekseni LLM'in eline tamamlanır ──
-     `soz` zaten BRONZ'dur (Üç Mühür'ün söz vuruşu, 10u). Aşağıdaki üçü
-     ekseni kapatır: `gordun` LAPİS (gelecek/hayal — 10u'nun HAYAL mührü,
-     bugüne dek LLM'in elinde değildi), `sabir` iki kutup arasındaki YOL,
-     `ayna` ALTIN (şimdi/olduğun — "bende biriken sen").
-     Üçü de var olan törenlere TÜKETİCİ olarak bağlanır; hiçbiri yeni bir
-     motor açmaz (§1.3). Onay-chip'i ilkesi gevşetilmedi: LLM önerir,
-     mührü kullanıcı basar — `run` yalnız kapıyı AÇAR. */
+  /* ── FAZ 10 · YENİ ARAÇLAR — İKİ PARALEL OTURUMUN BİRLEŞMESİ (2026-09-06) ──
+     Bu faz iki dalda bağımsız uygulandı ve ikisi de main'e geldi. Seçtikleri
+     ritüeller farklıydı çünkü ÖLÇÜLERİ farklıydı ve ikisi de geçerli:
+       · "hangi AN boşta" → sürdürme · inanç · tekrar eden engel (PR #13)
+       · "anlam ekseni nerede eksik" → altın=şimdi · lapis=hayal · bronz=söz;
+         `soz` zaten bronzdu, lapis ve altın LLM'in elinde değildi (PR #12)
+     Birleşmede araçlar toplandı, ölçüler değil — iki ölçü de yorumda kalır
+     ki bir sonraki araç hangi soruyu sorması gerektiğini bilsin.
+
+     PREMIUM KAPILI RİTÜELLER DIŞARIDA (PR #13'ün kuralı, birleşmede korundu):
+     ücretsiz kullanıcıya önerilen bir chip paywall'a çıkarsa o bir kaldıraç
+     değil HUNİ olur (§1.1). */
+  /* [ARAC:yol] (13s Geçiş Yolu) BİLEREK YOK ve gerekçesi bir keşif hatasının
+     düzeltilmesidir. Faz onu önce ekledi; çapraz denetim `13s:27-29`'daki
+     sözleşmeyi gösterdi: "Studio-only (Wanderer Studio kararı, 2026-07-19) —
+     Wanderer (LLM) ücretsiz yüzünde yolculuk başlatılmaz." Yani mesele
+     abonelik değil YÜZEY: yolculuk Studio odasından başlar, sohbetten değil.
+     Chip tam bu kısıtı deliyordu ve `gyStart` (13s:97) kendi başına bir yüzey
+     kontrolü taşımıyor — kısıt yalnız ÇAĞIRANIN disiplinidir. Kısıt Emre'nin
+     kararıdır; tersine çevirmek de onun kararıdır, bu fazın değil. */
+  /* [ARAC:ayna] (09h Ayna Anı) DA BİLEREK YOK — ve bu, birleşmenin tek
+     GERİ ALINAN kararıdır. PR #12 onu ekledi ve `hazir()`'ini bilerek
+     `S.isPremium`'a bağlamadı; gerekçesi "chip'in cümlesi ücretsiz kullanıcı
+     için de DOĞRUDUR, teaser bunu dürüstçe söyler" idi. Gerekçe dürüsttü ama
+     ÖLÇÜSÜ yanlıştı: §1.1'in ölçüsü dürüstlük değil, kart mı kaldıraç mı
+     olduğudur. `09h:17-18` kendi başlığında yazar — "Studio-gate (S.isPremium)
+     + ücretsiz teaser". Sohbette önerilen bir chip'in ücretsiz kullanıcıyı
+     bir teaser'a bırakması, o chip'i bir huniye çevirir. PR #13'ün aynı fazda
+     bağımsızca vardığı kural burada geçerlidir ve benimkinin yerine geçer. */
+  inanc: {
+    marker: 'ARAC',
+    label: () => t('arac.inanc', 'Bunu söyleten bir inanç var. Onunla yalnız kalmak iyi gelir.'),
+    cta:   () => t('arac.inanc_cta', 'KENDİNLE KONUŞ'),
+    /* İKİ adım da köprü ister ve İKİSİ de önceden sınanır. Sırası kasıtlı:
+       `skOpen` çalışıp `skSelectSet` eksik kalsaydı kullanıcı set MENÜSÜNDE
+       kalırdı — chip "İnanç Kazma"yı vaat edip başka bir yere bırakırdı ve
+       `run` yine `true` derdi. Yarım açılan bir ritüel de sahte başarıdır. */
+    run:   () => {
+      if (typeof window.skSelectSet !== 'function') return false;
+      if (!_acRitual('skOpen')) return false;
+      window.skSelectSet('inanc');
+      return true;
+    }
+  },
+  engel: {
+    marker: 'ARAC',
+    label: () => t('arac.engel', 'Aynı yerde takılıyorsan, o yerin bir adı var.'),
+    cta:   () => t('arac.engel_cta', 'ATLASI AÇ'),
+    run:   () => _acRitual('engOpen')
+  },
   gordun: {
     marker: 'ARAC',
+    // LAPİS — Üç Mühür'ün HAYAL mührü (10E). Kısıtı yok: `10E` ne Studio-gate
+    // ne premium taşır (yukarıdaki `yol`/`ayna` gerekçelerinin tersine).
     // İki hâlde davet edilmez: pencerenin ardında OİK kartı yoksa tören içi
     // boştur, bugün zaten bakıldıysa HAYAL mührü çoktan düşmüştür — ikinci
     // davet bir tören değil bir menü olurdu.
@@ -170,15 +226,13 @@ const _ARAC_DEFS = {
       // !== 'empty'` yazmak burada sinsi bir kırıktı: 10E yüklü değilken
       // `undefined !== 'empty'` DOĞRU döner ve çalışamayacak bir chip
       // çizilirdi — kapının tam olarak engellemek için var olduğu şey.
-      // (`ayna` bu hâlde zaten doğru davranıyordu: `(undefined || []).some`
-      // false verir. Simetri kendiliğinden gelmedi, yazıldı.)
       if (typeof window.gorDayWindow !== 'function') return false;
       if (window.usGetTodayVision?.()) return false;
       return window.gorDayWindow().source !== 'empty';
     },
     label: () => t('arac.gordun', 'Bugün henüz o gözlerden bakmadın. Pencere açık.'),
     cta:   () => t('arac.gordun_cta', 'BAK'),
-    run:   _ac('gorOpen')
+    run:   () => _acRitual('gorOpen')
   },
   sabir: {
     marker: 'ARAC',
@@ -187,17 +241,7 @@ const _ARAC_DEFS = {
     // her an açılabilir; ön koşul yazmak onu ölçüye bağlamak olurdu.
     label: () => t('arac.sabir', '«Ne kadar» ölçülür, «ne zaman» bilinmez. Burada bir durak var.'),
     cta:   () => t('arac.sabir_cta', 'DUR'),
-    run:   _ac('yolOpenSabir')
-  },
-  ayna: {
-    marker: 'ARAC',
-    // Gösterilecek bir hipotez yoksa chip çizilmez: "sana bir şey
-    // göstereceğim" deyip boş bir oda açmak aracın kendi vaadini bozar
-    // (§6.2). 09h'nin boş dalı dürüsttür ama oraya DAVETLE gidilmez.
-    hazir: () => (window.ypGetHipotezler?.() || []).some(h => h?.durum === 'aday'),
-    label: () => t('arac.ayna', 'Bende biriken bir şey var. Göstereyim mi?'),
-    cta:   () => t('arac.ayna_cta', 'AYNAYA BAK'),
-    run:   _ac('ayOpen')
+    run:   () => _acRitual('yolOpenSabir')
   },
   // [KART] ve [NISAN] kayıtları SAF YAPRAKTA (13a1) — tüketicileri
   // (10B, 12e) onu doğrudan import eder ve döngü doğmaz; ikizi burada

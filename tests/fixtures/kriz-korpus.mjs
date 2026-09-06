@@ -59,7 +59,7 @@
      sinyal LLM teyidine hiç ulaşmaz — kapı o dilde tek katmanlıdır. Bunun
      bilinçli bir sınır mı bir borç mu olduğu repodan okunamaz; korpus onu
      UYDURMUYOR, sayıya bağlıyor: kapsamanın büyümesi serbest, DARALMASI
-     yasak (kalıp: tests/referans-butunlugu.test.js).
+     yasak (kalıp: tests/referans-butunlugu-kapisi.test.js).
 
    Kalıcılık: yok — statik test fixture'ı, saf veri, yan etkisi yok.
    Konvansiyon: `window.*` expose YOK (yalnız Node/vitest bağlamında import

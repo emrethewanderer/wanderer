@@ -19,7 +19,7 @@
      bitmişti, bekleyen sorgu bunu asla göremedi.
    Kalıcılık: Kalıcılık yok — statik tarama
    Konvansiyon: taban SIFIR; kapı büyümeyi yasaklar (kalıp:
-                tests/referans-butunlugu.test.js)
+                tests/referans-butunlugu-kapisi.test.js)
 ═══════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'fs';

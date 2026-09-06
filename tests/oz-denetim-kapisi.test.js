@@ -14,7 +14,7 @@
  * `uygulayici` çağrısı, `.claude/plans/opus-oz-denetimi.md` K2). Dördüncü bir
  * denetim turu (§3.7) kapısı olmadan aynı akıbete uğrar: raporun bir
  * başlığına döner, kimse koşup koşmadığını bilmez. Bu dosya o kapıdır —
- * kalıp `tests/referans-butunlugu.test.js`'in birebir aynısı: tarama
+ * kalıp `tests/referans-butunlugu-kapisi.test.js`'in birebir aynısı: tarama
  * motoru + TABAN listesi + kapının kendi self-test'i.
  *
  * TARAMA ALANI: `.claude/plans/` altındaki `*.md` dosyaları — YALNIZ o
@@ -346,7 +346,7 @@ describe('Opus öz-denetimi kapısı — kapının kendisi çalışıyor', () =>
   });
 
   it('(i) TABAN\'daki plana kayıt sonradan yazılırsa test KIRILMAZ — küçülmek serbest', () => {
-    // K3'ün ikinci yarısı ve emsalin (referans-butunlugu) aynı kuralı:
+    // K3'ün ikinci yarısı ve emsalin (referans-butunlugu-kapisi) aynı kuralı:
     // TABAN büyüyemez, ama borcunu ödeyen bir dosya ceza görmez.
     const dizin = fixtureKur({
       'eski-borc.md':

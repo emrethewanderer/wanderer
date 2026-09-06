@@ -6,7 +6,7 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
 > **Not — bu indeksin tarihçesi.** 2026-09-02'de genel denetim turunda
 > yeniden başlatıldı: repo snapshot'ında `MEMORY.md` ve `.claude/memories/`
 > yoktu ([[claude-altyapisi-commit-disi]]). Geriye 23 hedefsiz `[[bağ]]` kaldı
-> ve `tests/referans-butunlugu.test.js` bu borcu TABAN'da dondurdu.
+> ve `tests/referans-butunlugu-kapisi.test.js` bu borcu TABAN'da dondurdu.
 >
 > **Borç 2026-09-03'te kapatıldı** (`.claude/plans/hafiza-borcu-odemesi.md`):
 > 23 dosyanın hepsi **bugünkü koddan yeniden keşifle** yazıldı — özgün
@@ -21,6 +21,10 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   template'i tarar; kaçış tek kaynağı `escapeHTML`, taban `scripts/xss-taban.json`
 - [[kapi-tarama-yarisi]] — `js/` gezen denetçiler tasarım kapısının T7 geçici
   dosyası yüzünden ENOENT ile çökebilir; okuma yarışa dayanıklı yazılır
+- [[kapi-kapsami-deseni]] — `kapi:genel` bir desendir ama desen de bir ADA
+  bağlıdır: adı `kapisi` ile bitmeyen repo-geneli kapı faz kapısının dışında
+  kalır ve kırığı ancak CI'da doğar (Kapı #102). Ölçen kapı
+  `tests/kapi-kapsami-kapisi.test.js`; deseni `package.json`'dan okur
 - [[kapi-sessiz-gec]] — bir kapı kırığı değil kırığı GÖRME YETENEĞİNİ
   kaybettiğinde de kırmızı yanmalı: boş bulgu listesi "temiz" demek değil
   (tsc TS18003 exit 0 ile gelir); sınır ölçülerek çizilir
@@ -182,3 +186,9 @@ Her satır bir hafıza dosyasına işaret eder (`.claude/memories/<ad>.md`).
   registry 503'ü CI'ı kırmızı bastı, testlerin hepsi yeşildi. Üç kova
   tarayıcıya özel değil, HER kapının kuralı
 
+## Hafıza altyapısı
+- [[iki-hafiza-deposu]] — hafıza İKİ yerde yaşar: `.claude/hafiza/` lokalin
+  aynasıdır (`disa` kolu `rsync --delete` kullanır — oraya repo tarafından
+  yazılan dosya ilk senkronda silinir), `.claude/memories/` ise repo tarafında
+  koda karşı yazılandır. 24 ad ikisinde de var ve içerikleri farklı; hiçbiri
+  ötekinin yerine geçmez. Uzak oturumda hafıza `memories/` altına yazılır

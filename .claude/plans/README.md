@@ -62,9 +62,45 @@ aynı şey değildir ve öyle sunulmaz.
 Kalan dokuzda bu iki kaynaktan ikisi de yok: raporları ya hiç yayımlanmadı ya
 da faz kırılımını taşımıyor.
 
+## İkinci dalga: hafıza devrinin getirdiği elli sekiz ad (2026-09-05)
+
+Hafızanın git takipli türevi (`.claude/hafiza/`, 195 dosya) repoya taşındığında
+beraberinde kendi `[[bağ]]`larını ve plan göndermelerini getirdi. Bunların
+**48 planı ve 10 hafıza adı** repoda yok.
+
+**Borç büyümedi — görünürlüğü büyüdü.** Bu planlar repoda dün de yoktu; dün
+onlara işaret eden bir dosya yoktu, bugün var. Yukarıdaki dokuzla **aynı
+sınıftır**: lokalde yazılmış, commit edilmemiş planlar (§10.1). Sebep aynı,
+"neden yeniden yazılmıyorlar" gerekçesi aynı (§6.10: kanıtı olmayan değer
+yoktur; bir planın onaylanan kararları koddan çıkarılamaz).
+
+Adların tam listesi **tek yerde** durur — `tests/referans-butunlugu-kapisi.test.js`
+içindeki TABAN'ın `2026-09-05 · hafıza devri` bloğu. Buraya kopyalanmaz:
+iki liste bir arada bayatlar ve hangisinin gerçek olduğu belirsizleşir (§1.3).
+
+Kaynakların dağılımı ölçüldü: 58 adın neredeyse tamamı hafızanın **kendi
+içinden** anılıyor (bir hafıza dosyası bir başkasına ya da bir plana bağ
+veriyor). Hafıza dışından yalnız üç kaynak var ve biri koddur:
+
+| Kaynak | Anılan | Not |
+|---|---|---|
+| `js/state/w2.js:26` | `olus-muhru.md` | mühür sözleşmesinin K1/K2/K3 beyanı bu plandaydı |
+| `.claude/plans/hafiza-borcu-odemesi.md` | `boot-nabzi.md` | bir önceki borç turunun kendi kaydı |
+| `TASINABILIR-ZEMIN.md` | `[[bagli-hafiza]]` | geçiş envanterinin "kırık giden" kalemi |
+
+### Dürüst uyarı — taban dokuzdan altmış yediye çıktı
+
+Bu bir tolerans değil bir **borç kaydıdır**. TABAN'ın kendi cümlesi sert ve
+geçerliliğini koruyor: *küçülmeyen taban bir kapı değil bir perdedir.* Ödeme
+yolu listeyi büyütmeye devam etmek değil, **planları repoya taşımaktır** —
+lokal makinede duruyorlarsa `.claude/plans/` altına commit etmek yeter ve
+kapı küçülmeyi serbest bırakır (hedefi sonradan yaratılan bir referans testi
+kırmaz). Taşınamayanlar için kural yukarıdaki gibidir: kayıp, kayıp olarak
+kalır ve burada adıyla durur.
+
 ## Kural
 
 **`.claude/` altındaki her insan yazısı commit edilir** (§10.3). Bir plan
 yazıldığı turda commit edilmezse, o plana yaslanan her test yorumu ve her
-denetçi başlığı sessizce hedefsiz kalır. Kapısı `tests/referans-butunlugu.test.js`:
+denetçi başlığı sessizce hedefsiz kalır. Kapısı `tests/referans-butunlugu-kapisi.test.js`:
 TABAN büyüyemez, yeni kırık referans testi kırar.

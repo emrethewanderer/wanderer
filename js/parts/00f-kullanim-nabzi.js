@@ -709,7 +709,7 @@ const _ARAC_OLAY = new Set(['oner', 'onayla', 'reddet']);
    yakaladı. 13a buradan import EDİLEMEZ (00f altyapı katmanıdır, 13a ise
    06/07/13-extras'ı çeker — döngü), o yüzden senkron bir KAPIYLA tutulur:
    `tests/arac-kumesi-kapisi.test.js` iki listeyi karşılaştırır. */
-const _ARAC_ARAC = new Set(['soz', 'not', 'gecis', 'imge', 'gordun', 'sabir', 'ayna']);
+const _ARAC_ARAC = new Set(['soz', 'not', 'gecis', 'imge', 'inanc', 'engel', 'gordun', 'sabir']);
 
 export function wtLogArac(olay, { arac } = {}) {
   if (!_inited || !_ARAC_OLAY.has(olay)) return;

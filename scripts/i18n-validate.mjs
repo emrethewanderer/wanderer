@@ -23,7 +23,7 @@ import { dirname, join, isAbsolute } from 'node:path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-/* --dizin <yol>: kapının KENDİSİNİ sınamak için (tests/i18n-parity.test.js
+/* --dizin <yol>: kapının KENDİSİNİ sınamak için (tests/i18n-parity-kapisi.test.js
    self-test) — yalnız TARANAN dil dizinini değiştirir; TR referansı
    (loadTrRefs, trDeckIds) yine gerçek ROOT'tan okunur, çünkü "doğru" o
    sabit kalmalı. tasarim-denetci.mjs ve gerceklik-denetci.mjs'in aynı adı

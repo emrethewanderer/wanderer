@@ -14,7 +14,7 @@ type: karar
 >
 > **Kayıp olan:** kararın mimarisi ve fazları. Denetçinin banner'ı kaynağı
 > `.claude/plans/ihtimalsel-dil-devrimi.md` diye gösteriyor, ama **o plan
-> dosyası da repoda yok** (`tests/referans-butunlugu.test.js` TABAN'ında
+> dosyası da repoda yok** (`tests/referans-butunlugu-kapisi.test.js` TABAN'ında
 > donmuş bir borç). Yani "devrim"in kaç fazda yürüdüğü, hangi kararların
 > alındığı okunamıyor. Bu dosya onun yerine geçmez — **bugünkü kuralı ve
 > kapısını** belgeler.

@@ -17,7 +17,7 @@ import { ensureExt } from './00-ext-loader.js';
    kapısına bağlıdır (bkz. .claude/plans/tum-diller-native-2.md §0.5). v1'de
    11 dile yarım-parite (~%13 anahtar) ile genişleme denenmiş ve geri
    alınmıştı — v2 "dil-dil tam native" modeliyle bunu yapısal olarak
-   imkânsız kılar (tests/i18n-parity.test.js kapısı).
+   imkânsız kılar (tests/i18n-parity-kapisi.test.js kapısı).
 ═══════════════════════════════════════ */
 
 export const I18N_LANGS = {

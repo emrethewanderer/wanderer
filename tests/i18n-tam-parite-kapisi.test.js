@@ -3,7 +3,7 @@
  *
  * Denetim B5 (2026-09-01): parite bugün kusursuzdu (3.520 = 3.520, iki yönde
  * sıfır boşluk) ama onu koruyan kapı YOKTU. `tests/15-i18n-aria.test.js`
- * yalnız `aria.*` önekini karşılaştırıyor, `tests/i18n-parity.test.js` ise
+ * yalnız `aria.*` önekini karşılaştırıyor, `tests/i18n-parity-kapisi.test.js` ise
  * DIŞ diller için yazılmış ve tr/en core dosyalarda yaşadığı için dürüstçe
  * "kapı boşta bekliyor" diyor. Yani 3.520 anahtarın kusursuz paritesi
  * tesadüfe emanetti: bir sonraki eklemede sessizce bozulabilirdi.
