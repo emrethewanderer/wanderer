@@ -394,9 +394,19 @@ Devir: 🅞 — "3 ✕ → bugün sus" eşiğinin sayısı ve sözleşmenin öz�
 (Gözlemevi sorgusu) veriye bağlıdır; kural tarafı bugün yazılabilir.
 
 ### FAZ 18 — Ölü import temizliği + kapısı · 🅢 · ~1 oturum
-Opus öz-denetiminde (2026-09-05) ÖLÇÜLDÜ: `js/parts` altında **123 ölü
-named import / 21 dosya**. Sayı bir alt sınırdır — tarayıcı JS `\b`'sinin
-ASCII sınırı yüzünden Türkçe harfle biten adları kaçırabilir; şişmiyor.
+Opus öz-denetiminde (2026-09-05) ÖLÇÜLDÜ: `js/parts` altında 123 ölü named
+import / 21 dosya. **Merge sonrası yeniden ölçüldü (2026-09-06): 121 / 20** —
+PR #13 ve #14 ikisini kendiliğinden temizlemiş. Sayı bir ALT SINIRDIR ve
+yönü bilinçlidir: tarayıcı ölü bir importu kaçırabilir, ama canlı olanı ölü
+SANMAZ (kör nokta defteri betikte yazılı). Şişmez, eksilir.
+
+**Tarayıcı yazıldı:** `scripts/olu-import-denetci.mjs` — `--liste` /
+`--taban-yaz` / `--dizin` kolları, emsal `scripts/ihtimalsel-denetci.mjs`.
+Bedelin ne olduğu da orada yazılı ve bundle DEĞİL: rollup zaten tree-shake
+ediyor. Bedel OKUMADIR — `13a` `etiketCoz`'u import edip kullanmıyordu, yani
+dosyayı açan herkes "burada etiket çözülüyor" sanıyordu; oysa o iş FAZ 9'da
+saf yaprağa taşınmıştı. **Ölü import bir performans borcu değil, yanlış bir
+haritadır.**
 **Yeni:** `tests/olu-import-kapisi.test.js` (adı `*-kapisi` olduğu için
 `kapi:genel` desenine kendiliğinden girer) + tarama motoru.
 **Değişen:** 21 dosyanın import satırları.
